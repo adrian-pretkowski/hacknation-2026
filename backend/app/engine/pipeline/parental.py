@@ -10,7 +10,7 @@ MAT-DUR-002, MAT-SHARE-007, PAR-SHARE-001/002, PAR-COND-001, PAR-WORK-001. ``ret
 segmencie urlopu każdego rodzica (KP art. 186(4)).
 
 Bez segmentów w planie rodzicielski matki jest propozycją od dnia po urlopie macierzyńskim (``period.from``,
-``max_weeks`` = pula, kwota dzienna) — bez ``to`` i sumy, bo podział puli między rodziców wybiera rodzina (D24).
+``max_weeks`` = pula, kwota dzienna) — bez ``to`` i sumy, bo podział puli między rodziców wybiera rodzina (D25).
 """
 from __future__ import annotations
 
@@ -143,7 +143,7 @@ class _Benefit:
         return result
 
     def proposal(self, start: date | None, rate_rules: list[str]) -> dict[str, Any]:
-        """Bez segmentów planu: stawka i kwota dzienna propozycji od ``start`` (D24)."""
+        """Bez segmentów planu: stawka i kwota dzienna propozycji od ``start`` (D25)."""
         eng, ctx = self.eng, self.eng.ctx
         _set_segment(eng, {"parent": applicant_parent(eng), "leave_type": self.leave_type,
                            "from": start.isoformat() if start else None, "to": None})
@@ -511,7 +511,7 @@ def _transfer_benefit(eng: Engine, leave_type: str, rule_ids: list[str], own: li
     elif main.unknown:
         b.ask(main)
     else:
-        # podstawy szczególne (MAT-SHARE-002/004/005) bez danych o matce — nie dotyczą (D24); podstawowa FALSE
+        # podstawy szczególne (MAT-SHARE-002/004/005) bez danych o matce — nie dotyczą (D25); podstawowa FALSE
         b.eligible = False
         b.use(main.rule_id)
         if main.rule_id == "MAT-SHARE-001":
@@ -552,7 +552,7 @@ def plan_errors(eng: Engine) -> list[dict[str, Any]]:
 def reserved_weeks_review(eng: Engine, benefits: list[dict[str, Any]], errors: list[dict[str, Any]]) -> None:
     """GAP-016: błąd 9 tygodni (PAR-SHARE-001), gdy matka nie ma tytułu do ubezpieczenia
     (``mother.sickness_insured`` = false) — rezerwacja nie jest pewna → rodzicielski NEEDS_REVIEW. Dla wnioskującej
-    matki 04 nie zawiera danych drugiego rodzica — ten wariant nie jest oceniany (D24)."""
+    matki 04 nie zawiera danych drugiego rodzica — ten wariant nie jest oceniany (D25)."""
     if not any(e["rule_id"] == "PAR-SHARE-001" for e in errors):
         return
     if eng.ctx.field("mother.sickness_insured") is not False:

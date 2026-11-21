@@ -7,6 +7,7 @@ import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
 import type { Answers } from "./answers";
 import { Check, Choice, Field, NumberSelect, Slider, TRI_OPTIONS, inputCls } from "./fields";
+import { Optimizer, optimizerVisible } from "./Optimizer";
 import { ZusFetch } from "./ZusFetch";
 
 const plYears = (n: number) => `${n} ${n === 1 ? "rok" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "lata" : "lat"}`;
@@ -369,5 +370,14 @@ export const STEPS: Step[] = [
           onChange={(salaryGross) => set({ salaryGross })} />
       </div>
     ),
+  },
+  {
+    id: "optimize",
+    title: "Optymalizacja",
+    visible: optimizerVisible,
+    complete: () => true,
+    summary: (a) => (a.plannerApplied ? "Plan zastosowany"
+      : a.plannerChoices.length ? `Wybrane decyzje: ${a.plannerChoices.length}` : null),
+    render: ({ a, set }) => <Optimizer a={a} set={set} />,
   },
 ];
