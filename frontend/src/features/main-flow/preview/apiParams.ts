@@ -1,6 +1,6 @@
 "use client";
 
-// FE1-33: parametry podglądu z API (GET /api/admin/parameters) - zmiana w panelu admina jest widoczna w kreatorze
+// FE1-37: parametry podglądu z API (GET /api/admin/parameters) - zmiana w panelu admina jest widoczna w kreatorze
 // bez przebudowy frontendu. Wartości z `params.ts` (kopia 03) zostają tylko jako zapas, gdy API nie odpowiada
 // albo działa tryb demo bez backendu. Typ każdej wartości musi zgadzać się z kopią (liczba / tekst / tabela).
 import { useSyncExternalStore } from "react";

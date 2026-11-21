@@ -31,13 +31,13 @@ export type Answers = {
   childBirthDate: string;
   /** FE1-26: data uprawomocnienia postanowienia o przysposobieniu - od niej 12 mies. na ojcowski (PAT-DUR-001). */
   adoptionFinalDate: string;
-  /** BE1-09, FE1-35: data wniosku do sądu o przysposobienie (MAT-ELIG-002) - bez niej silnik pyta, nie odmawia. */
+  /** BE1-09, FE1-39: data wniosku do sądu o przysposobienie (MAT-ELIG-002) - bez niej silnik pyta, nie odmawia. */
   courtApplicationDate: string;
-  /** FE1-35: mama w ciąży na zwolnieniu lekarskim (L4) - zasiłek chorobowy w ciąży (event PREGNANCY_INCAPACITY). */
+  /** FE1-39: mama w ciąży na zwolnieniu lekarskim (L4) - zasiłek chorobowy w ciąży (event PREGNANCY_INCAPACITY). */
   sickLeave: Tri;
   sickLeaveFrom: string;
   sickLeaveTo: string;
-  /** FE1-35: wcześniejsze zwolnienia w tym roku (NO → historia pusta, 0 dni wynagrodzenia chorobowego). */
+  /** FE1-39: wcześniejsze zwolnienia w tym roku (NO → historia pusta, 0 dni wynagrodzenia chorobowego). */
   sickLeaveEarlier: Tri;
   schoolDeferred: Tri;
   title: Title | null;

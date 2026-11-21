@@ -6,7 +6,7 @@ import { CasesPage } from "@/features/sample-applications/SampleApplications";
 
 export const metadata: Metadata = { title: "Przykładowe wnioski i weryfikacja ubezpieczenia · Przewodnik Przyszłego Rodzica" };
 
-// FE1-34: przykładowe wnioski - wybór lub upload, weryfikacja ubezpieczenia, porównanie z decyzją (BE2-06).
+// FE1-38: przykładowe wnioski - wybór lub upload, weryfikacja ubezpieczenia, porównanie z decyzją (BE2-06).
 export default function CasesRoute() {
   return (
     <>
