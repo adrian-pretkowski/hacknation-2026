@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from app.core.params import param, param_status
 from app.engine import pipeline
+from app.engine.pipeline import ruleset
 
 
 # ------------------------------------------------------------ M07: płaca minimalna 4806 zł potwierdzona
@@ -116,3 +117,18 @@ def test_m10_rate_mat_007_missing_base_needs_data_not_review(demo_payload):
     body = pipeline.evaluate(payload)
     assert body["benefits"][0]["status"] == "NEEDS_DATA"
     assert "RATE-MAT-007" not in body["benefits"][0]["applied_rules"]
+
+
+# ------------------------------------------------------------ M11: ojciec przejmuje 81,5% (RATE-MAT-008)
+def test_m11_rate_mat_008_active_father_gets_combined_rate():
+    rule = ruleset().rule("RATE-MAT-008")
+    assert rule["evaluation"] == "ACTIVE"
+    assert rule["result"]["set"]["rate"] == {"param": "MAT_RATE_COMBINED"}
+    assert param("MAT_RATE_COMBINED") == Decimal("0.815")
+
+
+def test_m11_father_9_weeks_and_after_first_year_stay_70():
+    """Granice: 9 tyg. ojca (RATE-MAT-008 wymaga segmentu poza 9 tyg.) i po 1. roku życia (RATE-MAT-005 nadpisuje)."""
+    conditions = ruleset().rule("RATE-MAT-008")["conditions"]["all"]
+    assert {"fact": "f_segment_is_other_parent_reserved_9w", "operator": "eq", "value": False} in conditions
+    assert "RATE-MAT-008" in ruleset().rule("RATE-MAT-005")["overrides"]

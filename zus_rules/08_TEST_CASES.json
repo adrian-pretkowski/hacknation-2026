@@ -2971,11 +2971,11 @@
   },
   {
    "test_id": "T-RATE-006",
-   "kind": "MISSING_DATA",
+   "kind": "POSITIVE",
    "rule_ids": [
     "RATE-MAT-008"
    ],
-   "description": "Ojciec bierze część rodzicielskiego (poza 9 tyg.) przy 81,5% matki → NEEDS_REVIEW",
+   "description": "Ojciec bierze część rodzicielskiego (poza 9 tyg.) przy 81,5% matki → 81,5% (M11)",
    "fixture": "employee_mother",
    "patch": {
     "person": {
@@ -3002,16 +3002,13 @@
     "leave_type": "PARENTAL_LEAVE"
    },
    "expected": {
-    "status": "NEEDS_REVIEW",
-    "reasons_contain": [
-     "FATHER_RATE_UNDER_MOTHER_815"
-    ]
+    "rate": "0.815"
    },
    "legal_basis": [
     "USTAWA art. 30a ust. 3, art. 31 ust. 3"
    ],
    "assumptions": [
-    "CONF / Q-LEG-03"
+    "M11 (2026-11-21, mentor fachowy): ojciec przejmuje stawkę 81,5% — RATE-MAT-008 ACTIVE (wcześniej Q-LEG-03 / NEEDS_REVIEW)"
    ]
   },
   {

@@ -50,7 +50,7 @@ Wpływ na MVP: **H** — blokuje część demo lub poprawność kwot; **M** — 
 |---|---|---|
 | Q-LEG-01 | Czy potwierdzają brak okresu wyczekiwania dla zasiłku macierzyńskiego (dobrowolne chorobowe JDG zgłoszone np. 30 dni przed porodem)? | MAT-CLS-001 |
 | Q-LEG-02 | Czy ojciec musi podlegać ubezpieczeniu chorobowemu w dniu rozpoczęcia swojej części rodzicielskiego, czy w dniu porodu? | PAR-ELIG-001, PAR-SHARE-003 |
-| Q-LEG-03 | Jaką stawkę otrzymuje ojciec za część rodzicielskiego (poza 9 tyg.) przy wniosku 81,5% złożonym przez matkę? | RATE-MAT-008 |
+| Q-LEG-03 | Jaką stawkę otrzymuje ojciec za część rodzicielskiego (poza 9 tyg.) przy wniosku 81,5% złożonym przez matkę? — **odpowiedź M11: 81,5%** (RATE-MAT-008 ACTIVE) | RATE-MAT-008 |
 | Q-LEG-04 | Interpretacja „przerwy krótszej niż miesiąc kalendarzowy” (art. 43) — **odpowiedź M05: pełny miesiąc kalendarzowy** | BASE-GEN-001 |
 | Q-LEG-05 | Zasady zaokrągleń stosowane w decyzjach ZUS (podstawa, stawka dzienna, kwota) | wszystkie CALC |
 | Q-LEG-06 | Minimalna podstawa 2026 i kwota świadczenia rodzicielskiego do parametrów | BASE-EMP-008, RATE-MAT-007 |

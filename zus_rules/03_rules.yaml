@@ -2613,7 +2613,7 @@ rules:
   result: {set: {rate: {param: MAT_RATE_PARENTAL}}}
   exceptions: []
   dependencies: [RATE-MAT-003]
-  overrides: [RATE-MAT-003]
+  overrides: [RATE-MAT-003, RATE-MAT-008]
   required_inputs: [plan.segments, children.birth_dates]
   missing_data_behavior: NEEDS_DATA
   evaluation: ACTIVE
@@ -2678,7 +2678,7 @@ rules:
 
 - id: RATE-MAT-008
   name: "Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki"
-  description: "Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); stawka dla ojca w tej części nie wynika jednoznacznie z wyciągu."
+  description: "Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5% (ustalenie z mentorem M11)."
   category: PARENTAL
   rule_type: RATE
   legal_basis: {document: USTAWA, article: "30a; 31", paragraph: "30a ust. 3; 31 ust. 3", point: null}
@@ -2693,18 +2693,18 @@ rules:
       - {field: segment.leave_type, operator: eq, value: PARENTAL_LEAVE}
       - {fact: f_combined_application_within_deadline, operator: eq, value: true}
       - {fact: f_segment_is_other_parent_reserved_9w, operator: eq, value: false}
-  result: {status: NEEDS_REVIEW, reason_code: FATHER_RATE_UNDER_MOTHER_815}
+  result: {set: {rate: {param: MAT_RATE_COMBINED}}, reason_code: FATHER_RATE_815_SHARED}
   exceptions: []
   dependencies: [RATE-MAT-003]
   overrides: []
   required_inputs: [plan.segments, applications.combined_815_filed_date]
-  missing_data_behavior: NEEDS_REVIEW
-  evaluation: BLOCKED
-  confidence: LOW
-  interpretation_status: AMBIGUOUS
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
   implementation_priority: P1
-  automation_status: HUMAN_REVIEW
-  notes: "Kandydaci: 81,5% (wniosek dotyczy 'całego okresu') vs 70% (wniosek złożyła matka, ojciec nie składał). Pytanie do mentora Q-LEG-03. Planer pokazuje oba warianty z etykietą 'do potwierdzenia'."
+  automation_status: AUTOMATABLE
+  notes: "Odblokowana po odpowiedzi mentora M11 (2026-11-21): ojciec przejmuje stawkę 81,5% za część rodzicielskiego poza swoimi 9 tygodniami (wniosek matki dotyczy całego okresu, art. 30a ust. 3). 9 tygodni ojca — 70% (RATE-MAT-004); po 1. roku życia — 70% (RATE-MAT-005). Wcześniej Q-LEG-03 / NEEDS_REVIEW."
 
 # =====================================================================
 # APP — wnioski i terminy

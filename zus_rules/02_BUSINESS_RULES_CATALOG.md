@@ -107,7 +107,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [RATE-MAT-002](#rate-mat-002) | 70% — urlop rodzicielski (wariant standardowy) | RATE | P0 | ACTIVE | HIGH | DIRECT | 1 |
 | [RATE-MAT-004](#rate-mat-004) | 70% — 9 tygodni drugiego rodzica przy wniosku 81,5% | RATE | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [RATE-MAT-005](#rate-mat-005) | 70% za rodzicielski, gdy w 1. roku życia nie wykorzystano ani dnia | RATE | P0 | ACTIVE | HIGH | DIRECT | 1 |
-| [RATE-MAT-008](#rate-mat-008) | Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki | RATE | P1 | BLOCKED | LOW | AMBIGUOUS | 1 |
+| [RATE-MAT-008](#rate-mat-008) | Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki | RATE | P1 | ACTIVE | MEDIUM | DERIVED | 1 |
 | [PAT-ELIG-001](#pat-elig-001) | Zasiłek za okres urlopu ojcowskiego — ubezpieczony ojciec | ELIGIBILITY | P0 | ACTIVE | MEDIUM | DERIVED | 1 |
 | [PAT-DUR-001](#pat-dur-001) | Urlop ojcowski — 2 tygodnie, maks. 2 części ≥1 tydz., do 12 miesięcy życia dziecka | DURATION | P0 | ACTIVE | HIGH | DIRECT | 3 |
 | [BASE-EMP-001](#base-emp-001) | Podstawa pracownika — średnia z 12 miesięcy kalendarzowych | CALCULATION | P0 | ACTIVE | HIGH | DIRECT | 1 |
@@ -2136,7 +2136,7 @@ Jeśli w pierwszym roku życia dziecka nie wykorzystano ani jednego dnia zasiłk
     - `segment.leave_type` **eq** PARENTAL_LEAVE
     - `f_any_parental_day_in_first_year` **eq** False
 - **Rezultat:** `{"set": {"rate": {"param": "MAT_RATE_PARENTAL"}}}`
-- **Wyjątki:** — · **Zależy od:** RATE-MAT-003 · **Ma pierwszeństwo przed:** RATE-MAT-003
+- **Wyjątki:** — · **Zależy od:** RATE-MAT-003 · **Ma pierwszeństwo przed:** RATE-MAT-003, RATE-MAT-008
 - **Dane:** `plan.segments`, `children.birth_dates` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-RATE-005
@@ -2144,9 +2144,9 @@ Jeśli w pierwszym roku życia dziecka nie wykorzystano ani jednego dnia zasiłk
 
 ### RATE-MAT-008
 
-**Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki** — `RATE` · P1 · HUMAN_REVIEW · eval: **BLOCKED**
+**Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki** — `RATE` · P1 · AUTOMATABLE · eval: **ACTIVE**
 
-Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); stawka dla ojca w tej części nie wynika jednoznacznie z wyciągu.
+Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5% (ustalenie z mentorem M11).
 
 - **Podstawa:** USTAWA — USTAWA art. 30a ust. 3; art. 31 ust. 3
 - **Fragment:** „ubezpieczona - matka dziecka może dzielić się z ubezpieczonym - ojcem dziecka korzystaniem z zasiłku macierzyńskiego za okres ... urlopu rodzicielskiego”
@@ -2157,12 +2157,12 @@ Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okre
     - `segment.leave_type` **eq** PARENTAL_LEAVE
     - `f_combined_application_within_deadline` **eq** True
     - `f_segment_is_other_parent_reserved_9w` **eq** False
-- **Rezultat:** `{"status": "NEEDS_REVIEW", "reason_code": "FATHER_RATE_UNDER_MOTHER_815"}`
+- **Rezultat:** `{"set": {"rate": {"param": "MAT_RATE_COMBINED"}}, "reason_code": "FATHER_RATE_815_SHARED"}`
 - **Wyjątki:** — · **Zależy od:** RATE-MAT-003 · **Ma pierwszeństwo przed:** —
-- **Dane:** `plan.segments`, `applications.combined_815_filed_date` · brak danych → `NEEDS_REVIEW`
-- **Jakość:** pewność LOW, interpretacja AMBIGUOUS
+- **Dane:** `plan.segments`, `applications.combined_815_filed_date` · brak danych → `NEEDS_DATA`
+- **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** T-RATE-006
-- **Uwagi:** Kandydaci: 81,5% (wniosek dotyczy 'całego okresu') vs 70% (wniosek złożyła matka, ojciec nie składał). Pytanie do mentora Q-LEG-03. Planer pokazuje oba warianty z etykietą 'do potwierdzenia'.
+- **Uwagi:** Odblokowana po odpowiedzi mentora M11 (2026-11-21): ojciec przejmuje stawkę 81,5% za część rodzicielskiego poza swoimi 9 tygodniami (wniosek matki dotyczy całego okresu, art. 30a ust. 3). 9 tygodni ojca — 70% (RATE-MAT-004); po 1. roku życia — 70% (RATE-MAT-005). Wcześniej Q-LEG-03 / NEEDS_REVIEW.
 
 
 ## Urlop ojcowski
