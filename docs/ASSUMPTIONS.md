@@ -20,3 +20,4 @@ Pytania do mentorów i ich odpowiedzi: **`docs/mentors.md`** (M01–M17). Luki p
 | A5 | Podstawa wymiaru w slice wpisywana ręcznie | `slice_v0` | BE2-03 |
 | A6 | Progi ostrzeżeń o ryzykach (90 dni, +50%) - projektowe, nie prawne; **M17 (2026-11-21): pokazujemy jako ostrzeżenie** | RISK-001/002 | - |
 | A7 | Deploy publiczny na Vercel + Render (lub VM z compose) | INT-02 | decyzja lidera |
+| A8 | Lista dni wolnych od pracy 2026–2031 (`public_holidays.yaml`) - status CONFIRMED to **potwierdzenie organizacyjne lidera** (2026-11-21), nie mentora fachowego; ustawa o dniach wolnych od pracy niezałączona do materiałów. Zmiany listy - panel admina (D37) | `PUBLIC_HOLIDAYS`, APP-DL-001 | FE1-29 |

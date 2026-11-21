@@ -883,6 +883,7 @@ export interface components {
             base_parameters_version: number;
             changes: {
                 name: string;
+                /** @description W typie wartości parametru - liczba jako string dziesiętny, liczba całkowita, tabela z tymi samymi kluczami albo lista dat RRRR-MM-DD (PUBLIC_HOLIDAYS - zastępuje całą listę, D37) */
                 value: unknown;
                 /** Format: date */
                 valid_from?: string | null;
