@@ -5,6 +5,7 @@ import { MatchedFormPicker } from "@/features/documents/FormPicker";
 import { type FormCode, formsForDocTypes } from "@/features/documents/forms";
 import { API_MODE, type EvaluateResponse, evaluate } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
+import { RuleList, RuleText } from "../RuleList";
 import { type PreviewResult, type Seg, compareTotals, negligible, previewEvaluate } from "../preview/engine";
 import { daysBetween } from "../preview/exact";
 import type { Answers, Variant } from "./answers";
@@ -177,7 +178,7 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
     document.getElementById(`tl-bar-${next}`)?.focus();
   };
   const detail = active !== null ? segments[active] : null;
-  const errorLine = (e: PlanErrors[number]) => `Plan do poprawy: ${PLAN_ERROR[e.code] ?? e.code} (${e.rule_id})`;
+  const errorLine = (e: PlanErrors[number]) => <>Plan do poprawy: {PLAN_ERROR[e.code] ?? e.code}<RuleText entry={e.rule_id} className="block text-xs" /></>;
   return (
     <section className={card} aria-labelledby="tl-h">
       <h3 id="tl-h" className="text-lg font-semibold">Oś czasu</h3>
@@ -346,7 +347,7 @@ function RiskRadar({ response }: { response: EvaluateResponse }) {
       <ul className="mt-3 space-y-2">
         {list.map((w, i) => (
           <li key={i} className={`flex gap-3 border-l-4 bg-zus-gray-50 px-3 py-2 text-sm ${SEVERITY[w.severity].cls}`}>
-            <span><span className="font-medium">{SEVERITY[w.severity].label}: </span>{w.message} <span className="text-xs opacity-70">({w.rule_id})</span></span>
+            <span><span className="font-medium">{SEVERITY[w.severity].label}: </span>{w.message} <RuleText entry={w.rule_id} className="mt-0.5 block text-xs opacity-80" /></span>
           </li>
         ))}
       </ul>
@@ -429,13 +430,13 @@ function CalcDetails({ p }: { p: PreviewResult }) {
       <ul className="mt-3 space-y-1 text-sm">
         {r.benefits.filter((b) => b.total_amount_exact).map((b) => (
           <li key={`${b.leave_type}-${b.period?.from}`}>{LEAVE_LABEL[b.leave_type ?? ""]}: {b.days} dni × stawka dzienna = <strong>{formatMoney(b.total_amount_exact)}</strong>
-            <span className="block text-xs text-zinc-600">reguły: {b.applied_rules.join(", ")}</span></li>
+            <span className="block text-xs text-zinc-600">Przepisy:</span><RuleList ids={b.applied_rules} className="text-xs text-zinc-600" /></li>
         ))}
       </ul>
       <ul className="mt-3 list-disc pl-5 text-xs text-zinc-600">
         {r.assumptions.map((a) => <li key={a.code}>{a.text}</li>)}
         <li>Tydzień = 7 dni, miesiąc = 30 dni (zasiłek za dzień = 1/30 kwoty miesięcznej). Kwoty brutto, przed zaliczką PIT.</li>
-        <li>Jeszcze nieoceniane: {r.not_evaluated_rules.join(", ")}.</li>
+        {r.not_evaluated_rules.length > 0 && <li>Jeszcze nieoceniane:<RuleList ids={r.not_evaluated_rules} className="mt-1" /></li>}
       </ul>
     </details>
   );

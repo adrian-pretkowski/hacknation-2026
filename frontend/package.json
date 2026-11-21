@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "gen:rules": "..\\backend\\.venv\\Scripts\\python ../scripts/gen_rule_labels.py",
     "gen:api": "openapi-typescript ../contracts/openapi.yaml --default-non-nullable false -o src/lib/api-types.ts",
     "typecheck": "next typegen && tsc --noEmit"
   },

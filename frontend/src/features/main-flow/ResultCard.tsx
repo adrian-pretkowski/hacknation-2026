@@ -1,5 +1,7 @@
 import type { Benefit, EvaluateResponse } from "@/lib/api";
 import { STATUS_LABEL, formatDate, formatMoney, formatRate } from "@/lib/format";
+import { ruleLabel } from "@/lib/rules";
+import { RuleList } from "./RuleList";
 
 const STATUS_STYLE: Record<string, string> = {
   ELIGIBLE: "bg-emerald-100 text-emerald-900",
@@ -29,7 +31,8 @@ function BenefitCard({ benefit }: { benefit: Benefit }) {
           <li key={reason.code} className="rounded bg-zinc-50 p-2">
             {reason.message}
             <span className="block text-xs text-zinc-500">
-              {reason.rule_id} · {reason.legal_basis?.map((l) => `${l.document} ${l.location}`).join("; ")}
+              {ruleLabel(reason.rule_id)?.name ?? reason.rule_id} · {reason.legal_basis?.map((l) => `${l.document} ${l.location}`).join("; ") || ruleLabel(reason.rule_id)?.basis}
+              {ruleLabel(reason.rule_id) && <span className="block">{ruleLabel(reason.rule_id)!.description}</span>}
             </span>
           </li>
         ))}
@@ -51,7 +54,7 @@ export function ResultCard({ result }: { result: EvaluateResponse }) {
       <details className="text-xs text-zinc-600">
         <summary className="cursor-pointer">Założenia i ograniczenia tej wersji ({result.engine})</summary>
         <ul className="mt-2 list-disc pl-5">{result.assumptions.map((a) => <li key={a.code}>{a.text}</li>)}</ul>
-        <p className="mt-2">Jeszcze nieoceniane reguły: {result.not_evaluated_rules.join(", ")}</p>
+        {result.not_evaluated_rules.length > 0 && <div className="mt-2">Jeszcze nieoceniane przepisy:<RuleList ids={result.not_evaluated_rules} /></div>}
       </details>
     </section>
   );
