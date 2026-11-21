@@ -3232,11 +3232,11 @@ rules:
   required_inputs: [benefit_history.previous_benefit_end_date, benefit_history.previous_base_amount, base.reference_event_date]
   missing_data_behavior: NEEDS_DATA
   evaluation: ACTIVE
-  confidence: MEDIUM
+  confidence: HIGH
   interpretation_status: DERIVED
   implementation_priority: P0
-  automation_status: PARTIALLY_AUTOMATABLE
-  notes: "Typowo: zasiłek chorobowy w ciąży → macierzyński bez przerwy = ta sama podstawa (ważne dla demo). 'Miesiąc kalendarzowy' — pełny miesiąc kalendarzowy (1.–ostatni) czy okres miesiąca? Załącznik: 'min. 1 miesiąc' (CONF-006). Wersja automatyczna tylko dla przerwy = 0 dni; przerwa 1–31 dni → NEEDS_REVIEW."
+  automation_status: AUTOMATABLE
+  notes: "Typowo: zasiłek chorobowy w ciąży → macierzyński bez przerwy = ta sama podstawa (ważne dla demo). 'Miesiąc kalendarzowy' = pełny miesiąc od 1. do ostatniego dnia — ustalenie z mentorem fachowym ZUS (M05, 2026-11-21; CONF-006 rozstrzygnięty). Podstawę ustala się na nowo tylko, gdy przerwa obejmuje cały miesiąc kalendarzowy; przerwa dłuższa niż 31 dni bez pełnego miesiąca (np. 2.02–14.03) → ta sama podstawa."
 
 - id: BASE-GEN-002
   name: "Maksymalna podstawa zasiłku chorobowego po ustaniu tytułu"

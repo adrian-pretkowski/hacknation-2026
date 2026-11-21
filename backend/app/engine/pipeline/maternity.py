@@ -132,6 +132,22 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                        f"{deadline.isoformat()}.", "art. 31 ust. 1; art. 30a ust. 1")
     ctx.state["rate"] = rate
 
+    # Krok 6: podstawa — art. 43 (BASE-GEN-001): ta sama podstawa, gdy przerwa nie obejmuje pełnego miesiąca
+    # kalendarzowego (M05); ręczna podstawa ma pierwszeństwo, bez historii zasiłków reguła nie dotyczy
+    manual = ctx.field("income_history.manual_base_override") is not None
+    base_source = "MANUAL" if manual else None
+    if not manual and ctx.field("benefit_history.previous_benefit_end_date") is not None:
+        reuse = eng.eval("BASE-GEN-001")
+        if reuse.unknown:
+            eng.need_from(reuse)
+            needs_data = True
+        elif reuse.fired:
+            applied.append("BASE-GEN-001")
+            base_source = "REUSED_PREVIOUS"
+            reason("BASE_REUSED_NO_FULL_MONTH_GAP", "BASE-GEN-001",
+                   "Między poprzednim zasiłkiem a zasiłkiem macierzyńskim nie było przerwy obejmującej pełny miesiąc "
+                   "kalendarzowy — podstawa wymiaru jest taka sama jak poprzedniego zasiłku.", "art. 43")
+
     # Krok 8: kwota
     daily = total = None
     calc = eng.eval("CALC-MAT-001")
@@ -144,6 +160,14 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
             daily, total = amount["daily"], amount["total"]
             applied.append("CALC-MAT-001")
 
+    # wynik: obiekt base (kontrakt Benefit.base) — tylko gdy podstawa jest znana i jej źródło rozstrzygnięte
+    base_amount = ctx.fact("f_benefit_base") if base_source else None
+    base = None
+    if base_amount is not None:
+        base = {"amount_exact": dec_str(base_amount), "source": base_source}
+        if base_source == "REUSED_PREVIOUS":
+            base["method_rule_id"] = "BASE-GEN-001"
+
     for rule_id in NOT_RUN:
         if rule_id not in eng.not_evaluated and rule_id not in eng.trace:
             eng.not_evaluated.append(rule_id)
@@ -154,7 +178,7 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
         "rate": dec_str(rate) if rate is not None else None, "period": period, "days": days,
         "daily_amount_exact": dec_str(daily) if daily is not None else None,
         "total_amount_exact": dec_str(total) if total is not None else None,
-        "payer_of_benefit": None, "reasons": reasons, "applied_rules": applied,
+        "payer_of_benefit": None, "reasons": reasons, "applied_rules": applied, "base": base,
     }
 
 

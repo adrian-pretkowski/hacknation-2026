@@ -8,7 +8,7 @@ Pytania do mentorów i ich odpowiedzi: **`docs/mentors.md`** (M01–M17). Luki p
 | B1 | Brak przykładowych spraw ZUS | BA | M01 | Scenariusze syntetyczne w `demo/` (oznaczone) |
 | B2 | Czy sprawy i materiały mogą być w publicznym demo/repo/wideo | BA | M02 | `cases/`, `materials/` poza gitem |
 | B3 | Zasady zaokrąglania kwot | BA → BE-2 | M04 | Decimal dokładny + wyświetlanie 2 miejsc z „…” |
-| B4 | Art. 43 (przerwa < miesiąc kalendarzowy) — ta sama podstawa L4 → macierzyński | BA → BE-2 | M05 | auto tylko 0 dni i >31 dni, reszta NEEDS_REVIEW |
+| B4 | Art. 43 (przerwa < miesiąc kalendarzowy) — ta sama podstawa L4 → macierzyński | BA → BE-2 | M05 | **ROZSTRZYGNIĘTE 2026-11-21 (mentor fachowy):** pełny miesiąc kalendarzowy 1.–ostatni; zaimplementowane (`f_gap_shorter_than_calendar_month`) |
 
 ## ASSUMPTION — bezpiecznie zmienialne później
 | ID | Założenie | Gdzie | Zmiana gdy |

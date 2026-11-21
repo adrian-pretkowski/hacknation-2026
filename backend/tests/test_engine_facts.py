@@ -1,10 +1,12 @@
-"""BE1-01/BE1-02: fakty z logiką spoza slice_v0 (typowy, graniczny, brak danych) + martwe urodzenie (T-MAT-013)."""
+"""BE1-01/BE1-02: fakty z logiką spoza slice_v0 (typowy, graniczny, brak danych) + martwe urodzenie (T-MAT-013)
++ art. 43 / BASE-GEN-001 (M05: T-BASE-006/007/010/011)."""
 import copy
 from datetime import date
 from decimal import Decimal
 
 import pytest
 
+from app.core.dates import contains_full_calendar_month
 from app.engine import pipeline
 from app.engine.facts import Context
 
@@ -137,3 +139,99 @@ def test_twins_one_deceased_is_review_blocked_rule(demo_payload):
     payload = _birth_payload(demo_payload, [{"birth_date": "2027-02-01", "stillborn": True},
                                             {"birth_date": "2027-02-01"}], count=2)
     assert pipeline.evaluate(payload)["benefits"][0]["status"] == "NEEDS_REVIEW"
+
+
+# ------------------------------------------------------------ art. 43, BASE-GEN-001 (M05: pełny miesiąc kalendarzowy)
+@pytest.mark.parametrize(("start", "end", "expected"), [
+    (date(2027, 2, 1), date(2027, 2, 28), True),     # dokładnie luty
+    (date(2027, 2, 2), date(2027, 3, 30), False),    # 57 dni, ani luty, ani marzec w całości
+    (date(2026, 12, 2), date(2027, 1, 31), True),    # przejście roku, cały styczeń
+    (date(2027, 3, 1), date(2027, 2, 28), False),    # pusty okres (brak przerwy)
+])
+def test_contains_full_calendar_month(start, end, expected):
+    assert contains_full_calendar_month(start, end) is expected
+
+
+def _history(prev_end, event="2027-03-15", base="5123.45"):
+    return {"event": {"date": event},
+            "benefit_history": {"previous_benefit_end_date": prev_end, "previous_base_amount": base}}
+
+
+@pytest.mark.parametrize(("prev_end", "expected"), [
+    ("2027-03-14", True),   # T-BASE-006: przerwa 0 dni
+    ("2027-03-20", True),   # nakładanie się okresów = brak przerwy
+    ("2027-02-22", True),   # T-BASE-007: 20 dni
+    ("2027-02-01", True),   # T-BASE-010: 41 dni, bez pełnego miesiąca
+    ("2027-01-31", False),  # T-BASE-011: przerwa obejmuje cały luty
+])
+def test_base_gen_001_f_gap_shorter_than_calendar_month(prev_end, expected):
+    assert _ctx(_history(prev_end)).fact("f_gap_shorter_than_calendar_month") is expected
+
+
+def test_base_gen_001_f_gap_missing_data_unknown():
+    ctx = _ctx({"event": {"date": "2027-03-15"}})
+    assert ctx.fact("f_gap_shorter_than_calendar_month") is None
+    assert ctx.missing == ["benefit_history.previous_benefit_end_date"]
+
+
+def test_base_gen_001_maternity_started_before_birth_no_gap():
+    # T-BASE-012: L4 do 31.01, macierzyński od 1.02 (przed porodem 15.03) → brak przerwy, ta sama podstawa
+    data = _history("2027-01-31") | {"plan": {"maternity_start_date": "2027-02-01"}}
+    ctx = _ctx(data)
+    assert ctx.fact("f_gap_shorter_than_calendar_month") is True
+    assert ctx.fact("f_benefit_base") == Decimal("5123.45")
+
+
+def test_base_gen_001_missing_start_date_reports_date_not_new_base():
+    ctx = _ctx({"benefit_history": {"previous_benefit_end_date": "2027-02-22", "previous_base_amount": "5123.45"}})
+    assert ctx.fact("f_benefit_base") is None
+    assert ctx.missing == ["event.date"]
+
+
+def test_base_gen_001_f_benefit_base_reuse_and_recompute():
+    assert _ctx(_history("2027-02-01")).fact("f_benefit_base") == Decimal("5123.45")
+    ctx = _ctx(_history("2027-01-31"))
+    assert ctx.fact("f_benefit_base") is None and ctx.missing == ["income_history.manual_base_override"]
+    ctx = _ctx(_history("2027-03-14", base=None))
+    assert ctx.fact("f_benefit_base") is None and ctx.missing == ["benefit_history.previous_base_amount"]
+    # ręczna podstawa ma pierwszeństwo
+    data = _history("2027-03-14") | {"income_history": {"manual_base_override": "6000"}}
+    assert _ctx(data).fact("f_benefit_base") == Decimal("6000")
+
+
+def _reuse_payload(demo_payload, prev_end):
+    payload = copy.deepcopy(demo_payload)
+    payload["income_history"] = {"manual_base_override": None, "months": []}
+    payload["benefit_history"] = {"previous_benefit_end_date": prev_end, "previous_base_amount": "5123.45"}
+    payload["applications"] = {"combined_815_planned": False}
+    return payload
+
+
+@pytest.mark.parametrize("prev_end", ["2027-03-14", "2027-02-22", "2027-02-01"])
+def test_t_base_006_007_010_same_base_end_to_end(demo_payload, prev_end):
+    benefit = pipeline.evaluate(_reuse_payload(demo_payload, prev_end))["benefits"][0]
+    assert benefit["status"] == "ELIGIBLE"
+    assert "BASE-GEN-001" in benefit["applied_rules"]
+    assert benefit["base"] == {"amount_exact": "5123.45", "source": "REUSED_PREVIOUS", "method_rule_id": "BASE-GEN-001"}
+    # 5123,45 × 100% / 30 — dokładnie, bez zaokrągleń pośrednich
+    assert Decimal(benefit["daily_amount_exact"]) == Decimal("5123.45") / 30
+
+
+def test_t_base_011_full_month_gap_needs_new_base_not_refusal(demo_payload):
+    body = pipeline.evaluate(_reuse_payload(demo_payload, "2027-01-31"))
+    benefit = body["benefits"][0]
+    assert benefit["status"] == "NEEDS_DATA"
+    assert "BASE-GEN-001" not in benefit["applied_rules"] and benefit["base"] is None
+    assert any(m["field"] == "income_history.manual_base_override" for m in body["missing_data"])
+
+
+def test_t_base_012_maternity_before_birth_same_base_end_to_end(demo_payload):
+    payload = _reuse_payload(demo_payload, "2027-01-31")
+    payload["plan"] = {"maternity_start_date": "2027-02-01"}
+    benefit = pipeline.evaluate(payload)["benefits"][0]
+    assert benefit["status"] == "ELIGIBLE" and benefit["base"]["source"] == "REUSED_PREVIOUS"
+
+
+def test_manual_base_reported_as_manual(demo_payload):
+    benefit = pipeline.evaluate(demo_payload)["benefits"][0]
+    assert benefit["base"] == {"amount_exact": "6000", "source": "MANUAL"}

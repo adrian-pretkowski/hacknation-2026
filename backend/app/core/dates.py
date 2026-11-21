@@ -1,6 +1,7 @@
 """Daty i okresy — konwencje C3–C8, C11 z zus_rules/07_CALCULATION_SPEC.md."""
 from __future__ import annotations
 
+import calendar
 from datetime import date, timedelta
 from typing import Any
 
@@ -44,6 +45,19 @@ def in_period(day: date, start: date | None, end: date | None) -> bool:
 def gap_days_between(prev_end: date, next_start: date) -> int:
     """C8: dni kalendarzowe POMIĘDZY końcem poprzedniego a początkiem następnego okresu (bez obu końców)."""
     return (next_start - prev_end).days - 1
+
+
+def contains_full_calendar_month(start: date, end: date) -> bool:
+    """Czy okres [start, end] obejmuje cały miesiąc kalendarzowy (od 1. do ostatniego dnia miesiąca).
+
+    Art. 43 ustawy zasiłkowej: „przerwa krótsza niż miesiąc kalendarzowy” = przerwa, która nie obejmuje
+    pełnego miesiąca kalendarzowego (M05, ustalenie z mentorem fachowym ZUS). Pusty okres (end < start) → False.
+    """
+    if end < start:
+        return False
+    first = start if start.day == 1 else (date(start.year + start.month // 12, start.month % 12 + 1, 1))
+    last = first.replace(day=calendar.monthrange(first.year, first.month)[1])
+    return last <= end
 
 
 def deadline_after(event: date, days: int) -> date:

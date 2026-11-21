@@ -11,7 +11,7 @@
 | Działa end-to-end | Kalkulator zasiłku macierzyńskiego matki (slice_v0): UI → `POST /api/evaluate` → wynik w UI |
 | Silnik | **pipeline reguł** (`engine/pipeline/`, `engine=rules-engine`, domyślnie) — macierzyński matki na regułach z `03_rules.yaml`; `ENGINE=slice` przywraca `slice_v0`; pozostałe świadczenia — BE1-04/05, BE2-01..04 |
 | Kontrakt | `contracts/openapi.yaml` **v1.0.0** — 2 operacje `implemented`, 12 `planned` (sprawy, admin, symulacje); modele = `zus_rules/04`/`05`; czeka na akceptację BE+FE |
-| Testy | backend 203/203 (w tym 75 testów kontraktu) · audyt reguł 119 reguł / 92 testy spec / 0 błędów · frontend lint, typecheck, build OK |
+| Testy | backend 222/222 (w tym 75 testów kontraktu) · audyt reguł 119 reguł / 95 testów spec / 0 błędów · frontend lint, typecheck, build OK |
 
 ## 2. Bramki
 | Bramka | Punkt | Status | Dowód (komenda → wynik) |
@@ -35,18 +35,19 @@
 |---|---|---|---|---|
 | INT | — (INT-06 DONE, scalone do main `2e3d3c7`) | — | 2026-11-21 | Następne: INT-03. Każdy klon: raz `scripts\dev.ps1` lub `git config core.hooksPath .githooks` (włącza przypomnienie o review po commitach z terminala). INT-01 scalone (PR #1) — status w TASKS do potwierdzenia przez lidera |
 | BE-1 | — (BE1-01, BE1-02 DONE; czeka na /review) | `be1/BE1-01-dsl` (commity bez przełączania HEAD — współdzielony katalog) | 2026-11-21 | Następne: BE1-03 (runner 08) albo BE1-04. Interfejs I2 gotowy: `from app.engine.facts.registry import Context, fact` |
-| BE-2 | — | — | — | |
+| BE-2 | BE2-03 (część: BASE-GEN-001 / M05 — lider z Claude Code) | `be2/BE2-03-art43-m05` | 2026-11-21 | Po review: metody BASE-EMP/NEMP (właściciel BE-2) |
 | FE-1 | FE1-01 IN_PROGRESS — kreator S1–S13 + wynik na podglądzie silnika w FE (`preview/`) | `main` (`41b65a2`, `319b754`), poprawki `fe1/FE1-01-wizard-a11y` | 2026-11-21 | Do DONE brakuje: wynik z realnego `POST /api/evaluate` zamiast `preview/` (po BE2), symulacje przez `/api/sim/*` (INT-03; dziś dane syntetyczne w `wizard/simZus.ts`), ui-verifier |
 | FE-2 | — | — | — | |
 | BA | — | — | — | |
 
 ## 4. Następne kroki (kolejność)
 1. Lider: utworzyć zdalne repo (odblokowuje INT-04) i zdecydować o hostingu demo (INT-02). Repo przeniesione do `D:\hacknation-2026`, pierwsze commity zrobione.
-2. BA-01: mentorzy M01–M05, M11 (`docs/mentors.md`) — blokery B1–B4.
+2. BA-01: mentorzy M01–M04, M11 (`docs/mentors.md`) — blokery B1–B3 (M05 rozstrzygnięte 2026-11-21).
 3. BE i FE: przejrzeć i zaakceptować kontrakt v1 (INT-01). Kontrakt już odblokowuje FE1-01..03, FE2-02..04, BE2-05/06, INT-03 — typy FE: `npm run gen:api`.
 4. BE1-01: interfejs rejestru faktów I2 jako pierwszy commit (odblokowuje BE2-01..04).
 5. Równolegle: FE2-01 (layout), FE1-01 (główny przepływ — kreator gotowy na podglądzie w FE; do podpięcia realne `/api/evaluate` i `/api/sim/*`).
-6. Checkpoint CP1: pełny silnik (`ENGINE=rules`) daje ten sam wynik co slice dla `demo/` + T-MAT-*, T-RATE-* zielone.
+6. **BE-1 — uwaga (z gałęzi `be2/BE2-03-art43-m05`):** nowy helper `contains_full_calendar_month` w `core/dates.py`, krok 6 (podstawa, BASE-GEN-001) i pole `base` w wyniku w `pipeline/maternity.py`; parytet ze slice pomija `base`. Runner 08 (BE1-03): `expected` `base.amount_exact` mapuje się na `benefits[0].base.amount_exact`.
+7. Checkpoint CP1: pełny silnik (`ENGINE=rules`) daje ten sam wynik co slice dla `demo/` + T-MAT-*, T-RATE-* zielone.
 
 ## 5. Blokery i otwarte pytania
 | ID | Bloker | Właściciel | Link |
@@ -54,7 +55,7 @@
 | B1 | Brak przykładowych spraw ZUS | BA | `docs/mentors.md` M01 |
 | B2 | Publikacja spraw i materiałów | BA | M02 |
 | B3 | Zaokrąglenia kwot | BA → BE-2 | M04 |
-| B4 | Art. 43 — ta sama podstawa L4 → macierzyński | BA → BE-2 | M05 |
+| ~~B4~~ | ~~Art. 43 — ta sama podstawa L4 → macierzyński~~ — ROZWIĄZANE 2026-11-21 (M05: pełny miesiąc kalendarzowy, D18) | BA → BE-2 | M05 |
 | B5 | Zdalne repo i deploy publiczny | Lider | INT-02, INT-04 |
 
 ## 6. Dziennik (dopisuj na końcu, nie edytuj cudzych wpisów)
@@ -68,4 +69,6 @@
 | 2026-11-21 14:20 | BE-1 (Claude Code) | BE1-01 | Silnik DSL (wariant okrojony): loader `03_rules.yaml` z walidacją strukturalną, evaluator Kleene TRUE/FALSE/UNKNOWN z raportem brakujących pól, rejestr faktów `@fact` (I2), `core/money.py`, `core/dates.py` (C1–C11), 11 faktów ścieżki macierzyńskiej; `engine/maternity_v0.py` (rules-v0) liczy macierzyński z reguł YAML identycznie jak slice_v0 (router bez zmian) | `pytest` → 161 passed (84 → +77: `test_engine_dsl.py`, `test_engine_parity.py` 16 wariantów); `ruff check` → OK; audyt → rules=119 errors=0 | — (commit na `be1/BE1-01-dsl`) |
 | 2026-11-21 14:55 | BE-1 (Claude Code) | BE1-02 | Pipeline (wariant okrojony): `engine/pipeline/` — tryby FUTURE/BLOCKED/HUMAN_REVIEW, częściowa ocena reguł z faktami spoza rejestru (`not_evaluated_rules`), wyjątki i `overrides` z YAML, agregacja DT-9, ślad `applied_rules` i `future_changes`; macierzyński jako moduł kroków; router `ENGINE=rules\|slice` (domyślnie rules) | `pytest` → 183 passed (także `ENGINE=slice`: test_evaluate_slice + test_contract zielone); `ruff check` → OK; audyt → rules=119 errors=0; smoke nie uruchamiany (brak serwerów) | — (commit na `be1/BE1-01-dsl`) |
 | 2026-11-21 15:25 | BE-1 (Claude Code) | BE1-01, BE1-02 | Poprawki po `/review` (CHANGES_REQUIRED, 2 poważne): testy faktów spoza slice (`test_engine_facts.py`: spłata długu, urlop wychowawczy, priorytet tytułów, granica `date = to`, `work_fraction`), martwe urodzenie i zgon dziecka (MAT-DUR-003/004, T-MAT-013 — wcześniej API zwracało 140 dni), GEN-EXCL-002 w `not_evaluated_rules`, komunikaty z parametrów, walidacja `ENGINE`, `/api/health` pokazuje aktywny silnik, `test_pipeline.py` → `test_engine_pipeline.py`, szkielet `facts/maternity.py` przekazany BE-2 (TASKS), § 1, coverage b) | `pytest` → 203 passed (także `ENGINE=slice`); `ruff` OK; audyt errors=0; `smoke.py --api :8011` → SMOKE: PASS (engine rules-engine) | — (commit na `be1/BE1-01-dsl`) |
+| 2026-11-21 16:15 | Lider (Claude Code) | BA-01 (M05), BE2-03 (część: BASE-GEN-001) | Odpowiedź mentora fachowego M05 udokumentowana (art. 43: „miesiąc kalendarzowy” = pełny miesiąc 1.–ostatni dzień; CONF-006 zamknięty, D18); silnik: `f_gap_shorter_than_calendar_month` + `contains_full_calendar_month`, `f_benefit_base` z podstawą poprzedniego zasiłku, BASE-GEN-001 w pipeline (ślad + komunikat); 08: T-BASE-007 → POSITIVE, nowe T-BASE-010/011 | `pytest` → 218 passed (także `ENGINE=slice`: slice + kontrakt zielone); `ruff` OK; audyt → rules=119 tests=94 errors=0; smoke nie uruchamiany (brak serwerów, kontrakt bez zmian) | bc5d8dd |
 | 2026-11-21 16:20 | FE-1 (Claude Code, Michał) | FE1-01 | Kreator GUI: ekran startowy, „Wstecz” na każdym kroku i z wyniku + historia przeglądarki, listy rozwijane i suwaki (zakresy z `preview/params.ts`), przyciski „Pobierz dane z ZUS” z oznaczeniem SYMULACJA (dane syntetyczne `wizard/simZus.ts`, docelowo `/api/sim/zus-profile`), naprawa poziomego scrolla 375 px na wyniku | `npm run typecheck` OK, `npm run lint` OK, `npm run build` OK; Playwright 375/1440 px: Wstecz, historia, listy/suwaki, symulacja, `scrollWidth ≤ innerWidth`, 0 błędów konsoli; `/review` 319b754 → CHANGES_REQUIRED (3 poważne: brak PROGRESS/TASKS w commicie, commit na main bez ID zadania, aria-hidden na fokusowalnym przycisku); poprawki (a11y suwaka: „wyczyść” poza aria-hidden + aria-label, aria-describedby podpowiedzi; grosze w wynagrodzeniu; kwoty przez `lib/format`; próg płatnika z `PARAMS`; „Jak to działa?” bez popstate) zweryfikowane Playwright 375/1440 px | 319b754, — (gałąź `fe1/FE1-01-wizard-a11y`) |
+| 2026-11-21 16:35 | Lider (Claude Code) | BE2-03 (część), BA-01 (M05) | Poprawki po `/review` (CHANGES_REQUIRED, 2 poważne): początek zasiłku uwzględnia `plan.maternity_start_date` (macierzyński przed porodem, T-BASE-012); `f_benefit_base` nie żąda nowej podstawy przy braku daty; wynik zwraca `base` (MANUAL/REUSED_PREVIOUS, pole z kontraktu) — odblokowuje sprawdzanie `base.amount_exact` w runnerze 08; statusy TASKS (BE2-03, BA-01) i § 3; informacja dla BE-1 w § 4 | `pytest -o addopts=""` → 222 passed (także `ENGINE=slice`); `ruff` OK; audyt → rules=119 tests=95 errors=0 | e465691 |
