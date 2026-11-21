@@ -66,6 +66,8 @@ class Engine:
         self.not_evaluated: list[str] = []
         self.future: list[dict[str, str]] = []
         self.review: list[str] = []
+        self.warnings: list[dict[str, Any]] = []  # result.warning reguł VALIDATION/INFORMATIONAL (kontrakt: warnings)
+        self.plan_errors: list[dict[str, Any]] = []  # result.validation_error — nie zmieniają statusu prawa
 
     # ------------------------------------------------------------ ocena reguły
     def implementable(self, rule: dict[str, Any]) -> bool:
@@ -127,6 +129,27 @@ class Engine:
         unknown_overriders = [o for o in outcomes.values() if o.unknown
                               and set(self.rules.rule(o.rule_id).get("overrides") or []) & {w.rule_id for w in winners}]
         return (winners[0] if winners else None), unknown_overriders
+
+    # ------------------------------------------------------------ walidacja planu i ostrzeżenia (BE2-01)
+    def check(self, rule_id: str, **extra: Any) -> bool:
+        """Reguła z ``result.validation_error`` / ``result.warning``: FIRED → wpis w plan_errors / warnings.
+
+        UNKNOWN nie zgłasza ani błędu, ani braków (walidacja nie blokuje oceny prawa). Zwraca True, gdy FIRED.
+        """
+        outcome = self.eval(rule_id)
+        if not outcome.fired:
+            return False
+        result = self.rules.rule(rule_id)["result"]
+        if "validation_error" in result:
+            entry = {"code": result["validation_error"]["code"], "rule_id": rule_id, **extra}
+            if entry not in self.plan_errors:
+                self.plan_errors.append(entry)
+        if "warning" in result:
+            entry = {"code": result["warning"]["code"], "severity": result["warning"].get("severity", "WARNING"),
+                     "rule_id": rule_id, **extra}
+            if entry not in self.warnings:
+                self.warnings.append(entry)
+        return True
 
     # ------------------------------------------------------------ braki i parametry
     def need(self, field_path: str, *rule_ids: str) -> None:

@@ -12,6 +12,8 @@ from typing import Any
 
 from app.core.dates import (
     add_months,
+    add_years,
+    age_years_on,
     contains_full_calendar_month,
     days_in,
     deadline_after,
@@ -46,9 +48,12 @@ def combined_application_deadline(ctx: Context) -> date | None:
     """07 §5: event.date + APP_COMBINED_DEADLINE_DAYS (C11); termin w sobotę, niedzielę lub święto
     (PUBLIC_HOLIDAYS) → następny dzień roboczy (M15 d). USTAWA art. 30a ust. 1-2.
 
-    ADOPTION (późniejsza z dat przyjęcia i wniosku do sądu) — BE2-01.
+    ADOPTION: od późniejszej z dat przyjęcia dziecka i wniosku do sądu (BE2-01, DERIVED).
     """
     event = to_date(ctx.field("event.date"))
+    court = to_date(ctx.field("event.court_adoption_application_date"))
+    if event is not None and court is not None and ctx.field("event.type") == "ADOPTION":
+        event = max(event, court)
     if event is None:
         return ctx.need("event.date")
     holidays = frozenset(to_date(day) for day in ctx.param("PUBLIC_HOLIDAYS") or [])
@@ -227,7 +232,9 @@ def _death_day(child: dict[str, Any]) -> date | None:
 
 
 def _deceased(ctx: Context, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    as_of = ctx.as_of
+    """Zmarłe dzieci: stillborn albo death_date ≤ dzień oceny. FORECAST: daty z wejścia to scenariusz planu,
+    więc death_date liczy się bez względu na dzień oceny (DERIVED, BE2-01; T-MAT-014)."""
+    as_of = None if ctx.field("evaluation.mode") == "FORECAST" else ctx.as_of
     return [c for c in items if c.get("stillborn")
             or (to_date(c.get("death_date")) is not None and (as_of is None or to_date(c.get("death_date")) <= as_of))]
 
@@ -295,3 +302,323 @@ def child_death_maternity_end_date(ctx: Context) -> date | None:
     if death is None or weeks is None:
         return None
     return min(end_after_weeks(birth, weeks), end_after_days(death, int(ctx.param("CHILD_DEATH_MIN_DAYS"))))
+
+
+# ------------------------------------------------------------ art. 30 — zasiłek po ustaniu tytułu (BE2-01)
+ART30_EMPLOYER_CEASED = ("EMPLOYER_DEATH", "EMPLOYER_BANKRUPTCY", "EMPLOYER_LIQUIDATION")
+ART30_UNLAWFUL = "UNLAWFUL_TERMINATION_COURT_CONFIRMED"
+
+
+def _tri_all(*values: bool | None) -> bool | None:
+    """Kleene AND (C9) — lokalnie, bez importu DSL (moduł faktów ładuje się przed ewaluatorem)."""
+    if any(v is False for v in values):
+        return False
+    return None if any(v is None for v in values) else True
+
+
+def _tri_any(*values: bool | None) -> bool | None:
+    if any(v is True for v in values):
+        return True
+    return None if any(v is None for v in values) else False
+
+
+def _title_list(ctx: Context) -> list[dict[str, Any]] | None:
+    titles = ctx.field("insurance.titles")
+    if titles:
+        return titles
+    if ctx.field("insurance.titles_confirmed_complete") is True:
+        return []
+    return ctx.need("insurance.titles")
+
+
+def _last_ended_title(ctx: Context) -> dict[str, Any] | None:
+    """Ostatni zakończony tytuł (najpóźniejsze ``to``), gdy żaden tytuł nie jest otwarty; inaczej None."""
+    titles = _title_list(ctx)
+    if not titles or any(t.get("to") is None for t in titles):
+        return None
+    return max(titles, key=lambda t: to_date(t.get("to")))
+
+
+@fact("f_is_employee_title_last")
+def is_employee_title_last(ctx: Context) -> bool | None:
+    """07 §3: ostatni zakończony tytuł to EMPLOYMENT_CONTRACT (otwarty tytuł → FALSE). USTAWA art. 30 ust. 3."""
+    titles = _title_list(ctx)
+    if titles is None:
+        return None
+    last = _last_ended_title(ctx)
+    return last is not None and last.get("title_type") == "EMPLOYMENT_CONTRACT"
+
+
+@fact("f_title_ended_during_pregnancy")
+def title_ended_during_pregnancy(ctx: Context) -> bool | None:
+    """07 §3: pregnancy_start_date ≤ to(ostatni tytuł) < event.date (M13: data początku ciąży z zaświadczenia).
+
+    Tytuł otwarty → FALSE (nie ustał). USTAWA art. 30 ust. 1, 3.
+    """
+    titles = _title_list(ctx)
+    if titles is None:
+        return None
+    last = _last_ended_title(ctx)
+    if last is None:
+        return False
+    start = to_date(ctx.field("pregnancy.pregnancy_start_date"))
+    event = to_date(ctx.field("event.date"))
+    if start is None:
+        ctx.need("pregnancy.pregnancy_start_date")
+    if event is None:
+        ctx.need("event.date")
+    if start is None or event is None:
+        return None
+    return start <= to_date(last.get("to")) < event
+
+
+@fact("f_last_title_termination_reason")
+def last_title_termination_reason(ctx: Context) -> str | None:
+    """07 §3: termination_reason ostatniego zakończonego tytułu; brak → None (UNKNOWN)."""
+    last = _last_ended_title(ctx)
+    if last is None:
+        return None
+    reason = last.get("termination_reason")
+    return reason if reason is not None else ctx.need("insurance.titles")
+
+
+@fact("f_any_art30_basis")
+def any_art30_basis(ctx: Context) -> bool | None:
+    """07 §3: OR (Kleene) warunków MAT-ELIG-004, -005, -006. USTAWA art. 30 ust. 1, 4; KP art. 177 § 3.
+
+    MAT-ELIG-006 (przedłużenie umowy do porodu) dotyczy tylko umowy o pracę: brak tytułu EMPLOYMENT_CONTRACT
+    → FALSE bez pytania o typ umowy (DERIVED).
+    """
+    if ctx.field("event.type") != "BIRTH":
+        return False
+    titles = _title_list(ctx)
+    if titles is None:
+        return None
+    insured = ctx.fact("f_sickness_insured_on", date=ctx.field("event.date"))
+    ended = ctx.fact("f_title_ended_during_pregnancy")
+    reason = ctx.fact("f_last_title_termination_reason")
+    not_insured = None if insured is None else not insured
+    reason_ceased = None if reason is None else reason in ART30_EMPLOYER_CEASED
+    reason_unlawful = None if reason is None else reason == ART30_UNLAWFUL
+    if ended is False:
+        reason_ceased = reason_unlawful = False
+    kp177: bool | None = False
+    if any(t.get("title_type") == "EMPLOYMENT_CONTRACT" for t in titles):
+        contract = ctx.field("employment.contract_type")
+        extended = ctx.field("employment.extended_until_birth_kp177")
+        fixed = None if contract is None else contract == "FIXED_TERM"
+        kp177 = _tri_all(fixed, None if extended is None else extended is True)
+    return _tri_any(_tri_all(not_insured, ended, reason_ceased), _tri_all(not_insured, ended, reason_unlawful),
+                    kp177)
+
+
+@fact("f_planned_title_end_before_due_date")
+def planned_title_end_before_due_date(ctx: Context) -> bool | None:
+    """07 §3, RISK-003: najpóźniejsze ``to`` tytułów < expected_due_date i brak tytułu otwartego.
+
+    Brak tytułów (potwierdzony) → None: ten przypadek rozstrzyga MAT-NEG-001, nie ostrzeżenie.
+    """
+    titles = _title_list(ctx)
+    if not titles:
+        return None
+    if any(t.get("to") is None for t in titles):
+        return False
+    due = to_date(ctx.field("pregnancy.expected_due_date"))
+    if due is None:
+        return ctx.need("pregnancy.expected_due_date")
+    return max(to_date(t.get("to")) for t in titles) < due
+
+
+# ------------------------------------------------------------ plan urlopu: start przed porodem, przejęcie przez ojca
+def _week_days(ctx: Context) -> int:
+    return int(ctx.param("WEEK_AS_DAYS"))
+
+
+def _segments(ctx: Context) -> list[dict[str, Any]] | None:
+    segments = ctx.field("plan.segments")
+    if segments is None:
+        return ctx.need("plan.segments")
+    return segments
+
+
+def _segment_days(segment: dict[str, Any], not_before: date | None = None) -> int:
+    start, end = to_date(segment.get("from")), to_date(segment.get("to"))
+    if start is None or end is None:
+        return 0
+    if not_before is not None:
+        start = max(start, not_before)
+    return max(0, days_in(start, end))
+
+
+@fact("f_weeks_before_due_date")
+def weeks_before_due_date(ctx: Context) -> Decimal | None:
+    """07 §5, MAT-DUR-002: (expected_due_date − maternity_start_date).days / 7. KP art. 180 § 2."""
+    due = to_date(ctx.field("pregnancy.expected_due_date"))
+    start = to_date(ctx.field("plan.maternity_start_date"))
+    if due is None:
+        ctx.need("pregnancy.expected_due_date")
+    if start is None:
+        ctx.need("plan.maternity_start_date")
+    if due is None or start is None:
+        return None
+    return div(Decimal((due - start).days), _week_days(ctx))
+
+
+@fact("f_mother_maternity_weeks_used_after_birth")
+def mother_maternity_weeks_used_after_birth(ctx: Context) -> Decimal | None:
+    """07 §5: dni segmentów MATERNITY_LEAVE matki od dnia porodu / 7. KP art. 180 § 4; USTAWA art. 29 ust. 3."""
+    segments = _segments(ctx)
+    birth = to_date(ctx.field("event.date"))
+    if birth is None:
+        ctx.need("event.date")
+    if segments is None or birth is None:
+        return None
+    days = sum(_segment_days(s, birth) for s in segments
+               if s.get("parent") == "MOTHER" and s.get("leave_type") == "MATERNITY_LEAVE")
+    return div(Decimal(days), _week_days(ctx))
+
+
+@fact("f_total_maternity_weeks_planned")
+def total_maternity_weeks_planned(ctx: Context) -> Decimal | None:
+    """07 §5, MAT-SHARE-007: suma dni wszystkich segmentów MATERNITY_* (obu rodziców) / 7. KP art. 180 § 14."""
+    segments = _segments(ctx)
+    if segments is None:
+        return None
+    days = sum(_segment_days(s) for s in segments if str(s.get("leave_type") or "").startswith("MATERNITY_"))
+    return div(Decimal(days), _week_days(ctx))
+
+
+# ------------------------------------------------------------ przysposobienie, rodzina zastępcza (MAT-ELIG-002/003)
+def _oldest_child_birth(ctx: Context) -> date | None:
+    items = ctx.field("children.items")
+    if items is None:
+        return ctx.need("children.items")
+    births = [to_date(c.get("birth_date")) for c in items]
+    if not births or any(b is None for b in births):
+        return ctx.need("children.items")
+    return min(births)
+
+
+@fact("f_child_age_years_on")
+def child_age_years_on(ctx: Context, date: Any = None) -> int | None:
+    """07 §5: pełne lata najstarszego z przyjętych dzieci w dniu ``date`` (C7: urodziny = ukończenie)."""
+    day = to_date(date)
+    birth = _oldest_child_birth(ctx)
+    if day is None or birth is None:
+        return None
+    return age_years_on(birth, day)
+
+
+def _age_limit_years(ctx: Context) -> int | None:
+    """Granica wieku: ADOPTION 14, FOSTER 7 (10 przy odroczonym obowiązku szkolnym). KP art. 183 § 1, § 1(1)."""
+    event_type = ctx.field("event.type")
+    if event_type == "ADOPTION":
+        return int(ctx.param("ADOPTION_CHILD_AGE_MAX"))
+    if event_type == "FOSTER":
+        if ctx.field("children.school_obligation_deferred") is True:
+            return int(ctx.param("FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED"))
+        return int(ctx.param("FOSTER_CHILD_AGE_MAX"))
+    return None
+
+
+@fact("f_maternity_like_leave_period")
+def maternity_like_leave_period(ctx: Context) -> dict[str, Any] | None:
+    """07 §5, MAT-DUR-007: {weeks: tabela wg count_at_event, from, to: min(start + 7w − 1, dzień przed
+    urodzinami granicznymi), days}. KP art. 183 § 1, § 1(1); C7.
+
+    Start = dzień przyjęcia dziecka (event.date). Granica liczona dla najstarszego dziecka (jak
+    f_child_age_years_on, DERIVED). M14 a: 9 tyg. nie jest minimum — limit wieku skraca urlop.
+    """
+    start = to_date(ctx.field("event.date"))
+    weeks = ctx.fact("f_maternity_leave_weeks")
+    birth = _oldest_child_birth(ctx)
+    limit = _age_limit_years(ctx)
+    if start is None:
+        ctx.need("event.date")
+    if start is None or weeks is None or birth is None or limit is None:
+        return None
+    end = min(end_after_days(start, weeks * _week_days(ctx)), add_years(birth, limit) - timedelta(days=1))
+    if end < start:
+        return None
+    return {"weeks": weeks, "from": start, "to": end, "days": days_in(start, end)}
+
+
+@fact("f_maternity_like_weeks_after_age_cap")
+def maternity_like_weeks_after_age_cap(ctx: Context) -> Decimal | None:
+    """07 §5, MAT-DUR-008: tygodnie urlopu po przycięciu do limitu wieku, bez podwyższenia do 9 tyg. (M14 a)."""
+    period = ctx.fact("f_maternity_like_leave_period")
+    if period is None:
+        return None
+    return div(Decimal(period["days"]), _week_days(ctx))
+
+
+# ------------------------------------------------------------ urlop uzupełniający — wcześniak (SUPP-*)
+@fact("f_min_birth_weight_g")
+def min_birth_weight_g(ctx: Context) -> int | None:
+    """07 §5: min(birth_weight_g) dzieci z porodu (wieloraczki: masa najlżejszego). KP art. 180(2) § 2."""
+    items = ctx.field("children.items")
+    if not items:
+        return ctx.need("children.items")
+    weights = [c.get("birth_weight_g") for c in items]
+    if any(w is None for w in weights):
+        return ctx.need("children.items")
+    return min(int(w) for w in weights)
+
+
+def _hospital_stays(ctx: Context) -> list[dict[str, Any]] | None:
+    stays = ctx.field("children.hospital_stays")
+    if stays is None:
+        return ctx.need("children.hospital_stays")
+    return stays
+
+
+def _birth_day(ctx: Context) -> date | None:
+    birth = to_date(ctx.field("event.date"))
+    return birth if birth is not None else ctx.need("event.date")
+
+
+@fact("f_has_qualifying_late_hospital_stay")
+def has_qualifying_late_hospital_stay(ctx: Context) -> bool | None:
+    """07 §5, SUPP-ELIG-003: pobyt ≥ SUPP_TERM_MIN_CONSECUTIVE_DAYS kolejnych dni, którego pierwszy dzień
+    ∈ [dzień SUPP_TERM_WINDOW_FIRST_DAY, dzień SUPP_TERM_WINDOW_LAST_DAY] — dzień porodu = dzień 1 (M15 a,
+    ASSUMPTION-SUPP-DAY1). KP art. 180(2) § 1 pkt 3.
+    """
+    stays, birth = _hospital_stays(ctx), _birth_day(ctx)
+    if stays is None or birth is None:
+        return None
+    first = birth + timedelta(days=int(ctx.param("SUPP_TERM_WINDOW_FIRST_DAY")) - 1)
+    last = birth + timedelta(days=int(ctx.param("SUPP_TERM_WINDOW_LAST_DAY")) - 1)
+    min_days = int(ctx.param("SUPP_TERM_MIN_CONSECUTIVE_DAYS"))
+    for stay in stays:
+        start, end = to_date(stay.get("from")), to_date(stay.get("to"))
+        if start is None or end is None:
+            return ctx.need("children.hospital_stays")
+        if first <= start <= last and days_in(start, end) >= min_days:
+            return True
+    return False
+
+
+@fact("f_supplementary_leave_weeks")
+def supplementary_leave_weeks(ctx: Context, cap_week: Any = None, window_start_day: Any = None) -> int | None:
+    """07 §5, SUPP-*: dla dziecka najdłużej hospitalizowanego suma dni pobytu w oknie
+    [poród + window_start_day − 1, poród + 7·cap_week − 1] (dzień porodu = dzień 1, M15 a); ceil(dni / 7).
+
+    Argumenty z ``result.args`` reguły SUPP-ELIG-* (wariant wg tygodnia ciąży i masy najlżejszego dziecka).
+    KP art. 180(2) § 1, § 2, § 3.
+    """
+    stays, birth = _hospital_stays(ctx), _birth_day(ctx)
+    if stays is None or birth is None or cap_week is None or window_start_day is None:
+        return None
+    window_from = birth + timedelta(days=int(window_start_day) - 1)
+    window_to = end_after_weeks(birth, int(cap_week))
+    per_child: dict[Any, int] = {}
+    for stay in stays:
+        start, end = to_date(stay.get("from")), to_date(stay.get("to"))
+        if start is None or end is None:
+            return ctx.need("children.hospital_stays")
+        start, end = max(start, window_from), min(end, window_to)
+        if start <= end:
+            key = stay.get("child_index", 0)
+            per_child[key] = per_child.get(key, 0) + days_in(start, end)
+    days = max(per_child.values(), default=0)
+    return -(-days // _week_days(ctx))

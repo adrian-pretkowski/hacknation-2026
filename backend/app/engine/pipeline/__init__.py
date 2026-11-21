@@ -20,7 +20,15 @@ from app.engine.explain import explain_benefit
 from app.engine.facts import Context
 from app.engine.facts.insurance import INCAPACITY_EVENTS
 from app.engine.pipeline.engine import STATUS_ORDER, Engine
-from app.engine.pipeline.maternity import evaluate_maternity
+from app.engine.pipeline.maternity import (
+    TRANSFER_ROLES,
+    evaluate_equivalent_allowance,
+    evaluate_maternity,
+    evaluate_maternity_like,
+    evaluate_supplementary,
+    evaluate_transferred,
+    has_transfer_segment,
+)
 from app.engine.pipeline.sickness import evaluate_sickness
 
 ENGINE_NAME = "rules-engine"
@@ -49,19 +57,31 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     event_type = (payload.get("event") or {}).get("type")
     extra_assumptions: list[dict[str, Any]] = []
     if event_type == "BIRTH":
-        benefits = [evaluate_maternity(eng)]
+        benefits = _birth_benefits(eng)
+    elif event_type in ("ADOPTION", "FOSTER"):
+        benefits = [evaluate_maternity_like(eng)]  # BE2-01: przysposobienie / rodzina zastępcza
     elif event_type in INCAPACITY_EVENTS:
         benefits, extra_assumptions = evaluate_sickness(eng)
     else:
         return _response(eng, [], [{"code": "OUT_OF_SCOPE_SLICE",
                                     "text": "Silnik reguł obsługuje na razie event.type: BIRTH, "
-                                            "PREGNANCY_INCAPACITY, SICKNESS."}], "OUT_OF_SCOPE")
+                                            "ADOPTION, FOSTER, PREGNANCY_INCAPACITY, SICKNESS."}], "OUT_OF_SCOPE")
     for benefit in benefits:
         benefit.update(explain_benefit(eng, benefit))  # BE1-06: explanation + legal_basis (kontrakt Benefit)
     assumptions = [ROUNDING] + [PARAM_ASSUMPTIONS[p] for p in eng.unconfirmed_params() if p in PARAM_ASSUMPTIONS]
     assumptions += extra_assumptions
     overall = next((s for s in STATUS_ORDER if any(b["status"] == s for b in benefits)), "NEEDS_DATA")
     return _response(eng, benefits, assumptions, overall)
+
+
+def _birth_benefits(eng: Engine) -> list[dict[str, Any]]:
+    """BE2-01: ojciec przejmujący urlop (MAT-SHARE-*) albo matka: macierzyński + zasiłek do dnia przed porodem
+    (art. 30 ust. 3) + urlop uzupełniający (wcześniak / hospitalizacja)."""
+    if eng.ctx.field("person.role") in TRANSFER_ROLES and has_transfer_segment(eng):
+        return [evaluate_transferred(eng)]
+    maternity = evaluate_maternity(eng)
+    extra = [evaluate_equivalent_allowance(eng), evaluate_supplementary(eng, maternity)]
+    return [maternity] + [benefit for benefit in extra if benefit is not None]
 
 
 def _response(eng: Engine, benefits: list[dict[str, Any]], assumptions: list[dict[str, Any]],
@@ -78,4 +98,6 @@ def _response(eng: Engine, benefits: list[dict[str, Any]], assumptions: list[dic
         "not_evaluated_rules": eng.not_evaluated,
         "applied_rules": eng.applied_trace(),
         "future_changes": eng.future,
+        "warnings": eng.warnings,
+        "plan_errors": eng.plan_errors,
     }
