@@ -42,6 +42,7 @@ export type Answers = {
   partnerInsured: Tri;
   maternityStart: string;
   usedMaternityFully: Tri;
+  usedMaternityWeeks: string; // FE1-09: przy „Nie” — ile tygodni macierzyńskiego wykorzystano
   usedParentalMotherWeeks: string;
   usedParentalFatherWeeks: string;
   usedParts: string;
@@ -92,6 +93,7 @@ export const EMPTY_ANSWERS: Answers = {
   partnerInsured: "YES",
   maternityStart: "",
   usedMaternityFully: "YES",
+  usedMaternityWeeks: "",
   usedParentalMotherWeeks: "0",
   usedParentalFatherWeeks: "0",
   usedParts: "0",

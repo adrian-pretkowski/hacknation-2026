@@ -3,6 +3,7 @@
 // Kroki kreatora: najpierw pytania, które wykluczają całe gałęzie (kim jesteś → etap → zdarzenie → ubezpieczenie).
 // Każdy krok ma warunek widoczności — pytanie pojawia się tylko wtedy, gdy ma znaczenie dla wyniku.
 import { formatDate, formatMoney } from "@/lib/format";
+import { maternityWeeks } from "../preview/engine";
 import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
 import type { Answers } from "./answers";
@@ -55,6 +56,22 @@ const suppCapWeeks = (a: Answers): { cap: number; known: boolean } => {
   if (gw !== null && lowWeight !== null) return { cap: PARAMS.SUPP_CAP_WEEK_PRETERM, known: true };
   return { cap: PARAMS.SUPP_CAP_WEEK_EARLY, known: false };
 };
+/** FE1-09: spójność kroku „Co już wykorzystano” — komunikaty przy polach (pusta lista = można przejść dalej). */
+export const usedErrors = (a: Answers): { maternity?: string; parental?: string; parts?: string } => {
+  const m = Number(a.usedParentalMotherWeeks || 0);
+  const f = Number(a.usedParentalFatherWeeks || 0);
+  const pool = parentalPool(a);
+  const out: { maternity?: string; parental?: string; parts?: string } = {};
+  if (a.usedMaternityFully !== "YES" && m + f > 0) {
+    out.maternity = "Urlop rodzicielski zaczyna się dopiero po całym urlopie macierzyńskim. Zaznacz „Tak” albo ustaw wykorzystany rodzicielski na 0.";
+  }
+  if (m + f > pool) out.parental = `Razem wykorzystano ${m + f} tyg. rodzicielskiego, a cała pula to ${pool} tyg. Popraw liczby tygodni mamy i taty.`;
+  if (m + f > 0 && Number(a.usedParts || 0) === 0) out.parts = "Wykorzystano już tygodnie rodzicielskiego — podaj, na ile części (wniosków) go podzielono (co najmniej 1).";
+  else if (Number(a.usedParts || 0) > m + f && m + f > 0) out.parts = `Części nie może być więcej niż tygodni (${m + f}) — każda część to co najmniej tydzień.`;
+  return out;
+};
+const FieldError = ({ id, text }: { id: string; text?: string }) => text
+  ? <p id={id} role="alert" className="mt-1 text-sm text-zus-red">{text}</p> : null;
 const join = (parts: (string | null | false | undefined)[]) => parts.filter(Boolean).join(" · ") || null;
 
 const isBirth = (a: Answers) => a.role !== "GUARDIAN";
@@ -287,23 +304,33 @@ export const STEPS: Step[] = [
     id: "used",
     title: "Co już wykorzystano",
     visible: (a) => a.stage === "BORN" && a.role === "MOTHER" && !a.sensitive,
-    complete: () => true,
-    summary: (a) => join([`mama ${plWeeks(Number(a.usedParentalMotherWeeks || 0))}`, `tata ${plWeeks(Number(a.usedParentalFatherWeeks || 0))}`,
+    complete: (a) => Object.keys(usedErrors(a)).length === 0,
+    summary: (a) => join([a.usedMaternityFully === "NO" && a.usedMaternityWeeks !== "" && `macierzyński ${plWeeks(Number(a.usedMaternityWeeks))}`,
+      `mama ${plWeeks(Number(a.usedParentalMotherWeeks || 0))}`, `tata ${plWeeks(Number(a.usedParentalFatherWeeks || 0))}`,
       Number(a.usedParts) > 0 && `${a.usedParts} cz.`]),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <ZusFetch source="usedLeave" a={a} set={set} what="Pobierz wykorzystane już urlopy i wypłacone zasiłki." />
         <Choice legend="Czy urlop macierzyński został wykorzystany w całości?" value={a.usedMaternityFully} columns={3}
           onChange={(usedMaternityFully) => set({ usedMaternityFully })} options={TRI_OPTIONS} />
+        {a.usedMaternityFully === "NO" && (
+          <NumberSelect label="Ile tygodni urlopu macierzyńskiego wykorzystano?" value={a.usedMaternityWeeks} from={0}
+            to={maternityWeeks(a.children) - 1} unit={(n) => `${n} tyg.`} unknownLabel="Nie wiem"
+            hint={`Pełny wymiar: ${maternityWeeks(a.children)} tyg. Policzymy, ile zostało.`}
+            onChange={(usedMaternityWeeks) => set({ usedMaternityWeeks })} />
+        )}
+        <FieldError id="used-maternity-err" text={usedErrors(a).maternity} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Slider label="Rodzicielski wykorzystany przez mamę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalMotherWeeks}
             emptyLabel="0 tyg." onChange={(usedParentalMotherWeeks) => set({ usedParentalMotherWeeks })} />
           <Slider label="Rodzicielski wykorzystany przez tatę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalFatherWeeks}
             emptyLabel="0 tyg." onChange={(usedParentalFatherWeeks) => set({ usedParentalFatherWeeks })} />
         </div>
+        <FieldError id="used-parental-err" text={usedErrors(a).parental} />
         <NumberSelect label="Na ile części (wniosków) podzielono rodzicielski?" hint="Każdy wniosek to osobna część." value={a.usedParts}
           from={0} to={PARAMS.PARENTAL_MAX_PARTS} unknownLabel={null} unit={(n) => (n === 0 ? "Jeszcze nie korzystaliśmy" : `${n}`)}
           onChange={(usedParts) => set({ usedParts })} />
+        <FieldError id="used-parts-err" text={usedErrors(a).parts} />
         <Choice legend="Jaki wariant wypłaty wybrano?" value={a.usedVariant} columns={3} onChange={(usedVariant) => set({ usedVariant })} options={[
           { value: "COMBINED_815", label: "81,5% przez cały okres" },
           { value: "FULL_100_70", label: "100%, potem 70%" },

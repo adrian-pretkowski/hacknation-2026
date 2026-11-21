@@ -12,6 +12,7 @@ export type WizardPlan = {
   work_fraction: string;
   work_weeks: number | null;
   used_maternity_fully: boolean | null;
+  used_maternity_weeks: number | null;
   used_parental_mother_weeks: number;
   used_parental_father_weeks: number;
   used_parts: number;
@@ -118,6 +119,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       work_fraction: a.workFraction,
       work_weeks: num(a.workWeeks),
       used_maternity_fully: a.stage === "BORN" ? tri(a.usedMaternityFully) : null,
+      used_maternity_weeks: a.stage === "BORN" && a.usedMaternityFully === "NO" ? num(a.usedMaternityWeeks) : null,
       used_parental_mother_weeks: num(a.usedParentalMotherWeeks) ?? 0,
       used_parental_father_weeks: num(a.usedParentalFatherWeeks) ?? 0,
       used_parts: num(a.usedParts) ?? 0,

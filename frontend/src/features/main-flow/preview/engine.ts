@@ -56,6 +56,7 @@ export type PreviewSummary = {
     finalDate: string;
     latestContinuousStart: string;
     latestApplication: string;
+    maternityWeeks: number | null; // FE1-09: niewykorzystany macierzyński (null = wykorzystany w całości / nieznany)
   };
   ownTotal: string | null;
   segments: Seg[];
@@ -89,7 +90,7 @@ function plPercent(rate: string): string {
   return `${toDecimalString(mul(ratio(rate), ratio(100))).replace(".", ",")}%`;
 }
 
-function maternityWeeks(children: number): number {
+export function maternityWeeks(children: number): number {
   return P.MATERNITY_WEEKS_BY_CHILDREN[children >= 5 ? "5+" : String(children)];
 }
 
@@ -282,8 +283,10 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
     const matWeeks = allStillborn ? P.STILLBIRTH_LEAVE_WEEKS : maternityWeeks(Math.max(aliveCount, 1));
     const matDays = matWeeks * W;
     // Tryb „co zostało”: dziecko urodzone, a macierzyński już minął albo coś z rodzicielskiego wykorzystano.
+    const partialMaternity = wp.used_maternity_fully === false && wp.used_maternity_weeks != null;
     const history = wp.used_maternity_fully !== null && eventType === "BIRTH" && ev < today
-      && (addDays(ev, matDays) <= today || wp.used_parental_mother_weeks + wp.used_parental_father_weeks + wp.used_parts > 0);
+      && (addDays(ev, matDays) <= today || partialMaternity
+        || wp.used_parental_mother_weeks + wp.used_parental_father_weeks + wp.used_parts > 0);
 
     if (allStillborn) {
       // MAT-DUR-004: 8 tyg. po porodzie, nie krócej niż 7 dni od zgonu
@@ -313,6 +316,16 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       const usedF = wp.used_parental_father_weeks;
       const partsUsed = wp.used_parts;
       if (wp.used_maternity_fully) segments.push(mkSeg("MOTHER", matLeave, ev, matDays, P.MAT_RATE_FULL, false, { history: true }));
+      // FE1-09: częściowo wykorzystany macierzyński — historia + pozostałe tygodnie
+      const usedMat = partialMaternity ? Math.min(wp.used_maternity_weeks!, matWeeks) : null;
+      if (usedMat !== null && usedMat > 0) {
+        segments.push(mkSeg("MOTHER", matLeave, ev, usedMat * W, P.MAT_RATE_FULL, false, { history: true }));
+      }
+      const maternityLeft = usedMat !== null ? matWeeks - usedMat : null;
+      if (maternityLeft !== null && maternityLeft > 0) {
+        warn("MATERNITY_PARTLY_USED", "INFO", "MAT-DUR-001",
+          `Z urlopu macierzyńskiego zostało ${maternityLeft} tyg. Urlop trwa bez przerw od porodu — jeśli mama zrezygnowała z reszty po wykorzystaniu co najmniej ${P.MOTHER_MIN_WEEKS_BEFORE_TRANSFER} tyg., pozostałą część może przejąć tata.`);
+      }
       let cursor = addDays(ev, matDays);
       if (usedM > 0) {
         segments.push(mkSeg("MOTHER", "PARENTAL_LEAVE", cursor, usedM * W, P.MAT_RATE_PARENTAL, false, { history: true }));
@@ -327,7 +340,7 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       const latestStart = addDays(finalDate, -(total * W) + 1);
       const latestApplication = addDays(latestStart, -PO.PARENTAL_APP_DAYS_BEFORE);
       remaining = { totalWeeks: total, motherWeeks: motherCan, fatherWeeks: fatherCan, partsLeft, finalDate,
-        latestContinuousStart: latestStart, latestApplication };
+        latestContinuousStart: latestStart, latestApplication, maternityWeeks: maternityLeft };
       // stawka dla dalszej części
       let rate: string = wp.used_variant === "COMBINED_815" ? P.MAT_RATE_COMBINED : P.MAT_RATE_PARENTAL;
       const firstBirthday = addMonths(ev, 12);
