@@ -268,3 +268,11 @@ def test_m16_b_professional_foster_family_still_excluded():
     """Pkt j) obejmuje rodzinę zastępczą zawodową, ale wynik to brak prawa (art. 29 ust. 1 pkt 3)."""
     rule = ruleset().rule("MAT-EXCL-001")
     assert rule["evaluation"] == "ACTIVE" and rule["result"]["status"] == "NOT_ELIGIBLE"
+
+
+# ------------------------------------------------------------ M17: ryzyka tylko jako ostrzeżenie (RISK-001/002)
+def test_m17_risk_rules_are_warnings_not_decisions():
+    for rule_id in ("RISK-001", "RISK-002"):
+        rule = ruleset().rule(rule_id)
+        assert rule["evaluation"] == "INFORMATIONAL"
+        assert "warning" in rule["result"] and "status" not in rule["result"]

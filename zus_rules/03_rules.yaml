@@ -3318,7 +3318,7 @@ rules:
   interpretation_status: INCOMPLETE_SOURCE
   implementation_priority: P1
   automation_status: HUMAN_REVIEW
-  notes: "Źródłem jest treść zadania (nie akt prawny). 'Krótko przed' — parametr projektowy, NIE prawny; komunikat musi mówić o ryzyku, nie o decyzji."
+  notes: "Źródłem jest treść zadania (nie akt prawny). 'Krótko przed' — parametr projektowy, NIE prawny; komunikat musi mówić o ryzyku, nie o decyzji. M17 (2026-11-21, mentor fachowy): pokazujemy jako ostrzeżenie — bez wpływu na status; progi zespołu (≤90 dni) zostają projektowe."
 
 - id: RISK-002
   name: "Ryzyko — podwyższenie podstawy wymiaru składek w ciąży"
@@ -3343,7 +3343,7 @@ rules:
   interpretation_status: INCOMPLETE_SOURCE
   implementation_priority: P1
   automation_status: HUMAN_REVIEW
-  notes: "Próg 'istotnego wzrostu' — parametr projektowy do ustalenia z mentorem."
+  notes: "Próg 'istotnego wzrostu' (≥50%) — parametr projektowy zespołu. M17 (2026-11-21, mentor fachowy): pokazujemy jako ostrzeżenie — bez wpływu na status."
 
 - id: RISK-003
   name: "Ryzyko — ustanie ubezpieczenia przed porodem"

@@ -2505,7 +2505,7 @@ ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzj
 - **Dane:** `insurance.titles`, `pregnancy.pregnancy_start_date` · brak danych → `NOT_APPLICABLE`
 - **Jakość:** pewność LOW, interpretacja INCOMPLETE_SOURCE
 - **Testy:** —
-- **Uwagi:** Źródłem jest treść zadania (nie akt prawny). 'Krótko przed' — parametr projektowy, NIE prawny; komunikat musi mówić o ryzyku, nie o decyzji.
+- **Uwagi:** Źródłem jest treść zadania (nie akt prawny). 'Krótko przed' — parametr projektowy, NIE prawny; komunikat musi mówić o ryzyku, nie o decyzji. M17 (2026-11-21, mentor fachowy): pokazujemy jako ostrzeżenie — bez wpływu na status; progi zespołu (≤90 dni) zostają projektowe.
 
 ### RISK-002
 
@@ -2524,7 +2524,7 @@ ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w 
 - **Dane:** `income_history.months`, `pregnancy.pregnancy_start_date` · brak danych → `NOT_APPLICABLE`
 - **Jakość:** pewność LOW, interpretacja INCOMPLETE_SOURCE
 - **Testy:** —
-- **Uwagi:** Próg 'istotnego wzrostu' — parametr projektowy do ustalenia z mentorem.
+- **Uwagi:** Próg 'istotnego wzrostu' (≥50%) — parametr projektowy zespołu. M17 (2026-11-21, mentor fachowy): pokazujemy jako ostrzeżenie — bez wpływu na status.
 
 ### RISK-003
 
