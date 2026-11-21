@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AppVersion } from "@/components/AppVersion";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { Wizard } from "@/features/main-flow/wizard/Wizard";
@@ -11,6 +12,7 @@ export default function Home() {
         <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-4">
           <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-full bg-zus-green-dark text-sm font-bold text-white">PR</span>
           <p className="min-w-0 flex-1 text-lg font-semibold tracking-tight text-zus-navy sm:text-xl">Przewodnik Przyszłego Rodzica</p>
+          <Link href="/przewodnik" className="text-sm font-medium text-zus-navy underline underline-offset-2">Przewodnik</Link>
           <UserChip />
         </div>
       </header>

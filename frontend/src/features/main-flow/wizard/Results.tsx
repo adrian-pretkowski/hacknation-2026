@@ -398,7 +398,7 @@ function SupportBlock({ kind }: { kind: "loss" | "preterm" | "zazyciem" }) {
     <section className="rounded-lg border-l-8 border-l-zus-blue bg-zus-blue-50 p-4 text-sm text-zus-navy sm:p-5" aria-labelledby={`sup-${kind}`}>
       <h3 id={`sup-${kind}`} className="text-base font-semibold">{text.h}</h3>
       <p className="mt-1">{text.p}</p>
-      <p className="mt-2 text-xs">Lista organizacji: przewodnik w zakładce Wsparcie (w przygotowaniu). Rzecznik Praw Pacjenta: 800 190 590.</p>
+      <p className="mt-2 text-xs">Lista organizacji i przydatne linki: <a href={kind === "loss" ? "/przewodnik/spokojny" : "/przewodnik"} className="font-medium underline underline-offset-2">przewodnik</a>. Rzecznik Praw Pacjenta: 800 190 590.</p>
     </section>
   );
 }
