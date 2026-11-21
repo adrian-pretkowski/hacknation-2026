@@ -25,7 +25,11 @@ PAYERS = {"ZUS": "ZUS", "CONTRIBUTION_PAYER": "płatnik składek (pracodawca)"}
 
 @lru_cache
 def load_templates(path: str | None = None) -> dict[str, str]:
-    """Szablony z pliku YAML; brak pliku → pusty słownik (fallback na nazwę reguły)."""
+    """Szablony z pliku YAML; brak pliku → pusty słownik (fallback na nazwę reguły).
+
+    Wynik jest cache'owany — zmiana ``templates.pl.yaml`` wymaga restartu backendu
+    (lub ``load_templates.cache_clear()``).
+    """
     file = Path(path) if path else TEMPLATES_PATH
     if not file.exists():
         return {}

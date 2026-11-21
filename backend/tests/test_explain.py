@@ -92,3 +92,15 @@ def test_pipeline_benefit_explains_every_fired_rule(demo_payload):
 def test_evaluate_response_with_explanation_matches_contract(client, demo_payload):
     benefit = client.post("/api/evaluate", json=demo_payload).json()["benefits"][0]
     assert benefit["explanation"] and benefit["legal_basis"]
+
+
+def test_benefit_without_fired_rules_has_empty_explanation(demo_payload):
+    # brak danych (NEEDS_DATA): brak ubezpieczenia i liczby dzieci → żadna reguła prawa nie jest FIRED
+    payload = copy.deepcopy(demo_payload)
+    payload["insurance"] = {"titles": None}
+    payload["children"] = {"count_at_birth": None}
+    payload = EvaluateRequest.model_validate(payload).model_dump(mode="json", by_alias=True, exclude_none=False)
+    benefit = pipeline.evaluate(payload)["benefits"][0]
+    assert benefit["status"] == "NEEDS_DATA"
+    assert "{" not in benefit["explanation"]
+    assert all(set(ref) == {"document", "location"} for ref in benefit["legal_basis"])
