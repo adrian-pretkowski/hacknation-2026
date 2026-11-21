@@ -133,10 +133,12 @@ function Remaining({ p }: { p: PreviewResult }) {
 type PlanErrors = NonNullable<EvaluateResponse["plan_errors"]>;
 type ReturnToWork = NonNullable<EvaluateResponse["return_to_work"]>;
 
-/** FE1-02: błąd planu → rodzaj urlopu, przy którym go pokazujemy (reguły PAR-*, PAT-*, MAT-DUR-008/009). */
+/** FE1-02: błąd planu → rodzaj urlopu, przy którym go pokazujemy (PAR-* → rodzicielski, PAT-* → ojcowski,
+ * MAT-DUR-* → macierzyński); inne (np. MAT-SHARE-007) — lista pod osią czasu. */
 const errorLeave = (ruleId: string): string | null => ruleId.startsWith("PAR-") ? "PARENTAL_LEAVE"
   : ruleId.startsWith("PAT-") ? "PATERNITY_LEAVE" : ruleId.startsWith("MAT-DUR-") ? "MATERNITY_LEAVE" : null;
-const workText = (s: Seg) => s.work_fraction !== "0" ? ` + praca ${s.work_fraction === "0.5" ? "½" : "¼"} etatu` : "";
+const fractionText = (f: string) => f === "0.5" ? "½" : f === "0.25" ? "¼" : f.replace(".", ",");
+const workText = (s: Seg) => s.work_fraction !== "0" ? ` + praca ${fractionText(s.work_fraction)} etatu` : "";
 const segLabel = (s: Seg) => `${PARENT_LABEL[s.parent]}: ${LEAVE_LABEL[s.leave_type]}${s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}`
   + `${s.history ? " — wykorzystany" : ""}${workText(s)}`;
 const amountText = (s: Seg) => s.history ? "—" : s.own ? formatMoney(s.amount) : "zależy od zarobków drugiego rodzica";
@@ -154,8 +156,10 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
   const pos = (d: string) => (daysBetween(start, d) / span) * 100;
   const todayPos = today >= start && today <= end ? pos(today) : null;
   const legend = [...new Set(segments.map((s) => s.leave_type))];
-  const errorsOf = (s: Seg) => s.history ? [] : planErrors.filter((e) => errorLeave(e.rule_id) === s.leave_type);
-  const unplaced = planErrors.filter((e) => !segments.some((s) => !s.history && errorLeave(e.rule_id) === s.leave_type));
+  // każdy błąd przy jednym okresie: pierwszym (nie historycznym) okresie danego rodzaju urlopu
+  const owner = (e: PlanErrors[number]) => segments.findIndex((s) => !s.history && errorLeave(e.rule_id) === s.leave_type);
+  const errorsOf = (s: Seg) => planErrors.filter((e) => owner(e) === segments.indexOf(s));
+  const unplaced = planErrors.filter((e) => owner(e) < 0);
   // klawiatura: Tab po paskach, ← → do sąsiedniego paska (kolejność jak w tabeli), Escape zamyka szczegóły
   const onKey = (e: React.KeyboardEvent<HTMLButtonElement>, i: number) => {
     if (e.key === "Escape") { setActive(null); return; }
@@ -189,8 +193,9 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
                     style={{ left: `${pos(s.from)}%`, width: `max(${(s.days / span) * 100}%, 6px)` }} />
                 ))}
                 {todayPos !== null && <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-zinc-900" style={{ left: `${todayPos}%` }} />}
-                {rtw && rtw.date <= end && (
-                  <div aria-hidden="true" className="absolute -inset-y-1 w-0.5 bg-zus-red" style={{ left: `${Math.min(pos(rtw.date), 100)}%` }} />
+                {/* powrót do pracy = dzień po ostatnim okresie; przy końcu osi znacznik na prawej krawędzi */}
+                {rtw && rtw.date >= start && (
+                  <div aria-hidden="true" className="absolute -inset-y-1 w-0.5 bg-zus-red" style={{ left: `min(${Math.min(pos(rtw.date), 100)}%, calc(100% - 2px))` }} />
                 )}
               </div>
             </div>
@@ -205,8 +210,8 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
         {todayPos !== null && <li className="flex items-center gap-1"><span className="inline-block h-3 w-0.5 bg-zinc-900" />dziś</li>}
         {returnToWork.length > 0 && <li className="flex items-center gap-1"><span className="inline-block h-3 w-0.5 bg-zus-red" />powrót do pracy</li>}
       </ul>
-      {/* telefon: karty zamiast tabeli — bez przewijania w poziomie przy 375 px */}
-      <ul className="mt-4 space-y-2 sm:hidden">
+      {/* telefon i wąski tablet: karty zamiast tabeli — bez przewijania w poziomie */}
+      <ul className="mt-4 space-y-2 md:hidden">
         {segments.map((s, i) => (
           <li key={i} className={`rounded border px-3 py-2 text-sm ${errorsOf(s).length ? "border-zus-red" : "border-zinc-200"} ${s.history ? "text-zinc-500" : ""} ${active === i ? "bg-zinc-50" : ""}`}>
             <p className="font-medium">{segLabel(s)}</p>
@@ -217,7 +222,8 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
           </li>
         ))}
       </ul>
-      <table className="mt-4 hidden w-full text-left text-sm sm:table">
+      <div className="mt-4 hidden overflow-x-auto md:block">
+      <table className="w-full text-left text-sm">
         <caption className="sr-only">Okresy urlopów i zasiłków</caption>
         <thead className="text-xs text-zinc-600"><tr><th className="py-1 pr-2">Kto</th><th className="pr-2">Okres</th><th className="pr-2">Od – do</th><th className="pr-2">Stawka</th><th className="text-right">Kwota</th></tr></thead>
         <tbody>
@@ -233,8 +239,9 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
           ))}
         </tbody>
       </table>
+      </div>
       {returnToWork.length > 0 && (
-        <p className="mt-3 text-sm">Powrót do pracy: {returnToWork.map((r) => `${PARENT_LABEL[r.parent] ?? r.parent} ${formatDate(r.date)}${r.part_time_fraction ? ` (${r.part_time_fraction} etatu)` : ""}`).join(" · ")}.</p>
+        <p className="mt-3 text-sm">Powrót do pracy: {returnToWork.map((r) => `${PARENT_LABEL[r.parent] ?? r.parent} ${formatDate(r.date)}${r.part_time_fraction ? ` (${fractionText(r.part_time_fraction)} etatu)` : ""}`).join(" · ")}.</p>
       )}
       {unplaced.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm text-zus-red" role="alert">
