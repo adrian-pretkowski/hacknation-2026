@@ -90,8 +90,8 @@ export function Guide({ sensitive = false }: { sensitive?: boolean }) {
         </p>
         <p className="mt-2 text-sm">
           {sensitive
-            ? <Link href="/przewodnik" className="font-medium text-zus-navy underline underline-offset-2">Pokaż pełny przewodnik</Link>
-            : <Link href="/przewodnik/spokojny" className="font-medium text-zus-navy underline underline-offset-2">Poród martwego dziecka, poronienie lub strata dziecka — tryb spokojny</Link>}
+            ? <Link href="/wsparcie" className="font-medium text-zus-navy underline underline-offset-2">Pokaż pełny przewodnik</Link>
+            : <Link href="/wsparcie/spokojny" className="font-medium text-zus-navy underline underline-offset-2">Poród martwego dziecka, poronienie lub strata dziecka — tryb spokojny</Link>}
         </p>
       </header>
       {sensitive ? (

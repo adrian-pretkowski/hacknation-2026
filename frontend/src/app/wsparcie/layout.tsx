@@ -2,8 +2,8 @@ import Link from "next/link";
 import { AppVersion } from "@/components/AppVersion";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 
-// FE2-05: wspólny układ stron przewodnika (/przewodnik, /przewodnik/spokojny).
-export default function GuideLayout({ children }: LayoutProps<"/przewodnik">) {
+// FE2-05: wspólny układ stron przewodnika (/wsparcie, /wsparcie/spokojny).
+export default function GuideLayout({ children }: LayoutProps<"/wsparcie">) {
   return (
     <>
       <DemoModeBanner />
