@@ -27,7 +27,8 @@ async def validation_problem(_: Request, exc: RequestValidationError) -> JSONRes
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "ruleset_version": ruleset_version(), "law_reference_date": settings.law_reference_date,
-            "engine": "slice-v0" if get_settings().engine == "slice" else "rules-engine"}
+            "engine": "slice-v0" if get_settings().engine == "slice" else "rules-engine",
+            "app_version": settings.app_version}
 
 
 app.include_router(evaluation_router)

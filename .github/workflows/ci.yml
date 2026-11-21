@@ -3,6 +3,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:  # wywoływany z deploy.yml przed wdrożeniem (INT-11)
 
 # Nowy push/PR anuluje trwający przebieg tej samej gałęzi
 concurrency:

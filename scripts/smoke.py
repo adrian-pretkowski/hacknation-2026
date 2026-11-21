@@ -55,6 +55,8 @@ def main() -> int:
     print(f"[health] {status} {health}")
     if status != 200 or health.get("status") != "ok":
         failures.append("health")
+    if not health.get("app_version"):  # INT-11: wersja z tagu (lokalnie "dev")
+        failures.append("health: brak app_version")
 
     scenario = json.loads((REPO / "demo" / "scenario_employee_mother.json").read_text(encoding="utf-8"))
     status, headers, body = request(f"{args.api}/api/evaluate", scenario, origin=args.web)

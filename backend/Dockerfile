@@ -6,6 +6,8 @@ RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY zus_rules zus_rules
 COPY backend/app backend/app
 WORKDIR /srv/backend
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION
 ENV ZUS_RULES_PATH=/srv/zus_rules/03_rules.yaml
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

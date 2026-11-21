@@ -1,0 +1,56 @@
+name: deploy
+# Wdrożenie WYŁĄCZNIE po wypchnięciu tagu vX.Y.Z (INT-11). Push na main i PR nic nie wdrażają.
+# Wydanie:  git tag v0.2.0 && git push origin v0.2.0
+on:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: v
+        name: Format tagu vX.Y.Z i commit na main
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if ! [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Tag '$tag' nie ma formatu vMAJOR.MINOR.PATCH"; exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Commit tagu nie jest na main — taguj tylko main"; exit 1
+          fi
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
+
+  ci:
+    needs: validate
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: [validate, ci]
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ needs.validate.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Obraz backendu
+        run: docker build -f backend/Dockerfile --build-arg APP_VERSION="$APP_VERSION" -t backend:"$APP_VERSION" .
+      - name: Obraz frontendu
+        run: docker build frontend --build-arg APP_VERSION="$APP_VERSION" -t frontend:"$APP_VERSION"
+      - name: Smoke wersji w kontenerze
+        run: |
+          docker run -d --name be -p 8000:8000 backend:"$APP_VERSION"
+          for i in $(seq 1 30); do curl -sf localhost:8000/api/health && break; sleep 1; done
+          curl -sf localhost:8000/api/health | grep -q "\"app_version\":\"$APP_VERSION\""
+
+  # TODO (Heroku, po decyzji o układzie aplikacji i dodaniu sekretu HEROKU_API_KEY):
+  # job `deploy` z `needs: build`: push obrazów (heroku container:push/release z APP_VERSION),
+  # potem `curl https://<app>/api/health` musi zwrócić app_version == tag — inaczej job czerwony.

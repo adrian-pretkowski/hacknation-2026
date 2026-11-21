@@ -32,6 +32,7 @@ paths:
                 ruleset_version: 0.1.0
                 law_reference_date: '2026-11-21'
                 engine: slice-v0
+                app_version: dev
       x-status: implemented
       x-owner: INT
   /api/evaluate:
@@ -583,9 +584,13 @@ components:
       - ruleset_version
       - law_reference_date
       - engine
+      - app_version
       properties:
         status:
           const: ok
+        app_version:
+          type: string
+          description: Wersja wdrożonej aplikacji z tagu vX.Y.Z (lokalnie dev).
         ruleset_version:
           type: string
         law_reference_date:
