@@ -27,9 +27,43 @@ function Illustration() {
   );
 }
 
-export function Intro({ headingRef, onStart, onPreset, onSensitive, presets }: {
+/** Karta wyboru drogi na ekranie startowym — cała klikalna (after:inset-0 na przycisku). */
+function PathCard({ tag, title, text, points, cta, onClick, icon, primary }: {
+  tag: string; title: string; text: string; points: string[]; cta: string; onClick: () => void; icon: "plan" | "forms"; primary?: boolean;
+}) {
+  return (
+    <li className={`relative flex flex-col rounded-2xl border-2 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md sm:p-6 ${
+      primary ? "border-zus-green-dark" : "border-zinc-200 hover:border-zus-navy"}`}>
+      <span aria-hidden="true" className={`flex h-12 w-12 items-center justify-center rounded-xl ${primary ? "bg-zus-green-50 text-zus-green-dark" : "bg-zus-blue-50 text-zus-navy"}`}>
+        {icon === "plan" ? (
+          <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" /><path d="M14 3v5h5M8 13h8M8 17h5" />
+          </svg>
+        )}
+      </span>
+      <p className="mt-4 text-xs font-semibold tracking-wider text-zinc-600 uppercase">{tag}</p>
+      <h3 className="mt-1 text-lg font-semibold text-zus-navy">{title}</h3>
+      <p className="mt-1 text-sm text-zinc-700">{text}</p>
+      <ul className="mt-3 space-y-1 text-sm text-zinc-700">
+        {points.map((p) => <li key={p} className="flex gap-2"><span aria-hidden="true" className="text-zus-green-dark">✓</span>{p}</li>)}
+      </ul>
+      <button type="button" onClick={onClick}
+        className={`mt-5 self-start rounded-full px-5 py-2.5 text-sm font-semibold after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-zus-green-dark ${
+          primary ? "bg-zus-green-dark text-white hover:bg-zus-navy" : "border border-zus-navy text-zus-navy hover:bg-zus-blue-50"}`}>
+        {cta}
+      </button>
+    </li>
+  );
+}
+
+export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, presets }: {
   headingRef: RefObject<HTMLHeadingElement | null>;
   onStart: () => void;
+  onForms: () => void;
   onPreset: (a: Partial<Answers>) => void;
   onSensitive: () => void;
   presets: { id: string; label: string; answers: Partial<Answers> }[];
@@ -45,19 +79,29 @@ export function Intro({ headingRef, onStart, onPreset, onSensitive, presets }: {
           <p className="mt-4 max-w-xl text-base text-zinc-700">
             W kilka minut sprawdzicie, co Wam przysługuje, na jak długo i ile wyniesie zasiłek, a do tego co, gdzie i do kiedy złożyć.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" onClick={onStart}
-              className="rounded-full bg-zus-green-dark px-6 py-3 text-base font-semibold text-white hover:bg-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
-              Zaczynamy →
-            </button>
-            <button type="button" onClick={() => document.getElementById("jak-to-dziala")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-              className="rounded-full border border-zinc-300 px-6 py-3 text-base font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
-              Jak to działa?
-            </button>
-          </div>
+          <button type="button" onClick={() => document.getElementById("jak-to-dziala")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            className="mt-4 text-sm font-semibold text-zus-navy underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
+            Jak to działa?
+          </button>
           <p className="mt-4 text-xs text-zinc-600">Wynik ma charakter informacyjny i nie jest decyzją ZUS.</p>
         </div>
         <div className="hidden justify-center md:flex"><Illustration /></div>
+      </section>
+
+      {/* FE1-11: wybór drogi — kreator (pełny plan) albo szybkie pisma (docs/FORMS_FLOW.md) */}
+      <section aria-labelledby="start-h" className="-mt-4">
+        <h2 id="start-h" className="text-xl font-semibold text-zus-navy">Od czego chcesz zacząć?</h2>
+        <p className="mt-1 text-sm text-zinc-600">Możesz w każdej chwili przejść na drugą drogę — z planu do pism i z powrotem.</p>
+        <ul className="mt-4 grid gap-4 md:grid-cols-2">
+          <PathCard primary icon="plan" tag="Kilka minut" title="Sprawdź, co Ci przysługuje"
+            text="Odpowiesz na kilka pytań, a my policzymy urlopy i zasiłki obojga rodziców."
+            points={["okresy i kwoty na osi czasu", "terminy, ryzyka i lista dokumentów", "na końcu — pisma do wypełnienia"]}
+            cta="Zaczynamy →" onClick={onStart} />
+          <PathCard icon="forms" tag="Wiem, czego potrzebuję" title="Złóż pisma szybko"
+            text="Wybierz pismo z listy: ZAM, Z-3, Z-3a, ZAS-12 lub ZAS-53 — z opisem, kto je składa i kiedy."
+            points={["bez wypełniania kreatora", "opis każdego pisma w jednym miejscu", "od razu do wypełnienia"]}
+            cta="Wybierz pismo →" onClick={onForms} />
+        </ul>
       </section>
 
       <section id="jak-to-dziala" aria-labelledby="how-h" className="scroll-mt-4">
