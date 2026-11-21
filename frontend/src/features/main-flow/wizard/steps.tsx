@@ -2,6 +2,7 @@
 
 // Kroki kreatora: najpierw pytania, które wykluczają całe gałęzie (kim jesteś → etap → zdarzenie → ubezpieczenie).
 // Każdy krok ma warunek widoczności — pytanie pojawia się tylko wtedy, gdy ma znaczenie dla wyniku.
+import { useId } from "react";
 import { formatDate, formatMoney } from "@/lib/format";
 import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
@@ -73,14 +74,16 @@ function HospitalDays({ a, set, cap, label, hint }: StepProps & { cap: number; l
   const full = Math.floor(days / PARAMS.WEEK_AS_DAYS);
   const rest = days % PARAMS.WEEK_AS_DAYS;
   const invalid = a.hospitalDays.trim() !== "" && weeks === null;
+  const resultId = useId();
   return (
     <div className="space-y-2">
       <Field label={label} hint={hint}>
-        <input type="number" inputMode="numeric" min={0} step={1} className={inputCls} value={a.hospitalDays}
-          aria-invalid={invalid || undefined} placeholder="np. 38"
+        {/* type="text" (nie "number"): przeglądarka nie zamienia wtedy nieparsowalnego wpisu na "", więc walidacja widzi surową wartość */}
+        <input type="text" inputMode="numeric" pattern="[0-9]*" autoComplete="off" className={inputCls} value={a.hospitalDays}
+          aria-invalid={invalid || undefined} aria-describedby={resultId} placeholder="np. 38"
           onChange={(e) => set({ hospitalDays: e.target.value, hospitalWeeks: daysToHospitalWeeks(e.target.value) })} />
       </Field>
-      <p aria-live="polite" className="text-sm text-zinc-700">
+      <p id={resultId} aria-live="polite" className={`text-sm ${invalid ? "text-red-700" : "text-zinc-700"}`}>
         {invalid ? "Podaj liczbę całkowitą dni (0 lub więcej)."
           : weeks === null ? null
           : <>
@@ -231,7 +234,7 @@ export const STEPS: Step[] = [
                 const who = a.children > 1 ? " (dziecko najdłużej w szpitalu)" : "";
                 return (
                   <HospitalDays a={a} set={set} cap={cap} label={`Łącznie dni w szpitalu${who}`}
-                    hint={`Liczba dni z zaświadczenia ze szpitala — przeliczymy ją na tygodnie. ${HOSPITAL_EXAMPLE} Kilka pobytów sumuje się. Puste pole = nie wiem. ${capHint}`} />
+                    hint={`Liczba dni z zaświadczenia ze szpitala — przeliczymy ją na tygodnie. ${HOSPITAL_EXAMPLE} Kilka pobytów sumuje się; liczą się dni od porodu, w czasie urlopu macierzyńskiego. Puste pole = nie wiem. ${capHint}`} />
                 );
               })()}
             </div>
