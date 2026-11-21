@@ -2,8 +2,22 @@
 
 // Kroki kreatora: najpierw pytania, które wykluczają całe gałęzie (kim jesteś → etap → zdarzenie → ubezpieczenie).
 // Każdy krok ma warunek widoczności — pytanie pojawia się tylko wtedy, gdy ma znaczenie dla wyniku.
+import { PARAMS } from "../preview/params";
+import { addDays, daysBetween } from "../preview/exact";
 import type { Answers } from "./answers";
-import { Check, Choice, Field, TRI_OPTIONS, inputCls } from "./fields";
+import { Check, Choice, Field, NumberSelect, Slider, TRI_OPTIONS, inputCls } from "./fields";
+import { ZusFetch } from "./ZusFetch";
+
+const plYears = (n: number) => `${n} ${n === 1 ? "rok" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "lata" : "lat"}`;
+const weeksBefore = (a: Answers): string => {
+  if (!a.maternityStart || !a.eventDate) return "0";
+  const d = daysBetween(a.maternityStart, a.eventDate);
+  return d % PARAMS.WEEK_AS_DAYS === 0 && d >= 0 && d <= PARAMS.PRE_BIRTH_MAX_WEEKS * PARAMS.WEEK_AS_DAYS
+    ? String(d / PARAMS.WEEK_AS_DAYS) : "custom";
+};
+const parentalPool = (a: Answers) => a.zaZyciem
+  ? (a.children > 1 ? PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_MULTIPLE : PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_SINGLE)
+  : (a.children > 1 ? PARAMS.PARENTAL_WEEKS_MULTIPLE : PARAMS.PARENTAL_WEEKS_SINGLE);
 
 export type StepProps = { a: Answers; set: (patch: Partial<Answers>) => void };
 export type Step = {
@@ -68,9 +82,8 @@ export const STEPS: Step[] = [
         </Field>
         {a.role === "GUARDIAN" && (
           <>
-            <Field label="Wiek dziecka (lata)">
-              <input inputMode="numeric" className={inputCls} value={a.childAgeYears} onChange={(e) => set({ childAgeYears: e.target.value.replace(/\D/g, "") })} />
-            </Field>
+            <NumberSelect label="Wiek dziecka" value={a.childAgeYears} from={0} to={17} unit={plYears} unknownLabel="Wybierz wiek"
+              onChange={(childAgeYears) => set({ childAgeYears })} />
             {a.guardianKind !== "ADOPTION" && (
               <Choice legend="Czy dziecku odroczono obowiązek szkolny?" value={a.schoolDeferred} columns={3}
                 onChange={(schoolDeferred) => set({ schoolDeferred })} options={TRI_OPTIONS} />
@@ -116,15 +129,15 @@ export const STEPS: Step[] = [
           checked={a.preterm} onChange={(preterm) => set({ preterm })} />
         {a.preterm && (
           <div className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 sm:grid-cols-2">
-            <Field label="Ukończony tydzień ciąży przy porodzie">
-              <input inputMode="numeric" className={inputCls} value={a.gestationWeeks} onChange={(e) => set({ gestationWeeks: e.target.value.replace(/\D/g, "") })} />
-            </Field>
-            <Field label="Masa urodzeniowa (g)" hint="Przy kilkorgu dzieci: najniższa.">
-              <input inputMode="numeric" className={inputCls} value={a.birthWeightG} onChange={(e) => set({ birthWeightG: e.target.value.replace(/\D/g, "") })} />
-            </Field>
-            <Field label="Łącznie tygodni w szpitalu" hint="Kilka pobytów sumuje się; niepełny tydzień liczy się jako pełny. Przy kilkorgu dzieci: najdłuższa.">
-              <input inputMode="numeric" className={inputCls} value={a.hospitalWeeks} onChange={(e) => set({ hospitalWeeks: e.target.value.replace(/\D/g, "") })} />
-            </Field>
+            <NumberSelect label="Ukończony tydzień ciąży przy porodzie" value={a.gestationWeeks} from={20} to={42}
+              unit={(n) => `${n}. tydzień`} onChange={(gestationWeeks) => set({ gestationWeeks })} />
+            <Slider label="Masa urodzeniowa" unit="g" min={300} max={5000} step={50} value={a.birthWeightG}
+              hint="Przy kilkorgu dzieci: najniższa." onChange={(birthWeightG) => set({ birthWeightG })} />
+            <div className="sm:col-span-2">
+              <Slider label="Łącznie tygodni w szpitalu" unit="tyg." min={0} max={26} value={a.hospitalWeeks}
+                hint="Kilka pobytów sumuje się; niepełny tydzień liczy się jako pełny. Przy kilkorgu dzieci: najdłuższy pobyt."
+                onChange={(hospitalWeeks) => set({ hospitalWeeks })} />
+            </div>
             {Number(a.gestationWeeks) >= 37 && (
               <Choice legend="Czy pobyt w szpitalu (≥ 2 dni) zaczął się między 5. a 28. dniem życia?" value={a.lateHospitalQualifies}
                 columns={3} onChange={(lateHospitalQualifies) => set({ lateHospitalQualifies })} options={TRI_OPTIONS} />
@@ -155,9 +168,12 @@ export const STEPS: Step[] = [
             value={a.voluntarySickness} columns={3} onChange={(voluntarySickness) => set({ voluntarySickness })} options={TRI_OPTIONS} />
         )}
         {a.title && a.title !== "NONE" && (
-          <Field label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="W wersji produkcyjnej: pobranie z danych ZUS (tu: wpisz ręcznie).">
-            <input type="date" className={inputCls} value={a.insuredFrom} onChange={(e) => set({ insuredFrom: e.target.value })} />
-          </Field>
+          <>
+            <ZusFetch source="insurance" a={a} set={set} what="Nie pamiętasz dat? Pobierzemy okres ubezpieczenia i dane płatnika." />
+            <Field label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej.">
+              <input type="date" className={inputCls} value={a.insuredFrom} onChange={(e) => set({ insuredFrom: e.target.value })} />
+            </Field>
+          </>
         )}
         {a.title === "EMPLOYMENT" && (
           <>
@@ -190,7 +206,8 @@ export const STEPS: Step[] = [
         )}
         {a.title === "SELF_EMPLOYED" && (
           <div className="space-y-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-            <Field label="Zaległość w składkach na dzień porodu (zł)" hint="0, jeśli brak. W wersji produkcyjnej: zaświadczenie o niezaleganiu (symulacja).">
+            <ZusFetch source="debt" a={a} set={set} what="Pobierz zaświadczenie o stanie rozliczeń składek." />
+            <Field label="Zaległość w składkach na dzień porodu (zł)" hint="0, jeśli brak.">
               <input inputMode="decimal" className={inputCls} value={a.debt} onChange={(e) => set({ debt: e.target.value })} />
             </Field>
             <Choice legend="Czy działalność lub dobrowolne chorobowe zaczęło się w trakcie ciąży?" value={a.startedDuringPregnancy} columns={3}
@@ -209,23 +226,22 @@ export const STEPS: Step[] = [
     complete: () => true,
     render: ({ a, set }) => (
       <div className="space-y-4">
+        <ZusFetch source="usedLeave" a={a} set={set} what="Pobierz wykorzystane już urlopy i wypłacone zasiłki." />
         <Choice legend="Czy urlop macierzyński został wykorzystany w całości?" value={a.usedMaternityFully} columns={3}
           onChange={(usedMaternityFully) => set({ usedMaternityFully })} options={TRI_OPTIONS} />
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Field label="Rodzicielski mamy (tyg.)">
-            <input inputMode="numeric" className={inputCls} value={a.usedParentalMotherWeeks} onChange={(e) => set({ usedParentalMotherWeeks: e.target.value.replace(/\D/g, "") })} />
-          </Field>
-          <Field label="Rodzicielski taty (tyg.)">
-            <input inputMode="numeric" className={inputCls} value={a.usedParentalFatherWeeks} onChange={(e) => set({ usedParentalFatherWeeks: e.target.value.replace(/\D/g, "") })} />
-          </Field>
-          <Field label="Liczba części (wniosków)" hint="Każdy wniosek to osobna część.">
-            <input inputMode="numeric" className={inputCls} value={a.usedParts} onChange={(e) => set({ usedParts: e.target.value.replace(/\D/g, "") })} />
-          </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Slider label="Rodzicielski wykorzystany przez mamę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalMotherWeeks}
+            emptyLabel="0 tyg." onChange={(usedParentalMotherWeeks) => set({ usedParentalMotherWeeks })} />
+          <Slider label="Rodzicielski wykorzystany przez tatę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalFatherWeeks}
+            emptyLabel="0 tyg." onChange={(usedParentalFatherWeeks) => set({ usedParentalFatherWeeks })} />
         </div>
+        <NumberSelect label="Na ile części (wniosków) podzielono rodzicielski?" hint="Każdy wniosek to osobna część." value={a.usedParts}
+          from={0} to={PARAMS.PARENTAL_MAX_PARTS} unknownLabel={null} unit={(n) => (n === 0 ? "Jeszcze nie korzystaliśmy" : `${n}`)}
+          onChange={(usedParts) => set({ usedParts })} />
         <Choice legend="Jaki wariant wypłaty wybrano?" value={a.usedVariant} columns={3} onChange={(usedVariant) => set({ usedVariant })} options={[
           { value: "COMBINED_815", label: "81,5% przez cały okres" },
           { value: "FULL_100_70", label: "100%, potem 70%" },
-          { value: "UNKNOWN", label: "Nie wiem", description: "symulacja: sprawdź w PUE/eZUS" },
+          { value: "UNKNOWN", label: "Nie wiem", description: "pobierz dane z ZUS powyżej (symulacja)" },
         ]} />
       </div>
     ),
@@ -237,6 +253,7 @@ export const STEPS: Step[] = [
     complete: () => true,
     render: ({ a, set }) => (
       <div className="space-y-4">
+        <ZusFetch source="partner" a={a} set={set} what="Za zgodą partnerki: sprawdź jej status ubezpieczenia chorobowego." />
         <Choice legend="Czy partnerka ma ubezpieczenie chorobowe?" hint="Od tego zależy, z jakich urlopów możesz skorzystać." value={a.partnerInsured}
           columns={3} onChange={(partnerInsured) => set({ partnerInsured })} options={TRI_OPTIONS} />
         {a.partnerInsured === "YES" && a.stage === "PREGNANT" && (
@@ -254,16 +271,33 @@ export const STEPS: Step[] = [
     render: ({ a, set }) => (
       <div className="space-y-5">
         {a.role === "MOTHER" && (
-          <Field label="Kiedy chcesz zacząć urlop macierzyński? (opcjonalnie)" hint="Najwcześniej 6 tygodni przed porodem. Puste = w dniu porodu.">
-            <input type="date" className={inputCls} value={a.maternityStart} onChange={(e) => set({ maternityStart: e.target.value })} />
-          </Field>
+          <div className="space-y-3">
+            <Field label="Kiedy chcesz zacząć urlop macierzyński?" hint={`Najwcześniej ${PARAMS.PRE_BIRTH_MAX_WEEKS} tygodni przed porodem. Tygodnie przed porodem odejmą się od urlopu po porodzie.`}>
+              <select className={inputCls} value={weeksBefore(a)} disabled={!a.eventDate}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "custom") set({ maternityStart: a.maternityStart || a.eventDate });
+                  else set({ maternityStart: v === "0" ? "" : addDays(a.eventDate, -Number(v) * PARAMS.WEEK_AS_DAYS) });
+                }}>
+                <option value="0">W dniu porodu</option>
+                {Array.from({ length: PARAMS.PRE_BIRTH_MAX_WEEKS }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={String(n)}>{n} {n === 1 ? "tydzień" : n < 5 ? "tygodnie" : "tygodni"} przed porodem</option>
+                ))}
+                <option value="custom">Inna data…</option>
+              </select>
+            </Field>
+            {weeksBefore(a) === "custom" && (
+              <Field label="Dokładna data rozpoczęcia">
+                <input type="date" className={inputCls} value={a.maternityStart} onChange={(e) => set({ maternityStart: e.target.value })} />
+              </Field>
+            )}
+          </div>
         )}
         {(a.role !== "FATHER" || a.partnerInsured !== "NO") && (
-          <Field label={`Ile tygodni rodzicielskiego weźmie tata? ${a.fatherParentalWeeks} tyg.`}
-            hint="9 tygodni jest tylko dla taty (przepadają, jeśli ich nie weźmie). Reszta to pula mamy.">
-            <input type="range" min={0} max={32} step={1} className="mt-2 w-full accent-zus-green-dark" value={a.fatherParentalWeeks}
-              onChange={(e) => set({ fatherParentalWeeks: Number(e.target.value) })} />
-          </Field>
+          <Slider label="Ile tygodni rodzicielskiego weźmie tata?" unit="tyg." min={0}
+            max={parentalPool(a) - PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} value={String(a.fatherParentalWeeks)}
+            hint={`${PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tygodni jest tylko dla taty (przepadają, jeśli ich nie weźmie). Reszta to pula mamy.`}
+            onChange={(v) => set({ fatherParentalWeeks: v === "" ? 0 : Math.min(Number(v), parentalPool(a) - PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS) })} />
         )}
         {a.role === "MOTHER" && (
           <div className="space-y-3">
@@ -271,9 +305,8 @@ export const STEPS: Step[] = [
               { value: "0", label: "Nie" }, { value: "0.25", label: "Tak, ¼ etatu" }, { value: "0.5", label: "Tak, ½ etatu" },
             ]} />
             {a.workFraction !== "0" && (
-              <Field label="Przez ile tygodni urlopu chcesz pracować?" hint="Urlop wydłuży się proporcjonalnie, zasiłek będzie niższy o ułamek etatu.">
-                <input inputMode="numeric" className={inputCls} value={a.workWeeks} onChange={(e) => set({ workWeeks: e.target.value.replace(/\D/g, "") })} />
-              </Field>
+              <Slider label="Przez ile tygodni urlopu chcesz pracować?" unit="tyg." min={1} max={parentalPool(a)} value={a.workWeeks}
+                hint="Urlop wydłuży się proporcjonalnie, zasiłek będzie niższy o ułamek etatu." onChange={(workWeeks) => set({ workWeeks })} />
             )}
           </div>
         )}
@@ -286,10 +319,14 @@ export const STEPS: Step[] = [
     visible: (a) => a.role !== null && a.title !== "NONE",
     complete: () => true,
     render: ({ a, set }) => (
-      <Field label={a.title === "SELF_EMPLOYED" ? "Zadeklarowana podstawa składek (zł / miesiąc)" : "Wynagrodzenie brutto (zł / miesiąc)"}
-        hint="Przyjmujemy kwotę stałą przez 12 miesięcy; podstawa = brutto − 13,71%. Pełne wyliczenie z Z-3 — ścieżka „Mam dokumenty”. Puste = bez kwot.">
-        <input inputMode="decimal" className={inputCls} value={a.salaryGross} onChange={(e) => set({ salaryGross: e.target.value })} />
-      </Field>
+      <div className="space-y-4">
+        <ZusFetch source="salary" a={a} set={set}
+          what={a.title === "SELF_EMPLOYED" ? "Pobierz zadeklarowaną podstawę składek z ostatnich 12 miesięcy." : "Pobierz podstawę wymiaru z ostatnich 12 miesięcy."} />
+        <Slider label={a.title === "SELF_EMPLOYED" ? "Zadeklarowana podstawa składek (zł / miesiąc)" : "Wynagrodzenie brutto (zł / miesiąc)"}
+          unit="zł" min={0} max={30000} step={100} value={a.salaryGross} emptyLabel="nie podano — bez kwot"
+          hint="Przyjmujemy kwotę stałą przez 12 miesięcy; od brutto odejmujemy składki społeczne. Puste = pokażemy okresy bez kwot."
+          onChange={(salaryGross) => set({ salaryGross })} />
+      </div>
     ),
   },
 ];
