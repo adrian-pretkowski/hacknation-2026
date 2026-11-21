@@ -194,3 +194,25 @@ def test_future_rule_single_benefit_period_reported():
 def test_sickness_response_matches_contract(test_id):
     validator: Draft202012Validator = _validator("EvaluateResponse")
     validator.validate(pipeline.evaluate(_case(test_id)))
+
+
+def test_missing_sickness_history_keeps_right_and_reports_assumption():
+    # SICK-DUR-003: brak historii -> NEEDS_DATA dla limitu (missing_data), prawo zostaje; dni/kwota z jawnym zalozeniem
+    payload = _case("T-SICK-007")
+    payload["benefit_history"] = {"employer_sick_pay_days_in_year": 0}
+    body = pipeline.evaluate(payload)
+    benefit = _benefit(body, "SICKNESS_BENEFIT")
+    assert benefit["status"] == "ELIGIBLE" and benefit["period"]["days_used_in_benefit_period"] is None
+    assert "benefit_history.sickness_periods" in [m["field"] for m in body["missing_data"]]
+    assert "SICKNESS_HISTORY_UNKNOWN" in [a["code"] for a in body["assumptions"]]
+
+
+@pytest.mark.parametrize(("pregnancy_start", "review"), [("2026-11-15", True), ("2026-11-02", False),
+                                                         ("2026-11-30", True), ("2026-12-01", False)])
+def test_mixed_benefit_period_gap_006_needs_review(pregnancy_start, review):
+    # GAP-006: poczatek ciazy w trakcie niezdolnosci 2026-11-02..2026-11-30 (po pierwszym dniu) -> NEEDS_REVIEW
+    payload = _case("T-SP-005")
+    payload["pregnancy"]["pregnancy_start_date"] = pregnancy_start
+    benefit = _benefit(pipeline.evaluate(payload), "SICKNESS_BENEFIT")
+    assert (benefit["status"] == "NEEDS_REVIEW") is review
+    assert ("MIXED_BENEFIT_PERIOD_GAP_006" in [r["code"] for r in benefit["reasons"]]) is review

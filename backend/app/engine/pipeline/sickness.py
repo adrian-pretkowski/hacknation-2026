@@ -228,8 +228,9 @@ def _benefit_period(eng: Engine) -> _Period:
     period.used = _fact(eng, "SICK-DUR-003", eng.rules.rule("SICK-DUR-003")["result"]["compute"])
     if used_rule.fired and period.used is not None:
         period.applied.append("SICK-DUR-003")
-    if eng.eval("SICK-DUR-004").fired:
-        period.applied.append("SICK-DUR-004")
+    # SICK-DUR-004: pomijane są dni z art. 12 ust. 2 (w f_benefit_period_days_used); dni okresu wyczekiwania
+    # w historii nie są znane z wejścia — reguła oceniana, ale nie wpisywana jako zastosowana
+    eng.eval("SICK-DUR-004")
     eng.eval("SICK-DUR-005")  # FUTURE (od 2027-01-01) → future_changes
     return period
 
@@ -292,6 +293,7 @@ def _day_plan(eng: Engine, start: date | None, end: date | None, employee: bool 
             plan.days[day] = NONE
             continue
         position += 1
+        # art. 16: pierwsze dni niezdolności liczone kalendarzowo (także dni urlopu z art. 12 ust. 2)
         if index < alcohol_days or (available is not None and position > available):
             plan.days[day] = NONE
             continue
@@ -393,6 +395,25 @@ def _set_amounts(eng: Engine, benefit: dict[str, Any], rate: Decimal | None, seg
     return rate is not None and bool(segments)
 
 
+SICKNESS_HISTORY_ASSUMPTION = {
+    "code": "SICKNESS_HISTORY_UNKNOWN",
+    "text": "Brak historii wcześniejszych zwolnień — dni i kwoty policzono przy założeniu, że w ostatnich 60 dniach "
+            "nie było innych niezdolności do pracy (art. 9 ust. 2); wykorzystana część okresu zasiłkowego może być "
+            "większa."}
+
+
+def _mixed_period_review(eng: Engine, right: _Right, start: date | None, end: date | None) -> None:
+    """GAP-006 (zus_rules/09): ciąża zaczęła się w trakcie niezdolności → okres mieszany 182/270 dni → NEEDS_REVIEW."""
+    pregnancy_start = to_date(eng.ctx.field("pregnancy.pregnancy_start_date"))
+    if start is None or end is None or pregnancy_start is None or not start < pregnancy_start <= end:
+        return
+    right.review = True
+    right.reasons.append(make_reason(
+        eng, "MIXED_BENEFIT_PERIOD_GAP_006", "SICK-DUR-001",
+        "Niezdolność zaczęła się przed ciążą i trwa w ciąży — długość okresu zasiłkowego (182 czy 270 dni) "
+        "wymaga oceny ZUS.", "art. 8 ust. 1"))
+
+
 def evaluate_sickness(eng: Engine) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     ctx = eng.ctx
     assumptions: list[dict[str, str]] = []
@@ -408,6 +429,9 @@ def evaluate_sickness(eng: Engine) -> tuple[list[dict[str, Any]], list[dict[str,
     end = to_date(ctx.field("incapacity.end_date"))
     employee = ctx.fact("f_is_employee_on", date=start) if start else None
     period = _benefit_period(eng)
+    _mixed_period_review(eng, right, start, end)
+    if period.used is None and period.limit is not None and start is not None:
+        assumptions.append(SICKNESS_HISTORY_ASSUMPTION)
     plan = _day_plan(eng, start, end, employee, period)
     benefits: list[dict[str, Any]] = []
     if employee is True:
