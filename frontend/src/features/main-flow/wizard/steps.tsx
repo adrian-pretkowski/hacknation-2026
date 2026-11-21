@@ -2,6 +2,7 @@
 
 // Kroki kreatora: najpierw pytania, które wykluczają całe gałęzie (kim jesteś → etap → zdarzenie → ubezpieczenie).
 // Każdy krok ma warunek widoczności — pytanie pojawia się tylko wtedy, gdy ma znaczenie dla wyniku.
+import { useId } from "react";
 import { formatDate, formatMoney } from "@/lib/format";
 import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
@@ -44,7 +45,7 @@ export type Step = {
 const TRI_TEXT = { YES: "tak", NO: "nie", UNKNOWN: "nie wiem" } as const;
 const TITLE_TEXT = { EMPLOYMENT: "Umowa o pracę", MANDATE: "Umowa zlecenia", SELF_EMPLOYED: "Działalność (JDG)", NONE: "Bez ubezpieczenia / nie wiem" } as const;
 const GUARDIAN_TEXT = { ADOPTION: "Adopcja", FOSTER_NON_PROFESSIONAL: "Rodzina zastępcza niezawodowa", FOSTER_PROFESSIONAL: "Zawodowa rodzina zastępcza" } as const;
-const plWeeks = (n: number) => `${n} tydz.`;
+const plWeeks = (n: number) => `${n} tyg.`;
 /** FE1-07: limit tygodni urlopu uzupełniającego z PARAMS (KP art. 180(2)); `known` = tydzień ciąży i masa rozstrzygają wariant. */
 const suppCapWeeks = (a: Answers): { cap: number; known: boolean } => {
   const gw = a.gestationWeeks === "" ? null : Number(a.gestationWeeks);
@@ -55,6 +56,45 @@ const suppCapWeeks = (a: Answers): { cap: number; known: boolean } => {
   if (gw !== null && lowWeight !== null) return { cap: PARAMS.SUPP_CAP_WEEK_PRETERM, known: true };
   return { cap: PARAMS.SUPP_CAP_WEEK_EARLY, known: false };
 };
+const plDays = (n: number) => `${n} ${n === 1 ? "dzień" : "dni"}`;
+/** FE1-08: dni pobytu → tygodnie; niepełny tydzień liczy się jako pełny (07 §5 `f_supplementary_leave_weeks`). Puste/niepoprawne = "" (UNKNOWN). */
+export const daysToHospitalWeeks = (days: string): string => {
+  if (!/^\d+$/.test(days.trim())) return "";
+  return String(Math.ceil(Number(days.trim()) / PARAMS.WEEK_AS_DAYS));
+};
+/** FE1-08: przykład przeliczenia w podpowiedzi (5 pełnych tygodni + 3 dni → 6 tyg., poniżej obu limitów). */
+const HOSPITAL_EXAMPLE = (() => {
+  const days = 5 * PARAMS.WEEK_AS_DAYS + 3;
+  return `Przykład: ${plDays(days)} = ${plWeeks(5)} + ${plDays(3)} → ${plWeeks(Number(daysToHospitalWeeks(String(days))))} (niepełny tydzień liczy się jako pełny).`;
+})();
+/** FE1-08: pole „dni w szpitalu” z podglądem przeliczenia na tygodnie i limitu urlopu. */
+function HospitalDays({ a, set, cap, label, hint }: StepProps & { cap: number; label: string; hint: string }) {
+  const weeks = a.hospitalWeeks === "" ? null : Number(a.hospitalWeeks);
+  const days = weeks === null ? 0 : Number(a.hospitalDays);
+  const full = Math.floor(days / PARAMS.WEEK_AS_DAYS);
+  const rest = days % PARAMS.WEEK_AS_DAYS;
+  const invalid = a.hospitalDays.trim() !== "" && weeks === null;
+  const resultId = useId();
+  return (
+    <div className="space-y-2">
+      <Field label={label} hint={hint}>
+        {/* type="text" (nie "number"): przeglądarka nie zamienia wtedy nieparsowalnego wpisu na "", więc walidacja widzi surową wartość */}
+        <input type="text" inputMode="numeric" pattern="[0-9]*" autoComplete="off" className={inputCls} value={a.hospitalDays}
+          aria-invalid={invalid || undefined} aria-describedby={resultId} placeholder="np. 38"
+          onChange={(e) => set({ hospitalDays: e.target.value, hospitalWeeks: daysToHospitalWeeks(e.target.value) })} />
+      </Field>
+      <p id={resultId} aria-live="polite" className={`text-sm ${invalid ? "text-red-700" : "text-zinc-700"}`}>
+        {invalid ? "Podaj liczbę całkowitą dni (0 lub więcej)."
+          : weeks === null ? null
+          : <>
+              {plDays(days)} = <strong>{plWeeks(weeks)}</strong>
+              {rest > 0 && ` (${full > 0 ? `${plWeeks(full)} + ` : ""}${plDays(rest)} — niepełny tydzień liczymy jako pełny)`}
+              {weeks > cap && `. Do urlopu uzupełniającego liczy się najwyżej ${plWeeks(cap)}`}
+            </>}
+      </p>
+    </div>
+  );
+}
 const join = (parts: (string | null | false | undefined)[]) => parts.filter(Boolean).join(" · ") || null;
 
 const isBirth = (a: Answers) => a.role !== "GUARDIAN";
@@ -163,7 +203,7 @@ export const STEPS: Step[] = [
       a.preterm && "Wcześniak / szpital",
       a.preterm && a.gestationWeeks !== "" && `${a.gestationWeeks}. tydz.`,
       a.preterm && weightMatters(a) && a.lowBirthWeight !== "UNKNOWN" && `${a.lowBirthWeight === "YES" ? "do" : "powyżej"} ${WEIGHT_LIMIT}`,
-      a.preterm && a.hospitalWeeks !== "" && `szpital ${plWeeks(Number(a.hospitalWeeks))}`,
+      a.preterm && a.hospitalWeeks !== "" && `szpital ${plDays(Number(a.hospitalDays))} = ${plWeeks(Number(a.hospitalWeeks))}`,
       a.zaZyciem && "„Za życiem”",
     ]) ?? "Brak",
     render: ({ a, set }) => (
@@ -190,13 +230,11 @@ export const STEPS: Step[] = [
               )}
               {(() => {
                 const { cap, known } = suppCapWeeks(a);
-                const value = a.hospitalWeeks !== "" && Number(a.hospitalWeeks) > cap ? String(cap) : a.hospitalWeeks;
+                const capHint = `Urlop uzupełniający wynosi najwyżej ${cap} tyg. — dłuższy pobyt go nie wydłuża.${known ? "" : ` Limit ${PARAMS.SUPP_CAP_WEEK_EARLY} tyg. dotyczy porodu przed ${PARAMS.SUPP_GESTATION_EARLY_WEEK}. tygodniem ciąży lub masy do ${PARAMS.SUPP_WEIGHT_THRESHOLD_G} g; w pozostałych przypadkach ${PARAMS.SUPP_CAP_WEEK_PRETERM} tyg.`}`;
+                const who = a.children > 1 ? " (dziecko najdłużej w szpitalu)" : "";
                 return (
-                  <NumberSelect label={a.children > 1 ? "Łącznie tygodni w szpitalu (dziecko najdłużej w szpitalu)" : "Łącznie tygodni w szpitalu"}
-                    from={0} to={cap} value={value} unit={(n) => (n === cap ? `${n} tyg. lub więcej` : `${n} tyg.`)}
-                    unknownLabel="Nie wiem"
-                    hint={`Kilka pobytów sumuje się; niepełny tydzień liczy się jako pełny. Urlop uzupełniający wynosi najwyżej ${cap} tyg. — dłuższy pobyt go nie wydłuża.${known ? "" : ` Limit ${PARAMS.SUPP_CAP_WEEK_EARLY} tyg. dotyczy porodu przed ${PARAMS.SUPP_GESTATION_EARLY_WEEK}. tygodniem ciąży lub masy do ${PARAMS.SUPP_WEIGHT_THRESHOLD_G} g; w pozostałych przypadkach ${PARAMS.SUPP_CAP_WEEK_PRETERM} tyg.`}`}
-                    onChange={(hospitalWeeks) => set({ hospitalWeeks })} />
+                  <HospitalDays a={a} set={set} cap={cap} label={`Łącznie dni w szpitalu${who}`}
+                    hint={`Liczba dni z zaświadczenia ze szpitala — przeliczymy ją na tygodnie. ${HOSPITAL_EXAMPLE} Kilka pobytów sumuje się; liczą się dni od porodu, w czasie urlopu macierzyńskiego. Puste pole = nie wiem. ${capHint}`} />
                 );
               })()}
             </div>
@@ -338,7 +376,7 @@ export const STEPS: Step[] = [
     summary: (a) => {
       const wb = weeksBefore(a);
       return join([
-        a.role === "MOTHER" && (wb === "0" ? "start w dniu porodu" : wb === "custom" ? `start ${formatDate(a.maternityStart)}` : `start ${wb} tydz. przed porodem`),
+        a.role === "MOTHER" && (wb === "0" ? "start w dniu porodu" : wb === "custom" ? `start ${formatDate(a.maternityStart)}` : `start ${wb} tyg. przed porodem`),
         (a.role !== "FATHER" || a.partnerInsured !== "NO") && `tata ${plWeeks(a.fatherParentalWeeks)} rodzicielskiego`,
         a.role === "MOTHER" && a.workFraction !== "0" && `praca ${a.workFraction === "0.25" ? "¼" : "½"} etatu`,
       ]);
