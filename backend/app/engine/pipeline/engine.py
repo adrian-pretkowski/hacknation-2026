@@ -66,6 +66,7 @@ class Engine:
         self.not_evaluated: list[str] = []
         self.future: list[dict[str, str]] = []
         self.review: list[str] = []
+        self.warnings: list[dict[str, Any]] = []  # result.warning reguł VALIDATION/INFORMATIONAL (kontrakt: warnings)
 
     # ------------------------------------------------------------ ocena reguły
     def implementable(self, rule: dict[str, Any]) -> bool:
@@ -127,6 +128,23 @@ class Engine:
         unknown_overriders = [o for o in outcomes.values() if o.unknown
                               and set(self.rules.rule(o.rule_id).get("overrides") or []) & {w.rule_id for w in winners}]
         return (winners[0] if winners else None), unknown_overriders
+
+    # ------------------------------------------------------------ ostrzeżenia (BE2-01)
+    def check(self, rule_id: str, **extra: Any) -> bool:
+        """Reguła z ``result.warning``: FIRED → wpis w ``warnings`` (walidacje planu → ``parental.plan_errors``).
+
+        UNKNOWN nie zgłasza ani ostrzeżenia, ani braków (ostrzeżenie nie blokuje oceny prawa). Zwraca True, gdy FIRED.
+        """
+        outcome = self.eval(rule_id)
+        if not outcome.fired:
+            return False
+        warning = self.rules.rule(rule_id)["result"].get("warning")
+        if warning:
+            entry = {"code": warning["code"], "severity": warning.get("severity", "WARNING"), "rule_id": rule_id,
+                     **extra}
+            if entry not in self.warnings:
+                self.warnings.append(entry)
+        return True
 
     # ------------------------------------------------------------ braki i parametry
     def need(self, field_path: str, *rule_ids: str) -> None:

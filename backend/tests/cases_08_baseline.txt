@@ -23,12 +23,41 @@ T-MAT-010
 T-MAT-012
 T-MAT-013
 T-MAT-009
+# BE2-01: art. 30, start przed porodem, zgon dziecka, przysposobienie / rodzina zastępcza, przejęcie przez ojca
+T-MAT-004
+T-MAT-005
+T-MAT-006
+T-MAT-007
+T-MAT-008
+T-MAT-011
+T-MAT-014
+T-MAT-015
+T-MAT-016
+T-MAT-017
+T-MAT-018
+T-MAT-019
+T-MAT-020
+T-MAT-021
+T-MAT-022
+
+# SUPP — urlop uzupełniający (BE2-01)
+T-SUPP-001
+T-SUPP-002
+T-SUPP-003
+T-SUPP-004
+T-SUPP-005
+T-SUPP-006
+T-SUPP-008
+T-SUPP-009
+T-SUPP-010
+T-SUPP-011
 
 # RATE — 81,5% / 100%
 T-RATE-001
 T-RATE-002
 T-RATE-008
 T-RATE-009
+T-RATE-007
 
 # BASE — art. 43, ta sama podstawa (BASE-GEN-001, M05)
 T-BASE-006

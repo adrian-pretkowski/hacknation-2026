@@ -21,7 +21,12 @@ from app.engine.explain import explain_benefit
 from app.engine.facts import Context
 from app.engine.facts.insurance import INCAPACITY_EVENTS
 from app.engine.pipeline.engine import STATUS_ORDER, Engine
-from app.engine.pipeline.maternity import evaluate_maternity
+from app.engine.pipeline.maternity import (
+    evaluate_equivalent_allowance,
+    evaluate_maternity,
+    evaluate_maternity_like,
+    evaluate_supplementary,
+)
 from app.engine.pipeline.parental import (
     evaluate_parental,
     evaluate_paternity,
@@ -64,7 +69,9 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
         maternity = None
         if role == "MOTHER":
             maternity = evaluate_maternity(eng)
-            benefits.append(maternity)
+            # BE2-01: zasiłek do dnia przed porodem (art. 30 ust. 3) i urlop uzupełniający (wcześniak)
+            extra = [evaluate_equivalent_allowance(eng), evaluate_supplementary(eng, maternity)]
+            benefits += [maternity] + [b for b in extra if b is not None]
         elif role == "FATHER":
             benefits.append(evaluate_paternity(eng))
         if role in ("FATHER", "OTHER_FAMILY_MEMBER"):
@@ -74,13 +81,11 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
             benefits.append(parental)
         plan = {"plan_errors": plan_errors(eng), "return_to_work": return_to_work(eng)}
     elif event_type in ("ADOPTION", "FOSTER"):
-        # świadczenie za urlop na warunkach macierzyńskiego (okres MAT-DUR-007/008) — BE2-01; tu: prawo bazowe
-        # MAT-ELIG-002/003 + MAT-EXCL-001 jako warunek rodzicielskiego (PAR-DUR-003) i ojcowski ojca (PAT-*)
-        benefits = [evaluate_paternity(eng)] if role == "FATHER" else []
+        # BE2-01: urlop na warunkach macierzyńskiego (MAT-ELIG-002/003, MAT-EXCL-001, MAT-DUR-007/008);
+        # BE2-02: ojcowski ojca (PAT-*) i rodzicielski (PAR-DUR-003)
+        benefits = [evaluate_maternity_like(eng)]
+        benefits += [evaluate_paternity(eng)] if role == "FATHER" else []
         benefits += [b for b in [evaluate_parental(eng)] if b is not None]
-        for rule_id in ("MAT-DUR-007", "MAT-DUR-008"):
-            if rule_id not in eng.not_evaluated:
-                eng.not_evaluated.append(rule_id)
         plan = {"plan_errors": plan_errors(eng), "return_to_work": return_to_work(eng)}
     elif event_type in INCAPACITY_EVENTS:
         benefits, extra_assumptions = evaluate_sickness(eng)
@@ -114,4 +119,5 @@ def _response(eng: Engine, benefits: list[dict[str, Any]], assumptions: list[dic
         "not_evaluated_rules": eng.not_evaluated,
         "applied_rules": eng.applied_trace(),
         "future_changes": eng.future,
+        "warnings": eng.warnings,  # BE2-01: RISK-003, MAT-DUR-008
     }
