@@ -137,7 +137,7 @@ export function Wizard() {
         </h2>
         {done ? (
           <>
-            <Results answers={a} onEdit={editStep} />
+            <Results answers={a} onEdit={editStep} canEdit={(id) => steps.some((s) => s.id === id)} />
             <div className="mt-6 flex flex-wrap gap-2 border-t border-zinc-200 pt-4">
               <button type="button" onClick={back} className={`${btn} border border-zinc-300 bg-white text-zus-navy hover:border-zus-navy`}>← Wstecz</button>
               <button type="button" onClick={() => go(0)} className={`${btn} text-zus-navy hover:underline`}>Zmień odpowiedzi od początku</button>

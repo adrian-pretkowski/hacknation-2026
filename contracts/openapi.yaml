@@ -481,6 +481,99 @@ paths:
         '422':
           description: Niepoprawne dane
           content: *id001
+  /api/planner/suggest:
+    post:
+      operationId: plannerSuggest
+      summary: Najlepszy następny wybór w planie urlopów obojga rodziców (+ cofanie o N kroków)
+      description: 'Graf decyzji z 03_rules.yaml (kroki: wniosek 81,5%, przejęcie macierzyńskiego, ojcowski, 9 tygodni
+        ojca, podział wspólnej części rodzicielskiego, praca na rodzicielskim). Dla bieżącego kroku (po `choices`)
+        zwraca każdą opcję z najlepszym osiągalnym wynikiem, rekomendację, najlepszy plan oraz `backtrack` — lepsze
+        wybory 1..`lookback` kroków wstecz. Kwoty deterministyczne (Decimal), bez LLM. Błędny wybór → status
+        INVALID_CHOICE (HTTP 200) z regułą, która go wyklucza.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlannerSuggestRequest'
+            examples:
+              start:
+                summary: Początek planu (dane syntetyczne)
+                value:
+                  profile:
+                    children_count: 1
+                    mother:
+                      base_monthly: '6000.00'
+                    father:
+                      base_monthly: '9000.00'
+                  choices: []
+              after_split:
+                summary: Po 5 krokach — z cofaniem o 2 kroki
+                value:
+                  profile:
+                    mother:
+                      base_monthly: '6000.00'
+                    father:
+                      base_monthly: '9000.00'
+                  choices:
+                  - true
+                  - 0
+                  - 2
+                  - 9
+                  - 0
+                  objective: MAX_MONEY
+                  lookback: 2
+      responses:
+        '200':
+          description: Sugestia (także NEEDS_DATA / OUT_OF_SCOPE / INVALID_CHOICE — to nie są błędy HTTP)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlannerSuggestResponse'
+        '422':
+          description: Niepoprawny format żądania
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-status: implemented
+      x-owner: BE-2
+      x-task: BE2-07
+  /api/planner/graph:
+    post:
+      operationId: plannerGraph
+      summary: Graf wszystkich opcji planu urlopów (węzły, krawędzie, opcje zablokowane regułami)
+      description: 'Warstwowy DAG: węzeł = (krok, stan), krawędź = opcja z zyskiem `gain_exact`; opcje niedozwolone mają
+        `feasible: false`, `to: null` i `blocked_by_rule`. `depth` ogranicza liczbę kroków (pełny graf: 7 — ok. 2 MB).'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlannerGraphRequest'
+            example:
+              profile:
+                mother:
+                  base_monthly: '6000.00'
+                father:
+                  base_monthly: '9000.00'
+              depth: 5
+      responses:
+        '200':
+          description: Graf decyzji i najlepszy plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlannerGraphResponse'
+        '422':
+          description: Niepoprawny format żądania
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-status: implemented
+      x-owner: BE-2
+      x-task: BE2-07
 components:
   schemas:
     Health:
@@ -2367,6 +2460,489 @@ components:
           type:
           - string
           - 'null'
+    PlannerParent:
+      type: object
+      additionalProperties: false
+      properties:
+        base_monthly:
+          description: Podstawa wymiaru zasiłku (miesięczna). Wymagana, gdy rodzic jest ubezpieczony.
+          oneOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        insured:
+          type: boolean
+          default: true
+        gross_monthly:
+          description: Wynagrodzenie brutto do pracy na rodzicielskim; brak → szacunek z podstawy.
+          oneOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        can_work_part_time:
+          type: boolean
+          default: true
+    PlannerProfile:
+      type: object
+      additionalProperties: false
+      required:
+      - mother
+      - father
+      properties:
+        children_count:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 1
+        za_zyciem:
+          type: boolean
+          default: false
+        mother:
+          $ref: '#/components/schemas/PlannerParent'
+        father:
+          $ref: '#/components/schemas/PlannerParent'
+    PlannerChoice:
+      description: Wartość opcji kroku (bool — wniosek 81,5%; liczba tygodni; ułamek etatu jako string).
+      type:
+      - boolean
+      - integer
+      - string
+    PlannerObjective:
+      enum:
+      - MAX_MONEY
+      - MAX_TIME
+    PlannerSuggestRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - profile
+      properties:
+        profile:
+          $ref: '#/components/schemas/PlannerProfile'
+        choices:
+          type: array
+          maxItems: 7
+          items:
+            $ref: '#/components/schemas/PlannerChoice'
+        objective:
+          $ref: '#/components/schemas/PlannerObjective'
+        lookback:
+          type: integer
+          minimum: 0
+          maximum: 7
+          default: 2
+    PlannerGraphRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - profile
+      properties:
+        profile:
+          $ref: '#/components/schemas/PlannerProfile'
+        objective:
+          $ref: '#/components/schemas/PlannerObjective'
+        depth:
+          type: integer
+          minimum: 1
+          maximum: 7
+          default: 5
+    PlannerStep:
+      type: object
+      required:
+      - index
+      - id
+      - title
+      - question
+      - rule_ids
+      properties:
+        index:
+          type: integer
+        id:
+          type: string
+        title:
+          type: string
+        question:
+          type: string
+        rule_ids:
+          type: array
+          items:
+            type: string
+        hint:
+          type:
+          - string
+          - 'null'
+        options:
+          type: array
+          items:
+            type: object
+            required:
+            - value
+            - label
+            properties:
+              value:
+                $ref: '#/components/schemas/PlannerChoice'
+              label:
+                type: string
+    PlannerTotals:
+      type: object
+      required:
+      - best_total_exact
+      - best_total_preview
+      - covered_days
+      - covered_weeks
+      - together_days
+      - needs_review
+      properties:
+        best_total_exact:
+          $ref: '#/components/schemas/Money'
+        best_total_preview:
+          $ref: '#/components/schemas/Money'
+        covered_days:
+          type: integer
+        covered_weeks:
+          type: integer
+        together_days:
+          type: integer
+        needs_review:
+          type: boolean
+        mother_exact:
+          $ref: '#/components/schemas/Money'
+        father_exact:
+          $ref: '#/components/schemas/Money'
+        mother_preview:
+          $ref: '#/components/schemas/Money'
+        father_preview:
+          $ref: '#/components/schemas/Money'
+    PlannerOption:
+      type: object
+      required:
+      - value
+      - label
+      - feasible
+      properties:
+        value:
+          $ref: '#/components/schemas/PlannerChoice'
+        label:
+          type: string
+        feasible:
+          type: boolean
+        blocked_by_rule:
+          type:
+          - string
+          - 'null'
+        blocked_reason:
+          type:
+          - string
+          - 'null'
+        best_total_exact:
+          $ref: '#/components/schemas/Money'
+        best_total_preview:
+          $ref: '#/components/schemas/Money'
+        loss_vs_best_exact:
+          $ref: '#/components/schemas/Money'
+        loss_vs_best_preview:
+          $ref: '#/components/schemas/Money'
+        covered_days:
+          type: integer
+        covered_weeks:
+          type: integer
+        together_days:
+          type: integer
+        needs_review:
+          type: boolean
+        recommended:
+          type: boolean
+    PlannerPlanItem:
+      type: object
+      required:
+      - parent
+      - kind
+      - label
+      - days
+      - amount_exact
+      - rule_ids
+      properties:
+        parent:
+          enum:
+          - MOTHER
+          - FATHER
+        kind:
+          enum:
+          - MATERNITY_LEAVE
+          - MATERNITY_LEAVE_TRANSFERRED
+          - PATERNITY_LEAVE
+          - PARENTAL_LEAVE
+          - PARENTAL_WORK_REDUCTION
+          - PARENTAL_EXTENSION
+          - WORK_INCOME
+        label:
+          type: string
+        days:
+          type: integer
+        rate:
+          oneOf:
+          - type: string
+          - type: 'null'
+        work_fraction:
+          oneOf:
+          - type: string
+          - type: 'null'
+        amount_exact:
+          $ref: '#/components/schemas/Money'
+        rule_ids:
+          type: array
+          items:
+            type: string
+    PlannerPlan:
+      type: object
+      required:
+      - choices
+      - items
+      - totals
+      - needs_review
+      - review_rules
+      properties:
+        choices:
+          type: array
+          items:
+            type: object
+            required:
+            - step_id
+            - value
+            - label
+            properties:
+              step_id:
+                type: string
+              value:
+                $ref: '#/components/schemas/PlannerChoice'
+              label:
+                type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlannerPlanItem'
+        totals:
+          $ref: '#/components/schemas/PlannerTotals'
+        needs_review:
+          type: boolean
+        review_rules:
+          type: array
+          items:
+            type: string
+    PlannerBacktrack:
+      type: object
+      required:
+      - steps_back
+      - step_index
+      - step_id
+      - current_value
+      - suggested_value
+      - gain_exact
+      - message
+      - plan
+      properties:
+        steps_back:
+          type: integer
+        step_index:
+          type: integer
+        step_id:
+          type: string
+        current_value:
+          $ref: '#/components/schemas/PlannerChoice'
+        current_label:
+          type: string
+        suggested_value:
+          $ref: '#/components/schemas/PlannerChoice'
+        suggested_label:
+          type: string
+        gain_exact:
+          $ref: '#/components/schemas/Money'
+        gain_preview:
+          $ref: '#/components/schemas/Money'
+        extra_covered_days:
+          type: integer
+        message:
+          type: string
+        plan:
+          $ref: '#/components/schemas/PlannerPlan'
+    PlannerStatus:
+      enum:
+      - OK
+      - COMPLETE
+      - INVALID_CHOICE
+      - NEEDS_DATA
+      - OUT_OF_SCOPE
+    PlannerSuggestResponse:
+      type: object
+      required:
+      - engine
+      - ruleset_version
+      - objective
+      - status
+      - missing_data
+      - assumptions
+      properties:
+        engine:
+          type: string
+        ruleset_version:
+          type: string
+        objective:
+          $ref: '#/components/schemas/PlannerObjective'
+        status:
+          $ref: '#/components/schemas/PlannerStatus'
+        missing_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissingData'
+        assumptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assumption'
+        step_index:
+          type: integer
+        step:
+          oneOf:
+          - $ref: '#/components/schemas/PlannerStep'
+          - type: 'null'
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlannerOption'
+        recommended:
+          oneOf:
+          - $ref: '#/components/schemas/PlannerChoice'
+          - type: 'null'
+        explanation:
+          type:
+          - string
+          - 'null'
+        current_best_plan:
+          $ref: '#/components/schemas/PlannerPlan'
+        global_best_plan:
+          $ref: '#/components/schemas/PlannerPlan'
+        backtrack:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlannerBacktrack'
+        invalid_choice:
+          oneOf:
+          - type: object
+            required:
+            - index
+            - step_id
+            - reason
+            properties:
+              index:
+                type: integer
+              step_id:
+                type: string
+              value: {}
+              blocked_by_rule:
+                type:
+                - string
+                - 'null'
+              reason:
+                type: string
+          - type: 'null'
+    PlannerGraphResponse:
+      type: object
+      required:
+      - engine
+      - ruleset_version
+      - objective
+      - status
+      - missing_data
+      - assumptions
+      properties:
+        engine:
+          type: string
+        ruleset_version:
+          type: string
+        objective:
+          $ref: '#/components/schemas/PlannerObjective'
+        status:
+          $ref: '#/components/schemas/PlannerStatus'
+        missing_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissingData'
+        assumptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assumption'
+        depth:
+          type: integer
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlannerStep'
+        nodes:
+          type: array
+          items:
+            type: object
+            required:
+            - id
+            - step_index
+            - step_id
+            - state
+            properties:
+              id:
+                type: string
+              step_index:
+                type: integer
+              step_id:
+                type: string
+              state:
+                type: object
+        edges:
+          type: array
+          items:
+            type: object
+            required:
+            - from
+            - to
+            - step_id
+            - value
+            - feasible
+            properties:
+              from:
+                type: string
+              to:
+                type:
+                - string
+                - 'null'
+              step_id:
+                type: string
+              value:
+                $ref: '#/components/schemas/PlannerChoice'
+              feasible:
+                type: boolean
+              blocked_by_rule:
+                type:
+                - string
+                - 'null'
+              gain_exact:
+                oneOf:
+                - $ref: '#/components/schemas/Money'
+                - type: 'null'
+              covered_days:
+                type: integer
+        stats:
+          type: object
+          required:
+          - nodes
+          - edges
+          - blocked_edges
+          - complete_plans
+          properties:
+            nodes:
+              type: integer
+            edges:
+              type: integer
+            blocked_edges:
+              type: integer
+            complete_plans:
+              type: integer
+        best_plan:
+          $ref: '#/components/schemas/PlannerPlan'
   securitySchemes:
     AdminToken:
       type: apiKey
