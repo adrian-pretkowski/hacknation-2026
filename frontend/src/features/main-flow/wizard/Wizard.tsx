@@ -87,8 +87,8 @@ export function Wizard() {
                   </span>
                   <span className="min-w-0">
                     <span className="block whitespace-nowrap lg:whitespace-normal">{s.title}</span>
-                    {visited && summary && (
-                      <span className="block max-w-[14rem] truncate text-xs font-normal text-zinc-600 lg:max-w-none lg:whitespace-normal">
+                    {(visited || current) && summary && (
+                      <span className="block max-w-[14rem] truncate text-xs font-medium text-zus-green-dark lg:max-w-none lg:whitespace-normal">
                         <span className="sr-only">Wybrano: </span>{summary}
                       </span>
                     )}
