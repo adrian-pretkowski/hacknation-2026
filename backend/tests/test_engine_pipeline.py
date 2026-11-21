@@ -119,16 +119,19 @@ def test_dt9_aggregation(kwargs, status):
 
 
 def test_router_engine_switch(client, demo_payload, monkeypatch):
+    monkeypatch.setattr(get_settings(), "engine", "rules")
     assert client.post("/api/evaluate", json=demo_payload).json()["engine"] == "rules-engine"
     monkeypatch.setattr(get_settings(), "engine", "slice")
     assert client.post("/api/evaluate", json=demo_payload).json()["engine"] == "slice-v0"
 
 
-def test_pipeline_response_has_trace(client, demo_payload):
+def test_pipeline_response_has_trace(client, demo_payload, monkeypatch):
+    monkeypatch.setattr(get_settings(), "engine", "rules")
     body = client.post("/api/evaluate", json=demo_payload).json()
     outcomes = {item["rule_id"]: item["outcome"] for item in body["applied_rules"]}
     assert outcomes["MAT-ELIG-001"] == "FIRED" and outcomes["RATE-MAT-003"] == "FIRED"
     assert outcomes["GEN-EXCL-001"] == "NOT_FIRED"
     # BLOCKED: count_at_birth > 1 = FALSE rozstrzyga bez faktów spoza rejestru
     assert outcomes["MAT-DUR-005"] == "NOT_FIRED"
-    assert "MAT-DUR-003" in body["not_evaluated_rules"]  # martwe urodzenie: fakty BE2-01 jeszcze nie w rejestrze
+    # podłoga świadczenia rodzicielskiego: fakt f_monthly_maternity_amount jeszcze nie w rejestrze
+    assert "RATE-MAT-007" in body["not_evaluated_rules"]

@@ -5,13 +5,13 @@
 ## 1. Stan teraz
 | Pole | Wartość |
 |---|---|
-| Ostatnia aktualizacja | 2026-11-21 · INT (INT-06 DONE, Claude Code) |
+| Ostatnia aktualizacja | 2026-11-21 · BE-1 (BE1-01, BE1-02 DONE, Claude Code) |
 | Faza | Bootstrap zakończony → start równoległej implementacji P0 (blok 1) |
 | Werdykt | **READY FOR PARALLEL DEVELOPMENT** (z zastrzeżeniami: brak zdalnego repo i deployu — decyzja lidera) |
 | Działa end-to-end | Kalkulator zasiłku macierzyńskiego matki (slice_v0): UI → `POST /api/evaluate` → wynik w UI |
-| Silnik | `slice_v0` (podzbiór reguł); pełny silnik reguł — zadania BE1-01..05, BE2-01..04 |
+| Silnik | **pipeline reguł** (`engine/pipeline/`, `engine=rules-engine`, domyślnie) — macierzyński matki na regułach z `03_rules.yaml`; `ENGINE=slice` przywraca `slice_v0`; pozostałe świadczenia — BE1-04/05, BE2-01..04 |
 | Kontrakt | `contracts/openapi.yaml` **v1.0.0** — 2 operacje `implemented`, 12 `planned` (sprawy, admin, symulacje); modele = `zus_rules/04`/`05`; czeka na akceptację BE+FE |
-| Testy | backend 84/84 (w tym 75 testów kontraktu) · audyt reguł 119 reguł / 92 testy spec / 0 błędów · frontend lint, typecheck, build OK |
+| Testy | backend 203/203 (w tym 75 testów kontraktu) · audyt reguł 119 reguł / 92 testy spec / 0 błędów · frontend lint, typecheck, build OK |
 
 ## 2. Bramki
 | Bramka | Punkt | Status | Dowód (komenda → wynik) |
@@ -67,3 +67,4 @@
 | 2026-11-21 | INT (Claude Code) | INT-06 | Zamknięcie INT-06: `/review` na `int/INT-06-reviewer` → READY_TO_MERGE, merge `--no-ff` do main (`2e3d3c7`) i push main po zgodzie lidera; poprawki 3 drobnych uwag z review (nieaktualna instrukcja chmod, kolumna weryfikacji INT-06, instrukcja `core.hooksPath` dla każdego klonu) | reviewer → READY_TO_MERGE; na main: audyt errors=0, pytest 84 passed; `git ls-files -s .githooks` → 100755 | 2e3d3c7 |
 | 2026-11-21 14:20 | BE-1 (Claude Code) | BE1-01 | Silnik DSL (wariant okrojony): loader `03_rules.yaml` z walidacją strukturalną, evaluator Kleene TRUE/FALSE/UNKNOWN z raportem brakujących pól, rejestr faktów `@fact` (I2), `core/money.py`, `core/dates.py` (C1–C11), 11 faktów ścieżki macierzyńskiej; `engine/maternity_v0.py` (rules-v0) liczy macierzyński z reguł YAML identycznie jak slice_v0 (router bez zmian) | `pytest` → 161 passed (84 → +77: `test_engine_dsl.py`, `test_engine_parity.py` 16 wariantów); `ruff check` → OK; audyt → rules=119 errors=0 | — (commit na `be1/BE1-01-dsl`) |
 | 2026-11-21 14:55 | BE-1 (Claude Code) | BE1-02 | Pipeline (wariant okrojony): `engine/pipeline/` — tryby FUTURE/BLOCKED/HUMAN_REVIEW, częściowa ocena reguł z faktami spoza rejestru (`not_evaluated_rules`), wyjątki i `overrides` z YAML, agregacja DT-9, ślad `applied_rules` i `future_changes`; macierzyński jako moduł kroków; router `ENGINE=rules\|slice` (domyślnie rules) | `pytest` → 183 passed (także `ENGINE=slice`: test_evaluate_slice + test_contract zielone); `ruff check` → OK; audyt → rules=119 errors=0; smoke nie uruchamiany (brak serwerów) | — (commit na `be1/BE1-01-dsl`) |
+| 2026-11-21 15:25 | BE-1 (Claude Code) | BE1-01, BE1-02 | Poprawki po `/review` (CHANGES_REQUIRED, 2 poważne): testy faktów spoza slice (`test_engine_facts.py`: spłata długu, urlop wychowawczy, priorytet tytułów, granica `date = to`, `work_fraction`), martwe urodzenie i zgon dziecka (MAT-DUR-003/004, T-MAT-013 — wcześniej API zwracało 140 dni), GEN-EXCL-002 w `not_evaluated_rules`, komunikaty z parametrów, walidacja `ENGINE`, `/api/health` pokazuje aktywny silnik, `test_pipeline.py` → `test_engine_pipeline.py`, szkielet `facts/maternity.py` przekazany BE-2 (TASKS), § 1, coverage b) | `pytest` → 203 passed (także `ENGINE=slice`); `ruff` OK; audyt errors=0; `smoke.py --api :8011` → SMOKE: PASS (engine rules-engine) | — (commit na `be1/BE1-01-dsl`) |

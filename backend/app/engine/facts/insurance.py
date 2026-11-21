@@ -59,7 +59,10 @@ def on_childcare_leave_on(ctx: Context, date: Any = None) -> bool | None:
 
 @fact("f_primary_title_type")
 def primary_title_type(ctx: Context) -> str | None:
-    """07 §3: tytuł chorobowy aktywny w dniu zdarzenia; priorytet EMPLOYMENT_CONTRACT > SELF_EMPLOYED > pozostałe."""
+    """07 §3: tytuł chorobowy aktywny w dniu zdarzenia; priorytet EMPLOYMENT_CONTRACT > SELF_EMPLOYED > pozostałe.
+
+    Gdy żaden nie jest aktywny — ostatni zakończony tytuł (DERIVED, D17; np. poród w czasie urlopu wychowawczego).
+    """
     day = to_date(ctx.field("event.date"))
     titles = _titles(ctx)
     if day is None:
@@ -68,7 +71,11 @@ def primary_title_type(ctx: Context) -> str | None:
         return None
     active = _active_titles(titles, day)
     if not active:
-        return None
+        # brak tytułu aktywnego w dniu zdarzenia (np. urlop wychowawczy, art. 30): ostatni zakończony tytuł (DERIVED)
+        ended = [t for t in titles if to_date(t.get("to")) is not None and to_date(t.get("to")) < day]
+        if not ended:
+            return None
+        return max(ended, key=lambda t: to_date(t.get("to"))).get("title_type")
     ranked = sorted(active, key=lambda t: TITLE_PRIORITY.index(t["title_type"])
                     if t.get("title_type") in TITLE_PRIORITY else len(TITLE_PRIORITY))
     return ranked[0].get("title_type")

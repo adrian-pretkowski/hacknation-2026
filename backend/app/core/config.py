@@ -14,6 +14,8 @@ class Settings:
         self.law_reference_date = os.environ.get("LAW_REFERENCE_DATE", "2026-11-21")
         # ENGINE=rules (pipeline z 03_rules.yaml, domyślnie) | slice (tymczasowy slice_v0) — BE1-02
         self.engine = os.environ.get("ENGINE", "rules").strip().lower()
+        if self.engine not in ("rules", "slice"):
+            raise ValueError(f"ENGINE musi być 'rules' albo 'slice', jest {self.engine!r}")
 
 
 @lru_cache

@@ -9,7 +9,7 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
-from app.core.dates import days_in, deadline_after, to_date
+from app.core.dates import days_in, deadline_after, end_after_days, end_after_weeks, to_date
 from app.core.money import div, mul, to_decimal
 from app.engine.facts.registry import Context, fact
 
@@ -97,3 +97,89 @@ def benefit_amount(ctx: Context) -> dict[str, Any] | None:
     daily = div(mul(base, rate, Decimal(1) - work_fraction), int(ctx.param("MONTH_AS_DAYS")))
     days = days_in(start, end)
     return {"daily": daily, "total": mul(daily, Decimal(days)), "days": days}
+
+
+# ------------------------------------------------------------ martwe urodzenie / zgon dziecka (MAT-DUR-003/004/005)
+def _children_items(ctx: Context) -> list[dict[str, Any]] | None:
+    items = ctx.field("children.items")
+    if items is None:
+        return ctx.need("children.items")
+    return items
+
+
+def _death_day(child: dict[str, Any]) -> date | None:
+    """Dzień zgonu; martwe urodzenie = dzień porodu (wiek 0 dni, 07 §5)."""
+    if child.get("stillborn"):
+        return to_date(child.get("birth_date"))
+    return to_date(child.get("death_date"))
+
+
+def _deceased(ctx: Context, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    as_of = ctx.as_of
+    return [c for c in items if c.get("stillborn")
+            or (to_date(c.get("death_date")) is not None and (as_of is None or to_date(c.get("death_date")) <= as_of))]
+
+
+@fact("f_children_alive_count")
+def children_alive_count(ctx: Context) -> int | None:
+    """07 §5: dzieci nie stillborn i bez death_date ≤ dzień oceny; items null → None. KP art. 180(1)."""
+    items = _children_items(ctx)
+    if items is None:
+        return None
+    return len(items) - len(_deceased(ctx, items))
+
+
+@fact("f_children_deceased_count")
+def children_deceased_count(ctx: Context) -> int | None:
+    """07 §5: count_at_birth − alive. KP art. 180(1) § 1-2."""
+    alive = ctx.fact("f_children_alive_count")
+    count = ctx.field("children.count_at_birth")
+    if alive is None or count is None:
+        return None if count is not None else ctx.need("children.count_at_birth")
+    return int(count) - alive
+
+
+@fact("f_earliest_child_death_age_days")
+def earliest_child_death_age_days(ctx: Context) -> int | None:
+    """07 §5: min(death_date − birth_date) w dniach; stillborn → 0; brak zgonów → None. KP art. 180(1) § 1."""
+    items = _children_items(ctx)
+    if items is None:
+        return None
+    ages = [(_death_day(c) - to_date(c.get("birth_date"))).days for c in _deceased(ctx, items)
+            if _death_day(c) is not None and to_date(c.get("birth_date")) is not None]
+    return min(ages) if ages else None
+
+
+def _latest_death(ctx: Context) -> date | None:
+    items = _children_items(ctx)
+    if items is None:
+        return None
+    deaths = [d for d in (_death_day(c) for c in _deceased(ctx, items)) if d is not None]
+    return max(deaths) if deaths else None
+
+
+@fact("f_stillbirth_maternity_end_date")
+def stillbirth_maternity_end_date(ctx: Context) -> date | None:
+    """07 §5: max(poród + STILLBIRTH_LEAVE_WEEKS tyg. − 1, zgon + CHILD_DEATH_MIN_DAYS − 1).
+
+    KP art. 180(1) § 1 (C3, C5).
+    """
+    birth, death = to_date(ctx.field("event.date")), _latest_death(ctx)
+    if birth is None:
+        return ctx.need("event.date")
+    if death is None:
+        return None
+    return max(end_after_weeks(birth, int(ctx.param("STILLBIRTH_LEAVE_WEEKS"))),
+               end_after_days(death, int(ctx.param("CHILD_DEATH_MIN_DAYS"))))
+
+
+@fact("f_child_death_maternity_end_date")
+def child_death_maternity_end_date(ctx: Context) -> date | None:
+    """07 §5: min(regularny koniec, zgon + CHILD_DEATH_MIN_DAYS − 1). KP art. 180(1) § 2."""
+    birth, death = to_date(ctx.field("event.date")), _latest_death(ctx)
+    weeks = ctx.fact("f_maternity_leave_weeks")
+    if birth is None:
+        return ctx.need("event.date")
+    if death is None or weeks is None:
+        return None
+    return min(end_after_weeks(birth, weeks), end_after_days(death, int(ctx.param("CHILD_DEATH_MIN_DAYS"))))

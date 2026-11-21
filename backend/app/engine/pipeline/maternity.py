@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.core.dates import end_after_days, to_date
+from app.core.dates import days_in, end_after_days, to_date
 from app.core.money import dec_str, mul
 from app.engine.pipeline.engine import Engine, aggregate_status
 
@@ -17,7 +17,7 @@ from app.engine.pipeline.engine import Engine, aggregate_status
 # — raportowane jak w slice_v0; Engine sam dopisuje reguły z faktami spoza rejestru
 NOT_RUN = ["MAT-ELIG-004", "MAT-ELIG-005", "MAT-ELIG-006", "MAT-NEG-001", "MAT-DUR-002", "BASE-EMP-001",
            "BASE-NEMP-001", "BASE-GEN-001", "GEN-CLS-001",
-           "GEN-CLS-002"]
+           "GEN-CLS-002", "GEN-EXCL-002"]
 # Reguły BLOCKED/HUMAN_REVIEW, które mogą zmienić wynik macierzyńskiego po porodzie (DT-9 wiersz 3)
 REVIEW_RULES = ["MAT-DUR-005", "RATE-MAT-007"]
 DURATION_RULES = ["MAT-DUR-001", "MAT-DUR-003", "MAT-DUR-004", "MAT-DUR-005"]
@@ -70,7 +70,9 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                 result = eng.rules.rule(exc.rule_id)["result"]
                 threshold = mul(ctx.param("MIN_WAGE_2026_MONTHLY"), ctx.param("DEBT_THRESHOLD_MIN_WAGE_RATIO"))
                 reason(result["reason_code"], exc.rule_id,
-                       f"Zadłużenie składkowe przekracza 1% minimalnego wynagrodzenia ({dec_str(threshold)} zł) "
+                       f"Zadłużenie składkowe przekracza {_pct(ctx.param('DEBT_THRESHOLD_MIN_WAGE_RATIO'))} "
+                       f"minimalnego "
+                       f"wynagrodzenia ({dec_str(threshold)} zł) "
                        f"— zasiłek nie przysługuje do czasu spłaty.", "art. 2a ust. 1")
     for rule_id in REVIEW_RULES:
         if eng.eval(rule_id).kind == "BLOCKED":
@@ -87,13 +89,24 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
     if dur.unknown:
         eng.need_from(dur)
         needs_data = True
-    if duration is not None and duration.rule_id == "MAT-DUR-001" and birth is not None:
-        weeks = ctx.fact(eng.rules.rule("MAT-DUR-001")["result"]["compute"])
-        week_rule = eng.eval("MAT-DUR-009")
-        if weeks is not None and week_rule.fired:
-            days = weeks * int(ctx.param(eng.rules.rule("MAT-DUR-009")["result"]["set"]["week_days"]["param"]))
-            period = {"from": birth.isoformat(), "to": end_after_days(birth, days).isoformat(), "max_weeks": weeks}
-            applied += ["MAT-DUR-001", "MAT-DUR-009"]
+    if duration is not None and birth is not None and eng.eval("MAT-DUR-009").fired:
+        week_days = int(ctx.param(eng.rules.rule("MAT-DUR-009")["result"]["set"]["week_days"]["param"]))
+        computed = ctx.fact(eng.rules.rule(duration.rule_id)["result"]["compute"])
+        if duration.rule_id == "MAT-DUR-001" and computed is not None:
+            days = computed * week_days
+            period = {"from": birth.isoformat(), "to": end_after_days(birth, days).isoformat(), "max_weeks": computed}
+        elif duration.rule_id in ("MAT-DUR-003", "MAT-DUR-004") and computed is not None:
+            # martwe urodzenie / zgon dziecka: koniec okresu z faktu (KP art. 180(1)); max_weeks = pełne tygodnie
+            days = days_in(birth, computed)
+            period = {"from": birth.isoformat(), "to": computed.isoformat(), "max_weeks": days // week_days}
+            reason("CHILD_DEATH_SHORTENED" if duration.rule_id == "MAT-DUR-004" else "STILLBIRTH_8_WEEKS",
+                   duration.rule_id,
+                   f"Martwe urodzenie albo zgon dziecka — urlop i zasiłek macierzyński do {computed.isoformat()} "
+                   f"(nie krócej niż {ctx.param('STILLBIRTH_LEAVE_WEEKS')} tyg. po porodzie przy martwym urodzeniu "
+                   f"lub zgonie przed ukończeniem 8 tyg. życia i nie krócej niż {ctx.param('CHILD_DEATH_MIN_DAYS')} "
+                   f"dni od zgonu).", "KP art. 180(1) § 1-2")
+        if period is not None:
+            applied += [duration.rule_id, "MAT-DUR-009"]
 
     # Krok 7: stawka segmentu (jeden segment: urlop macierzyński matki od dnia porodu)
     ctx.segment = {"leave_type": "MATERNITY_LEAVE", "parent": "MOTHER",
@@ -109,11 +122,13 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
             applied.append(winner.rule_id)
             if winner.rule_id == "RATE-MAT-003":
                 reason("RATE_COMBINED_815", "RATE-MAT-003",
-                       "Wniosek o łączny zasiłek złożony w 21 dni od porodu — 81,5% podstawy.",
+                       f"Wniosek o łączny zasiłek złożony w {ctx.param('APP_COMBINED_DEADLINE_DAYS')} dni od porodu — "
+                       f"{_pct(rate)} podstawy.",
                        "art. 31 ust. 3; art. 30a ust. 1")
             elif winner.rule_id == "RATE-MAT-001":
                 reason("RATE_FULL_100", "RATE-MAT-001",
-                       f"Zasiłek za okres urlopu macierzyńskiego — 100% podstawy. Wniosek o 81,5% można złożyć do "
+                       f"Zasiłek za okres urlopu macierzyńskiego — {_pct(rate)} podstawy. Wniosek o "
+                       f"{_pct(ctx.param('MAT_RATE_COMBINED'))} można złożyć do "
                        f"{deadline.isoformat()}.", "art. 31 ust. 1; art. 30a ust. 1")
     ctx.state["rate"] = rate
 
@@ -141,3 +156,8 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
         "total_amount_exact": dec_str(total) if total is not None else None,
         "payer_of_benefit": None, "reasons": reasons, "applied_rules": applied,
     }
+
+
+def _pct(ratio: Any) -> str:
+    """0.815 → „81,5%” (tekst komunikatu z parametru, nie z literału)."""
+    return dec_str(ratio * 100).replace(".", ",") + "%"
