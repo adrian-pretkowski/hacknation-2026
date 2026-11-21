@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      CORS_ORIGINS: http://localhost:3000
+      LAW_REFERENCE_DATE: "2026-11-21"
+    ports: ["8000:8000"]
+  frontend:
+    build:
+      context: frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+        NEXT_PUBLIC_API_MODE: real
+    ports: ["3000:3000"]
+    depends_on: [backend]

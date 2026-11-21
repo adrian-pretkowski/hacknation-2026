@@ -1,0 +1,216 @@
+openapi: 3.1.0
+info:
+  title: Przewodnik Przyszłego Rodzica — API
+  version: 0.1.0
+  description: |
+    Kontrakt P0 (vertical slice). Właściciel: Integrator (Dev5). Zmiany tylko przez PR z akceptacją BE i FE.
+    Docelowy model danych: zus_rules/04_INPUT_DATA_SCHEMA.json i 05_OUTPUT_DATA_SCHEMA.json.
+    Ten kontrakt opisuje podzbiór zaimplementowany w slice-v0 (zasiłek macierzyński za okres urlopu macierzyńskiego);
+    kolejne pola są dodawane addytywnie zgodnie z docs/TASKS.md.
+    Kwoty: string dziesiętny (dokładna wartość Decimal, bez zaokrągleń). Daty: ISO 8601.
+servers:
+  - url: http://localhost:8000
+paths:
+  /api/health:
+    get:
+      operationId: getHealth
+      summary: Stan usługi i wersja zestawu reguł
+      responses:
+        "200":
+          description: Usługa działa
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Health"}
+              example: {status: ok, ruleset_version: 0.1.0, law_reference_date: "2026-11-21", engine: slice-v0}
+  /api/evaluate:
+    post:
+      operationId: evaluate
+      summary: Ocena uprawnień i wyliczenie świadczeń dla sytuacji użytkownika
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/EvaluateRequest"}
+            examples:
+              employee_mother_815:
+                summary: Pracownica, 1 dziecko, wniosek 81,5% w terminie (dane syntetyczne)
+                value:
+                  evaluation: {as_of_date: "2027-04-05"}
+                  person: {role: MOTHER}
+                  insurance: {titles: [{title_type: EMPLOYMENT_CONTRACT, sickness_insurance_mode: MANDATORY, from: "2022-02-01", to: null}]}
+                  event: {type: BIRTH, date: "2027-03-15"}
+                  children: {count_at_birth: 1}
+                  income_history: {manual_base_override: "6000.00"}
+                  applications: {combined_815_filed_date: "2027-04-05"}
+      responses:
+        "200":
+          description: Wynik ewaluacji (także NEEDS_DATA / NEEDS_REVIEW — to nie są błędy HTTP)
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/EvaluateResponse"}
+              examples:
+                eligible_815:
+                  value:
+                    evaluation_id: 3f1c2b9e-0000-4000-8000-000000000001
+                    ruleset_version: 0.1.0
+                    law_reference_date: "2026-11-21"
+                    engine: slice-v0
+                    overall_status: ELIGIBLE
+                    benefits:
+                      - benefit_type: MATERNITY_BENEFIT
+                        leave_type: MATERNITY_LEAVE
+                        status: ELIGIBLE
+                        rate: "0.815"
+                        period: {from: "2027-03-15", to: "2027-08-01", max_weeks: 20}
+                        days: 140
+                        daily_amount_exact: "163"
+                        total_amount_exact: "22820"
+                        payer_of_benefit: null
+                        reasons: [{code: RATE_COMBINED_815, rule_id: RATE-MAT-003, message: "Wniosek o łączny zasiłek złożony w 21 dni od porodu — 81,5% podstawy.", legal_basis: [{document: USTAWA, location: "art. 31 ust. 3; art. 30a ust. 1"}]}]
+                        applied_rules: [MAT-ELIG-001, MAT-DUR-001, MAT-DUR-009, APP-DL-001, RATE-MAT-003, CALC-MAT-001]
+                    missing_data: []
+                    assumptions: [{code: ROUNDING_UNCONFIRMED, text: "Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."}]
+                    not_evaluated_rules: [MAT-ELIG-004, MAT-ELIG-005, MAT-ELIG-006, BASE-EMP-001]
+        "422":
+          description: Niepoprawny format żądania
+          content:
+            application/problem+json:
+              schema: {$ref: "#/components/schemas/Problem"}
+              example:
+                type: about:blank
+                title: Niepoprawne dane wejściowe
+                status: 422
+                detail: Żądanie nie spełnia kontraktu.
+                errors: [{field: event.date, code: date_from_datetime_parsing, message: "Input should be a valid date"}]
+components:
+  schemas:
+    Health:
+      type: object
+      required: [status, ruleset_version, law_reference_date, engine]
+      properties:
+        status: {const: ok}
+        ruleset_version: {type: string}
+        law_reference_date: {type: string, format: date}
+        engine: {type: string}
+    Money:
+      type: string
+      pattern: "^-?[0-9]+(\\.[0-9]+)?$"
+    Status:
+      enum: [ELIGIBLE, NOT_ELIGIBLE, NEEDS_DATA, NEEDS_REVIEW, OUT_OF_SCOPE]
+    InsuranceTitle:
+      type: object
+      required: [title_type, sickness_insurance_mode, from]
+      properties:
+        title_type: {enum: [EMPLOYMENT_CONTRACT, CIVIL_CONTRACT_MANDATE, AGENCY_CONTRACT, SELF_EMPLOYED, SELF_EMPLOYED_COLLABORATOR, CLERGY, CLERGY_SELF_PAYER, SEAFARER_ART6_24, FOREIGN_EMPLOYER, OTHER]}
+        sickness_insurance_mode: {enum: [MANDATORY, VOLUNTARY, NONE]}
+        from: {type: string, format: date}
+        to: {type: [string, "null"], format: date}
+    EvaluateRequest:
+      type: object
+      description: Podzbiór zus_rules/04_INPUT_DATA_SCHEMA.json. Dodatkowe pola są akceptowane i ignorowane przez slice-v0.
+      required: [event]
+      properties:
+        evaluation:
+          type: object
+          properties: {as_of_date: {type: string, format: date}}
+        person:
+          type: object
+          properties: {role: {enum: [MOTHER, FATHER, OTHER_FAMILY_MEMBER, ADOPTIVE_PARENT, FOSTER_PARENT]}}
+        insurance:
+          type: object
+          properties:
+            titles: {type: array, items: {$ref: "#/components/schemas/InsuranceTitle"}}
+        event:
+          type: object
+          required: [type]
+          properties:
+            type: {enum: [BIRTH, ADOPTION, FOSTER, PREGNANCY_INCAPACITY, SICKNESS]}
+            date: {type: [string, "null"], format: date}
+        children:
+          type: object
+          properties: {count_at_birth: {type: [integer, "null"], minimum: 1}}
+        income_history:
+          type: object
+          properties: {manual_base_override: {oneOf: [{$ref: "#/components/schemas/Money"}, {type: "null"}]}}
+        applications:
+          type: object
+          properties:
+            combined_815_filed_date: {type: [string, "null"], format: date}
+            combined_815_planned: {type: [boolean, "null"]}
+        debt:
+          type: object
+          properties: {amount_on_right_date: {oneOf: [{$ref: "#/components/schemas/Money"}, {type: "null"}]}}
+    LegalRef:
+      type: object
+      required: [document, location]
+      properties:
+        document: {enum: [USTAWA, KP, ROZP_DOK, ROZP_WN, ZALACZNIK]}
+        location: {type: string}
+    Reason:
+      type: object
+      required: [code, rule_id, message]
+      properties:
+        code: {type: string}
+        rule_id: {type: string}
+        message: {type: string}
+        legal_basis: {type: array, items: {$ref: "#/components/schemas/LegalRef"}}
+    Benefit:
+      type: object
+      required: [benefit_type, leave_type, status, reasons, applied_rules]
+      properties:
+        benefit_type: {enum: [SICKNESS_BENEFIT, EMPLOYER_SICK_PAY, REHABILITATION_BENEFIT, MATERNITY_BENEFIT, MATERNITY_EQUIVALENT_ALLOWANCE]}
+        leave_type: {type: [string, "null"]}
+        status: {$ref: "#/components/schemas/Status"}
+        rate: {type: [string, "null"]}
+        period:
+          type: [object, "null"]
+          properties:
+            from: {type: string, format: date}
+            to: {type: string, format: date}
+            max_weeks: {type: integer}
+        days: {type: [integer, "null"]}
+        daily_amount_exact: {oneOf: [{$ref: "#/components/schemas/Money"}, {type: "null"}]}
+        total_amount_exact: {oneOf: [{$ref: "#/components/schemas/Money"}, {type: "null"}]}
+        payer_of_benefit: {enum: [CONTRIBUTION_PAYER, ZUS, null]}
+        reasons: {type: array, items: {$ref: "#/components/schemas/Reason"}}
+        applied_rules: {type: array, items: {type: string}}
+    MissingData:
+      type: object
+      required: [field, rule_ids]
+      properties:
+        field: {type: string}
+        rule_ids: {type: array, items: {type: string}}
+    Assumption:
+      type: object
+      required: [code, text]
+      properties: {code: {type: string}, text: {type: string}}
+    EvaluateResponse:
+      type: object
+      required: [evaluation_id, ruleset_version, law_reference_date, engine, overall_status, benefits, missing_data, assumptions, not_evaluated_rules]
+      properties:
+        evaluation_id: {type: string, format: uuid}
+        ruleset_version: {type: string}
+        law_reference_date: {type: string, format: date}
+        engine: {type: string, description: "slice-v0 = tymczasowa implementacja podzbioru reguł; docelowo rules-engine"}
+        overall_status: {$ref: "#/components/schemas/Status"}
+        benefits: {type: array, items: {$ref: "#/components/schemas/Benefit"}}
+        missing_data: {type: array, items: {$ref: "#/components/schemas/MissingData"}}
+        assumptions: {type: array, items: {$ref: "#/components/schemas/Assumption"}}
+        not_evaluated_rules:
+          type: array
+          items: {type: string}
+          description: Reguły z 03_rules.yaml istotne dla przypadku, których ten silnik jeszcze nie ocenia (jawność ograniczeń).
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: {type: string}
+        title: {type: string}
+        status: {type: integer}
+        detail: {type: string}
+        errors:
+          type: array
+          items:
+            type: object
+            required: [field, code, message]
+            properties: {field: {type: string}, code: {type: string}, message: {type: string}}

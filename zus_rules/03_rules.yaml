@@ -1,0 +1,3370 @@
+# =====================================================================
+# ZUS Parenthood Benefits — executable rule catalog (DSL v1)
+# Single source of truth. 02_BUSINESS_RULES_CATALOG.md is GENERATED
+# from this file by tools/build_catalog.py — do not edit the .md by hand.
+# =====================================================================
+meta:
+  ruleset_id: zus-parenthood-rules
+  version: 0.1.0
+  reference_date: "2026-11-21"
+  language: pl
+  sources:
+    USTAWA: "Ustawa z 25.06.1999 o świadczeniach pieniężnych z ubezpieczenia społecznego w razie choroby i macierzyństwa (Dz.U. 2026 poz. 854) — wyciąg"
+    KP: "Kodeks pracy (t.j. Dz.U. 2026 poz. 1245) — wyciąg"
+    ROZP_DOK: "Rozporządzenie MRPiPS z 27.09.2026 w sprawie zakresu informacji ... oraz dokumentów niezbędnych do przyznania i wypłaty zasiłków (Dz.U. 2026 poz. 1316)"
+    ROZP_WN: "Rozporządzenie MRPiPS z 11.03.2025 w sprawie wniosków dotyczących uprawnień pracowników związanych z rodzicielstwem (Dz.U. 2025 poz. 322)"
+    ZALACZNIK: "Załącznik HackNation: maksymalny czas trwania zasiłków, wysokość, podstawa wymiaru (materiał pomocniczy, nie akt prawny)"
+  dsl:
+    operators: [eq, ne, gt, gte, lt, lte, in, exists, all, any, not]
+    leaf_forms:
+      field: "ścieżka do pola wejścia (INPUT_DATA_SCHEMA), np. event.type"
+      fact: "nazwana funkcja deterministyczna z 07_CALCULATION_SPEC (prefiks f_)"
+      value_param: "{param: NAZWA} — wartość z meta.parameters"
+      value_fact: "{fact: f_x} — porównanie z wartością innego faktu"
+    list_semantics: "operator in dla pola-listy (np. incapacity.codes) = część wspólna niepusta; dla skalara = przynależność do listy"
+    result_kinds: "status | set | compute | documents | deadline | warning | validation_error (błąd planu — NIE zmienia statusu uprawnienia)"
+    logic: "trójwartościowa (TRUE/FALSE/UNKNOWN), Kleene; UNKNOWN nigdy nie jest traktowane jako FALSE"
+    evaluation_modes:
+      ACTIVE: "reguła wykonywana automatycznie"
+      BLOCKED: "reguła AMBIGUOUS/INCOMPLETE_SOURCE — gdy jej warunki są TRUE albo UNKNOWN, wynik = NEEDS_REVIEW; nigdy nie przyznaje ani nie odmawia"
+      HUMAN_REVIEW: "przesłanka wymaga oceny człowieka/orzeczenia — wynik = NEEDS_REVIEW, gdy przesłanka może zachodzić"
+      FUTURE: "valid_from > data oceny — reguła pomijana i raportowana jako przyszła zmiana"
+      INFORMATIONAL: "reguła dokumentacyjna/terminowa — nie wpływa na status uprawnienia"
+  parameters:
+    # --- okresy wyczekiwania i ubezpieczenia
+    WAITING_DAYS_MANDATORY: {value: 30, unit: days, source: "USTAWA art. 4 ust. 1 pkt 1"}
+    WAITING_DAYS_VOLUNTARY: {value: 90, unit: days, source: "USTAWA art. 4 ust. 1 pkt 2"}
+    INSURANCE_GAP_MAX_DAYS: {value: 30, unit: days, source: "USTAWA art. 4 ust. 2"}
+    GRADUATE_WINDOW_DAYS: {value: 90, unit: days, source: "USTAWA art. 4 ust. 3 pkt 1"}
+    MANDATORY_HISTORY_YEARS: {value: 10, unit: years, source: "USTAWA art. 4 ust. 3 pkt 3"}
+    # --- zasiłek chorobowy
+    AFTER_TITLE_ONSET_MAX_DAYS: {value: 14, unit: days, source: "USTAWA art. 7 pkt 1"}
+    AFTER_TITLE_ONSET_MAX_MONTHS_CODE_E: {value: 3, unit: months, source: "USTAWA art. 7 pkt 2"}
+    AFTER_TITLE_MIN_INCAPACITY_DAYS: {value: 30, unit: days, source: "USTAWA art. 7"}
+    BENEFIT_PERIOD_STD_DAYS: {value: 182, unit: days, source: "USTAWA art. 8 ust. 1"}
+    BENEFIT_PERIOD_PREGNANCY_TB_DAYS: {value: 270, unit: days, source: "USTAWA art. 8 ust. 1"}
+    AFTER_TITLE_MAX_DAYS: {value: 91, unit: days, source: "USTAWA art. 8 ust. 2"}
+    BENEFIT_PERIOD_BREAK_DAYS: {value: 60, unit: days, source: "USTAWA art. 9 ust. 2"}
+    SICK_RATE_STD: {value: "0.80", unit: ratio, source: "USTAWA art. 11 ust. 1"}
+    SICK_RATE_FULL: {value: "1.00", unit: ratio, source: "USTAWA art. 11 ust. 2"}
+    ALCOHOL_EXCLUDED_DAYS: {value: 5, unit: days, source: "USTAWA art. 16"}
+    MONTH_AS_DAYS: {value: 30, unit: days, source: "USTAWA art. 11 ust. 5; art. 36 ust. 3"}
+    # --- wynagrodzenie chorobowe
+    SICK_PAY_DAYS_STD: {value: 33, unit: days_per_calendar_year, source: "KP art. 92 § 1 pkt 1"}
+    SICK_PAY_DAYS_50PLUS: {value: 14, unit: days_per_calendar_year, source: "KP art. 92 § 1 pkt 1, § 5"}
+    SICK_PAY_AGE_THRESHOLD: {value: 50, unit: years, source: "KP art. 92 § 1, § 5"}
+    SICK_PAY_RATE_STD: {value: "0.80", unit: ratio, source: "KP art. 92 § 1 pkt 1"}
+    SICK_PAY_RATE_PREGNANCY: {value: "1.00", unit: ratio, source: "KP art. 92 § 1 pkt 2"}
+    # --- świadczenie rehabilitacyjne
+    REHAB_MAX_MONTHS: {value: 12, unit: months, source: "USTAWA art. 18 ust. 2"}
+    REHAB_RATE_FIRST_3M: {value: "0.90", unit: ratio, source: "USTAWA art. 19 ust. 1"}
+    REHAB_RATE_REST: {value: "0.75", unit: ratio, source: "USTAWA art. 19 ust. 1"}
+    REHAB_RATE_PREGNANCY: {value: "1.00", unit: ratio, source: "USTAWA art. 19 ust. 1"}
+    # --- urlop / zasiłek macierzyński
+    MATERNITY_WEEKS_BY_CHILDREN: {value: {"1": 20, "2": 31, "3": 33, "4": 35, "5+": 37}, unit: weeks, source: "KP art. 180 § 1; art. 183 § 1, § 1(1)"}
+    PRE_BIRTH_MAX_WEEKS: {value: 6, unit: weeks, source: "KP art. 180 § 2"}
+    MOTHER_MIN_WEEKS_BEFORE_TRANSFER: {value: 14, unit: weeks, source: "KP art. 180 § 4; USTAWA art. 29 ust. 3"}
+    MOTHER_MIN_WEEKS_SPECIAL: {value: 8, unit: weeks, source: "KP art. 180 § 6, § 10, § 13; USTAWA art. 29 ust. 5-7"}
+    STILLBIRTH_LEAVE_WEEKS: {value: 8, unit: weeks, source: "KP art. 180(1) § 1"}
+    CHILD_DEATH_MIN_DAYS: {value: 7, unit: days, source: "KP art. 180(1) § 1-2"}
+    ABANDONMENT_MIN_WEEKS: {value: 8, unit: weeks, source: "KP art. 182"}
+    ADOPTION_CHILD_AGE_MAX: {value: 14, unit: years, source: "USTAWA art. 29 ust. 1 pkt 2; KP art. 183 § 1(1)"}
+    FOSTER_CHILD_AGE_MAX: {value: 7, unit: years, source: "USTAWA art. 29 ust. 1 pkt 3; KP art. 183 § 1"}
+    FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED: {value: 10, unit: years, source: "USTAWA art. 29 ust. 1 pkt 3; KP art. 183 § 1"}
+    MATERNITY_LIKE_GUARANTEED_WEEKS: {value: 9, unit: weeks, source: "KP art. 183 § 3"}
+    WEEK_AS_DAYS: {value: 7, unit: days, source: "KP art. 183(1) § 1"}
+    SUPP_CAP_WEEK_EARLY: {value: 15, unit: weeks_after_birth, source: "KP art. 180(2) § 1 pkt 1"}
+    SUPP_CAP_WEEK_PRETERM: {value: 8, unit: weeks_after_birth, source: "KP art. 180(2) § 1 pkt 2-3"}
+    SUPP_TERM_WINDOW_FIRST_DAY: {value: 5, unit: day_after_birth, source: "KP art. 180(2) § 1 pkt 3"}
+    SUPP_TERM_WINDOW_LAST_DAY: {value: 28, unit: day_after_birth, source: "KP art. 180(2) § 1 pkt 3"}
+    SUPP_TERM_MIN_CONSECUTIVE_DAYS: {value: 2, unit: days, source: "KP art. 180(2) § 1 pkt 3"}
+    SUPP_WEIGHT_THRESHOLD_G: {value: 1000, unit: grams, source: "KP art. 180(2) § 1"}
+    SUPP_GESTATION_EARLY_WEEK: {value: 28, unit: gestation_week, source: "KP art. 180(2) § 1"}
+    SUPP_GESTATION_TERM_WEEK: {value: 37, unit: gestation_week, source: "KP art. 180(2) § 1"}
+    # --- urlop rodzicielski
+    PARENTAL_WEEKS_SINGLE: {value: 41, unit: weeks, source: "KP art. 182(1a) § 1 pkt 1"}
+    PARENTAL_WEEKS_MULTIPLE: {value: 43, unit: weeks, source: "KP art. 182(1a) § 1 pkt 2"}
+    PARENTAL_WEEKS_ZA_ZYCIEM_SINGLE: {value: 65, unit: weeks, source: "KP art. 182(1a) § 2 pkt 1"}
+    PARENTAL_WEEKS_ZA_ZYCIEM_MULTIPLE: {value: 67, unit: weeks, source: "KP art. 182(1a) § 2 pkt 2"}
+    PARENTAL_WEEKS_ADOPT_GUARANTEED: {value: 38, unit: weeks, source: "KP art. 183 § 4 pkt 3, § 4(2)"}
+    PARENTAL_WEEKS_ADOPT_GUARANTEED_ZA_ZYCIEM: {value: 62, unit: weeks, source: "KP art. 183 § 4(3) pkt 3, § 4(5)"}
+    PARENTAL_NONTRANSFERABLE_WEEKS: {value: 9, unit: weeks, source: "KP art. 182(1a) § 4"}
+    PARENTAL_MAX_PARTS: {value: 5, unit: count, source: "KP art. 182(1c); art. 183 § 4(6)"}
+    PARENTAL_CHILD_AGE_YEAR_LIMIT: {value: 6, unit: years, source: "KP art. 182(1c)"}
+    PARENTAL_WORK_MAX_FRACTION: {value: "0.5", unit: ratio_of_fte, source: "KP art. 182(1e) § 1"}
+    PARENTAL_EXT_CAP: {value: {"single": 82, "multiple": 86, "za_zyciem_single": 130, "za_zyciem_multiple": 134}, unit: weeks, source: "KP art. 182(1f) § 1, § 1(1)"}
+    # --- urlop ojcowski
+    PATERNITY_WEEKS: {value: 2, unit: weeks, source: "KP art. 182(3) § 1"}
+    PATERNITY_MAX_PARTS: {value: 2, unit: count, source: "KP art. 182(3) § 1(1)"}
+    PATERNITY_MIN_PART_WEEKS: {value: 1, unit: weeks, source: "KP art. 182(3) § 1(1)"}
+    PATERNITY_CHILD_AGE_MONTHS: {value: 12, unit: months, source: "KP art. 182(3) § 1 pkt 1"}
+    PATERNITY_ADOPTION_WINDOW_MONTHS: {value: 12, unit: months, source: "KP art. 182(3) § 1 pkt 2"}
+    # --- stawki zasiłku macierzyńskiego
+    MAT_RATE_FULL: {value: "1.00", unit: ratio, source: "USTAWA art. 31 ust. 1"}
+    MAT_RATE_PARENTAL: {value: "0.70", unit: ratio, source: "USTAWA art. 31 ust. 2"}
+    MAT_RATE_COMBINED: {value: "0.815", unit: ratio, source: "USTAWA art. 31 ust. 3"}
+    APP_COMBINED_DEADLINE_DAYS: {value: 21, unit: days_after_event, source: "USTAWA art. 30a ust. 1-2"}
+    PARENTAL_BENEFIT_FLOOR_MONTHLY: {value: null, unit: PLN, source: "USTAWA art. 31 ust. 3a → ustawa o świadczeniach rodzinnych (NIEZAŁĄCZONA)", status: MISSING}
+    # --- podstawa wymiaru
+    CONTRIBUTION_DEDUCTION_RATE: {value: "0.1371", unit: ratio, source: "USTAWA art. 3 pkt 4; art. 45 ust. 1"}
+    MIN_WAGE_2026_MONTHLY: {value: "4806.00", unit: PLN, source: "ZALACZNIK (kwota z odrębnych przepisów — do potwierdzenia)", status: UNCONFIRMED}
+    VOLUNTARY_MAX_CONTRIB_BASE_2026: {value: "23550.00", unit: PLN, source: "ZALACZNIK (przepis ustawy o s.u.s. niezałączony)", status: UNCONFIRMED}
+    AVERAGE_WAGE_CAP_AFTER_TITLE: {value: null, unit: PLN, source: "USTAWA art. 46 (kwota ogłaszana odrębnie — brak w materiałach)", status: MISSING}
+    # --- płatnik, terminy, zadłużenie
+    PAYER_INSURED_THRESHOLD: {value: 20, unit: insured_persons, source: "USTAWA art. 61 ust. 1"}
+    DEBT_THRESHOLD_MIN_WAGE_RATIO: {value: "0.01", unit: ratio, source: "USTAWA art. 2a ust. 1"}
+    DEBT_REPAYMENT_LIMIT_MONTHS: {value: 6, unit: months, source: "USTAWA art. 2a ust. 2"}
+    CLAIM_LIMIT_MONTHS: {value: 6, unit: months, source: "USTAWA art. 67 ust. 1"}
+    CLAIM_LIMIT_YEARS_PAYER_ERROR: {value: 3, unit: years, source: "USTAWA art. 67 ust. 4"}
+    PAYMENT_DEADLINE_DAYS: {value: 30, unit: days, source: "USTAWA art. 64 ust. 1"}
+    PAYMENT_DEADLINE_AFTER_DEBT_DAYS: {value: 60, unit: days, source: "USTAWA art. 64 ust. 3"}
+    PAYER_FORWARD_DAYS: {value: 7, unit: days, source: "USTAWA art. 61b ust. 5"}
+    ROUNDING_POLICY: {value: null, unit: none, source: "BRAK w materiałach — zaokrąglenia kwot nieokreślone", status: MISSING}
+
+rules:
+# =====================================================================
+# GEN — reguły ogólne (płatnik, zadłużenie, przedawnienie)
+# =====================================================================
+- id: GEN-CLS-001
+  name: "Płatnik zasiłku — płatnik składek (>20 ubezpieczonych)"
+  description: "Zasiłki ustala i wypłaca płatnik składek, który zgłasza do ubezpieczenia chorobowego więcej niż 20 ubezpieczonych (stan na 30 listopada poprzedniego roku), chyba że świadczenie przysługuje po ustaniu ubezpieczenia."
+  category: GENERAL
+  rule_type: CLASSIFICATION
+  legal_basis: {document: USTAWA, article: "61", paragraph: "1-2", point: "1"}
+  source_document: USTAWA
+  source_location: "art. 61 ust. 1 pkt 1, ust. 2"
+  source_excerpt: "płatnicy składek na ubezpieczenie chorobowe, którzy zgłaszają do ubezpieczenia chorobowego powyżej 20 ubezpieczonych"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_is_employer_payer_title, operator: eq, value: true}
+      - {field: payer.insured_count_on_nov30_prev_year, operator: gt, value: {param: PAYER_INSURED_THRESHOLD}}
+      - {fact: f_benefit_after_title_end, operator: eq, value: false}
+  result: {set: {payer_of_benefit: CONTRIBUTION_PAYER}}
+  exceptions: [GEN-CLS-002]
+  dependencies: []
+  overrides: []
+  required_inputs: [payer.insured_count_on_nov30_prev_year, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "f_is_employer_payer_title = tytuł inny niż pozarolnicza działalność/współpraca/duchowny/pracodawca zagraniczny (art. 61 ust. 1 pkt 2 lit. b, c, e)."
+
+- id: GEN-CLS-002
+  name: "Płatnik zasiłku — ZUS"
+  description: "ZUS ustala i wypłaca zasiłki gdy płatnik zgłasza ≤20 ubezpieczonych, dla prowadzących pozarolniczą działalność i współpracujących, duchownych, po ustaniu ubezpieczenia oraz przy pracodawcy zagranicznym."
+  category: GENERAL
+  rule_type: CLASSIFICATION
+  legal_basis: {document: USTAWA, article: "61", paragraph: "1", point: "2"}
+  source_document: USTAWA
+  source_location: "art. 61 ust. 1 pkt 2 lit. a-e"
+  source_excerpt: "Zakład Ubezpieczeń Społecznych: a) ubezpieczonym, których płatnicy składek zgłaszają ... nie więcej niż 20 ubezpieczonych"
+  valid_from: null
+  valid_to: null
+  conditions:
+    any:
+      - {field: payer.insured_count_on_nov30_prev_year, operator: lte, value: {param: PAYER_INSURED_THRESHOLD}}
+      - {fact: f_primary_title_type, operator: in, value: [SELF_EMPLOYED, SELF_EMPLOYED_COLLABORATOR, CLERGY, FOREIGN_EMPLOYER]}
+      - {fact: f_benefit_after_title_end, operator: eq, value: true}
+  result: {set: {payer_of_benefit: ZUS}}
+  exceptions: []
+  dependencies: []
+  overrides: [GEN-CLS-001]
+  required_inputs: [payer.insured_count_on_nov30_prev_year, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Art. 61 ust. 4 (kontynuacja wypłaty przez ZUS po 31.12) — poza MVP."
+
+- id: GEN-EXCL-001
+  name: "Zadłużenie składkowe >1% minimalnego wynagrodzenia (osoby z art. 2a)"
+  description: "Zasiłek chorobowy, świadczenie rehabilitacyjne, macierzyński i opiekuńczy nie przysługują prowadzącym pozarolniczą działalność, współpracującym, duchownym-płatnikom i marynarzom, jeżeli w dniu powstania prawa zadłużenie składkowe przekracza 1% minimalnego wynagrodzenia — do czasu spłaty całości."
+  category: GENERAL
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "2a", paragraph: "1", point: null}
+  source_document: USTAWA
+  source_location: "art. 2a ust. 1"
+  source_excerpt: "w razie wystąpienia w dniu powstania prawa do świadczenia zadłużenia ... na kwotę przekraczającą 1 % minimalnego wynagrodzenia ... do czasu spłaty całości zadłużenia"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_primary_title_type, operator: in, value: [SELF_EMPLOYED, SELF_EMPLOYED_COLLABORATOR, CLERGY_SELF_PAYER, SEAFARER_ART6_24]}
+      - {fact: f_debt_on_right_date_exceeds_threshold, operator: eq, value: true}
+      - {fact: f_debt_fully_repaid, operator: eq, value: false}
+  result: {status: NOT_ELIGIBLE, reason_code: CONTRIBUTION_DEBT, set: {suspended_until_debt_repaid: true}}
+  exceptions: [GEN-EXCL-002]
+  dependencies: []
+  overrides: []
+  required_inputs: [debt.amount_on_right_date, debt.repaid_in_full_date, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Dotyczy świadczeń z art. 2 pkt 1, 2, 5, 6. Próg = MIN_WAGE × 1% (kwota płacy minimalnej z ZALACZNIK — UNCONFIRMED). Po spłacie: wypłata w 60 dni (GEN-DL-002). Status 'NOT_ELIGIBLE' z flagą zawieszenia — UI musi pokazać, że po spłacie prawo odżywa."
+
+- id: GEN-EXCL-002
+  name: "Przedawnienie prawa przy niespłaceniu zadłużenia w 6 miesięcy"
+  description: "Prawo do świadczeń z art. 2a przedawnia się, jeśli zadłużenie nie zostanie uregulowane w ciągu 6 miesięcy od dnia powstania prawa."
+  category: GENERAL
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "2a", paragraph: "2", point: null}
+  source_document: USTAWA
+  source_location: "art. 2a ust. 2"
+  source_excerpt: "przedawnia się, jeżeli zadłużenie ... nie zostanie uregulowane w ciągu 6 miesięcy od dnia powstania prawa do świadczenia"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_debt_on_right_date_exceeds_threshold, operator: eq, value: true}
+      - {fact: f_debt_unpaid_beyond_months, args: {months: {param: DEBT_REPAYMENT_LIMIT_MONTHS}}, operator: eq, value: true}
+  result: {status: NOT_ELIGIBLE, reason_code: RIGHT_EXPIRED_DEBT, set: {suspended_until_debt_repaid: false}}
+  exceptions: []
+  dependencies: [GEN-EXCL-001]
+  overrides: [GEN-EXCL-001]
+  required_inputs: [debt.amount_on_right_date, debt.repaid_in_full_date, evaluation.as_of_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Liczenie '6 miesięcy' — miesiące kalendarzowe od dnia powstania prawa (f_add_months). Art. 11 ust. 5 (miesiąc=30 dni) dotyczy zasiłku chorobowego — zastosowanie do art. 2a niepewne, patrz GAP-011."
+
+- id: GEN-DL-001
+  name: "Przedawnienie roszczenia o wypłatę zasiłku"
+  description: "Roszczenie o wypłatę zasiłku chorobowego, macierzyńskiego (i opiekuńczego, wyrównawczego) przedawnia się po 6 miesiącach od ostatniego dnia okresu, za który zasiłek przysługuje; 3 lata przy błędzie płatnika/ZUS."
+  category: GENERAL
+  rule_type: DEADLINE
+  legal_basis: {document: USTAWA, article: "67", paragraph: "1, 3, 4", point: null}
+  source_document: USTAWA
+  source_location: "art. 67 ust. 1, 3, 4"
+  source_excerpt: "przedawnia się po upływie 6 miesięcy od ostatniego dnia okresu, za który zasiłek przysługuje"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit_period.end_date, operator: exists, value: true}]}
+  result: {compute: f_claim_deadline, output: deadlines.claim_limitation_date}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [benefit_period.end_date]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Ust. 3 (przeszkoda niezależna) i ust. 4 (błąd płatnika) — tylko informacja, ocena przez człowieka."
+
+- id: GEN-DL-002
+  name: "Termin wypłaty zasiłku"
+  description: "Płatnik wypłaca w terminach wypłaty wynagrodzeń, ZUS na bieżąco; nie później niż 30 dni od wyjaśnienia ostatniej okoliczności; przy zadłużeniu (art. 2a) nie później niż 60 dni od spłaty."
+  category: GENERAL
+  rule_type: DEADLINE
+  legal_basis: {document: USTAWA, article: "64", paragraph: "1, 3", point: null}
+  source_document: USTAWA
+  source_location: "art. 64 ust. 1, 3"
+  source_excerpt: "niepóźniej jednak niż w ciągu 30 dni od dnia wyjaśnienia ostatniej okoliczności niezbędnej do ustalenia prawa do zasiłku"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: evaluation.as_of_date, operator: exists, value: true}]}
+  result: {set: {info: PAYMENT_DEADLINE_30_DAYS}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: []
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: AUTOMATABLE
+  notes: ""
+
+# =====================================================================
+# SICKPAY — wynagrodzenie chorobowe (Kodeks pracy art. 92)
+# =====================================================================
+- id: SICKPAY-ELIG-001
+  name: "Wynagrodzenie chorobowe przysługuje pracownikowi"
+  description: "Za czas niezdolności do pracy wskutek choroby pracownik zachowuje prawo do wynagrodzenia od pracodawcy — łącznie do 33 dni w roku kalendarzowym (14 dni po roku, w którym ukończył 50 lat)."
+  category: EMPLOYER_SICK_PAY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: KP, article: "92", paragraph: "1", point: "1"}
+  source_document: KP
+  source_location: "art. 92 § 1 pkt 1, § 5"
+  source_excerpt: "trwającej łącznie do 33 dni w ciągu roku kalendarzowego, a w przypadku pracownika, który ukończył 50 rok życia - ... do 14 dni"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_is_employee_on, args: {date: incapacity.start_date}, operator: eq, value: true}
+      - {fact: f_sick_pay_days_remaining_in_year, operator: gt, value: 0}
+      - {fact: f_sickness_benefit_right_exists, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: EMPLOYER_SICK_PAY, funded_by: EMPLOYER}}
+  exceptions: [SICKPAY-EXCL-001]
+  dependencies: [SICK-ELIG-001, SICK-ELIG-002, SICK-ELIG-003]
+  overrides: []
+  required_inputs: [person.birth_date, incapacity.start_date, benefit_history.employer_sick_pay_days_in_year, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Limit roczny: f_sick_pay_day_limit (33 albo 14 wg KP 92 § 5 — próg 50 lat stosuje się do niezdolności PO roku, w którym pracownik ukończył 50 lat). Liczy się łącznie u danego pracodawcy? — przepis mówi 'w ciągu roku kalendarzowego', patrz GAP-008."
+
+- id: SICKPAY-RATE-001
+  name: "Wynagrodzenie chorobowe 80%"
+  description: "Wynagrodzenie chorobowe wynosi 80% wynagrodzenia, chyba że przepisy u pracodawcy przewidują więcej."
+  category: EMPLOYER_SICK_PAY
+  rule_type: RATE
+  legal_basis: {document: KP, article: "92", paragraph: "1", point: "1"}
+  source_document: KP
+  source_location: "art. 92 § 1 pkt 1"
+  source_excerpt: "pracownik zachowuje prawo do 80% wynagrodzenia, chyba że obowiązujące u danego pracodawcy przepisy prawa pracy przewidują wyższe"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: EMPLOYER_SICK_PAY}]}
+  result: {set: {rate: {param: SICK_PAY_RATE_STD}}}
+  exceptions: [SICKPAY-RATE-002]
+  dependencies: [SICKPAY-ELIG-001]
+  overrides: []
+  required_inputs: []
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Wyższa stawka z regulaminu pracodawcy — pole opcjonalne employment.employer_sick_pay_rate_override."
+
+- id: SICKPAY-RATE-002
+  name: "Wynagrodzenie chorobowe 100% w ciąży"
+  description: "Za niezdolność przypadającą w czasie ciąży (oraz wypadek w drodze do/z pracy, dawstwo) pracownik zachowuje 100% wynagrodzenia."
+  category: EMPLOYER_SICK_PAY
+  rule_type: RATE
+  legal_basis: {document: KP, article: "92", paragraph: "1", point: "2-3"}
+  source_document: KP
+  source_location: "art. 92 § 1 pkt 2-3"
+  source_excerpt: "choroby przypadającej w czasie ciąży - w okresie wskazanym w pkt 1 - pracownik zachowuje prawo do 100% wynagrodzenia"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: benefit, operator: eq, value: EMPLOYER_SICK_PAY}
+      - any:
+          - {fact: f_incapacity_in_pregnancy, operator: eq, value: true}
+          - {field: incapacity.cause, operator: in, value: [COMMUTE_ACCIDENT, ORGAN_DONOR]}
+  result: {set: {rate: {param: SICK_PAY_RATE_PREGNANCY}}}
+  exceptions: []
+  dependencies: [SICKPAY-ELIG-001]
+  overrides: [SICKPAY-RATE-001]
+  required_inputs: [incapacity.codes, pregnancy.is_pregnant_during_incapacity, incapacity.cause]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Kod B może zostać pominięty na wniosek ubezpieczonej (USTAWA art. 57 ust. 2) — brak kodu B ≠ brak ciąży → UNKNOWN, jeśli pregnancy.* nie podano."
+
+- id: SICKPAY-EXCL-001
+  name: "Brak wynagrodzenia chorobowego, gdy brak prawa do zasiłku"
+  description: "Wynagrodzenie chorobowe nie przysługuje w przypadkach, w których pracownik nie ma prawa do zasiłku chorobowego."
+  category: EMPLOYER_SICK_PAY
+  rule_type: EXCLUSION
+  legal_basis: {document: KP, article: "92", paragraph: "3", point: "2"}
+  source_document: KP
+  source_location: "art. 92 § 3 pkt 2"
+  source_excerpt: "nie przysługuje w przypadkach, w których pracownik nie ma prawa do zasiłku chorobowego"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_sickness_benefit_right_exists, operator: eq, value: false}]}
+  result: {status: NOT_ELIGIBLE, reason_code: NO_SICKNESS_BENEFIT_RIGHT}
+  exceptions: []
+  dependencies: [SICK-ELIG-001, SICK-ELIG-002, SICK-ELIG-003]
+  overrides: [SICKPAY-ELIG-001]
+  required_inputs: [insurance.titles, incapacity.start_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "f_sickness_benefit_right_exists = wynik grupy SICK-ELIG-* i SICK-EXCL-* (bez reguł limitu wynagrodzenia)."
+
+- id: SICKPAY-TRN-001
+  name: "Przejście z wynagrodzenia chorobowego na zasiłek chorobowy"
+  description: "Po wyczerpaniu 33 (14) dni w roku kalendarzowym pracownikowi przysługuje zasiłek chorobowy; okresy wynagrodzenia chorobowego wlicza się do okresu zasiłkowego."
+  category: EMPLOYER_SICK_PAY
+  rule_type: CLASSIFICATION
+  legal_basis: {document: KP, article: "92", paragraph: "4", point: null}
+  source_document: KP
+  source_location: "KP art. 92 § 4; USTAWA art. 12 ust. 1"
+  source_excerpt: "trwającej łącznie dłużej niż 33 dni ... pracownikowi przysługuje zasiłek chorobowy"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_is_employee_on, args: {date: incapacity.start_date}, operator: eq, value: true}
+      - {fact: f_sick_pay_days_remaining_in_year, operator: eq, value: 0}
+  result: {set: {benefit: SICKNESS_BENEFIT, segment_split_at: f_sick_pay_limit_reached_date}}
+  exceptions: []
+  dependencies: [SICKPAY-ELIG-001]
+  overrides: []
+  required_inputs: [benefit_history.employer_sick_pay_days_in_year, person.birth_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Silnik dzieli okres e-ZLA na segment wynagrodzenia chorobowego i segment zasiłku."
+
+# =====================================================================
+# SICK — zasiłek chorobowy (ze szczególnym uwzględnieniem ciąży)
+# =====================================================================
+- id: SICK-ELIG-001
+  name: "Niezdolność do pracy powstała w czasie ubezpieczenia chorobowego"
+  description: "Zasiłek chorobowy przysługuje ubezpieczonemu, który stał się niezdolny do pracy z powodu choroby w czasie trwania ubezpieczenia chorobowego."
+  category: SICKNESS
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "6", paragraph: "1", point: null}
+  source_document: USTAWA
+  source_location: "art. 6 ust. 1"
+  source_excerpt: "przysługuje ubezpieczonemu, który stał się niezdolny do pracy z powodu choroby w czasie trwania ubezpieczenia chorobowego"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_sickness_insured_on, args: {date: incapacity.start_date}, operator: eq, value: true}
+      - {field: incapacity.certificate_present, operator: eq, value: true}
+  result: {set: {sickness_onset_basis: DURING_INSURANCE}}
+  exceptions: [SICK-ELIG-006]
+  dependencies: []
+  overrides: []
+  required_inputs: [insurance.titles, incapacity.start_date, incapacity.certificate_present]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Dowód niezdolności = zaświadczenie lekarskie e-ZLA (art. 53 ust. 1). Art. 6 ust. 2 (kwarantanna, leczenie odwykowe, dawstwo) — P2."
+
+- id: SICK-ELIG-002
+  name: "Okres wyczekiwania 30 dni — ubezpieczenie obowiązkowe"
+  description: "Przy obowiązkowym ubezpieczeniu chorobowym prawo do zasiłku powstaje po 30 dniach nieprzerwanego ubezpieczenia."
+  category: SICKNESS
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "4", paragraph: "1", point: "1"}
+  source_document: USTAWA
+  source_location: "art. 4 ust. 1 pkt 1"
+  source_excerpt: "po upływie 30 dni nieprzerwanego ubezpieczenia chorobowego - jeżeli podlega obowiązkowo temu ubezpieczeniu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_sickness_insurance_mode_on, args: {date: incapacity.start_date}, operator: eq, value: MANDATORY}
+      - {fact: f_continuous_sickness_insurance_days, args: {as_of: incapacity.start_date}, operator: gte, value: {param: WAITING_DAYS_MANDATORY}}
+  result: {set: {waiting_period_met: true}}
+  exceptions: [SICK-ELIG-005]
+  dependencies: [SICK-ELIG-004]
+  overrides: []
+  required_inputs: [insurance.titles, incapacity.start_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Niespełnienie (FALSE) i brak wyjątku SICK-ELIG-005 → NOT_ELIGIBLE za dni w okresie wyczekiwania; prawo powstaje od dnia następnego po upływie okresu (f_waiting_period_end_date). Dni te nie wliczają się do okresu zasiłkowego (SICK-DUR-004)."
+
+- id: SICK-ELIG-003
+  name: "Okres wyczekiwania 90 dni — ubezpieczenie dobrowolne"
+  description: "Przy dobrowolnym ubezpieczeniu chorobowym (np. JDG, zlecenie) prawo do zasiłku powstaje po 90 dniach nieprzerwanego ubezpieczenia."
+  category: SICKNESS
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "4", paragraph: "1", point: "2"}
+  source_document: USTAWA
+  source_location: "art. 4 ust. 1 pkt 2"
+  source_excerpt: "po upływie 90 dni nieprzerwanego ubezpieczenia chorobowego - jeżeli jest ubezpieczony dobrowolnie"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_sickness_insurance_mode_on, args: {date: incapacity.start_date}, operator: eq, value: VOLUNTARY}
+      - {fact: f_continuous_sickness_insurance_days, args: {as_of: incapacity.start_date}, operator: gte, value: {param: WAITING_DAYS_VOLUNTARY}}
+  result: {set: {waiting_period_met: true}}
+  exceptions: [SICK-ELIG-005]
+  dependencies: [SICK-ELIG-004]
+  overrides: []
+  required_inputs: [insurance.titles, incapacity.start_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Załącznik/treść zadania: 'zlecenie lub działalność' = dobrowolne. Tryb pobierany z tytułu ubezpieczenia (insurance.titles[].sickness_insurance_mode), NIE wywodzony z rodzaju umowy."
+
+- id: SICK-ELIG-004
+  name: "Doliczanie poprzednich okresów ubezpieczenia"
+  description: "Do okresu wyczekiwania wlicza się poprzednie okresy ubezpieczenia chorobowego, jeśli przerwa nie przekroczyła 30 dni lub była spowodowana urlopem wychowawczym, bezpłatnym albo czynną służbą wojskową żołnierza niezawodowego."
+  category: SICKNESS
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "4", paragraph: "2", point: null}
+  source_document: USTAWA
+  source_location: "art. 4 ust. 2"
+  source_excerpt: "wlicza się poprzednie okresy ubezpieczenia chorobowego, jeżeli przerwa między nimi nie przekroczyła 30 dni lub była spowodowana urlopem wychowawczym, urlopem bezpłatnym"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: insurance.titles, operator: exists, value: true}]}
+  result: {compute: f_continuous_sickness_insurance_days, output: facts.continuous_sickness_insurance_days}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Przerwa = liczba dni kalendarzowych między dniem ustania a dniem ponownego objęcia, bez obu tych dni (DERIVED, GAP-004)."
+
+- id: SICK-ELIG-005
+  name: "Zasiłek od pierwszego dnia ubezpieczenia (wyjątki od okresu wyczekiwania)"
+  description: "Bez okresu wyczekiwania — absolwenci objęci ubezpieczeniem w 90 dni od ukończenia szkoły/uczelni/szkoły doktorskiej; niezdolność wskutek wypadku w drodze do/z pracy; ubezpieczeni obowiązkowo z wcześniejszym ≥10-letnim okresem obowiązkowego ubezpieczenia (oraz posłowie/senatorowie, funkcjonariusze SC)."
+  category: SICKNESS
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "4", paragraph: "3", point: "1-5"}
+  source_document: USTAWA
+  source_location: "art. 4 ust. 3"
+  source_excerpt: "Od pierwszego dnia ubezpieczenia chorobowego prawo do zasiłku chorobowego przysługuje: 1) absolwentom ..."
+  valid_from: null
+  valid_to: null
+  conditions:
+    any:
+      - {fact: f_graduate_within_window, args: {days: {param: GRADUATE_WINDOW_DAYS}}, operator: eq, value: true}
+      - {field: incapacity.cause, operator: eq, value: COMMUTE_ACCIDENT}
+      - all:
+          - {fact: f_sickness_insurance_mode_on, args: {date: incapacity.start_date}, operator: eq, value: MANDATORY}
+          - {fact: f_prior_mandatory_sickness_insurance_years, operator: gte, value: {param: MANDATORY_HISTORY_YEARS}}
+      - {field: person.special_status, operator: in, value: [MP_SENATOR_WITHIN_90_DAYS, CUSTOMS_SERVICE_KAS]}
+  result: {set: {waiting_period_met: true, waiting_period_exemption: true}}
+  exceptions: []
+  dependencies: []
+  overrides: [SICK-ELIG-002, SICK-ELIG-003]
+  required_inputs: [person.graduation_date, incapacity.cause, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Brak danych o ukończeniu szkoły przy niespełnionym okresie wyczekiwania → NEEDS_DATA (nie odmowa). 10 lat: f_prior_mandatory_sickness_insurance_years sumuje okresy obowiązkowe (DERIVED: 'wcześniejszy' = przed bieżącym tytułem)."
+
+- id: SICK-ELIG-006
+  name: "Zasiłek chorobowy po ustaniu tytułu ubezpieczenia"
+  description: "Zasiłek przysługuje też, gdy niezdolność powstała po ustaniu tytułu, jeżeli trwała bez przerwy ≥30 dni i powstała ≤14 dni od ustania tytułu (≤3 miesiące przy chorobie zakaźnej / kod E)."
+  category: SICKNESS
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "7", paragraph: null, point: "1-2"}
+  source_document: USTAWA
+  source_location: "art. 7 pkt 1-2"
+  source_excerpt: "jeżeli niezdolność do pracy trwała bez przerwy co najmniej 30 dni i powstała: 1) niepóźniej niż w ciągu 14 dni od ustania tytułu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_sickness_insured_on, args: {date: incapacity.start_date}, operator: eq, value: false}
+      - {fact: f_incapacity_continuous_days, operator: gte, value: {param: AFTER_TITLE_MIN_INCAPACITY_DAYS}}
+      - any:
+          - {fact: f_days_since_title_end, args: {date: incapacity.start_date}, operator: lte, value: {param: AFTER_TITLE_ONSET_MAX_DAYS}}
+          - all:
+              - {field: incapacity.codes, operator: in, value: [E]}
+              - {fact: f_months_since_title_end, args: {date: incapacity.start_date}, operator: lte, value: {param: AFTER_TITLE_ONSET_MAX_MONTHS_CODE_E}}
+  result: {set: {sickness_onset_basis: AFTER_TITLE_END}}
+  exceptions: [SICK-EXCL-003, SICK-EXCL-004]
+  dependencies: []
+  overrides: []
+  required_inputs: [insurance.titles, incapacity.start_date, incapacity.end_date, incapacity.codes]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "operator 'in' na liście kodów = 'lista zawiera'. Płatnik po ustaniu = ZUS (GEN-CLS-002). Dokument: oświadczenie z zał. 4 ROZP_DOK (SICK-DOC-003)."
+
+- id: SICK-EXCL-001
+  name: "Brak zasiłku za okres zachowania prawa do wynagrodzenia"
+  description: "Zasiłek nie przysługuje za okresy, w których ubezpieczony zachowuje prawo do wynagrodzenia (np. wynagrodzenie chorobowe); okresy te wlicza się do okresu zasiłkowego."
+  category: SICKNESS
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "12", paragraph: "1", point: null}
+  source_document: USTAWA
+  source_location: "art. 12 ust. 1"
+  source_excerpt: "nie przysługuje za okresy niezdolności do pracy, w których ubezpieczony ... zachowuje prawo do wynagrodzenia. Okresy te wlicza się do okresu zasiłkowego"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_day_covered_by_retained_pay, operator: eq, value: true}]}
+  result: {set: {day_benefit: NONE, counts_to_benefit_period: true}}
+  exceptions: []
+  dependencies: [SICKPAY-ELIG-001]
+  overrides: []
+  required_inputs: [benefit_history.employer_sick_pay_days_in_year]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Ocena per dzień okresu niezdolności."
+
+- id: SICK-EXCL-002
+  name: "Brak zasiłku w czasie urlopu bezpłatnego, wychowawczego, aresztu, opiekuńczego"
+  description: "Zasiłek nie przysługuje za niezdolność przypadającą w czasie urlopu bezpłatnego, wychowawczego, tymczasowego aresztowania/kary (z wyjątkami), usprawiedliwionej nieobecności z art. 63(2) § 8 KP, urlopu opiekuńczego; okresów tych nie wlicza się do okresu zasiłkowego."
+  category: SICKNESS
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "12", paragraph: "2-3", point: "1-5"}
+  source_document: USTAWA
+  source_location: "art. 12 ust. 2, 2a, 3"
+  source_excerpt: "nie przysługuje również za okresy niezdolności do pracy przypadającej w czasie: 1) urlopu bezpłatnego; 2) urlopu wychowawczego"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_day_in_excluded_leave, args: {types: [UNPAID_LEAVE, CHILDCARE_LEAVE, DETENTION, KP_63_2_P8_ABSENCE, CARER_LEAVE]}, operator: eq, value: true}]}
+  result: {set: {day_benefit: NONE, counts_to_benefit_period: false}}
+  exceptions: []
+  dependencies: []
+  overrides: [SICK-RATE-001, SICK-RATE-002]
+  required_inputs: [employment.leaves]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Ust. 2a (śmierć pracodawcy) i wyjątek pkt 3 (praca w czasie kary) → NEEDS_REVIEW. Uwaga: dla zasiłku macierzyńskiego stosuje się tylko pkt 1 i 3 (art. 31 ust. 5) — urlop wychowawczy NIE wyłącza macierzyńskiego."
+
+- id: SICK-EXCL-003
+  name: "Wyłączenia zasiłku za okres po ustaniu tytułu"
+  description: "Za okres po ustaniu tytułu zasiłek nie przysługuje, jeśli osoba ma ustalone prawo do emerytury/renty, kontynuuje lub podjęła działalność zarobkową dającą tytuł do ubezpieczenia chorobowego, nie nabyła prawa w czasie ubezpieczenia (art. 4 ust. 1), jest uprawniona do zasiłku dla bezrobotnych/przedemerytalnego itp., podlega obowiązkowo KRUS."
+  category: SICKNESS
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "13", paragraph: "1", point: "1-5"}
+  source_document: USTAWA
+  source_location: "art. 13 ust. 1, 1a"
+  source_excerpt: "nie przysługuje za okres po ustaniu tytułu ubezpieczenia chorobowego, jeżeli osoba niezdolna do pracy: 1) ma ustalone prawo do emerytury lub renty"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_benefit_after_title_end, operator: eq, value: true}
+      - any:
+          - {field: person.has_pension_or_disability_pension, operator: eq, value: true}
+          - {field: person.continues_or_started_gainful_activity, operator: eq, value: true}
+          - {fact: f_waiting_period_met_during_insurance, operator: eq, value: false}
+          - {field: person.receives_unemployment_or_preretirement_benefit, operator: eq, value: true}
+          - {field: person.mandatory_krus, operator: eq, value: true}
+  result: {status: NOT_ELIGIBLE, reason_code: AFTER_TITLE_EXCLUSION}
+  exceptions: []
+  dependencies: [SICK-ELIG-006]
+  overrides: [SICK-ELIG-006]
+  required_inputs: [person.has_pension_or_disability_pension, person.continues_or_started_gainful_activity, person.receives_unemployment_or_preretirement_benefit, person.mandatory_krus]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Dane z oświadczenia (zał. 4 ROZP_DOK)."
+
+- id: SICK-EXCL-004
+  name: "Brak zasiłku po ustaniu tytułu, gdy ubezpieczenie ustało po wyczerpaniu zasiłku"
+  description: "Zasiłek po ustaniu tytułu nie przysługuje, jeśli ubezpieczenie ustało po wyczerpaniu prawa do zasiłku chorobowego."
+  category: SICKNESS
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "13", paragraph: "2", point: null}
+  source_document: USTAWA
+  source_location: "art. 13 ust. 2"
+  source_excerpt: "jeżeli ubezpieczenie to ustało po wyczerpaniu prawa do zasiłku chorobowego"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_benefit_after_title_end, operator: eq, value: true}
+      - {fact: f_benefit_period_exhausted_before_title_end, operator: eq, value: true}
+  result: {status: NOT_ELIGIBLE, reason_code: EXHAUSTED_BEFORE_TITLE_END}
+  exceptions: []
+  dependencies: [SICK-DUR-003]
+  overrides: [SICK-ELIG-006]
+  required_inputs: [benefit_history.sickness_periods, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: SICK-EXCL-005
+  name: "Niezdolność spowodowana umyślnym przestępstwem/wykroczeniem"
+  description: "Zasiłek nie przysługuje za cały okres niezdolności spowodowanej umyślnym przestępstwem lub wykroczeniem ubezpieczonego, stwierdzonym prawomocnym orzeczeniem sądu."
+  category: SICKNESS
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "15", paragraph: "1-2", point: null}
+  source_document: USTAWA
+  source_location: "art. 15"
+  source_excerpt: "spowodowana została w wyniku umyślnego przestępstwa lub wykroczenia ... stwierdza się na podstawie prawomocnego orzeczenia sądu"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: incapacity.caused_by_own_intentional_offence_final_judgment, operator: eq, value: true}]}
+  result: {status: NOT_ELIGIBLE, reason_code: INTENTIONAL_OFFENCE}
+  exceptions: []
+  dependencies: []
+  overrides: [SICK-ELIG-001]
+  required_inputs: [incapacity.caused_by_own_intentional_offence_final_judgment]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: HUMAN_REVIEW
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: HUMAN_REVIEW
+  notes: "Brak danych = brak potwierdzonej przesłanki wykluczającej; silnik raportuje assumption 'brak informacji o wyroku'."
+
+- id: SICK-EXCL-006
+  name: "Nadużycie alkoholu — brak zasiłku za pierwsze 5 dni (kod C)"
+  description: "Gdy niezdolność spowodowana została nadużyciem alkoholu (kod C), zasiłek nie przysługuje za pierwsze 5 dni."
+  category: SICKNESS
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "16", paragraph: null, point: null}
+  source_document: USTAWA
+  source_location: "art. 16; art. 57 ust. 1 pkt 3"
+  source_excerpt: "zasiłek chorobowy nie przysługuje za okres pierwszych 5 dni tej niezdolności"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: incapacity.codes, operator: in, value: [C]}]}
+  result: {set: {excluded_initial_days: {param: ALCOHOL_EXCLUDED_DAYS}}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [incapacity.codes]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: AUTOMATABLE
+  notes: "Kody z e-ZLA są daną pewną (kod C nie może być pominięty na wniosek)."
+
+- id: SICK-EXCL-007
+  name: "Utrata zasiłku — praca zarobkowa lub aktywność niezgodna z celem zwolnienia"
+  description: "Ubezpieczony traci prawo do zasiłku za cały okres zwolnienia, jeśli wykonuje pracę zarobkową lub podejmuje aktywność niezgodną z celem zwolnienia; zasiłek nie przysługuje przy sfałszowanym zaświadczeniu."
+  category: SICKNESS
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "17", paragraph: "1-2", point: null}
+  source_document: USTAWA
+  source_location: "art. 17 ust. 1, 1a, 1b, 2, 4"
+  source_excerpt: "traci prawo do zasiłku chorobowego za cały okres zwolnienia od pracy, w przypadku gdy ... wykonuje pracę zarobkową"
+  valid_from: null
+  valid_to: null
+  conditions:
+    any:
+      - {field: incapacity.gainful_work_during_leave_reported, operator: eq, value: true}
+      - {field: incapacity.certificate_forged, operator: eq, value: true}
+  result: {status: NEEDS_REVIEW, reason_code: POSSIBLE_LOSS_OF_RIGHT_ART17}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [incapacity.gainful_work_during_leave_reported]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: HUMAN_REVIEW
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: HUMAN_REVIEW
+  notes: "Pojęcia 'czynności incydentalne', 'istotne okoliczności' wymagają oceny. W UI — ostrzeżenie w module ryzyk (pkt h zadania). Ust. 1d-1e (praca w innym tytule) — od 2027-01-01, patrz SICK-DUR-005."
+
+- id: SICK-DUR-001
+  name: "Okres zasiłkowy — 182 dni, w ciąży 270 dni"
+  description: "Zasiłek przysługuje przez okres niezdolności, nie dłużej niż 182 dni; gdy niezdolność spowodowana gruźlicą lub występuje w trakcie ciąży — nie dłużej niż 270 dni."
+  category: SICKNESS
+  rule_type: DURATION
+  legal_basis: {document: USTAWA, article: "8", paragraph: "1", point: null}
+  source_document: USTAWA
+  source_location: "art. 8 ust. 1"
+  source_excerpt: "niedłużej jednak niż przez 182 dni, a jeżeli niezdolność do pracy została spowodowana gruźlicą lub występuje w trakcie ciąży - niedłużej niż przez 270 dni"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: in, value: [SICKNESS_BENEFIT, EMPLOYER_SICK_PAY]}]}
+  result: {compute: f_benefit_period_limit_days, output: duration.benefit_period_limit_days}
+  exceptions: [SICK-DUR-002]
+  dependencies: [SICK-DUR-003]
+  overrides: []
+  required_inputs: [incapacity.codes, pregnancy.is_pregnant_during_incapacity]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "f_benefit_period_limit_days: 270 gdy f_incapacity_in_pregnancy=TRUE lub kod D; 182 gdy FALSE; UNKNOWN → NEEDS_DATA. Przy okresie mieszanym (część przed ciążą) — patrz GAP-006."
+
+- id: SICK-DUR-002
+  name: "Limit 91 dni po ustaniu tytułu (nie dotyczy ciąży)"
+  description: "Za okres niezdolności po ustaniu tytułu zasiłek przysługuje nie dłużej niż 91 dni — nie dotyczy niezdolności w trakcie ciąży, gruźlicy i dawstwa."
+  category: SICKNESS
+  rule_type: DURATION
+  legal_basis: {document: USTAWA, article: "8", paragraph: "2", point: null}
+  source_document: USTAWA
+  source_location: "art. 8 ust. 2"
+  source_excerpt: "przypadający po ustaniu tytułu ubezpieczenia chorobowego zasiłek chorobowy przysługuje niedłużej niż przez 91 dni. Nie dotyczy to ... występującej w trakcie ciąży"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_benefit_after_title_end, operator: eq, value: true}
+      - {fact: f_incapacity_in_pregnancy, operator: eq, value: false}
+      - not: {field: incapacity.codes, operator: in, value: [D]}
+      - {field: incapacity.cause, operator: ne, value: ORGAN_DONOR}
+  result: {set: {after_title_max_days: {param: AFTER_TITLE_MAX_DAYS}}}
+  exceptions: []
+  dependencies: [SICK-ELIG-006]
+  overrides: [SICK-DUR-001]
+  required_inputs: [incapacity.codes, pregnancy.is_pregnant_during_incapacity, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Kluczowe dla kobiet w ciąży, którym kończy się umowa: limit 91 dni ich NIE dotyczy (do 270 dni łącznie)."
+
+- id: SICK-DUR-003
+  name: "Sumowanie okresów niezdolności do jednego okresu zasiłkowego"
+  description: "Do okresu zasiłkowego wlicza się okresy nieprzerwanej niezdolności i poprzednie niezdolności, jeśli przerwa nie przekraczała 60 dni; nie wlicza się okresów sprzed przerwy ≤60 dni, jeśli po przerwie niezdolność wystąpiła w trakcie ciąży."
+  category: SICKNESS
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "9", paragraph: "1-2", point: null}
+  source_document: USTAWA
+  source_location: "art. 9 ust. 1-2"
+  source_excerpt: "Do okresu zasiłkowego nie wlicza się okresów niezdolności do pracy przypadających przed przerwą niedłuższą niż 60 dni, jeżeli po przerwie niezdolność do pracy wystąpiła w trakcie ciąży"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit_history.sickness_periods, operator: exists, value: true}]}
+  result: {compute: f_benefit_period_days_used, output: duration.benefit_period_days_used}
+  exceptions: [SICK-DUR-004]
+  dependencies: []
+  overrides: []
+  required_inputs: [benefit_history.sickness_periods, incapacity.start_date, pregnancy.is_pregnant_during_incapacity]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Brzmienie (od 2026) nie wymaga 'tej samej choroby' — kod A tylko informuje (art. 57). Załącznik upraszcza zgodnie z ustawą. Pusta historia: jeśli użytkownik potwierdził brak wcześniejszych zwolnień w 60 dniach → 0; brak odpowiedzi → NEEDS_DATA dla limitu, ale nie blokuje prawa do zasiłku."
+
+- id: SICK-DUR-004
+  name: "Dni okresu wyczekiwania i okresy wyłączone nie wliczają się do okresu zasiłkowego"
+  description: "Do okresu zasiłkowego nie wlicza się niezdolności w okresie wyczekiwania (art. 4 ust. 1) ani okresów z art. 12 ust. 2."
+  category: SICKNESS
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "9", paragraph: "3", point: null}
+  source_document: USTAWA
+  source_location: "art. 9 ust. 3; art. 12 ust. 3"
+  source_excerpt: "Do okresu zasiłkowego nie wlicza się okresu niezdolności do pracy przypadającego w okresach, o których mowa w art. 4 ust. 1"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: incapacity.start_date, operator: exists, value: true}]}
+  result: {set: {excluded_from_period: [WAITING_PERIOD_DAYS, ART12_2_DAYS]}}
+  exceptions: []
+  dependencies: [SICK-ELIG-002, SICK-ELIG-003, SICK-EXCL-002]
+  overrides: []
+  required_inputs: [incapacity.start_date, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: SICK-DUR-005
+  name: "Jeden okres zasiłkowy niezależnie od liczby tytułów (od 2027-01-01)"
+  description: "Niezależnie od liczby tytułów ubezpieczenia ustala się jeden okres zasiłkowy (również przy niewystawieniu zwolnienia z jednego tytułu)."
+  category: SICKNESS
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "9", paragraph: "4", point: null}
+  source_document: USTAWA
+  source_location: "art. 9 ust. 4 (przypis 3: dodany ustawą z 18.12.2025, Dz.U. 2026 poz. 26, wchodzi w życie 1.01.2027)"
+  source_excerpt: "Niezależnie od liczby tytułów ubezpieczenia chorobowego ustala się jeden okres zasiłkowy"
+  valid_from: "2027-01-01"
+  valid_to: null
+  conditions: {all: [{fact: f_number_of_sickness_titles, operator: gt, value: 1}]}
+  result: {set: {single_benefit_period_across_titles: true}}
+  exceptions: []
+  dependencies: [SICK-DUR-003]
+  overrides: []
+  required_inputs: [insurance.titles]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: FUTURE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: AUTOMATABLE
+  notes: "Na datę referencyjną 2026-11-21 NIE stosować. Planer ciąży z porodem w 2027 może się zazębiać — raportować jako przyszła zmiana."
+
+- id: SICK-RATE-001
+  name: "Zasiłek chorobowy 80%"
+  description: "Miesięczny zasiłek chorobowy wynosi 80% podstawy wymiaru, z zastrzeżeniem stawki 100%."
+  category: SICKNESS
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "11", paragraph: "1", point: null}
+  source_document: USTAWA
+  source_location: "art. 11 ust. 1"
+  source_excerpt: "Miesięczny zasiłek chorobowy, z zastrzeżeniem ust. 2, wynosi 80% podstawy wymiaru zasiłku"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: SICKNESS_BENEFIT}]}
+  result: {set: {rate: {param: SICK_RATE_STD}}}
+  exceptions: [SICK-RATE-002]
+  dependencies: []
+  overrides: []
+  required_inputs: []
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Stawka 80% wybierana tylko, gdy SICK-RATE-002 = FALSE. Przy UNKNOWN (np. brak informacji o ciąży) → NEEDS_DATA, a nie 80%."
+
+- id: SICK-RATE-002
+  name: "Zasiłek chorobowy 100% — ciąża, wypadek w drodze, dawstwo"
+  description: "Zasiłek wynosi 100% podstawy, jeśli niezdolność przypada w okresie ciąży, powstała wskutek badań/zabiegu dawcy albo wypadku w drodze do/z pracy."
+  category: SICKNESS
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "11", paragraph: "2", point: "1-3"}
+  source_document: USTAWA
+  source_location: "art. 11 ust. 2 pkt 1-3"
+  source_excerpt: "Miesięczny zasiłek chorobowy wynosi 100% podstawy wymiaru zasiłku, jeżeli niezdolność do pracy ...: 1) przypada w okresie ciąży"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: benefit, operator: eq, value: SICKNESS_BENEFIT}
+      - any:
+          - {fact: f_incapacity_in_pregnancy, operator: eq, value: true}
+          - {field: incapacity.cause, operator: in, value: [COMMUTE_ACCIDENT, ORGAN_DONOR]}
+  result: {set: {rate: {param: SICK_RATE_FULL}}}
+  exceptions: []
+  dependencies: []
+  overrides: [SICK-RATE-001]
+  required_inputs: [incapacity.codes, pregnancy.is_pregnant_during_incapacity, incapacity.cause]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "f_incapacity_in_pregnancy: TRUE gdy kod B; TRUE gdy pregnancy.is_pregnant_during_incapacity=true; FALSE tylko gdy użytkownik potwierdził brak ciąży; inaczej UNKNOWN (art. 57 ust. 2 — kod B można pominąć)."
+
+- id: SICK-CALC-001
+  name: "Kwota zasiłku chorobowego za dzień i okres"
+  description: "Dzienna podstawa = 1/30 podstawy wymiaru; zasiłek przysługuje za każdy dzień niezdolności, łącznie z dniami wolnymi."
+  category: SICKNESS
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "36", paragraph: "3", point: null}
+  source_document: USTAWA
+  source_location: "art. 36 ust. 3; art. 11 ust. 4"
+  source_excerpt: "Podstawę wymiaru zasiłku chorobowego za jeden dzień niezdolności do pracy stanowi jedna trzydziesta część wynagrodzenia"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: benefit, operator: eq, value: SICKNESS_BENEFIT}
+      - {fact: f_benefit_base, operator: exists, value: true}
+  result: {compute: f_benefit_amount, output: amount}
+  exceptions: []
+  dependencies: [SICK-RATE-001, SICK-RATE-002, BASE-EMP-001, BASE-NEMP-001]
+  overrides: []
+  required_inputs: [income_history, incapacity.start_date, incapacity.end_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Kolejność: base → base/30 → × rate → × dni. Zaokrąglenia: BRAK w źródłach (ROUNDING_POLICY=MISSING) — wynik dokładny + wariant zaokrąglony oznaczony jako założenie. GAP-001."
+
+- id: SICK-DOC-001
+  name: "Dokumenty — zasiłek chorobowy (e-ZLA, zaświadczenie płatnika)"
+  description: "Podstawą jest e-ZLA (lub wydruk/papierowe ZLA); gdy płaci ZUS — dodatkowo zaświadczenie płatnika składek (Z-3 pracownik / Z-3a niepracownik) albo wniosek z danymi z zał. 1 (np. dla przedsiębiorcy)."
+  category: SICKNESS
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 2, § 3 ust. 1", point: null}
+  source_document: ROZP_DOK
+  source_location: "§ 2, § 3 ust. 1, zał. 1-3; USTAWA art. 53, 61b ust. 2"
+  source_excerpt: "Dokumentami niezbędnymi do przyznania i wypłaty przez Zakład ... zasiłku chorobowego są dokument zawierający dane ... określone w załączniku nr 1"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: in, value: [SICKNESS_BENEFIT]}]}
+  result: {documents: [{doc: E_ZLA, provider: DOCTOR_TO_ZUS, auto_available: true}, {doc: PAYER_CERTIFICATE_Z3, when: "payer_of_benefit=ZUS and is_employee"}, {doc: PAYER_CERTIFICATE_Z3A, when: "payer_of_benefit=ZUS and non_employee and not self_employed"}, {doc: SICKNESS_APPLICATION_ANNEX1, when: "payer_of_benefit=ZUS and self_employed"}]}
+  exceptions: []
+  dependencies: [GEN-CLS-001, GEN-CLS-002]
+  overrides: []
+  required_inputs: [insurance.titles]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Nazwy formularzy (Z-3, Z-3a, ZAS-53) pochodzą z treści zadania — rozporządzenie określa zakres danych, nie symbole formularzy."
+
+- id: SICK-DOC-002
+  name: "Dokumenty — zasiłek chorobowy po ustaniu tytułu"
+  description: "Dla zasiłku za okres po ustaniu tytułu wymagane jest oświadczenie z danymi z zał. 4 (emerytura/renta, zasiłek dla bezrobotnych, działalność zarobkowa itd.)."
+  category: SICKNESS
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 4", point: null}
+  source_document: ROZP_DOK
+  source_location: "§ 4, zał. 4"
+  source_excerpt: "jest oświadczenie zawierające dane i informacje określone w załączniku nr 4"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_benefit_after_title_end, operator: eq, value: true}]}
+  result: {documents: [{doc: AFTER_TITLE_STATEMENT_ANNEX4, provider: INSURED}]}
+  exceptions: []
+  dependencies: [SICK-ELIG-006]
+  overrides: []
+  required_inputs: [insurance.titles]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: SICK-DL-001
+  name: "Termin przekazania dokumentów przez małego płatnika do ZUS"
+  description: "Płatnik zgłaszający ≤20 ubezpieczonych przekazuje do ZUS wniosek/zaświadczenia z dokumentami niezwłocznie, nie później niż w 7 dni od otrzymania."
+  category: GENERAL
+  rule_type: DEADLINE
+  legal_basis: {document: USTAWA, article: "61b", paragraph: "5", point: null}
+  source_document: USTAWA
+  source_location: "art. 61b ust. 5"
+  source_excerpt: "niezwłocznie, niepóźniej niż w terminie 7 dni od dnia ich otrzymania"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: payer.insured_count_on_nov30_prev_year, operator: lte, value: {param: PAYER_INSURED_THRESHOLD}}, {fact: f_is_employer_payer_title, operator: eq, value: true}]}
+  result: {deadline: {who: CONTRIBUTION_PAYER, days: {param: PAYER_FORWARD_DAYS}, from: DOCUMENTS_RECEIVED}}
+  exceptions: []
+  dependencies: [GEN-CLS-002]
+  overrides: []
+  required_inputs: [payer.insured_count_on_nov30_prev_year]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: ""
+
+# =====================================================================
+# REHAB — świadczenie rehabilitacyjne
+# =====================================================================
+- id: REHAB-ELIG-001
+  name: "Świadczenie rehabilitacyjne po wyczerpaniu zasiłku"
+  description: "Przysługuje ubezpieczonemu, który po wyczerpaniu zasiłku chorobowego jest nadal niezdolny do pracy, a dalsze leczenie/rehabilitacja rokują odzyskanie zdolności — o czym orzeka lekarz orzecznik ZUS."
+  category: REHABILITATION
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "18", paragraph: "1, 3", point: null}
+  source_document: USTAWA
+  source_location: "art. 18 ust. 1, 3, 6"
+  source_excerpt: "po wyczerpaniu zasiłku chorobowego jest nadal niezdolny do pracy, a dalsze leczenie lub rehabilitacja lecznicza rokują odzyskanie zdolności"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_benefit_period_exhausted, operator: eq, value: true}
+      - {field: rehabilitation.zus_medical_opinion_positive, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: REHABILITATION_BENEFIT}}
+  exceptions: [REHAB-EXCL-001]
+  dependencies: [SICK-DUR-001, SICK-DUR-003]
+  overrides: []
+  required_inputs: [benefit_history.sickness_periods, rehabilitation.zus_medical_opinion_positive]
+  missing_data_behavior: NEEDS_REVIEW
+  evaluation: HUMAN_REVIEW
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Silnik może wskazać 'zbliża się wyczerpanie okresu zasiłkowego — rozważ wniosek', ale prawa nie przyznaje bez orzeczenia (pole zwykle UNKNOWN → NEEDS_REVIEW)."
+
+- id: REHAB-EXCL-001
+  name: "Wyłączenia świadczenia rehabilitacyjnego"
+  description: "Nie przysługuje osobie uprawnionej do emerytury/renty, zasiłku dla bezrobotnych, przedemerytalnego, rodzicielskiego świadczenia uzupełniającego, nauczycielskiego świadczenia kompensacyjnego, urlopu dla poratowania zdrowia."
+  category: REHABILITATION
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "18", paragraph: "7-8", point: null}
+  source_document: USTAWA
+  source_location: "art. 18 ust. 7-8"
+  source_excerpt: "Świadczenie rehabilitacyjne nie przysługuje osobie uprawnionej do emerytury lub renty"
+  valid_from: null
+  valid_to: null
+  conditions:
+    any:
+      - {field: person.has_pension_or_disability_pension, operator: eq, value: true}
+      - {field: person.receives_unemployment_or_preretirement_benefit, operator: eq, value: true}
+      - {field: person.on_health_restoration_leave, operator: eq, value: true}
+  result: {status: NOT_ELIGIBLE, reason_code: REHAB_EXCLUSION}
+  exceptions: []
+  dependencies: [REHAB-ELIG-001]
+  overrides: [REHAB-ELIG-001]
+  required_inputs: [person.has_pension_or_disability_pension, person.receives_unemployment_or_preretirement_benefit]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: REHAB-DUR-001
+  name: "Świadczenie rehabilitacyjne — maksymalnie 12 miesięcy"
+  description: "Przez okres niezbędny do przywrócenia zdolności do pracy, nie dłużej niż 12 miesięcy."
+  category: REHABILITATION
+  rule_type: DURATION
+  legal_basis: {document: USTAWA, article: "18", paragraph: "2", point: null}
+  source_document: USTAWA
+  source_location: "art. 18 ust. 2"
+  source_excerpt: "niedłużej jednak niż przez 12 miesięcy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: REHABILITATION_BENEFIT}]}
+  result: {set: {max_duration_months: {param: REHAB_MAX_MONTHS}}}
+  exceptions: []
+  dependencies: [REHAB-ELIG-001]
+  overrides: []
+  required_inputs: []
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Rzeczywisty okres orzeka lekarz orzecznik."
+
+- id: REHAB-RATE-001
+  name: "Wysokość świadczenia rehabilitacyjnego (90% / 75% / 100% w ciąży)"
+  description: "90% podstawy przez pierwsze 3 miesiące, 75% za pozostały okres; jeśli niezdolność przypada w okresie ciąży — 100%."
+  category: REHABILITATION
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "19", paragraph: "1", point: null}
+  source_document: USTAWA
+  source_location: "art. 19 ust. 1"
+  source_excerpt: "90% podstawy ... za okres pierwszych trzech miesięcy, 75% tej podstawy za pozostały okres, a jeżeli niezdolność do pracy przypada w okresie ciąży - 100%"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: REHABILITATION_BENEFIT}]}
+  result: {compute: f_rehab_rate_schedule, output: rate_schedule}
+  exceptions: []
+  dependencies: [REHAB-ELIG-001]
+  overrides: []
+  required_inputs: [pregnancy.is_pregnant_during_incapacity]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Waloryzacja podstawy (art. 19 ust. 2) wymaga wskaźnika ogłaszanego przez Prezesa ZUS — brak w materiałach (GAP-009). Kwota P2."
+
+- id: REHAB-DOC-001
+  name: "Dokumenty — świadczenie rehabilitacyjne"
+  description: "Wniosek (zał. 5), zaświadczenie o stanie zdrowia (nie starsze niż miesiąc), wywiad zawodowy (nie dla przedsiębiorców/po ustaniu), dokumenty wypadkowe; po ustaniu tytułu także oświadczenie z zał. 4."
+  category: REHABILITATION
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 11", point: null}
+  source_document: ROZP_DOK
+  source_location: "§ 11 ust. 1-3"
+  source_excerpt: "Dokumentami niezbędnymi do przyznania i wypłaty świadczenia rehabilitacyjnego są: 1) wniosek ... 2) zaświadczenie o stanie zdrowia"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: REHABILITATION_BENEFIT}]}
+  result: {documents: [{doc: REHAB_APPLICATION_ANNEX5}, {doc: HEALTH_STATUS_CERTIFICATE_MAX_1_MONTH}, {doc: OCCUPATIONAL_INTERVIEW, when: "employee and not after_title_end"}]}
+  exceptions: []
+  dependencies: [REHAB-ELIG-001]
+  overrides: []
+  required_inputs: []
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: AUTOMATABLE
+  notes: ""
+
+# =====================================================================
+# MAT — zasiłek macierzyński: prawo
+# =====================================================================
+- id: MAT-ELIG-001
+  name: "Zasiłek macierzyński — urodzenie dziecka w czasie ubezpieczenia lub urlopu wychowawczego"
+  description: "Przysługuje ubezpieczonej, która urodziła dziecko w okresie ubezpieczenia chorobowego albo w okresie urlopu wychowawczego."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "1", point: "1"}
+  source_document: USTAWA
+  source_location: "art. 29 ust. 1 pkt 1"
+  source_excerpt: "przysługuje ubezpieczonej, która w okresie ubezpieczenia chorobowego albo w okresie urlopu wychowawczego: 1) urodziła dziecko"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: BIRTH}
+      - {field: person.role, operator: eq, value: MOTHER}
+      - any:
+          - {fact: f_sickness_insured_on, args: {date: event.date}, operator: eq, value: true}
+          - {fact: f_on_childcare_leave_on, args: {date: event.date}, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, entitlement_basis: BIRTH_DURING_INSURANCE}}
+  exceptions: [GEN-EXCL-001, MAT-ELIG-004, MAT-ELIG-005, MAT-ELIG-006]
+  dependencies: []
+  overrides: []
+  required_inputs: [event.type, event.date, person.role, insurance.titles, employment.leaves]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Brak okresu wyczekiwania dla zasiłku macierzyńskiego — art. 4 dotyczy wyłącznie zasiłku chorobowego (MAT-CLS-001). Dla planowania (poród w przyszłości) event.date = przewidywana data porodu i wynik jest PROGNOZĄ (flaga forecast=true)."
+
+- id: MAT-ELIG-002
+  name: "Zasiłek macierzyński — przyjęcie dziecka do 14 lat i wniosek o przysposobienie"
+  description: "Przysługuje ubezpieczonej/ubezpieczonemu, który w okresie ubezpieczenia (lub urlopu wychowawczego) przyjął na wychowanie dziecko do 14 roku życia i wystąpił do sądu opiekuńczego o przysposobienie."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "1-2", point: "2"}
+  source_document: USTAWA
+  source_location: "art. 29 ust. 1 pkt 2, ust. 2"
+  source_excerpt: "przyjęła na wychowanie dziecko w wieku do 14 roku życia i wystąpiła do sądu opiekuńczego w sprawie jego przysposobienia"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: ADOPTION}
+      - {field: event.court_adoption_application_date, operator: exists, value: true}
+      - {fact: f_child_age_years_on, args: {date: event.date}, operator: lt, value: {param: ADOPTION_CHILD_AGE_MAX}}
+      - any:
+          - {fact: f_sickness_insured_on, args: {date: event.date}, operator: eq, value: true}
+          - {fact: f_on_childcare_leave_on, args: {date: event.date}, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, entitlement_basis: ADOPTION}}
+  exceptions: [GEN-EXCL-001]
+  dependencies: []
+  overrides: []
+  required_inputs: [event.type, event.date, event.court_adoption_application_date, children.birth_dates, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "'w wieku do 14 roku życia' interpretujemy jako: przed ukończeniem 14 lat (lt 14) — GAP-005. event.date = data przyjęcia dziecka; oba warunki (przyjęcie + wniosek do sądu) muszą zajść — data powstania prawa = późniejsza z nich (DERIVED)."
+
+- id: MAT-ELIG-003
+  name: "Zasiłek macierzyński — rodzina zastępcza niezawodowa (dziecko do 7/10 lat)"
+  description: "Przysługuje ubezpieczonemu, który przyjął na wychowanie w ramach rodziny zastępczej (z wyjątkiem zawodowej) dziecko do 7 roku życia, a przy odroczonym obowiązku szkolnym do 10."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "1-2", point: "3"}
+  source_document: USTAWA
+  source_location: "art. 29 ust. 1 pkt 3, ust. 2"
+  source_excerpt: "przyjęła na wychowanie w ramach rodziny zastępczej, z wyjątkiem rodziny zastępczej zawodowej, dziecko w wieku do 7 roku życia"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: FOSTER}
+      - {field: event.foster_family_type, operator: eq, value: NON_PROFESSIONAL}
+      - any:
+          - {fact: f_child_age_years_on, args: {date: event.date}, operator: lt, value: {param: FOSTER_CHILD_AGE_MAX}}
+          - all:
+              - {field: children.school_obligation_deferred, operator: eq, value: true}
+              - {fact: f_child_age_years_on, args: {date: event.date}, operator: lt, value: {param: FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED}}
+      - any:
+          - {fact: f_sickness_insured_on, args: {date: event.date}, operator: eq, value: true}
+          - {fact: f_on_childcare_leave_on, args: {date: event.date}, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, entitlement_basis: FOSTER_NON_PROFESSIONAL}}
+  exceptions: [MAT-EXCL-001, GEN-EXCL-001]
+  dependencies: []
+  overrides: []
+  required_inputs: [event.type, event.date, event.foster_family_type, children.birth_dates, children.school_obligation_deferred, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Treść zadania (pkt e vs j) — rodzina zastępcza ZAWODOWA nie ma prawa (MAT-EXCL-001)."
+
+- id: MAT-EXCL-001
+  name: "Rodzina zastępcza zawodowa — brak prawa"
+  description: "Zasiłek macierzyński z tytułu przyjęcia dziecka nie przysługuje rodzinie zastępczej zawodowej."
+  category: MATERNITY
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "29", paragraph: "1", point: "3"}
+  source_document: USTAWA
+  source_location: "art. 29 ust. 1 pkt 3; KP art. 183 § 1"
+  source_excerpt: "z wyjątkiem rodziny zastępczej zawodowej"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: eq, value: FOSTER}, {field: event.foster_family_type, operator: eq, value: PROFESSIONAL}]}
+  result: {status: NOT_ELIGIBLE, reason_code: PROFESSIONAL_FOSTER_FAMILY}
+  exceptions: []
+  dependencies: []
+  overrides: [MAT-ELIG-003]
+  required_inputs: [event.foster_family_type]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: MAT-ELIG-004
+  name: "Zasiłek macierzyński po ustaniu ubezpieczenia — śmierć, upadłość, likwidacja pracodawcy"
+  description: "Przysługuje w razie urodzenia dziecka po ustaniu ubezpieczenia, jeżeli ubezpieczenie ustało w okresie ciąży wskutek śmierci, ogłoszenia upadłości lub likwidacji pracodawcy."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "30", paragraph: "1", point: "1"}
+  source_document: USTAWA
+  source_location: "art. 30 ust. 1 pkt 1"
+  source_excerpt: "jeżeli ubezpieczenie to ustało w okresie ciąży: 1) wskutek śmierci, ogłoszenia upadłości lub likwidacji pracodawcy"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: BIRTH}
+      - {fact: f_sickness_insured_on, args: {date: event.date}, operator: eq, value: false}
+      - {fact: f_title_ended_during_pregnancy, operator: eq, value: true}
+      - {fact: f_last_title_termination_reason, operator: in, value: [EMPLOYER_DEATH, EMPLOYER_BANKRUPTCY, EMPLOYER_LIQUIDATION]}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, entitlement_basis: AFTER_TITLE_EMPLOYER_CEASED, payer_of_benefit: ZUS}}
+  exceptions: [GEN-EXCL-001]
+  dependencies: []
+  overrides: [MAT-NEG-001]
+  required_inputs: [insurance.titles, pregnancy.pregnancy_start_date, event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Płatnik = ZUS (art. 61 ust. 1 pkt 2 lit. d). Dokumenty: MAT-DOC-004."
+
+- id: MAT-ELIG-005
+  name: "Zasiłek macierzyński po ustaniu ubezpieczenia — rozwiązanie z naruszeniem prawa"
+  description: "Przysługuje, jeżeli ubezpieczenie ustało w okresie ciąży z naruszeniem przepisów prawa stwierdzonym prawomocnym orzeczeniem sądu."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "30", paragraph: "1", point: "2"}
+  source_document: USTAWA
+  source_location: "art. 30 ust. 1 pkt 2"
+  source_excerpt: "z naruszeniem przepisów prawa, stwierdzonym prawomocnym orzeczeniem sądu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: BIRTH}
+      - {fact: f_sickness_insured_on, args: {date: event.date}, operator: eq, value: false}
+      - {fact: f_title_ended_during_pregnancy, operator: eq, value: true}
+      - {fact: f_last_title_termination_reason, operator: eq, value: UNLAWFUL_TERMINATION_COURT_CONFIRMED}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, entitlement_basis: AFTER_TITLE_UNLAWFUL_TERMINATION, payer_of_benefit: ZUS}}
+  exceptions: [GEN-EXCL-001]
+  dependencies: []
+  overrides: [MAT-NEG-001]
+  required_inputs: [insurance.titles, pregnancy.pregnancy_start_date, event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Gdy sprawa sądowa w toku (brak prawomocnego orzeczenia) → NEEDS_REVIEW."
+
+- id: MAT-ELIG-006
+  name: "Zasiłek macierzyński po ustaniu — umowa terminowa przedłużona do dnia porodu"
+  description: "Pracownicy na umowie na czas określony przedłużonej do dnia porodu (KP art. 177 § 3) przysługuje zasiłek macierzyński po ustaniu ubezpieczenia."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "30", paragraph: "4", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 30 ust. 4; KP art. 177 § 3, § 3(1)"
+  source_excerpt: "z którą umowa o pracę na podstawie art. 177 § 3 Kodeksu pracy została przedłużona do dnia porodu - przysługuje prawo do zasiłku macierzyńskiego po ustaniu ubezpieczenia"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: BIRTH}
+      - {field: employment.contract_type, operator: eq, value: FIXED_TERM}
+      - {field: employment.extended_until_birth_kp177, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, entitlement_basis: FIXED_TERM_EXTENDED_TO_BIRTH, payer_of_benefit: ZUS}}
+  exceptions: []
+  dependencies: [MAT-CLS-002]
+  overrides: [MAT-NEG-001]
+  required_inputs: [employment.contract_type, employment.extended_until_birth_kp177]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Częsty przypadek w sprawach. Przedłużenie ocenia MAT-CLS-002."
+
+- id: MAT-CLS-002
+  name: "Przedłużenie umowy terminowej do dnia porodu (KP 177 § 3)"
+  description: "Umowa na czas określony lub na okres próbny >1 miesiąc, która rozwiązałaby się po upływie 3. miesiąca ciąży, ulega przedłużeniu do dnia porodu — nie dotyczy umowy na zastępstwo."
+  category: MATERNITY
+  rule_type: CLASSIFICATION
+  legal_basis: {document: KP, article: "177", paragraph: "3, 3(1)", point: null}
+  source_document: KP
+  source_location: "art. 177 § 3, § 3(1)"
+  source_excerpt: "która uległaby rozwiązaniu po upływie trzeciego miesiąca ciąży, ulega przedłużeniu do dnia porodu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: employment.contract_type, operator: in, value: [FIXED_TERM, PROBATION_OVER_1_MONTH]}
+      - {field: employment.is_replacement_contract, operator: eq, value: false}
+      - {fact: f_contract_end_after_third_month_of_pregnancy, operator: eq, value: true}
+  result: {set: {employment.extended_until_birth_kp177: true}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [employment.contract_type, employment.contract_end_date, employment.is_replacement_contract, pregnancy.pregnancy_start_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: BLOCKED
+  confidence: MEDIUM
+  interpretation_status: AMBIGUOUS
+  implementation_priority: P1
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "'Po upływie trzeciego miesiąca ciąży' — sposób liczenia miesięcy ciąży i data początku ciąży nie wynikają z materiałów (GAP-007). Dlatego reguła BLOKOWANA: jeśli użytkownik nie poda wprost employment.extended_until_birth_kp177, wynik NEEDS_REVIEW."
+
+- id: MAT-ELIG-007
+  name: "Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu"
+  description: "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy i nie zapewniono innego zatrudnienia, przysługuje do dnia porodu zasiłek w wysokości zasiłku macierzyńskiego."
+  category: MATERNITY_EQUIVALENT
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "30", paragraph: "3", point: null}
+  source_document: USTAWA
+  source_location: "art. 30 ust. 3; KP art. 177 § 4"
+  source_excerpt: "przysługuje do dnia porodu zasiłek w wysokości zasiłku macierzyńskiego"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_is_employee_title_last, operator: eq, value: true}
+      - {fact: f_title_ended_during_pregnancy, operator: eq, value: true}
+      - {fact: f_last_title_termination_reason, operator: in, value: [EMPLOYER_DEATH, EMPLOYER_BANKRUPTCY, EMPLOYER_LIQUIDATION]}
+      - {field: employment.other_employment_provided, operator: eq, value: false}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_EQUIVALENT_ALLOWANCE, period_end: BIRTH_DATE, rate: {param: MAT_RATE_FULL}, payer_of_benefit: ZUS}}
+  exceptions: [GEN-EXCL-001]
+  dependencies: []
+  overrides: []
+  required_inputs: [insurance.titles, pregnancy.pregnancy_start_date, employment.other_employment_provided]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "KONFLIKT z treścią zadania: zadanie wymienia też 'naruszenie przepisów prawa', ustawa art. 30 ust. 3 i ROZP_DOK § 17 — tylko śmierć/upadłość/likwidacja. Stosujemy ustawę (CONF-001). Stawka 100% — DERIVED z 'w wysokości zasiłku macierzyńskiego' i art. 31 ust. 1."
+
+- id: MAT-NEG-001
+  name: "Brak ubezpieczenia na dzień porodu — brak prawa"
+  description: "Jeśli w dniu porodu osoba nie podlega ubezpieczeniu chorobowemu, nie jest na urlopie wychowawczym i nie zachodzi żaden przypadek z art. 30 — zasiłek macierzyński nie przysługuje."
+  category: MATERNITY
+  rule_type: EXCLUSION
+  legal_basis: {document: USTAWA, article: "29-30", paragraph: null, point: null}
+  source_document: USTAWA
+  source_location: "art. 29 ust. 1 a contrario; art. 30"
+  source_excerpt: "przysługuje ubezpieczonej, która w okresie ubezpieczenia chorobowego albo w okresie urlopu wychowawczego: 1) urodziła dziecko"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: BIRTH}
+      - {fact: f_sickness_insured_on, args: {date: event.date}, operator: eq, value: false}
+      - {fact: f_on_childcare_leave_on, args: {date: event.date}, operator: eq, value: false}
+      - {fact: f_any_art30_basis, operator: eq, value: false}
+  result: {status: NOT_ELIGIBLE, reason_code: NOT_INSURED_ON_BIRTH_DATE}
+  exceptions: [MAT-ELIG-004, MAT-ELIG-005, MAT-ELIG-006]
+  dependencies: [MAT-ELIG-004, MAT-ELIG-005, MAT-ELIG-006]
+  overrides: [MAT-ELIG-001]
+  required_inputs: [insurance.titles, event.date, employment.leaves]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Ryzyko z pkt H.3 zadania (wyrejestrowanie z dobrowolnego chorobowego, koniec umowy zlecenia/JDG przed porodem) — wysyłamy ostrzeżenie w planerze ciąży. Ojciec może mieć prawo z art. 29 ust. 9-10 lub do rodzicielskiego (PAR-SHARE-003)."
+
+- id: MAT-CLS-001
+  name: "Brak okresu wyczekiwania dla zasiłku macierzyńskiego"
+  description: "Przepisy o okresie wyczekiwania (art. 4) dotyczą zasiłku chorobowego; rozdział o zasiłku macierzyńskim nie przewiduje okresu wyczekiwania."
+  category: MATERNITY
+  rule_type: CLASSIFICATION
+  legal_basis: {document: USTAWA, article: "4; 29", paragraph: null, point: null}
+  source_document: USTAWA
+  source_location: "art. 4 ust. 1 (zasiłek chorobowy); art. 29-31"
+  source_excerpt: "Ubezpieczony nabywa prawo do zasiłku chorobowego: 1) po upływie 30 dni"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: MATERNITY_BENEFIT}]}
+  result: {set: {waiting_period_required: false}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: []
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Wniosek a contrario — do potwierdzenia u mentora (Q-LEG-01). Uwaga: pozorność umowy/podwyższenia podstawy (pkt H zadania) to ryzyko oceniane przez ZUS w postępowaniu — RISK-001/002."
+
+# =====================================================================
+# MAT-DUR — wymiar zasiłku za okres urlopu macierzyńskiego
+# =====================================================================
+- id: MAT-DUR-001
+  name: "Wymiar urlopu macierzyńskiego wg liczby dzieci"
+  description: "20 tygodni (1 dziecko), 31 (2), 33 (3), 35 (4), 37 (5 i więcej) przy jednym porodzie."
+  category: MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "180", paragraph: "1", point: "1-5"}
+  source_document: KP
+  source_location: "KP art. 180 § 1; USTAWA art. 29a ust. 1"
+  source_excerpt: "20 tygodni - w przypadku urodzenia jednego dziecka przy jednym porodzie; 31 tygodni - ... dwojga"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: eq, value: BIRTH}, {field: children.count_at_birth, operator: gte, value: 1}]}
+  result: {compute: f_maternity_leave_weeks, output: duration.maternity_weeks}
+  exceptions: [MAT-DUR-003, MAT-DUR-004, MAT-DUR-005]
+  dependencies: [MAT-ELIG-001]
+  overrides: []
+  required_inputs: [children.count_at_birth]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Tydzień = 7 dni kalendarzowych (MAT-DUR-009)."
+
+- id: MAT-DUR-002
+  name: "Do 6 tygodni urlopu przed przewidywaną datą porodu"
+  description: "Przed przewidywaną datą porodu można wykorzystać nie więcej niż 6 tygodni; niewykorzystaną część — po porodzie do wyczerpania wymiaru. Bez części przedporodowej pierwszym dniem jest dzień porodu."
+  category: MATERNITY
+  rule_type: VALIDATION
+  legal_basis: {document: KP, article: "180", paragraph: "2-3", point: null}
+  source_document: KP
+  source_location: "KP art. 180 § 2-3; art. 183(1) § 2"
+  source_excerpt: "Przed przewidywaną datą porodu pracownica może wykorzystać niewięcej niż 6 tygodni urlopu macierzyńskiego"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: plan.maternity_start_date, operator: exists, value: true}, {fact: f_weeks_before_due_date, operator: gt, value: {param: PRE_BIRTH_MAX_WEEKS}}]}
+  result: {validation_error: {code: PRE_BIRTH_EXCEEDS_6_WEEKS}}
+  exceptions: []
+  dependencies: [MAT-DUR-001]
+  overrides: []
+  required_inputs: [plan.maternity_start_date, pregnancy.expected_due_date]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Dokument: zaświadczenie o przewidywanej dacie porodu (MAT-DOC-001). Dla ubezpieczonej niebędącej pracownicą — 'okres odpowiadający' (DERIVED z art. 29a)."
+
+- id: MAT-DUR-003
+  name: "Martwe urodzenie lub zgon dziecka przed 8. tygodniem życia"
+  description: "Przysługuje urlop/zasiłek w wymiarze 8 tygodni po porodzie, nie krócej niż 7 dni od dnia zgonu; przy kilkorgu dzieci — wymiar stosowny do liczby dzieci pozostałych przy życiu."
+  category: MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "180(1)", paragraph: "1", point: null}
+  source_document: KP
+  source_location: "KP art. 180(1) § 1"
+  source_excerpt: "W razie urodzenia martwego dziecka lub zgonu dziecka przed upływem 8 tygodni życia, pracownicy przysługuje urlop macierzyński w wymiarze 8 tygodni po porodzie, niekrócej jednak niż przez okres 7 dni od dnia zgonu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: BIRTH}
+      - {fact: f_children_alive_count, operator: eq, value: 0}
+      - {fact: f_earliest_child_death_age_days, operator: lt, value: 56}
+  result: {compute: f_stillbirth_maternity_end_date, output: duration.maternity_end_date}
+  exceptions: []
+  dependencies: [MAT-ELIG-001]
+  overrides: [MAT-DUR-001]
+  required_inputs: [children.items, event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Koniec = max(data porodu + 8 tyg − 1 dzień, data zgonu + 7 dni − 1 dzień) — DERIVED, GAP-004. Gdy żyje ≥1 dziecko z wieloraczków → MAT-DUR-005. Wymagany tryb empatyczny UI. Dokument: zaświadczenie o martwym urodzeniu (ROZP_DOK § 13 ust. 1 pkt 2). Poronienie: zaświadczenie o martwym urodzeniu wydaje się „bez względu na czas trwania ciąży” (§ 13 ust. 1 pkt 2) — wejście stillborn=true przy takim zaświadczeniu (GAP-024)."
+
+- id: MAT-DUR-004
+  name: "Zgon dziecka po 8. tygodniu życia — 7 dni"
+  description: "W razie zgonu dziecka po upływie 8 tygodni życia prawo do urlopu/zasiłku zachowuje się przez 7 dni od dnia zgonu."
+  category: MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "180(1)", paragraph: "2", point: null}
+  source_document: KP
+  source_location: "KP art. 180(1) § 2"
+  source_excerpt: "W przypadku zgonu dziecka po upływie 8 tygodni życia, pracownica zachowuje prawo do urlopu macierzyńskiego przez okres 7 dni od dnia zgonu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: event.type, operator: eq, value: BIRTH}
+      - {fact: f_children_alive_count, operator: eq, value: 0}
+      - {fact: f_earliest_child_death_age_days, operator: gte, value: 56}
+  result: {compute: f_child_death_maternity_end_date, output: duration.maternity_end_date}
+  exceptions: []
+  dependencies: [MAT-ELIG-001]
+  overrides: [MAT-DUR-001]
+  required_inputs: [children.items, event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Koniec = min(regularny koniec, data zgonu + 7 dni − 1) — DERIVED."
+
+- id: MAT-DUR-005
+  name: "Wieloraczki — zgon części dzieci"
+  description: "Gdy przy jednym porodzie urodziło się więcej dzieci, a część zmarła/urodziła się martwa — wymiar stosowny do liczby dzieci pozostałych przy życiu (nie krócej niż 7 dni od zgonu)."
+  category: MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "180(1)", paragraph: "1-2", point: null}
+  source_document: KP
+  source_location: "KP art. 180(1) § 1 zd. 2, § 2 zd. 2"
+  source_excerpt: "przysługuje w takim przypadku urlop macierzyński w wymiarze stosownym do liczby dzieci pozostałych przy życiu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: children.count_at_birth, operator: gt, value: 1}
+      - {fact: f_children_alive_count, operator: gte, value: 1}
+      - {fact: f_children_deceased_count, operator: gte, value: 1}
+  result: {compute: f_maternity_weeks_surviving, output: duration.maternity_weeks}
+  exceptions: []
+  dependencies: [MAT-DUR-001]
+  overrides: [MAT-DUR-001]
+  required_inputs: [children.items]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: BLOCKED
+  confidence: MEDIUM
+  interpretation_status: AMBIGUOUS
+  implementation_priority: P2
+  automation_status: HUMAN_REVIEW
+  notes: "Moment zmiany wymiaru (od dnia zgonu? zachowanie dni już wykorzystanych?) nie wynika jednoznacznie — BLOKOWANA (GAP-012)."
+
+- id: MAT-DUR-006
+  name: "Porzucenie dziecka / umieszczenie w pieczy — utrata dalszej części, minimum 8 tygodni"
+  description: "W razie porzucenia dziecka lub umieszczenia go na podstawie orzeczenia sądu w pieczy zastępczej lub zakładzie — nie przysługuje część urlopu po tym dniu, jednak urlop po porodzie nie może wynosić mniej niż 8 tygodni."
+  category: MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "182", paragraph: null, point: null}
+  source_document: KP
+  source_location: "KP art. 182; ROZP_DOK § 19"
+  source_excerpt: "Jednakże urlop macierzyński po porodzie nie może wynosić mniej niż 8 tygodni"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: children.abandoned_or_placed_date, operator: exists, value: true}]}
+  result: {compute: f_abandonment_end_date, output: duration.maternity_end_date}
+  exceptions: []
+  dependencies: [MAT-DUR-001]
+  overrides: [MAT-DUR-001]
+  required_inputs: [children.abandoned_or_placed_date, event.date]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: MAT-DUR-007
+  name: "Urlop na warunkach urlopu macierzyńskiego — wymiar i limit wieku dziecka"
+  description: "Przy przyjęciu dziecka (rodzina zastępcza niezawodowa / przysposobienie) — 20/31/33/35/37 tygodni wg liczby jednocześnie przyjętych dzieci, nie dłużej niż do ukończenia przez dziecko 7 lat (10 przy odroczeniu obowiązku szkolnego) albo 14 lat przy przysposobieniu."
+  category: MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "183", paragraph: "1, 1(1)", point: "1-5"}
+  source_document: KP
+  source_location: "KP art. 183 § 1, § 1(1)"
+  source_excerpt: "niedłużej jednak niż do ukończenia przez dziecko 7 roku życia ... niedłużej jednak niż do ukończenia przez dziecko 14 roku życia"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: in, value: [ADOPTION, FOSTER]}]}
+  result: {compute: f_maternity_like_leave_period, output: duration.maternity_like}
+  exceptions: [MAT-DUR-008]
+  dependencies: [MAT-ELIG-002, MAT-ELIG-003]
+  overrides: []
+  required_inputs: [children.count_at_event, children.birth_dates, children.school_obligation_deferred, event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Koniec = min(start + wymiar, dzień przed urodzinami granicznymi) — 'ukończenie' 7/14 lat = dzień urodzin (DERIVED, GAP-005)."
+
+- id: MAT-DUR-008
+  name: "Gwarantowane 9 tygodni urlopu na warunkach urlopu macierzyńskiego"
+  description: "Pracownik, który przyjął dziecko do 7 (10) lat jako rodzina zastępcza lub do 14 lat przy przysposobieniu, ma prawo do 9 tygodni urlopu na warunkach urlopu macierzyńskiego."
+  category: MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "183", paragraph: "3", point: null}
+  source_document: KP
+  source_location: "KP art. 183 § 3"
+  source_excerpt: "ma prawo do 9 tygodni urlopu na warunkach urlopu macierzyńskiego"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: in, value: [ADOPTION, FOSTER]}, {fact: f_maternity_like_weeks_after_age_cap, operator: lt, value: {param: MATERNITY_LIKE_GUARANTEED_WEEKS}}]}
+  result: {set: {duration.maternity_like_weeks: {param: MATERNITY_LIKE_GUARANTEED_WEEKS}}}
+  exceptions: []
+  dependencies: [MAT-DUR-007]
+  overrides: [MAT-DUR-007]
+  required_inputs: [children.birth_dates, event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: BLOCKED
+  confidence: MEDIUM
+  interpretation_status: AMBIGUOUS
+  implementation_priority: P1
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Załącznik: 'nie może trwać krócej niż 9 tygodni'. KP § 3 nie mówi wprost, że 9 tyg. jest minimum ponad limit wieku — interpretacja Załącznika (CONF-003). BLOKOWANA → NEEDS_REVIEW, gdy limit wieku skraca urlop poniżej 9 tyg."
+
+- id: MAT-DUR-009
+  name: "Tydzień urlopu = 7 dni kalendarzowych; dzień porodu jako pierwszy dzień"
+  description: "Przy urlopie macierzyńskim i na warunkach macierzyńskiego tydzień = 7 dni kalendarzowych; jeśli nie korzystano z urlopu przed porodem, pierwszym dniem jest dzień porodu."
+  category: MATERNITY
+  rule_type: CALCULATION
+  legal_basis: {document: KP, article: "183(1)", paragraph: "1-2", point: null}
+  source_document: KP
+  source_location: "KP art. 183(1) § 1-2"
+  source_excerpt: "tydzień urlopu odpowiada 7 dniom kalendarzowym ... pierwszym dniem urlopu macierzyńskiego jest dzień porodu"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: MATERNITY_BENEFIT}]}
+  result: {set: {week_days: {param: WEEK_AS_DAYS}}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: []
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Dla urlopu rodzicielskiego/ojcowskiego/uzupełniającego KP (wyciąg) nie definiuje tygodnia — stosujemy 7 dni jako DERIVED (GAP-003)."
+
+# =====================================================================
+# MAT-SHARE — przejęcie zasiłku przez ojca / innego członka rodziny
+# =====================================================================
+- id: MAT-SHARE-001
+  name: "Ojciec przejmuje zasiłek macierzyński po ≥14 tygodniach matki"
+  description: "Po rezygnacji matki z zasiłku po wykorzystaniu co najmniej 14 tygodni po porodzie, zasiłek za pozostałą część przysługuje ubezpieczonemu ojcu, który uzyskał prawo do urlopu macierzyńskiego lub przerwał działalność zarobkową dla opieki."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "3", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29 ust. 3; KP art. 180 § 4-5"
+  source_excerpt: "po wykorzystaniu przez nią tego zasiłku za okres co najmniej 14 tygodni po porodzie, zasiłek macierzyński przysługuje ubezpieczonemu - ojcu dziecka"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: eq, value: FATHER}
+      - {fact: f_sickness_insured_on, args: {date: plan.transfer_start_date}, operator: eq, value: true}
+      - {fact: f_mother_maternity_weeks_used_after_birth, operator: gte, value: {param: MOTHER_MIN_WEEKS_BEFORE_TRANSFER}}
+      - {field: plan.mother_resigns_remaining_maternity, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: MATERNITY_LEAVE_TRANSFERRED}}
+  exceptions: [MAT-SHARE-002, MAT-SHARE-004]
+  dependencies: [MAT-ELIG-001]
+  overrides: []
+  required_inputs: [plan.segments, plan.transfer_start_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Okres ojca = wymiar − okres wypłacony matce (art. 29a ust. 2; MAT-SHARE-007). Zasiłek ojca liczony od JEGO podstawy (DERIVED)."
+
+- id: MAT-SHARE-002
+  name: "Przejęcie po ≥8 tygodniach — matka niezdolna do samodzielnej egzystencji"
+  description: "Gdy matka legitymuje się orzeczeniem o niezdolności do samodzielnej egzystencji, może zrezygnować po wykorzystaniu co najmniej 8 tygodni; zasiłek przysługuje ojcu albo innemu członkowi najbliższej rodziny."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "5", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29 ust. 5; KP art. 180 § 6-7"
+  source_excerpt: "legitymującą się orzeczeniem o niezdolności do samodzielnej egzystencji ... po wykorzystaniu przez nią tego zasiłku za okres co najmniej 8 tygodni"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: in, value: [FATHER, OTHER_FAMILY_MEMBER]}
+      - {field: mother.incapable_of_independent_living_certificate, operator: eq, value: true}
+      - {fact: f_mother_maternity_weeks_used_after_birth, operator: gte, value: {param: MOTHER_MIN_WEEKS_SPECIAL}}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: MATERNITY_LEAVE_TRANSFERRED}}
+  exceptions: []
+  dependencies: [MAT-ELIG-001]
+  overrides: [MAT-SHARE-001]
+  required_inputs: [mother.incapable_of_independent_living_certificate, plan.segments]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "'Członek najbliższej rodziny' — definicja w art. 29 ust. 5 nie w pełni w wyciągu (GAP-013)."
+
+- id: MAT-SHARE-003
+  name: "Zasiłek dla ojca na czas hospitalizacji matki (po ≥8 tygodniach)"
+  description: "Po wykorzystaniu przez matkę ≥8 tygodni — ojcu/członkowi rodziny przysługuje zasiłek za okres pobytu matki w szpitalu uniemożliwiającego opiekę; zasiłek matki się przerywa."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "6", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29 ust. 6; KP art. 180 § 10-11; ROZP_DOK § 23-24"
+  source_excerpt: "przysługuje prawo do zasiłku macierzyńskiego za okres, w którym ubezpieczona - matka dziecka przebywa w szpitalu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: in, value: [FATHER, OTHER_FAMILY_MEMBER]}
+      - {field: mother.hospitalized_unable_to_care, operator: eq, value: true}
+      - {fact: f_mother_maternity_weeks_used_after_birth, operator: gte, value: {param: MOTHER_MIN_WEEKS_SPECIAL}}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: MATERNITY_LEAVE_HOSPITALIZATION_SUBSTITUTE, mother_benefit_interrupted: true}}
+  exceptions: []
+  dependencies: [MAT-ELIG-001]
+  overrides: []
+  required_inputs: [mother.hospital_admission_date, mother.hospital_discharge_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: MAT-SHARE-004
+  name: "Zgon lub porzucenie dziecka przez ubezpieczoną matkę"
+  description: "W razie zgonu matki lub porzucenia przez nią dziecka zasiłek przysługuje ojcu lub innemu członkowi rodziny; przy porzuceniu — za okres po porzuceniu, nie wcześniej niż po 8 tygodniach zasiłku matki."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "7", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29 ust. 7; KP art. 180 § 12-13"
+  source_excerpt: "W przypadku zgonu ubezpieczonej - matki dziecka albo porzucenia przez nią dziecka, zasiłek macierzyński przysługuje ubezpieczonemu - ojcu dziecka"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: in, value: [FATHER, OTHER_FAMILY_MEMBER]}
+      - any:
+          - {field: mother.death_date, operator: exists, value: true}
+          - all:
+              - {field: mother.abandoned_child_date, operator: exists, value: true}
+              - {fact: f_mother_maternity_weeks_used_after_birth, operator: gte, value: {param: MOTHER_MIN_WEEKS_SPECIAL}}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: MATERNITY_LEAVE_TRANSFERRED}}
+  exceptions: []
+  dependencies: [MAT-ELIG-001]
+  overrides: [MAT-SHARE-001]
+  required_inputs: [mother.death_date, mother.abandoned_child_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Tryb empatyczny UI. Dokumenty: ROZP_DOK § 20 ust. 3."
+
+- id: MAT-SHARE-005
+  name: "Matka nieubezpieczona — zgon, porzucenie, niezdolność do samodzielnej egzystencji"
+  description: "Gdy matka nie podlega ubezpieczeniu chorobowemu, w razie jej zgonu, porzucenia dziecka lub niezdolności do samodzielnej egzystencji, zasiłek przysługuje ubezpieczonemu ojcu/członkowi rodziny za okres po tym zdarzeniu."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "9", point: "1-3"}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29 ust. 9; KP art. 180 § 15"
+  source_excerpt: "zasiłek macierzyński przysługuje ubezpieczonemu - ojcu dziecka ... za okres przypadający po dniu zaistnienia tych okoliczności"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: in, value: [FATHER, OTHER_FAMILY_MEMBER]}
+      - {field: mother.sickness_insured, operator: eq, value: false}
+      - any:
+          - {field: mother.death_date, operator: exists, value: true}
+          - {field: mother.abandoned_child_date, operator: exists, value: true}
+          - {field: mother.incapable_of_independent_living_certificate, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: MATERNITY_LEAVE_TRANSFERRED}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [mother.sickness_insured]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P2
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: MAT-SHARE-006
+  name: "Matka nieubezpieczona podejmuje zatrudnienie ≥½ etatu"
+  description: "Gdy matka bez tytułu do ubezpieczenia podejmie zatrudnienie co najmniej na ½ etatu, zasiłek przysługuje ubezpieczonemu ojcu do wyczerpania wymiaru, nie dłużej niż przez okres zatrudnienia matki."
+  category: MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29", paragraph: "10", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29 ust. 10; KP art. 180 § 17"
+  source_excerpt: "zatrudnienia w wymiarze nieniższym niż połowa pełnego wymiaru czasu pracy, zasiłek macierzyński przysługuje ubezpieczonemu - ojcu dziecka"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: eq, value: FATHER}
+      - {field: mother.sickness_insured, operator: eq, value: false}
+      - {field: mother.employment_fraction, operator: gte, value: "0.5"}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, period_capped_by: MOTHER_EMPLOYMENT_PERIOD}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [mother.employment_start_date, mother.employment_fraction]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: BLOCKED
+  confidence: MEDIUM
+  interpretation_status: AMBIGUOUS
+  implementation_priority: P2
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Ustawa mówi 'nieposiadającą tytułu do objęcia ubezpieczeniem', a jednocześnie matka podejmuje zatrudnienie (które zwykle daje tytuł) — sprzeczność pozorna wymagająca wykładni (CONF-004). BLOKOWANA."
+
+- id: MAT-SHARE-007
+  name: "Łączny limit — wymiar macierzyńskiego nie może być przekroczony przy przejęciu"
+  description: "Okres wypłaty zasiłku dla ojca/członka rodziny zmniejsza się o okres wypłaty matce; łączny wymiar nie może przekroczyć wymiaru z KP art. 180 § 1."
+  category: MATERNITY
+  rule_type: VALIDATION
+  legal_basis: {document: USTAWA, article: "29a", paragraph: "2", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29a ust. 2; KP art. 180 § 14"
+  source_excerpt: "okres wypłaty zasiłku macierzyńskiego zmniejsza się o okres wypłaty tego zasiłku ubezpieczonej - matce dziecka"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_total_maternity_weeks_planned, operator: gt, value: {fact: f_maternity_leave_weeks}}]}
+  result: {validation_error: {code: MATERNITY_DIMENSION_EXCEEDED}}
+  exceptions: []
+  dependencies: [MAT-DUR-001]
+  overrides: []
+  required_inputs: [plan.segments, children.count_at_birth]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Walidacja planera (błąd planu, nie odmowa prawa)."
+
+# =====================================================================
+# SUPP — zasiłek za okres uzupełniającego urlopu macierzyńskiego
+# =====================================================================
+- id: SUPP-ELIG-001
+  name: "Uzupełniający urlop — poród przed 28. tyg. lub masa ≤1000 g"
+  description: "Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 15. tygodnia po porodzie."
+  category: SUPPLEMENTARY_MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "180(2)", paragraph: "1", point: "1"}
+  source_document: KP
+  source_location: "KP art. 180(2) § 1 pkt 1"
+  source_excerpt: "przed ukończeniem 28. tygodnia ciąży lub z masą urodzeniową niewiększą niż 1000 g - w wymiarze tygodnia ... za każdy tydzień pobytu dziecka w szpitalu do upływu 15. tygodnia po porodzie"
+  valid_from: null
+  valid_to: null
+  conditions:
+    any:
+      - {field: birth.completed_gestation_weeks, operator: lt, value: {param: SUPP_GESTATION_EARLY_WEEK}}
+      - {fact: f_min_birth_weight_g, operator: lte, value: {param: SUPP_WEIGHT_THRESHOLD_G}}
+  result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_EARLY}, window_start_day: 0}, output: duration.supplementary_weeks}
+  exceptions: []
+  dependencies: [SUPP-COND-001]
+  overrides: []
+  required_inputs: [birth.completed_gestation_weeks, children.items, children.hospital_stays]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=0)."
+
+- id: SUPP-ELIG-002
+  name: "Uzupełniający urlop — poród 28–37 tydz. i masa >1000 g"
+  description: "Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 8. tygodnia po porodzie."
+  category: SUPPLEMENTARY_MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "180(2)", paragraph: "1", point: "2"}
+  source_document: KP
+  source_location: "KP art. 180(2) § 1 pkt 2"
+  source_excerpt: "po ukończeniu 28. tygodnia ciąży i przed ukończeniem 37. tygodnia ciąży i z masą urodzeniową większą niż 1000 g ... do upływu 8. tygodnia po porodzie"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: birth.completed_gestation_weeks, operator: gte, value: {param: SUPP_GESTATION_EARLY_WEEK}}
+      - {field: birth.completed_gestation_weeks, operator: lt, value: {param: SUPP_GESTATION_TERM_WEEK}}
+      - {fact: f_min_birth_weight_g, operator: gt, value: {param: SUPP_WEIGHT_THRESHOLD_G}}
+  result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_PRETERM}, window_start_day: 0}, output: duration.supplementary_weeks}
+  exceptions: []
+  dependencies: [SUPP-COND-001]
+  overrides: []
+  required_inputs: [birth.completed_gestation_weeks, children.items, children.hospital_stays]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: SUPP-ELIG-003
+  name: "Uzupełniający urlop — poród po 37. tyg. i hospitalizacja ≥2 dni od 5.–28. dnia"
+  description: "Tydzień urlopu za każdy tydzień pobytu w szpitalu od 5. dnia do upływu 8. tygodnia po porodzie, jeśli pobyt trwał ≥2 kolejne dni, a pierwszy z nich przypadał między 5. a 28. dniem po porodzie."
+  category: SUPPLEMENTARY_MATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "180(2)", paragraph: "1", point: "3"}
+  source_document: KP
+  source_location: "KP art. 180(2) § 1 pkt 3"
+  source_excerpt: "pobyt dziecka w szpitalu po porodzie będzie wynosił co najmniej 2 kolejne dni, przy czym pierwszy z tych dni będzie przypadał w okresie od 5. do 28. dnia po porodzie"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: birth.completed_gestation_weeks, operator: gte, value: {param: SUPP_GESTATION_TERM_WEEK}}
+      - {fact: f_has_qualifying_late_hospital_stay, operator: eq, value: true}
+  result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_PRETERM}, window_start_day: {param: SUPP_TERM_WINDOW_FIRST_DAY}}, output: duration.supplementary_weeks}
+  exceptions: []
+  dependencies: [SUPP-COND-001]
+  overrides: []
+  required_inputs: [birth.completed_gestation_weeks, children.hospital_stays, event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Numeracja dni po porodzie: dzień porodu = dzień 0 czy 1? — nie wynika ze źródeł (GAP-010). Domyślnie dzień porodu = dzień 0 (założenie, ASSUMPTION-SUPP-DAY0)."
+
+- id: SUPP-CALC-001
+  name: "Uzupełniający urlop — wieloraczki, sumowanie, zaokrąglenie w górę"
+  description: "Przy kilkorgu dzieciach — masa najlżejszego dziecka i pobyt najdłużej hospitalizowanego; okresy pobytu w oknie sumuje się; niepełny tydzień zaokrągla się w górę."
+  category: SUPPLEMENTARY_MATERNITY
+  rule_type: CALCULATION
+  legal_basis: {document: KP, article: "180(2)", paragraph: "2-3", point: null}
+  source_document: KP
+  source_location: "KP art. 180(2) § 2-3"
+  source_excerpt: "okresy pobytu dziecka w szpitalu ... sumuje się. Niepełny tydzień zaokrągla się w górę do pełnego tygodnia"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: children.hospital_stays, operator: exists, value: true}]}
+  result: {compute: f_supplementary_leave_weeks, output: duration.supplementary_weeks}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [children.hospital_stays, children.items]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Liczba dni pobytu = dni kalendarzowe w oknie (oba końce włącznie — DERIVED)."
+
+- id: SUPP-COND-001
+  name: "Uzupełniający urlop — warunki udzielenia"
+  description: "Udzielany bezpośrednio po urlopie macierzyńskim, jednorazowo, matce albo ojcu (jednemu z nich), na wniosek ≥21 dni przed końcem urlopu macierzyńskiego, z zaświadczeniem szpitala; przy przyjęciu dziecka — gdy pobyt w szpitalu nastąpił po przyjęciu."
+  category: SUPPLEMENTARY_MATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: KP, article: "180(2)", paragraph: "1, 4, 5", point: null}
+  source_document: KP
+  source_location: "KP art. 180(2) § 1, § 4-5; art. 183 § 3(1); ROZP_DOK § 26-27"
+  source_excerpt: "ma prawo bezpośrednio po wykorzystaniu urlopu macierzyńskiego do uzupełniającego urlopu macierzyńskiego"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_maternity_benefit_eligible_any_parent, operator: eq, value: true}
+      - {fact: f_supplementary_claimants_count, operator: lte, value: 1}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: SUPPLEMENTARY_MATERNITY_LEAVE, start: IMMEDIATELY_AFTER_MATERNITY, parts: 1}}
+  exceptions: []
+  dependencies: [MAT-ELIG-001, MAT-ELIG-002, MAT-ELIG-003]
+  overrides: []
+  required_inputs: [plan.segments]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Stawka 100% (RATE-MAT-001), także przy wniosku 81,5% — art. 31 ust. 3 nie obejmuje uzupełniającego (DERIVED, CONF-005)."
+
+# =====================================================================
+# PAR — zasiłek za okres urlopu rodzicielskiego
+# =====================================================================
+- id: PAR-DUR-001
+  name: "Wymiar urlopu rodzicielskiego — 41/43 tygodnie"
+  description: "Łącznie dla obojga rodziców 41 tygodni (1 dziecko) lub 43 tygodnie (2+ dzieci przy jednym porodzie)."
+  category: PARENTAL
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "182(1a)", paragraph: "1, 3", point: "1-2"}
+  source_document: KP
+  source_location: "KP art. 182(1a) § 1, § 3"
+  source_excerpt: "w wymiarze do: 1) 41 tygodni ...; 2) 43 tygodni ... przysługuje łącznie obojgu pracownikom - rodzicom"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: eq, value: BIRTH}, {field: children.za_zyciem_certificate, operator: eq, value: false}]}
+  result: {compute: f_parental_leave_weeks, output: duration.parental_pool_weeks}
+  exceptions: [PAR-DUR-002]
+  dependencies: [MAT-ELIG-001]
+  overrides: []
+  required_inputs: [children.count_at_birth, children.za_zyciem_certificate]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Przy martwym urodzeniu/zgonie dziecka urlop rodzicielski nie przysługuje (cel: opieka nad dzieckiem) — DERIVED, oznaczone NEEDS_REVIEW w UI dla zgonu po rozpoczęciu rodzicielskiego (GAP-014)."
+
+- id: PAR-DUR-002
+  name: "Wymiar urlopu rodzicielskiego — „Za życiem” 65/67 tygodni"
+  description: "Dla dziecka z zaświadczeniem „Za życiem” — 65 tygodni (1 dziecko) lub 67 (2+)."
+  category: PARENTAL
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "182(1a)", paragraph: "2", point: "1-2"}
+  source_document: KP
+  source_location: "KP art. 182(1a) § 2; USTAWA art. 61b ust. 4a"
+  source_excerpt: "Pracownicy - rodzice dziecka posiadającego zaświadczenie ... ,,Za życiem'', ... w wymiarze do: 1) 65 tygodni"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: eq, value: BIRTH}, {field: children.za_zyciem_certificate, operator: eq, value: true}]}
+  result: {compute: f_parental_leave_weeks, output: duration.parental_pool_weeks}
+  exceptions: []
+  dependencies: [MAT-ELIG-001]
+  overrides: [PAR-DUR-001]
+  required_inputs: [children.count_at_birth, children.za_zyciem_certificate]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Do wniosku o zasiłek: oświadczenie o posiadaniu zaświadczenia (art. 61b ust. 4a). 'Za życiem' przy wieloraczkach — wystarczy jedno dziecko? — GAP-015."
+
+- id: PAR-DUR-003
+  name: "Wymiar urlopu rodzicielskiego — przyjęcie dziecka (zastępcza / przysposobienie)"
+  description: "41/43 tygodnie; 38 tygodni w przypadku z art. 183 § 3 (dziecko w granicznym wieku); „Za życiem” 65/67, a w przypadku § 3 — 62 tygodnie; przy przysposobieniu nie dłużej niż do 14 lat."
+  category: PARENTAL
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "183", paragraph: "4, 4(1)-4(5)", point: null}
+  source_document: KP
+  source_location: "KP art. 183 § 4, § 4(1), § 4(2), § 4(3), § 4(4), § 4(5)"
+  source_excerpt: "3) 38 tygodni - w przypadku, o którym mowa w § 3"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: in, value: [ADOPTION, FOSTER]}]}
+  result: {compute: f_parental_leave_weeks, output: duration.parental_pool_weeks}
+  exceptions: []
+  dependencies: [MAT-ELIG-002, MAT-ELIG-003, MAT-DUR-008]
+  overrides: [PAR-DUR-001, PAR-DUR-002]
+  required_inputs: [children.count_at_event, children.za_zyciem_certificate, children.birth_dates, event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P1
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Wariant 38/62 zależy od MAT-DUR-008 (BLOKOWANA) → gdy zachodzi § 3, wynik NEEDS_REVIEW. Załącznik pomija 38/62 tygodni (CONF-003)."
+
+- id: PAR-SHARE-001
+  name: "9 tygodni urlopu rodzicielskiego nieprzenoszalne dla każdego rodzica"
+  description: "Każdemu z rodziców przysługuje wyłączne prawo do 9 tygodni z puli; nie można go przenieść na drugiego rodzica."
+  category: PARENTAL
+  rule_type: VALIDATION
+  legal_basis: {document: KP, article: "182(1a)", paragraph: "4-5", point: null}
+  source_document: KP
+  source_location: "KP art. 182(1a) § 4-5; USTAWA art. 30a ust. 1, 31 ust. 3f"
+  source_excerpt: "Każdemu z pracowników - rodziców dziecka przysługuje wyłączne prawo do 9 tygodni urlopu rodzicielskiego ... Prawa tego nie można przenieść"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_parental_weeks_planned_for_parent, args: {parent: MOTHER}, operator: gt, value: {fact: f_parental_pool_minus_other_parent_reserved}}]}
+  result: {validation_error: {code: NON_TRANSFERABLE_9W_VIOLATED}}
+  exceptions: []
+  dependencies: [PAR-DUR-001, PAR-DUR-002]
+  overrides: []
+  required_inputs: [plan.segments]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Jeden rodzic może wykorzystać maks. pula − 9 tyg. (np. 32 z 41). Czy 9 tyg. jest zarezerwowane, gdy drugi rodzic nie ma prawa (np. nieubezpieczony)? — przepis KP dotyczy 'pracowników-rodziców'; zastosowanie do sytuacji, gdy drugi rodzic nie ma tytułu — NEEDS_REVIEW (GAP-016)."
+
+- id: PAR-SHARE-002
+  name: "Jednoczesne korzystanie — łączny wymiar nie może przekroczyć puli"
+  description: "Rodzice mogą jednocześnie korzystać z urlopu/zasiłku rodzicielskiego; łączny okres nie może przekroczyć wymiaru z KP."
+  category: PARENTAL
+  rule_type: VALIDATION
+  legal_basis: {document: USTAWA, article: "29a", paragraph: "3-4", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29a ust. 3-4; KP art. 182(1a) § 6-7"
+  source_excerpt: "łączny okres zasiłku macierzyńskiego nie może przekraczać wymiaru urlopu rodzicielskiego"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_total_parental_weeks_planned, operator: gt, value: {fact: f_parental_leave_weeks}}]}
+  result: {validation_error: {code: PARENTAL_POOL_EXCEEDED}}
+  exceptions: []
+  dependencies: [PAR-DUR-001, PAR-DUR-002, PAR-DUR-003, PAR-WORK-002]
+  overrides: []
+  required_inputs: [plan.segments]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Przy jednoczesnym korzystaniu tydzień kalendarzowy zużywa 2 tygodnie puli (DERIVED z 'łączny wymiar')."
+
+- id: PAR-SHARE-003
+  name: "Ojciec — rodzicielski, gdy matka nie była ubezpieczona w dniu porodu"
+  description: "Zasiłek za okres urlopu rodzicielskiego przysługuje ojcu także wtedy, gdy matka w dniu porodu nie była ubezpieczona i nie korzystała z zasiłku za okres urlopu macierzyńskiego (finansowanie z budżetu)."
+  category: PARENTAL
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "31", paragraph: "3h", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 3h; treść zadania pkt B"
+  source_excerpt: "Zasiłek macierzyński odpowiadający okresowi urlopu rodzicielskiego pobierany przez ubezpieczonego - ojca dziecka, w przypadku gdy matka dziecka nie jest objęta ubezpieczeniem"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: eq, value: FATHER}
+      - {fact: f_sickness_insured_on, args: {date: plan.parental_start_date}, operator: eq, value: true}
+      - {field: mother.sickness_insured, operator: eq, value: false}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: PARENTAL_LEAVE, funded_by: STATE_BUDGET}}
+  exceptions: []
+  dependencies: [PAR-DUR-001]
+  overrides: []
+  required_inputs: [mother.sickness_insured, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Ust. 3h reguluje finansowanie i pośrednio potwierdza prawo; wprost opisuje to treść zadania. Dokumenty: ROZP_DOK § 32."
+
+- id: PAR-ELIG-001
+  name: "Zasiłek za okres urlopu rodzicielskiego — ubezpieczony rodzic"
+  description: "Za okres urlopu rodzicielskiego (u niepracowników — okres odpowiadający) przysługuje zasiłek macierzyński ubezpieczonemu rodzicowi, jeśli ustalono prawo do zasiłku macierzyńskiego z tytułu urodzenia/przyjęcia dziecka i rodzic jest ubezpieczony w okresie korzystania."
+  category: PARENTAL
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29a", paragraph: "1, 3", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29a ust. 1, 3; KP art. 184"
+  source_excerpt: "Zasiłek macierzyński przysługuje przez okres ustalony przepisami Kodeksu pracy jako okres ... urlopu rodzicielskiego"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: in, value: [MOTHER, FATHER, ADOPTIVE_PARENT, FOSTER_PARENT]}
+      - {fact: f_sickness_insured_on, args: {date: plan.parental_start_date}, operator: eq, value: true}
+      - {fact: f_child_alive_on, args: {date: plan.parental_start_date}, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: PARENTAL_LEAVE}}
+  exceptions: [GEN-EXCL-001, PAR-COND-001]
+  dependencies: [PAR-DUR-001]
+  overrides: []
+  required_inputs: [insurance.titles, plan.parental_start_date, children.items]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Ustawa wiąże prawo z art. 29 (zdarzenie w okresie ubezpieczenia); wymóg ubezpieczenia ojca w chwili rozpoczęcia jego części — DERIVED (Q-LEG-02)."
+
+- id: PAR-COND-001
+  name: "Urlop rodzicielski — maks. 5 części, do końca roku, w którym dziecko kończy 6 lat"
+  description: "Udzielany jednorazowo albo w maks. 5 częściach, nie później niż do końca roku kalendarzowego, w którym dziecko kończy 6 lat; do liczby części wlicza się wnioski o zasiłek niepracowników."
+  category: PARENTAL
+  rule_type: VALIDATION
+  legal_basis: {document: KP, article: "182(1c)", paragraph: null, point: null}
+  source_document: KP
+  source_location: "KP art. 182(1c); art. 182(1d) § 2; art. 183 § 4(6)"
+  source_excerpt: "jednorazowo albo niewięcej niż w 5 częściach niepóźniej niż do zakończenia roku kalendarzowego, w którym dziecko kończy 6 rok życia"
+  valid_from: null
+  valid_to: null
+  conditions:
+    any:
+      - {fact: f_parental_parts_count, operator: gt, value: {param: PARENTAL_MAX_PARTS}}
+      - {fact: f_parental_last_day_after_limit, operator: eq, value: true}
+  result: {validation_error: {code: PARENTAL_PARTS_OR_DEADLINE_VIOLATED}}
+  exceptions: []
+  dependencies: [PAR-DUR-001]
+  overrides: []
+  required_inputs: [plan.segments, children.birth_dates]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Przy przysposobieniu limit: 14 lat (KP 183 § 4(1)); dla rodziny zastępczej limit wieku — art. 183 § 5 odsyła do 182(1c) (DERIVED). Czy części liczone łącznie dla obojga rodziców? — przepis 'urlop' (jeden) → przyjmujemy łącznie (GAP-017)."
+
+- id: PAR-WORK-001
+  name: "Łączenie urlopu rodzicielskiego z pracą do ½ etatu"
+  description: "Pracownik może łączyć urlop rodzicielski z pracą u pracodawcy udzielającego urlopu w wymiarze nie wyższym niż połowa etatu; wniosek ≥21 dni wcześniej."
+  category: PARENTAL
+  rule_type: VALIDATION
+  legal_basis: {document: KP, article: "182(1e)", paragraph: "1-2", point: null}
+  source_document: KP
+  source_location: "KP art. 182(1e) § 1-2"
+  source_excerpt: "w wymiarze niewyższym niż połowa pełnego wymiaru czasu pracy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_max_work_fraction_in_parental, operator: gt, value: {param: PARENTAL_WORK_MAX_FRACTION}}]}
+  result: {validation_error: {code: WORK_FRACTION_ABOVE_HALF}}
+  exceptions: []
+  dependencies: [PAR-DUR-001]
+  overrides: []
+  required_inputs: [plan.segments]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Dotyczy pracowników. Dla niepracowników łączenie zasiłku z pracą — przepisy niezałączone (GAP-018) → NEEDS_REVIEW."
+
+- id: PAR-WORK-002
+  name: "Proporcjonalne wydłużenie urlopu rodzicielskiego przy pracy"
+  description: "Wymiar wydłuża się o iloczyn liczby tygodni łączenia i wymiaru pracy; limity 82/86 tygodni (130/134 „Za życiem”); część wydłużona nie będąca wielokrotnością tygodnia — w dniach, niepełny dzień pomija się."
+  category: PARENTAL
+  rule_type: CALCULATION
+  legal_basis: {document: KP, article: "182(1f)", paragraph: "1-7", point: null}
+  source_document: KP
+  source_location: "KP art. 182(1f) § 1, § 1(1), § 2-7"
+  source_excerpt: "Okres, o który urlop rodzicielski ulega wydłużeniu, stanowi iloczyn liczby tygodni ... i wymiaru czasu pracy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_has_work_in_parental, operator: eq, value: true}]}
+  result: {compute: f_parental_extension, output: duration.parental_extension}
+  exceptions: []
+  dependencies: [PAR-WORK-001]
+  overrides: []
+  required_inputs: [plan.segments, children.count_at_birth, children.za_zyciem_certificate]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Przykład: 10 tyg. przy 0,5 etatu → +5 tyg. (35 dni). § 7 (praca w części wydłużonej) → P1."
+
+- id: PAR-WORK-003
+  name: "Zasiłek zmniejszony proporcjonalnie do wymiaru pracy"
+  description: "Wysokość zasiłku zmniejsza się proporcjonalnie do wymiaru czasu pracy, w jakim pracownik łączy urlop rodzicielski z pracą."
+  category: PARENTAL
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "31", paragraph: "4a", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 4a"
+  source_excerpt: "Wysokość zasiłku macierzyńskiego zmniejsza się proporcjonalnie do wymiaru czasu pracy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_segment_work_fraction, operator: gt, value: 0}]}
+  result: {set: {amount_multiplier: f_one_minus_work_fraction}}
+  exceptions: []
+  dependencies: [PAR-WORK-001]
+  overrides: []
+  required_inputs: [plan.segments]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Kwota = base × rate × (1 − work_fraction) / 30 × dni (DERIVED kolejność)."
+
+# =====================================================================
+# PAT — zasiłek za okres urlopu ojcowskiego
+# =====================================================================
+- id: PAT-ELIG-001
+  name: "Zasiłek za okres urlopu ojcowskiego — ubezpieczony ojciec"
+  description: "Ojcu (pracownikowi — urlop ojcowski; niepracownikowi — okres odpowiadający) przysługuje zasiłek macierzyński za okres urlopu ojcowskiego."
+  category: PATERNITY
+  rule_type: ELIGIBILITY
+  legal_basis: {document: USTAWA, article: "29a", paragraph: "1", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29a ust. 1, art. 31 ust. 1; KP art. 182(3), art. 184; ROZP_DOK § 33"
+  source_excerpt: "Zasiłek macierzyński przysługuje przez okres ustalony przepisami Kodeksu pracy jako okres ... urlopu ojcowskiego"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: person.role, operator: eq, value: FATHER}
+      - {fact: f_sickness_insured_on, args: {date: plan.paternity_start_date}, operator: eq, value: true}
+      - {fact: f_paternity_within_deadline, operator: eq, value: true}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_BENEFIT, leave_type: PATERNITY_LEAVE}}
+  exceptions: [GEN-EXCL-001]
+  dependencies: [PAT-DUR-001]
+  overrides: []
+  required_inputs: [person.role, insurance.titles, plan.paternity_start_date, children.birth_dates]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Wyciąg ustawy nie zawiera osobnej przesłanki prawa ojca-niepracownika do 'ojcowskiego'; potwierdza je ROZP_DOK § 33 ust. 1 pkt 3 (wniosek niepracownika). Treść zadania: przysługuje też, gdy ojciec zaczął pracę po narodzinach lub matka nieubezpieczona — zgodne z brakiem wymogu ubezpieczenia na dzień porodu (DERIVED)."
+
+- id: PAT-DUR-001
+  name: "Urlop ojcowski — 2 tygodnie, maks. 2 części ≥1 tydz., do 12 miesięcy życia dziecka"
+  description: "Do 2 tygodni, jednorazowo lub w 2 częściach po min. 1 tygodniu, do ukończenia przez dziecko 12 miesięcy (adopcja — 12 miesięcy od uprawomocnienia przysposobienia, nie dłużej niż do 14 lat); liczba dzieci nie wydłuża."
+  category: PATERNITY
+  rule_type: DURATION
+  legal_basis: {document: KP, article: "182(3)", paragraph: "1, 1(1)", point: "1-2"}
+  source_document: KP
+  source_location: "KP art. 182(3) § 1, § 1(1)"
+  source_excerpt: "w wymiarze do 2 tygodni, niedłużej jednak niż do: 1) ukończenia przez dziecko 12 miesiąca życia"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: person.role, operator: eq, value: FATHER}]}
+  result: {compute: f_paternity_window, output: duration.paternity}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [children.birth_dates, event.adoption_final_date, plan.segments]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Walidacja planu: ≤2 części, każda ≥7 dni, suma ≤14 dni, ostatni dzień ≤ dzień poprzedzający 1. urodziny (DERIVED 'ukończenia 12 miesiąca')."
+
+# =====================================================================
+# RATE — stawki zasiłku macierzyńskiego
+# =====================================================================
+- id: RATE-MAT-001
+  name: "100% — macierzyński, na warunkach macierzyńskiego, uzupełniający, ojcowski"
+  description: "Miesięczny zasiłek za okres urlopu macierzyńskiego, na warunkach macierzyńskiego, uzupełniającego oraz ojcowskiego wynosi 100% podstawy."
+  category: MATERNITY
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "31", paragraph: "1", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 1"
+  source_excerpt: "wynosi 100% podstawy wymiaru zasiłku"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: segment.leave_type, operator: in, value: [MATERNITY_LEAVE, MATERNITY_LEAVE_TRANSFERRED, MATERNITY_LIKE_LEAVE, SUPPLEMENTARY_MATERNITY_LEAVE, PATERNITY_LEAVE, MATERNITY_LEAVE_HOSPITALIZATION_SUBSTITUTE]}]}
+  result: {set: {rate: {param: MAT_RATE_FULL}}}
+  exceptions: [RATE-MAT-003]
+  dependencies: []
+  overrides: []
+  required_inputs: [segment.leave_type]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: RATE-MAT-002
+  name: "70% — urlop rodzicielski (wariant standardowy)"
+  description: "Miesięczny zasiłek za okres urlopu rodzicielskiego wynosi 70% podstawy."
+  category: PARENTAL
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "31", paragraph: "2", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 2"
+  source_excerpt: "jako okres urlopu rodzicielskiego wynosi 70% podstawy wymiaru zasiłku"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: segment.leave_type, operator: eq, value: PARENTAL_LEAVE}]}
+  result: {set: {rate: {param: MAT_RATE_PARENTAL}}}
+  exceptions: [RATE-MAT-003]
+  dependencies: []
+  overrides: []
+  required_inputs: [segment.leave_type]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: RATE-MAT-003
+  name: "81,5% — wniosek o łączny zasiłek złożony w 21 dni"
+  description: "Gdy matka (przy przyjęciu dziecka — ubezpieczony) w ciągu 21 dni od porodu/przyjęcia złoży wniosek o zasiłek za pełny wymiar macierzyńskiego/na warunkach i rodzicielskiego, zasiłek za cały ten okres wynosi 81,5% podstawy, z zastrzeżeniem ust. 3f i 3g."
+  category: MATERNITY
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "31", paragraph: "3", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 3; art. 30a ust. 1-2"
+  source_excerpt: "W przypadku wniosku, o którym mowa w art. 30a, miesięczny zasiłek ... wynosi 81,5% podstawy wymiaru zasiłku, z zastrzeżeniem ust. 3f i 3g"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: segment.leave_type, operator: in, value: [MATERNITY_LEAVE, MATERNITY_LIKE_LEAVE, PARENTAL_LEAVE]}
+      - {fact: f_segment_belongs_to_applicant_of_combined, operator: eq, value: true}
+      - {fact: f_combined_application_within_deadline, operator: eq, value: true}
+  result: {set: {rate: {param: MAT_RATE_COMBINED}}}
+  exceptions: [RATE-MAT-004, RATE-MAT-005]
+  dependencies: [APP-DL-001]
+  overrides: [RATE-MAT-001, RATE-MAT-002]
+  required_inputs: [applications.combined_815_filed_date, event.date, segment.leave_type, segment.parent]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Nie obejmuje uzupełniającego i ojcowskiego (100%). Stosowanie 81,5% do części rodzicielskiego przejętej przez OJCA — RATE-MAT-008 (BLOKOWANA)."
+
+- id: RATE-MAT-004
+  name: "70% — 9 tygodni drugiego rodzica przy wniosku 81,5%"
+  description: "Zasiłek za część urlopu rodzicielskiego przysługującą drugiemu rodzicowi (9 tygodni nieprzenoszalnych) wynosi 70%."
+  category: PARENTAL
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "31", paragraph: "3f", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 3f; art. 30a ust. 1 (wyłączenie okresu z KP 182(1a) § 4)"
+  source_excerpt: "w części przysługującej drugiemu rodzicowi dziecka, o której mowa w art. 182(1a) § 4 Kodeksu pracy, wynosi 70%"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_segment_is_other_parent_reserved_9w, operator: eq, value: true}]}
+  result: {set: {rate: {param: MAT_RATE_PARENTAL}}}
+  exceptions: []
+  dependencies: [RATE-MAT-003, PAR-SHARE-001]
+  overrides: [RATE-MAT-003]
+  required_inputs: [plan.segments]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: RATE-MAT-005
+  name: "70% za rodzicielski, gdy w 1. roku życia nie wykorzystano ani dnia"
+  description: "Jeśli w pierwszym roku życia dziecka nie wykorzystano ani jednego dnia zasiłku za okres urlopu rodzicielskiego, zasiłek za rodzicielski wynosi 70%."
+  category: PARENTAL
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "31", paragraph: "3g", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 3g"
+  source_excerpt: "W przypadku niewykorzystania ani jednego dnia zasiłku macierzyńskiego za okres urlopu rodzicielskiego w pierwszym roku życia dziecka"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: segment.leave_type, operator: eq, value: PARENTAL_LEAVE}
+      - {fact: f_any_parental_day_in_first_year, operator: eq, value: false}
+  result: {set: {rate: {param: MAT_RATE_PARENTAL}}}
+  exceptions: []
+  dependencies: [RATE-MAT-003]
+  overrides: [RATE-MAT-003]
+  required_inputs: [plan.segments, children.birth_dates]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "'Pierwszy rok życia' = od dnia urodzenia do dnia poprzedzającego 1. urodziny (DERIVED). Przy przyjęciu dziecka starszego — stosowanie niejasne (GAP-019)."
+
+- id: RATE-MAT-006
+  name: "Jednorazowe wyrównanie macierzyńskiego do 100%"
+  description: "Gdy w 1. roku życia nie wykorzystano żadnego dnia rodzicielskiego przy wniosku 81,5%, na wniosek przysługuje jednorazowe wyrównanie zasiłku za okres urlopu macierzyńskiego do 100%."
+  category: MATERNITY
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "31", paragraph: "4", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 4"
+  source_excerpt: "przysługuje jednorazowe wyrównanie pobranego zasiłku macierzyńskiego za okres urlopu macierzyńskiego do wysokości 100%"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_combined_application_within_deadline, operator: eq, value: true}
+      - {fact: f_any_parental_day_in_first_year, operator: eq, value: false}
+  result: {compute: f_one_off_equalization, output: amount.equalization}
+  exceptions: []
+  dependencies: [RATE-MAT-003, RATE-MAT-005]
+  overrides: []
+  required_inputs: [applications.combined_815_filed_date, plan.segments]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Wyrównanie = (100% − 81,5%) × base/30 × dni macierzyńskiego (DERIVED). Wymaga wniosku — informacja w przewodniku."
+
+- id: RATE-MAT-007
+  name: "Podwyższenie do kwoty świadczenia rodzicielskiego"
+  description: "Jeżeli miesięczna kwota zasiłku jest niższa niż świadczenie rodzicielskie (ustawa o świadczeniach rodzinnych), podwyższa się ją do tej kwoty (proporcjonalnie za część miesiąca)."
+  category: MATERNITY
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "31", paragraph: "3a-3c", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 3a-3c; art. 62 ust. 4-6; ROZP_DOK § 28"
+  source_excerpt: "kwotę zasiłku macierzyńskiego podwyższa się do wysokości świadczenia rodzicielskiego"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_monthly_maternity_amount, operator: lt, value: {param: PARENTAL_BENEFIT_FLOOR_MONTHLY}}]}
+  result: {compute: f_raise_to_parental_benefit_floor, output: amount.floor_raise}
+  exceptions: []
+  dependencies: [RATE-MAT-001, RATE-MAT-002, RATE-MAT-003]
+  overrides: []
+  required_inputs: [income_history]
+  missing_data_behavior: NEEDS_REVIEW
+  evaluation: BLOCKED
+  confidence: LOW
+  interpretation_status: INCOMPLETE_SOURCE
+  implementation_priority: P1
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Kwota świadczenia rodzicielskiego nie występuje w materiałach (PARENTAL_BENEFIT_FLOOR_MONTHLY=null) → BLOKOWANA do czasu uzupełnienia parametru w panelu admina (GAP-002)."
+
+- id: RATE-MAT-008
+  name: "Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki"
+  description: "Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); stawka dla ojca w tej części nie wynika jednoznacznie z wyciągu."
+  category: PARENTAL
+  rule_type: RATE
+  legal_basis: {document: USTAWA, article: "30a; 31", paragraph: "30a ust. 3; 31 ust. 3", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 30a ust. 3; art. 31 ust. 3"
+  source_excerpt: "ubezpieczona - matka dziecka może dzielić się z ubezpieczonym - ojcem dziecka korzystaniem z zasiłku macierzyńskiego za okres ... urlopu rodzicielskiego"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {field: segment.parent, operator: eq, value: FATHER}
+      - {field: segment.leave_type, operator: eq, value: PARENTAL_LEAVE}
+      - {fact: f_combined_application_within_deadline, operator: eq, value: true}
+      - {fact: f_segment_is_other_parent_reserved_9w, operator: eq, value: false}
+  result: {status: NEEDS_REVIEW, reason_code: FATHER_RATE_UNDER_MOTHER_815}
+  exceptions: []
+  dependencies: [RATE-MAT-003]
+  overrides: []
+  required_inputs: [plan.segments, applications.combined_815_filed_date]
+  missing_data_behavior: NEEDS_REVIEW
+  evaluation: BLOCKED
+  confidence: LOW
+  interpretation_status: AMBIGUOUS
+  implementation_priority: P1
+  automation_status: HUMAN_REVIEW
+  notes: "Kandydaci: 81,5% (wniosek dotyczy 'całego okresu') vs 70% (wniosek złożyła matka, ojciec nie składał). Pytanie do mentora Q-LEG-03. Planer pokazuje oba warianty z etykietą 'do potwierdzenia'."
+
+# =====================================================================
+# APP — wnioski i terminy
+# =====================================================================
+- id: APP-DL-001
+  name: "Termin 21 dni na wniosek o zasiłek 81,5%"
+  description: "Wniosek o wypłatę zasiłku za pełny wymiar macierzyńskiego i rodzicielskiego składa się nie później niż 21 dni po porodzie (przy przyjęciu dziecka — po przyjęciu i wystąpieniu do sądu / przyjęciu jako rodzina zastępcza)."
+  category: MATERNITY
+  rule_type: DEADLINE
+  legal_basis: {document: USTAWA, article: "30a", paragraph: "1-2", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 30a ust. 1-2"
+  source_excerpt: "niepóźniej niż 21 dni po porodzie, może złożyć pisemny wniosek"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.date, operator: exists, value: true}]}
+  result: {compute: f_combined_application_deadline, output: deadlines.combined_815_last_day}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [event.date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Ostatni dzień = event.date + 21 dni (DERIVED: liczenie od dnia następnego po porodzie; przesunięcie przy dniu wolnym — brak w źródłach, GAP-020). Wynik sprawdza f_combined_application_within_deadline."
+
+- id: APP-DL-002
+  name: "Terminy wniosków urlopowych pracownika (KP)"
+  description: "Rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego — w 7 dni od przyjęcia, start ≤21 dni."
+  category: GENERAL
+  rule_type: DEADLINE
+  legal_basis: {document: KP, article: "180, 180(2), 182(1d), 182(1e), 182(3), 183", paragraph: "180 § 8-9; 180(2) § 4; 182(1d) § 1; 182(1e) § 2; 182(3) § 2; 183 § 6", point: null}
+  source_document: KP
+  source_location: "KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6"
+  source_excerpt: "na wniosek ... składany przez pracownika rodzica dziecka w terminie niekrótszym niż 21 dni przed rozpoczęciem korzystania z urlopu"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_is_employee_on, args: {date: evaluation.as_of_date}, operator: eq, value: true}]}
+  result: {compute: f_leave_application_deadlines, output: deadlines.leave_applications}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [plan.segments]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Spóźniony wniosek nie odbiera prawa do zasiłku z ustawy, ale wpływa na udzielenie urlopu przez pracodawcę — tylko ostrzeżenie (DERIVED). Ochrona przed zwolnieniem zaczyna się 14/21/7 dni przed urlopem przy wcześniejszym wniosku (KP 177 § 1(1))."
+
+- id: APP-DOC-001
+  name: "Dokumenty — urlop macierzyński przed porodem"
+  description: "Za okres przed porodem — zaświadczenie lekarskie o przewidywanej dacie porodu (zwykły druk; od wejścia w życie § 39 — także elektronicznie)."
+  category: MATERNITY
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 13 ust. 1 pkt 1", point: null}
+  source_document: ROZP_DOK
+  source_location: "ROZP_DOK § 13 ust. 1 pkt 1; USTAWA art. 53 ust. 2; ROZP_WN § 2"
+  source_excerpt: "zaświadczenie lekarskie wystawione na zwykłym druku określające przewidywaną datę porodu – za okres przed dniem porodu"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_has_pre_birth_maternity_segment, operator: eq, value: true}]}
+  result: {documents: [{doc: DUE_DATE_MEDICAL_CERTIFICATE, provider: DOCTOR}]}
+  exceptions: []
+  dependencies: [MAT-DUR-002]
+  overrides: []
+  required_inputs: [plan.segments]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: APP-DOC-002
+  name: "Dokumenty — urodzenie dziecka (akt urodzenia / martwe urodzenie)"
+  description: "Od dnia porodu — odpis skrócony aktu urodzenia (nie przedstawia się, gdy płaci ZUS — ZUS pobiera z rejestru; wezwanie z terminem ≥14 dni, gdy nie może pobrać); przy martwym urodzeniu bez aktu — zaświadczenie lekarza/położnej o martwym urodzeniu."
+  category: MATERNITY
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 13 ust. 1 pkt 2, ust. 2-4", point: null}
+  source_document: ROZP_DOK
+  source_location: "ROZP_DOK § 13 ust. 1 pkt 2, ust. 2-4"
+  source_excerpt: "Odpisu skróconego aktu urodzenia dziecka nie przedstawia się, jeżeli płatnikiem zasiłku jest Zakład"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: eq, value: BIRTH}]}
+  result: {documents: [{doc: BIRTH_CERTIFICATE_SHORT, when: "payer_of_benefit=CONTRIBUTION_PAYER"}, {doc: CHILD_DATA_FOR_ZUS_REGISTRY_LOOKUP, when: "payer_of_benefit=ZUS"}, {doc: STILLBIRTH_CERTIFICATE, when: "stillbirth and no birth act"}]}
+  exceptions: []
+  dependencies: [GEN-CLS-001, GEN-CLS-002]
+  overrides: []
+  required_inputs: [event.type]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Brak dokumentu po wezwaniu ZUS → odmowa wszczęcia postępowania (§ 13 ust. 4) — informacja w przewodniku, NIE odmowa prawa w silniku."
+
+- id: APP-DOC-003
+  name: "Dokumenty — wniosek o zasiłek macierzyński do ZUS (zał. 6) / zaświadczenie płatnika"
+  description: "Gdy płaci ZUS — dokument z danymi z zał. 6 (wniosek) lub zaświadczenie płatnika (Z-3/Z-3a); do wniosku przy dziecku „Za życiem” — oświadczenie o zaświadczeniu."
+  category: MATERNITY
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 12, § 3 ust. 2", point: null}
+  source_document: ROZP_DOK
+  source_location: "ROZP_DOK § 12, § 3 ust. 2, zał. 6; USTAWA art. 61b ust. 4a"
+  source_excerpt: "Dokumentami niezbędnymi do przyznania i wypłaty zasiłku macierzyńskiego przez Zakład są dokument zawierający dane i informacje określone w załączniku nr 6"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: MATERNITY_BENEFIT}]}
+  result: {documents: [{doc: MATERNITY_APPLICATION_ANNEX6, when: "payer_of_benefit=ZUS"}, {doc: PAYER_CERTIFICATE_Z3_OR_Z3A, when: "payer_of_benefit=ZUS and has_contribution_payer"}, {doc: ZA_ZYCIEM_STATEMENT, when: "children.za_zyciem_certificate=true"}]}
+  exceptions: []
+  dependencies: [GEN-CLS-002]
+  overrides: []
+  required_inputs: [children.za_zyciem_certificate]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Symbol ZAM (połączony z ZUR, ZAO od 24.10.2026) — z treści zadania, nie z rozporządzenia."
+
+- id: APP-DOC-004
+  name: "Dokumenty — macierzyński po ustaniu ubezpieczenia / zasiłek w wysokości macierzyńskiego"
+  description: "Zaświadczenie lekarskie o ciąży w okresie zatrudnienia, świadectwo pracy lub dokument o wygaśnięciu/rozwiązaniu (śmierć, upadłość, likwidacja) albo prawomocne orzeczenie sądu; przy zasiłku w wysokości macierzyńskiego — oświadczenie o braku innego zatrudnienia."
+  category: MATERNITY
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 15, § 17", point: null}
+  source_document: ROZP_DOK
+  source_location: "ROZP_DOK § 15 ust. 1-3, § 17"
+  source_excerpt: "zaświadczenie lekarskie wystawione na zwykłym druku stwierdzające stan ciąży w okresie zatrudnienia"
+  valid_from: null
+  valid_to: null
+  conditions: {any: [{field: entitlement_basis, operator: in, value: [AFTER_TITLE_EMPLOYER_CEASED, AFTER_TITLE_UNLAWFUL_TERMINATION]}, {field: benefit, operator: eq, value: MATERNITY_EQUIVALENT_ALLOWANCE}]}
+  result: {documents: [{doc: PREGNANCY_DURING_EMPLOYMENT_CERTIFICATE}, {doc: EMPLOYMENT_CERTIFICATE_TERMINATION_REASON}, {doc: FINAL_COURT_JUDGMENT, when: "AFTER_TITLE_UNLAWFUL_TERMINATION"}, {doc: NO_OTHER_EMPLOYMENT_STATEMENT, when: "MATERNITY_EQUIVALENT_ALLOWANCE"}]}
+  exceptions: []
+  dependencies: [MAT-ELIG-004, MAT-ELIG-005, MAT-ELIG-007]
+  overrides: []
+  required_inputs: []
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: APP-DOC-005
+  name: "Dokumenty — przyjęcie dziecka (przysposobienie / rodzina zastępcza)"
+  description: "Przysposobienie — oświadczenie o dacie przyjęcia + zaświadczenie sądu o dacie wystąpienia (z datą urodzenia dziecka) lub kopia wniosku z poświadczeniem sądu; rodzina zastępcza — orzeczenie sądu lub umowa ze starostą, dokument o wieku dziecka, decyzja o odroczeniu obowiązku szkolnego (gdy dotyczy)."
+  category: MATERNITY
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 16", point: null}
+  source_document: ROZP_DOK
+  source_location: "ROZP_DOK § 16 ust. 1-2; ROZP_WN § 18"
+  source_excerpt: "oświadczenie ubezpieczonego o dacie przyjęcia dziecka na wychowanie"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: event.type, operator: in, value: [ADOPTION, FOSTER]}]}
+  result: {documents: [{doc: CHILD_ACCEPTANCE_DATE_STATEMENT, when: "ADOPTION"}, {doc: COURT_ADOPTION_APPLICATION_CONFIRMATION, when: "ADOPTION"}, {doc: FOSTER_COURT_ORDER_OR_STAROSTA_CONTRACT, when: "FOSTER"}, {doc: CHILD_AGE_DOCUMENT, when: "FOSTER"}, {doc: SCHOOL_DEFERRAL_DECISION, when: "children.school_obligation_deferred=true"}]}
+  exceptions: []
+  dependencies: [MAT-ELIG-002, MAT-ELIG-003]
+  overrides: []
+  required_inputs: [event.type]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: APP-DOC-006
+  name: "Dokumenty — rodzicielski, ojcowski, uzupełniający, przejęcie przez ojca"
+  description: "Rodzicielski — oświadczenia o planach drugiego rodzica, zaświadczenia pracodawcy o urlopie i wymiarze pracy, oświadczenie o wcześniejszych częściach i stawkach; ojcowski — akt urodzenia/postanowienie o przysposobieniu, oświadczenie o pobraniu z innego tytułu; uzupełniający — zaświadczenie szpitala; przejęcie przez ojca — zaświadczenie płatnika o okresie i stawce zasiłku matki."
+  category: MATERNITY
+  rule_type: DOCUMENT_REQUIREMENT
+  legal_basis: {document: ROZP_DOK, article: null, paragraph: "§ 20, § 26-27, § 29-30, § 33", point: null}
+  source_document: ROZP_DOK
+  source_location: "ROZP_DOK § 20, § 26-27, § 29-30, § 32-33; ROZP_WN § 5, § 14, § 15, § 17"
+  source_excerpt: "zaświadczenie płatnika zasiłku o okresie przysługującego i wypłaconego matce dziecka zasiłku macierzyńskiego oraz stawce procentowej"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: segment.leave_type, operator: in, value: [PARENTAL_LEAVE, PATERNITY_LEAVE, SUPPLEMENTARY_MATERNITY_LEAVE, MATERNITY_LEAVE_TRANSFERRED]}]}
+  result: {compute: f_documents_for_segment, output: documents}
+  exceptions: []
+  dependencies: [GEN-CLS-001, GEN-CLS-002]
+  overrides: []
+  required_inputs: [plan.segments]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Mapa segment→dokumenty w 07_CALCULATION_SPEC (f_documents_for_segment). ROZP_WN § 22: nie dołącza się dokumentów będących w aktach osobowych."
+
+# =====================================================================
+# BASE — podstawa wymiaru
+# =====================================================================
+- id: BASE-EMP-001
+  name: "Podstawa pracownika — średnia z 12 miesięcy kalendarzowych"
+  description: "Przeciętne miesięczne wynagrodzenie wypłacone za 12 miesięcy kalendarzowych poprzedzających miesiąc powstania niezdolności (dla macierzyńskiego — miesiąc powstania prawa), z wynagrodzenia u płatnika w okresie nieprzerwanego ubezpieczenia."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "36", paragraph: "1, 4", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 36 ust. 1, 4; art. 38 ust. 1; art. 47"
+  source_excerpt: "przeciętne miesięczne wynagrodzenie wypłacone za okres 12 miesięcy kalendarzowych poprzedzających miesiąc, w którym powstała niezdolność do pracy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_is_employee_title_for_base, operator: eq, value: true}, {fact: f_full_months_of_continuous_insurance, operator: gte, value: 12}]}
+  result: {compute: f_benefit_base_employee, output: base.amount}
+  exceptions: [BASE-EMP-002, BASE-EMP-003, BASE-EMP-008]
+  dependencies: [BASE-EMP-004, BASE-EMP-005, BASE-EMP-006, BASE-EMP-007]
+  overrides: []
+  required_inputs: [income_history.months, base.reference_event_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "'Wynagrodzenie' = przychód po odliczeniu składek emerytalnej, rentowej i chorobowej potrąconych przez pracodawcę (art. 3 pkt 3) — kwoty z Z-3 (% potrąconej składki, zał. 2 pkt 16). 13,71% dla pracowników = założenie Załącznika (CONF-002). Dla macierzyńskiego 'miesiąc powstania niezdolności' → 'miesiąc powstania prawa' (art. 47 'odpowiednio', DERIVED)."
+
+- id: BASE-EMP-002
+  name: "Podstawa pracownika — ubezpieczenie krótsze niż 12 miesięcy"
+  description: "Gdy niezdolność powstała przed upływem 12 miesięcy — przeciętne wynagrodzenie za pełne miesiące kalendarzowe ubezpieczenia."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "36", paragraph: "2", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 36 ust. 2"
+  source_excerpt: "przeciętne miesięczne wynagrodzenie za pełne miesiące kalendarzowe ubezpieczenia"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_full_months_of_continuous_insurance, operator: gte, value: 1}, {fact: f_full_months_of_continuous_insurance, operator: lt, value: 12}]}
+  result: {compute: f_benefit_base_employee, output: base.amount}
+  exceptions: []
+  dependencies: [BASE-EMP-004]
+  overrides: [BASE-EMP-001]
+  required_inputs: [income_history.months, insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: BASE-EMP-003
+  name: "Podstawa pracownika — niezdolność w pierwszym miesiącu ubezpieczenia"
+  description: "Wynagrodzenie, które pracownik osiągnąłby za pełny miesiąc — stałe z umowy; albo przeliczone z dni przepracowanych; albo przeciętne składniki zmienne pracowników na podobnym stanowisku."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "37", paragraph: "1-2", point: "1-3"}
+  source_document: USTAWA
+  source_location: "USTAWA art. 37 ust. 1-2"
+  source_excerpt: "wynagrodzenie, które ubezpieczony będący pracownikiem osiągnąłby, gdyby pracował pełny miesiąc kalendarzowy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_full_months_of_continuous_insurance, operator: eq, value: 0}]}
+  result: {compute: f_base_first_month_employee, output: base.amount}
+  exceptions: []
+  dependencies: []
+  overrides: [BASE-EMP-001, BASE-EMP-002]
+  required_inputs: [employment.contract_monthly_salary, income_history.months]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Wariant pkt 3 (dane innych pracowników) → NEEDS_REVIEW."
+
+- id: BASE-EMP-004
+  name: "Miesiące z nieobecnością — wyłączenie (<½ czasu) lub uzupełnienie (≥½ czasu)"
+  description: "Przy nieobecności usprawiedliwionej — wyłącza się miesiące, w których przepracowano mniej niż połowę obowiązującego czasu; miesiące z ≥½ uzupełnia się (art. 37 ust. 2); jeśli w każdym miesiącu <½ — uwzględnia się wszystkie po uzupełnieniu."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "38", paragraph: "2-3", point: "1-2"}
+  source_document: USTAWA
+  source_location: "USTAWA art. 38 ust. 2-3"
+  source_excerpt: "wyłącza się wynagrodzenie za miesiące, w których przepracował mniej niż połowę obowiązującego go czasu pracy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: income_history.months, operator: exists, value: true}]}
+  result: {compute: f_base_months_selection_employee, output: base.months_used}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [income_history.months]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Uzupełnienie: składniki stałe — pełna kwota; zmienne pomniejszane — kwota/dni przepracowane × dni obowiązujące (Z-3 rozdziela składniki, zał. 2 pkt 16). Składniki nieuzupełniane (np. nadgodziny) — kwota faktyczna (Załącznik; ustawa art. 37 ust. 2 pkt 2 — DERIVED)."
+
+- id: BASE-EMP-005
+  name: "Zmiana wymiaru czasu pracy"
+  description: "Gdy zmiana wymiaru etatu nastąpiła w miesiącu powstania niezdolności lub w okresie 12 miesięcy — podstawą jest wynagrodzenie ustalone dla nowego wymiaru."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "40", paragraph: null, point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 40"
+  source_excerpt: "podstawę wymiaru zasiłku chorobowego stanowi wynagrodzenie ustalone dla nowego wymiaru czasu pracy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: employment.working_time_change_date, operator: exists, value: true}, {fact: f_working_time_change_in_base_window, operator: eq, value: true}]}
+  result: {compute: f_base_after_working_time_change, output: base.amount}
+  exceptions: []
+  dependencies: [BASE-EMP-001]
+  overrides: [BASE-EMP-001, BASE-EMP-002]
+  required_inputs: [employment.working_time_change_date, employment.contract_monthly_salary]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: BLOCKED
+  confidence: MEDIUM
+  interpretation_status: AMBIGUOUS
+  implementation_priority: P1
+  automation_status: HUMAN_REVIEW
+  notes: "Sposób 'ustalenia wynagrodzenia dla nowego wymiaru' przy składnikach zmiennych nie jest opisany — BLOKOWANA (GAP-021). Powiązane ryzyko: podwyższenie podstawy w ciąży (RISK-002)."
+
+- id: BASE-EMP-006
+  name: "Składniki kwartalne i roczne — 1/12"
+  description: "Składniki za okresy miesięczne — w kwocie wypłaconej; kwartalne — 1/12 kwot wypłaconych za 4 kwartały poprzedzające; roczne — 1/12 kwoty za rok poprzedzający."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "42", paragraph: "1-5", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 42 ust. 1-5"
+  source_excerpt: "przysługujące za okresy kwartalne, wlicza się ... w wysokości stanowiącej jedną dwunastą kwot wypłaconych pracownikowi za cztery kwartały"
+  valid_from: null
+  valid_to: null
+  conditions: {any: [{field: income_history.quarterly_components, operator: exists, value: true}, {field: income_history.annual_components, operator: exists, value: true}]}
+  result: {compute: f_periodic_components_monthly_share, output: base.periodic_components}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [income_history.quarterly_components, income_history.annual_components]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "Brak danych o składnikach okresowych ≠ 0 → jeśli Z-3 dostępne, pola puste = 0; przy danych ręcznych pytanie wprost."
+
+- id: BASE-EMP-007
+  name: "Składniki wyłączone z podstawy"
+  description: "Nie uwzględnia się składników, do których pracownik zachowuje prawo w okresie zasiłku (gdy wypłacane za ten okres), ani składników przysługujących do określonego terminu / zaprzestanych — za okres po tym terminie."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "41", paragraph: "1-3", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 41 ust. 1-3"
+  source_excerpt: "nie uwzględnia się składników wynagrodzenia, do których pracownik zachowuje prawo w okresie pobierania tego zasiłku"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: income_history.months, operator: exists, value: true}]}
+  result: {compute: f_filter_excluded_components, output: base.components_used}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [income_history.months]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P1
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Wymaga flagi per składnik 'retained_during_benefit' (z Z-3). Brak flagi → NEEDS_REVIEW."
+
+- id: BASE-EMP-008
+  name: "Minimalna podstawa — płaca minimalna minus 13,71% (pełny etat)"
+  description: "Podstawa z tytułu pracy w pełnym wymiarze nie może być niższa niż minimalne wynagrodzenie po odliczeniu 13,71%."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "45", paragraph: "1-2", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 45 ust. 1-2; art. 47"
+  source_excerpt: "nie może być niższa od kwoty minimalnego wynagrodzenia za pracę, po odliczeniu kwoty odpowiadającej 13,71%"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_is_employee_title_for_base, operator: eq, value: true}, {field: employment.working_time_fraction, operator: eq, value: "1.0"}]}
+  result: {compute: f_apply_minimum_base, output: base.amount}
+  exceptions: []
+  dependencies: [BASE-EMP-001, BASE-EMP-002, BASE-EMP-003]
+  overrides: []
+  required_inputs: [employment.working_time_fraction]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Kwota płacy minimalnej (4806,00 zł) — z Załącznika, status UNCONFIRMED; wartość wynikowa (4806 × 0,8629 = 4147,0974) wymaga reguły zaokrąglenia (GAP-001). Załącznik zapowiada tabelę min. podstaw, ale tabela jest pusta (GAP-022). Część etatu → brak minimum z art. 45 (DERIVED)."
+
+- id: BASE-NEMP-001
+  name: "Podstawa niepracownika — średni przychód z 12 miesięcy"
+  description: "Przeciętny miesięczny przychód (podstawa wymiaru składek − 13,71%) za 12 miesięcy kalendarzowych poprzedzających miesiąc powstania niezdolności/prawa; krócej — za pełne miesiące."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "48", paragraph: "1-2", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 48 ust. 1-2; art. 3 pkt 4; art. 52"
+  source_excerpt: "przeciętny miesięczny przychód za okres 12 miesięcy kalendarzowych poprzedzających miesiąc, w którym powstała niezdolność do pracy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_is_employee_title_for_base, operator: eq, value: false}]}
+  result: {compute: f_benefit_base_non_employee, output: base.amount}
+  exceptions: [BASE-NEMP-002, BASE-NEMP-003]
+  dependencies: [BASE-NEMP-004]
+  overrides: []
+  required_inputs: [income_history.months]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Przychód miesiąca = podstawa wymiaru składki chorobowej × (1 − 0,1371). Limit z Załącznika: 23 550 × 0,8629 = 20 321,30 (dobrowolne chorobowe) — parametr UNCONFIRMED."
+
+- id: BASE-NEMP-002
+  name: "Podstawa przy zadeklarowanej kwocie i ubezpieczeniu <12 miesięcy (art. 48a)"
+  description: "Suma: przeciętnej najniższej podstawy (po odliczeniu 13,71%) za pełne miesiące oraz 1/12 przeciętnej nadwyżki zadeklarowanej kwoty ponad najniższą podstawę × liczba pełnych miesięcy."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "48a", paragraph: "1-5", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 48a ust. 1-5"
+  source_excerpt: "stanowi suma: 1) przeciętnej miesięcznej najniższej podstawy ... oraz 2) kwoty stanowiącej iloczyn jednej dwunastej przeciętnej kwoty zadeklarowanej ... w części przewyższającej najniższą podstawę"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_contribution_base_is_declared, operator: eq, value: true}
+      - {fact: f_full_months_of_continuous_insurance, operator: lt, value: 12}
+      - {fact: f_full_months_of_continuous_insurance, operator: gte, value: 1}
+  result: {compute: f_base_declared_short_insurance, output: base.amount}
+  exceptions: []
+  dependencies: []
+  overrides: [BASE-NEMP-001]
+  required_inputs: [income_history.months, income_history.minimum_contribution_base_by_month]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Kluczowe dla JDG w ciąży (ryzyko podwyższania podstawy — RISK-002). Najniższa podstawa składek — wartości z ustawy o s.u.s. NIEZAŁĄCZONEJ → wymagany parametr wejściowy per miesiąc (GAP-023). Ust. 2-4 (przerwy ≤30 dni) → P1."
+
+- id: BASE-NEMP-003
+  name: "Podstawa niepracownika — niezdolność w pierwszym miesiącu"
+  description: "Najniższa podstawa składek po odliczeniu 13,71% (gdy określona) albo kwota przychodu z umowy (zlecenie/agencyjna) za miesiąc powstania prawa."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "49", paragraph: "1-3", point: "1-4"}
+  source_document: USTAWA
+  source_location: "USTAWA art. 49 ust. 1-3"
+  source_excerpt: "najniższa miesięczna podstawa wymiaru składek na ubezpieczenie chorobowe za miesiąc, w którym powstało prawo do zasiłku"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_is_employee_title_for_base, operator: eq, value: false}, {fact: f_full_months_of_continuous_insurance, operator: eq, value: 0}]}
+  result: {compute: f_base_first_month_non_employee, output: base.amount}
+  exceptions: []
+  dependencies: []
+  overrides: [BASE-NEMP-001, BASE-NEMP-002]
+  required_inputs: [income_history.minimum_contribution_base_by_month, employment.contract_monthly_salary]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: ""
+
+- id: BASE-NEMP-004
+  name: "Niepracownik — miesiące z zasiłkiem <½ miesiąca wyłączone"
+  description: "Gdy przychód zmalał wskutek pobierania zasiłku/świadczenia — wyłącza się miesiące, w których wykonywano działalność przez <½ miesiąca; jeśli każdy miesiąc taki — przyjmuje się wszystkie."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "50", paragraph: "1-2", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 50 ust. 1-2"
+  source_excerpt: "wyłącza się przychód za miesiące, w których ubezpieczony wykonywał pracę lub działalność przez mniej niż połowę miesiąca"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: income_history.months, operator: exists, value: true}]}
+  result: {compute: f_base_months_selection_non_employee, output: base.months_used}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [income_history.months]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: HIGH
+  interpretation_status: DIRECT
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "'Połowa miesiąca' — liczona w dniach kalendarzowych (DERIVED)."
+
+- id: BASE-GEN-001
+  name: "Brak ponownego ustalania podstawy przy przerwie < miesiąca kalendarzowego"
+  description: "Podstawy nie ustala się na nowo, jeżeli między okresami pobierania zasiłków (tego samego lub innego rodzaju) nie było przerwy albo była krótsza niż miesiąc kalendarzowy."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "43", paragraph: null, point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 43; art. 48 ust. 2; art. 52"
+  source_excerpt: "Podstawy wymiaru zasiłku nie ustala się na nowo, jeżeli między okresami pobierania zasiłków ... nie było przerwy albo przerwa była krótsza niż miesiąc kalendarzowy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_gap_shorter_than_calendar_month, operator: eq, value: true}]}
+  result: {set: {base.reuse_previous: true}}
+  exceptions: []
+  dependencies: []
+  overrides: [BASE-EMP-001, BASE-EMP-002, BASE-NEMP-001, BASE-NEMP-002]
+  required_inputs: [benefit_history.previous_benefit_end_date, benefit_history.previous_base_amount, base.reference_event_date]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Typowo: zasiłek chorobowy w ciąży → macierzyński bez przerwy = ta sama podstawa (ważne dla demo). 'Miesiąc kalendarzowy' — pełny miesiąc kalendarzowy (1.–ostatni) czy okres miesiąca? Załącznik: 'min. 1 miesiąc' (CONF-006). Wersja automatyczna tylko dla przerwy = 0 dni; przerwa 1–31 dni → NEEDS_REVIEW."
+
+- id: BASE-GEN-002
+  name: "Maksymalna podstawa zasiłku chorobowego po ustaniu tytułu"
+  description: "Podstawa zasiłku chorobowego za okres po ustaniu tytułu nie może przekraczać 100% przeciętnego wynagrodzenia (kwota kwartalna)."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "46", paragraph: null, point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 46"
+  source_excerpt: "nie może być wyższa niż kwota wynosząca 100% przeciętnego wynagrodzenia"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_benefit_after_title_end, operator: eq, value: true}, {field: benefit, operator: eq, value: SICKNESS_BENEFIT}]}
+  result: {compute: f_apply_after_title_cap, output: base.amount}
+  exceptions: []
+  dependencies: [SICK-ELIG-006]
+  overrides: []
+  required_inputs: [base.amount]
+  missing_data_behavior: NEEDS_REVIEW
+  evaluation: BLOCKED
+  confidence: LOW
+  interpretation_status: INCOMPLETE_SOURCE
+  implementation_priority: P2
+  automation_status: PARTIALLY_AUTOMATABLE
+  notes: "Kwota przeciętnego wynagrodzenia nie występuje w materiałach → BLOKOWANA (GAP-002)."
+
+- id: CALC-MAT-001
+  name: "Kwota zasiłku macierzyńskiego za segment"
+  description: "Kwota = podstawa × stawka × (1 − wymiar pracy) / 30 × liczba dni kalendarzowych segmentu; zasiłek przysługuje za każdy dzień, łącznie z wolnymi."
+  category: MATERNITY
+  rule_type: CALCULATION
+  legal_basis: {document: USTAWA, article: "31", paragraph: "1-4a, 5", point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 31 ust. 1-3, 4a, 5 (→ art. 11 ust. 4); art. 47 (→ art. 36 ust. 3)"
+  source_excerpt: "Do zasiłku macierzyńskiego stosuje się odpowiednio przepisy art. 11 ust. 4"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{field: benefit, operator: eq, value: MATERNITY_BENEFIT}, {fact: f_benefit_base, operator: exists, value: true}]}
+  result: {compute: f_benefit_amount, output: amount}
+  exceptions: []
+  dependencies: [RATE-MAT-001, RATE-MAT-002, RATE-MAT-003, RATE-MAT-004, RATE-MAT-005, PAR-WORK-003, BASE-EMP-001, BASE-NEMP-001]
+  overrides: []
+  required_inputs: [plan.segments, income_history]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Dzienna stawka 1/30 dla zasiłku macierzyńskiego wynika z odesłania art. 47 → art. 36 ust. 3 'odpowiednio' (DERIVED). Zaokrąglenia — GAP-001. Kwota 'miesięczna' w UI = base × rate (informacyjnie)."
+
+# =====================================================================
+# RISK — reguły ostrzegawcze (pkt H zadania) — nie zmieniają statusu
+# =====================================================================
+- id: RISK-001
+  name: "Ryzyko — umowa / działalność zawarta dla pozoru krótko przed ciążą lub w ciąży"
+  description: "ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzję o niepodleganiu — skutek: brak prawa do zasiłków. Silnik sygnalizuje sytuacje podwyższonego ryzyka, nie ocenia pozorności."
+  category: RISK
+  rule_type: VALIDATION
+  legal_basis: {document: ZALACZNIK, article: null, paragraph: "treść zadania pkt H.1", point: null}
+  source_document: ZALACZNIK
+  source_location: "Treść zadania, pkt H.1 (brak przepisu w wyciągach)"
+  source_excerpt: "ZUS po przeprowadzeniu postępowania, może uznać, że umowa została zawarta wyłącznie dla pozoru"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_title_started_during_or_shortly_before_pregnancy, operator: eq, value: true}]}
+  result: {warning: {code: RISK_SHAM_TITLE, severity: WARNING}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [insurance.titles, pregnancy.pregnancy_start_date]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: LOW
+  interpretation_status: INCOMPLETE_SOURCE
+  implementation_priority: P1
+  automation_status: HUMAN_REVIEW
+  notes: "Źródłem jest treść zadania (nie akt prawny). 'Krótko przed' — parametr projektowy, NIE prawny; komunikat musi mówić o ryzyku, nie o decyzji."
+
+- id: RISK-002
+  name: "Ryzyko — podwyższenie podstawy wymiaru składek w ciąży"
+  description: "ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w ciąży miało wyłącznie na celu uzyskanie wyższych świadczeń. Silnik sygnalizuje istotny wzrost podstawy w okresie ciąży."
+  category: RISK
+  rule_type: VALIDATION
+  legal_basis: {document: ZALACZNIK, article: null, paragraph: "treść zadania pkt H.2", point: null}
+  source_document: ZALACZNIK
+  source_location: "Treść zadania, pkt H.2"
+  source_excerpt: "podwyższenie podstawy wymiaru składek ... w okresie ciąży wyłącznie w celu nabycia uprawnień do wyższej podstawy"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_contribution_base_increase_during_pregnancy, operator: eq, value: true}]}
+  result: {warning: {code: RISK_BASE_INCREASE_IN_PREGNANCY, severity: WARNING}}
+  exceptions: []
+  dependencies: []
+  overrides: []
+  required_inputs: [income_history.months, pregnancy.pregnancy_start_date]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: LOW
+  interpretation_status: INCOMPLETE_SOURCE
+  implementation_priority: P1
+  automation_status: HUMAN_REVIEW
+  notes: "Próg 'istotnego wzrostu' — parametr projektowy do ustalenia z mentorem."
+
+- id: RISK-003
+  name: "Ryzyko — ustanie ubezpieczenia przed porodem"
+  description: "Ostrzeżenie, gdy planowany koniec umowy/działalności/dobrowolnego ubezpieczenia przypada przed przewidywaną datą porodu, a nie zachodzi przypadek z art. 30 ani przedłużenie z KP 177 § 3."
+  category: RISK
+  rule_type: VALIDATION
+  legal_basis: {document: USTAWA, article: "29-30", paragraph: null, point: null}
+  source_document: USTAWA
+  source_location: "USTAWA art. 29 ust. 1, art. 30; treść zadania pkt H.3"
+  source_excerpt: "niepodleganie ubezpieczeniu chorobowemu na dzień porodu"
+  valid_from: null
+  valid_to: null
+  conditions:
+    all:
+      - {fact: f_planned_title_end_before_due_date, operator: eq, value: true}
+      - {fact: f_any_art30_basis, operator: eq, value: false}
+  result: {warning: {code: RISK_NOT_INSURED_ON_BIRTH, severity: CRITICAL}}
+  exceptions: []
+  dependencies: [MAT-NEG-001]
+  overrides: []
+  required_inputs: [insurance.titles, pregnancy.expected_due_date]
+  missing_data_behavior: NOT_APPLICABLE
+  evaluation: INFORMATIONAL
+  confidence: HIGH
+  interpretation_status: DERIVED
+  implementation_priority: P0
+  automation_status: AUTOMATABLE
+  notes: "Najcenniejsze ostrzeżenie dla planera przyszłego rodzica."

@@ -1,0 +1,58 @@
+{
+  "evaluation_id": "3f1c2b9e-0000-4000-8000-000000000001",
+  "ruleset_version": "0.1.0",
+  "law_reference_date": "2026-11-21",
+  "engine": "slice-v0",
+  "overall_status": "ELIGIBLE",
+  "benefits": [
+    {
+      "benefit_type": "MATERNITY_BENEFIT",
+      "leave_type": "MATERNITY_LEAVE",
+      "status": "ELIGIBLE",
+      "rate": "0.815",
+      "period": {
+        "from": "2027-03-15",
+        "to": "2027-08-01",
+        "max_weeks": 20
+      },
+      "days": 140,
+      "daily_amount_exact": "163",
+      "total_amount_exact": "22820",
+      "payer_of_benefit": null,
+      "reasons": [
+        {
+          "code": "RATE_COMBINED_815",
+          "rule_id": "RATE-MAT-003",
+          "message": "Wniosek o łączny zasiłek złożony w 21 dni od porodu — 81,5% podstawy.",
+          "legal_basis": [
+            {
+              "document": "USTAWA",
+              "location": "art. 31 ust. 3; art. 30a ust. 1"
+            }
+          ]
+        }
+      ],
+      "applied_rules": [
+        "MAT-ELIG-001",
+        "MAT-DUR-001",
+        "MAT-DUR-009",
+        "APP-DL-001",
+        "RATE-MAT-003",
+        "CALC-MAT-001"
+      ]
+    }
+  ],
+  "missing_data": [],
+  "assumptions": [
+    {
+      "code": "ROUNDING_UNCONFIRMED",
+      "text": "Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."
+    }
+  ],
+  "not_evaluated_rules": [
+    "MAT-ELIG-004",
+    "MAT-ELIG-005",
+    "MAT-ELIG-006",
+    "BASE-EMP-001"
+  ]
+}

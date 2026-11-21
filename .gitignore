@@ -1,0 +1,35 @@
+# Poufne materiały ZUS — zakaz kopiowania i rozpowszechniania
+cases/
+*.pdf
+!docs/**/*.pdf
+
+# Sekrety
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+.next/
+out/
+.vercel/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Materiały źródłowe zadania (status publikacji do potwierdzenia — docs/MATERIALS.md, pytanie M02)
+materials/
+
+# Logi lokalne
+*.log

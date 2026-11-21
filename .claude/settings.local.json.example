@@ -1,0 +1,9 @@
+{
+  "_comment": "Dla ról FE-1, FE-2 i Dev5: skopiuj jako .claude/settings.local.json (plik jest w .gitignore). Blokuje odczyt poufnych spraw ZUS w tych sesjach. BA i BE-2 tego nie kopiują.",
+  "permissions": {
+    "deny": [
+      "Read(./cases/**)",
+      "Bash(cat cases/:*)"
+    ]
+  }
+}

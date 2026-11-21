@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/zus-parenthood/output.schema.json",
+  "title": "ZUS Parenthood Rules — Evaluation Result",
+  "type": "object",
+  "required": ["evaluation_id", "ruleset_version", "law_reference_date", "evaluated_at", "mode", "benefits", "missing_data", "missing_documents", "warnings", "plan_errors", "applied_rules", "assumptions"],
+  "$defs": {
+    "Money": {"type": ["string", "null"], "pattern": "^-?[0-9]+(\\.[0-9]+)?$", "description": "Dokładna wartość dziesiętna (bez zaokrąglenia, chyba że pole *_rounded)."},
+    "Status": {"enum": ["ELIGIBLE", "NOT_ELIGIBLE", "NEEDS_DATA", "NEEDS_REVIEW", "OUT_OF_SCOPE"]},
+    "LegalRef": {
+      "type": "object",
+      "required": ["document", "location"],
+      "properties": {"document": {"enum": ["USTAWA", "KP", "ROZP_DOK", "ROZP_WN", "ZALACZNIK"]}, "location": {"type": "string"}}
+    },
+    "Reason": {
+      "type": "object",
+      "required": ["code", "rule_id", "message"],
+      "properties": {
+        "code": {"type": "string"},
+        "rule_id": {"type": "string"},
+        "message": {"type": "string", "description": "Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły — bez LLM."},
+        "legal_basis": {"type": "array", "items": {"$ref": "#/$defs/LegalRef"}},
+        "truth_value": {"enum": ["TRUE", "FALSE", "UNKNOWN"]}
+      }
+    },
+    "Segment": {
+      "type": "object",
+      "required": ["parent", "leave_type", "from", "to", "days", "rate"],
+      "properties": {
+        "parent": {"type": "string"},
+        "leave_type": {"type": "string"},
+        "from": {"type": "string", "format": "date"},
+        "to": {"type": "string", "format": "date"},
+        "days": {"type": "integer", "minimum": 0},
+        "rate": {"type": "string", "description": "Np. '0.815'"},
+        "work_fraction": {"type": "string"},
+        "daily_amount_exact": {"$ref": "#/$defs/Money"},
+        "total_amount_exact": {"$ref": "#/$defs/Money"},
+        "total_amount_rounded": {"$ref": "#/$defs/Money", "description": "Tylko gdy ROUNDING_POLICY ustawiony; inaczej null + assumption ROUNDING_UNCONFIRMED."},
+        "payer_of_benefit": {"enum": ["CONTRIBUTION_PAYER", "ZUS", null]},
+        "funded_by": {"enum": ["FUS", "EMPLOYER", "STATE_BUDGET", null]},
+        "rule_ids": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "Benefit": {
+      "type": "object",
+      "required": ["benefit_type", "status", "reasons", "applied_rules", "legal_basis"],
+      "properties": {
+        "benefit_type": {"enum": ["SICKNESS_BENEFIT", "EMPLOYER_SICK_PAY", "REHABILITATION_BENEFIT", "MATERNITY_BENEFIT", "MATERNITY_EQUIVALENT_ALLOWANCE"]},
+        "leave_type": {"type": ["string", "null"]},
+        "status": {"$ref": "#/$defs/Status"},
+        "entitlement_basis": {"type": ["string", "null"]},
+        "suspended_until_debt_repaid": {"type": "boolean"},
+        "forecast": {"type": "boolean", "description": "true gdy evaluation.mode = FORECAST"},
+        "period": {
+          "type": ["object", "null"],
+          "properties": {
+            "from": {"type": "string", "format": "date"},
+            "to": {"type": "string", "format": "date"},
+            "max_days": {"type": ["integer", "null"]},
+            "max_weeks": {"type": ["integer", "null"]},
+            "days_used_in_benefit_period": {"type": ["integer", "null"]}
+          }
+        },
+        "base": {
+          "type": ["object", "null"],
+          "properties": {
+            "amount_exact": {"$ref": "#/$defs/Money"},
+            "method_rule_id": {"type": "string"},
+            "months_used": {"type": "array", "items": {"type": "string"}},
+            "source": {"enum": ["CALCULATED", "MANUAL", "REUSED_PREVIOUS", "MINIMUM_APPLIED"]}
+          }
+        },
+        "rate": {"type": ["string", "null"]},
+        "segments": {"type": "array", "items": {"$ref": "#/$defs/Segment"}},
+        "totals": {
+          "type": ["object", "null"],
+          "properties": {"amount_exact": {"$ref": "#/$defs/Money"}, "amount_rounded": {"$ref": "#/$defs/Money"}, "monthly_indicative": {"$ref": "#/$defs/Money"}}
+        },
+        "payer_of_benefit": {"enum": ["CONTRIBUTION_PAYER", "ZUS", null]},
+        "reasons": {"type": "array", "items": {"$ref": "#/$defs/Reason"}},
+        "applied_rules": {"type": "array", "items": {"type": "string"}},
+        "legal_basis": {"type": "array", "items": {"$ref": "#/$defs/LegalRef"}},
+        "explanation": {"type": "string", "description": "Łączne uzasadnienie (szablony reguł, kolejność wg grafu zależności)."}
+      }
+    }
+  },
+  "properties": {
+    "evaluation_id": {"type": "string", "format": "uuid"},
+    "ruleset_version": {"type": "string", "examples": ["0.1.0"]},
+    "law_reference_date": {"type": "string", "format": "date", "description": "Data, wg której oceniono obowiązywanie przepisów."},
+    "evaluated_at": {"type": "string", "format": "date-time"},
+    "mode": {"enum": ["DECISION_SUPPORT", "FORECAST"]},
+    "overall_status": {"$ref": "#/$defs/Status", "description": "Najsłabszy status spośród benefits wg porządku NEEDS_REVIEW > NEEDS_DATA > NOT_ELIGIBLE > ELIGIBLE (OUT_OF_SCOPE raportowany osobno)."},
+    "benefits": {"type": "array", "items": {"$ref": "#/$defs/Benefit"}},
+    "missing_data": {
+      "type": "array",
+      "items": {"type": "object", "required": ["field", "rule_ids"], "properties": {"field": {"type": "string"}, "rule_ids": {"type": "array", "items": {"type": "string"}}, "question": {"type": "string"}}}
+    },
+    "missing_documents": {
+      "type": "array",
+      "items": {"type": "object", "required": ["doc_type", "rule_id"], "properties": {"doc_type": {"type": "string"}, "rule_id": {"type": "string"}, "submit_to": {"enum": ["CONTRIBUTION_PAYER", "ZUS", "EMPLOYER"]}, "provider": {"type": "string"}, "obtainable_by_zus": {"type": "boolean"}, "legal_basis": {"$ref": "#/$defs/LegalRef"}}}
+    },
+    "deadlines": {
+      "type": "array",
+      "items": {"type": "object", "required": ["code", "date", "rule_id"], "properties": {"code": {"type": "string"}, "date": {"type": "string", "format": "date"}, "who": {"type": "string"}, "rule_id": {"type": "string"}}}
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "object", "required": ["code", "severity", "rule_id"], "properties": {"code": {"type": "string"}, "severity": {"enum": ["INFO", "WARNING", "CRITICAL"]}, "rule_id": {"type": "string"}, "message": {"type": "string"}}}
+    },
+    "plan_errors": {
+      "type": "array",
+      "description": "Błędy walidacji planu (validation_error) — nie zmieniają statusu prawa.",
+      "items": {"type": "object", "required": ["code", "rule_id"], "properties": {"code": {"type": "string"}, "rule_id": {"type": "string"}, "segment_index": {"type": "integer"}}}
+    },
+    "insurance_verification": {
+      "type": "object",
+      "description": "Wymóg § 4 zadania: demo ma pozwolić zweryfikować, czy osoba posiada ubezpieczenie (na podstawie wybranych formularzy PDF).",
+      "properties": {
+        "sickness_insured_on_event_date": {"enum": ["TRUE", "FALSE", "UNKNOWN"]},
+        "insurance_mode": {"enum": ["MANDATORY", "VOLUNTARY", "NONE", null]},
+        "continuous_insurance_days": {"type": ["integer", "null"]},
+        "waiting_period_met": {"enum": ["TRUE", "FALSE", "UNKNOWN", "NOT_REQUIRED"]},
+        "source_documents": {"type": "array", "items": {"type": "string"}},
+        "rule_ids": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "return_to_work": {
+      "type": "array",
+      "description": "Planowany powrót do pracy per rodzic = dzień po ostatnim segmencie urlopu (pkt 2 zadania: planowanie powrotu do pracy; KP art. 186(4)).",
+      "items": {"type": "object", "required": ["parent", "date"], "properties": {"parent": {"type": "string"}, "date": {"type": "string", "format": "date"}, "part_time_fraction": {"type": ["string", "null"]}}}
+    },
+    "applied_rules": {"type": "array", "items": {"type": "object", "required": ["rule_id", "outcome"], "properties": {"rule_id": {"type": "string"}, "outcome": {"enum": ["FIRED", "NOT_FIRED", "UNKNOWN", "BLOCKED", "FUTURE_SKIPPED", "NOT_APPLICABLE"]}}}},
+    "future_changes": {"type": "array", "items": {"type": "object", "properties": {"rule_id": {"type": "string"}, "valid_from": {"type": "string", "format": "date"}}}},
+    "assumptions": {"type": "array", "items": {"type": "object", "required": ["code", "text"], "properties": {"code": {"type": "string"}, "text": {"type": "string"}, "gap_id": {"type": "string"}}}}
+  }
+}

@@ -1,0 +1,42 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r backend/requirements-dev.txt
+      - name: Audyt reguł
+        run: python zus_rules/tools/build_catalog.py
+      - name: Ruff
+        working-directory: backend
+        run: python -m ruff check .
+      - name: Pytest (slice + kontrakt + audyt)
+        working-directory: backend
+        run: python -m pytest -p no:warnings
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Typy z kontraktu są aktualne
+        run: npm run gen:api && git diff --exit-code src/lib/api-types.ts
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build

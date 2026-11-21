@@ -1,0 +1,4077 @@
+{
+ "contract": {
+  "version": "1.0",
+  "description": "Wspólny kontrakt testowy. input = deep-merge(fixtures[fixture], patch) — listy w patch ZASTĘPUJĄ listy z fixture. expected — porównanie częściowe: sprawdzane są tylko podane klucze. benefit_selector wybiera element result.benefits (benefit_type [+ leave_type]). Kwoty porównywane jako Decimal dokładnie (amount_exact); wartości z dzieleniem nieskończonym — do 10 miejsc po przecinku. Wartości oczekiwane wyprowadzono z przepisów (legal_basis), NIE z implementacji.",
+  "kinds": [
+   "POSITIVE",
+   "NEGATIVE",
+   "BOUNDARY",
+   "MISSING_DATA",
+   "EXCEPTION",
+   "INTEGRATION"
+  ],
+  "expected_keys": [
+   "status",
+   "rate",
+   "payer_of_benefit",
+   "period.to",
+   "period.max_days",
+   "period.max_weeks",
+   "base.amount_exact",
+   "daily_amount_exact",
+   "total_amount_exact",
+   "plan_errors",
+   "warnings",
+   "missing_data_contains",
+   "reasons_contain",
+   "applied_rules_contain",
+   "suspended_until_debt_repaid",
+   "deadline",
+   "fact"
+  ]
+ },
+ "fixtures": {
+  "employee_mother": {
+   "evaluation": {
+    "as_of_date": "2026-11-21",
+    "mode": "FORECAST"
+   },
+   "person": {
+    "role": "MOTHER",
+    "birth_date": "1994-04-02"
+   },
+   "insurance": {
+    "titles": [
+     {
+      "title_type": "EMPLOYMENT_CONTRACT",
+      "sickness_insurance_mode": "MANDATORY",
+      "from": "2022-02-01",
+      "to": null
+     }
+    ],
+    "titles_confirmed_complete": true
+   },
+   "employment": {
+    "contract_type": "INDEFINITE",
+    "working_time_fraction": "1.0",
+    "leaves": []
+   },
+   "payer": {
+    "insured_count_on_nov30_prev_year": 150
+   },
+   "pregnancy": {
+    "expected_due_date": "2027-03-15",
+    "pregnancy_start_date": "2026-06-08"
+   },
+   "event": {
+    "type": "BIRTH",
+    "date": "2027-03-15"
+   },
+   "children": {
+    "count_at_birth": 1,
+    "items": [
+     {
+      "birth_date": "2027-03-15",
+      "birth_weight_g": 3400,
+      "za_zyciem_certificate": false
+     }
+    ],
+    "za_zyciem_certificate": false
+   },
+   "income_history": {
+    "manual_base_override": "6000.00"
+   },
+   "debt": {
+    "amount_on_right_date": "0.00"
+   },
+   "applications": {
+    "combined_815_planned": false
+   }
+  },
+  "self_employed_mother": {
+   "evaluation": {
+    "as_of_date": "2026-11-21",
+    "mode": "FORECAST"
+   },
+   "person": {
+    "role": "MOTHER",
+    "birth_date": "1991-09-12"
+   },
+   "insurance": {
+    "titles": [
+     {
+      "title_type": "SELF_EMPLOYED",
+      "sickness_insurance_mode": "VOLUNTARY",
+      "from": "2024-01-01",
+      "to": null,
+      "contribution_base_is_declared": true
+     }
+    ],
+    "titles_confirmed_complete": true
+   },
+   "employment": {
+    "leaves": []
+   },
+   "pregnancy": {
+    "expected_due_date": "2027-03-15",
+    "pregnancy_start_date": "2026-06-08"
+   },
+   "event": {
+    "type": "BIRTH",
+    "date": "2027-03-15"
+   },
+   "children": {
+    "count_at_birth": 1,
+    "items": [
+     {
+      "birth_date": "2027-03-15",
+      "birth_weight_g": 3300,
+      "za_zyciem_certificate": false
+     }
+    ],
+    "za_zyciem_certificate": false
+   },
+   "income_history": {
+    "manual_base_override": "4314.50"
+   },
+   "debt": {
+    "amount_on_right_date": "0.00"
+   },
+   "applications": {
+    "combined_815_planned": false
+   }
+  },
+  "pregnant_sick_employee": {
+   "evaluation": {
+    "as_of_date": "2026-11-21",
+    "mode": "DECISION_SUPPORT"
+   },
+   "person": {
+    "role": "MOTHER",
+    "birth_date": "1994-04-02"
+   },
+   "insurance": {
+    "titles": [
+     {
+      "title_type": "EMPLOYMENT_CONTRACT",
+      "sickness_insurance_mode": "MANDATORY",
+      "from": "2022-02-01",
+      "to": null
+     }
+    ],
+    "titles_confirmed_complete": true
+   },
+   "employment": {
+    "contract_type": "INDEFINITE",
+    "working_time_fraction": "1.0",
+    "leaves": []
+   },
+   "payer": {
+    "insured_count_on_nov30_prev_year": 150
+   },
+   "pregnancy": {
+    "expected_due_date": "2027-03-15",
+    "pregnancy_start_date": "2026-06-08",
+    "is_pregnant_during_incapacity": true
+   },
+   "event": {
+    "type": "PREGNANCY_INCAPACITY"
+   },
+   "incapacity": {
+    "start_date": "2026-11-02",
+    "end_date": "2026-11-30",
+    "codes": [
+     "B"
+    ],
+    "cause": "ILLNESS",
+    "certificate_present": true
+   },
+   "benefit_history": {
+    "sickness_periods": [],
+    "sickness_periods_confirmed_complete": true,
+    "employer_sick_pay_days_in_year": 0
+   },
+   "income_history": {
+    "manual_base_override": "4500.00"
+   },
+   "debt": {
+    "amount_on_right_date": "0.00"
+   }
+  }
+ },
+ "tests": [
+  {
+   "test_id": "T-GEN-001",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "GEN-CLS-001"
+   ],
+   "description": "Pracodawca >20 ubezpieczonych wypłaca zasiłek",
+   "fixture": "employee_mother",
+   "patch": {},
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "payer_of_benefit": "CONTRIBUTION_PAYER"
+   },
+   "legal_basis": [
+    "USTAWA art. 61 ust. 1 pkt 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-GEN-002",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "GEN-CLS-002"
+   ],
+   "description": "Dokładnie 20 ubezpieczonych → ZUS",
+   "fixture": "employee_mother",
+   "patch": {
+    "payer": {
+     "insured_count_on_nov30_prev_year": 20
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "payer_of_benefit": "ZUS"
+   },
+   "legal_basis": [
+    "USTAWA art. 61 ust. 1 pkt 2 lit. a"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-GEN-003",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "GEN-CLS-001"
+   ],
+   "description": "21 ubezpieczonych → płatnik",
+   "fixture": "employee_mother",
+   "patch": {
+    "payer": {
+     "insured_count_on_nov30_prev_year": 21
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "payer_of_benefit": "CONTRIBUTION_PAYER"
+   },
+   "legal_basis": [
+    "USTAWA art. 61 ust. 1 pkt 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-GEN-004",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "GEN-CLS-002"
+   ],
+   "description": "Prowadząca działalność → ZUS niezależnie od liczby",
+   "fixture": "self_employed_mother",
+   "patch": {},
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "payer_of_benefit": "ZUS"
+   },
+   "legal_basis": [
+    "USTAWA art. 61 ust. 1 pkt 2 lit. b"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-GEN-005",
+   "kind": "MISSING_DATA",
+   "rule_ids": [
+    "GEN-CLS-001",
+    "GEN-CLS-002"
+   ],
+   "description": "Pracownica, brak liczby ubezpieczonych → płatnik nieustalony, prawo nadal ELIGIBLE",
+   "fixture": "employee_mother",
+   "patch": {
+    "payer": {
+     "insured_count_on_nov30_prev_year": null
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "payer_of_benefit": null,
+    "missing_data_contains": [
+     "payer.insured_count_on_nov30_prev_year"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 61"
+   ],
+   "assumptions": [
+    "Ustalenie płatnika nie warunkuje prawa"
+   ]
+  },
+  {
+   "test_id": "T-GEN-006",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "GEN-EXCL-001"
+   ],
+   "description": "JDG, zadłużenie 48,07 zł > 1% × 4806 → zawieszenie",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "debt": {
+     "amount_on_right_date": "48.07",
+     "repaid_in_full_date": null
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE",
+    "suspended_until_debt_repaid": true,
+    "reasons_contain": [
+     "CONTRIBUTION_DEBT"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 2a ust. 1"
+   ],
+   "assumptions": [
+    "MIN_WAGE_2026_MONTHLY=4806.00 z Załącznika (UNCONFIRMED)"
+   ]
+  },
+  {
+   "test_id": "T-GEN-007",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "GEN-EXCL-001"
+   ],
+   "description": "Zadłużenie dokładnie 48,06 zł — nie 'przekracza' 1%",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "debt": {
+     "amount_on_right_date": "48.06"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 2a ust. 1"
+   ],
+   "assumptions": [
+    "MIN_WAGE_2026_MONTHLY=4806.00 (UNCONFIRMED)"
+   ]
+  },
+  {
+   "test_id": "T-GEN-008",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "GEN-EXCL-001"
+   ],
+   "description": "Zadłużenie spłacone → wyłączenie nie działa",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "evaluation": {
+     "as_of_date": "2027-04-30",
+     "mode": "DECISION_SUPPORT"
+    },
+    "debt": {
+     "amount_on_right_date": "500.00",
+     "repaid_in_full_date": "2027-04-10"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 2a ust. 1 ('do czasu spłaty')",
+    "art. 64 ust. 3"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-GEN-009",
+   "kind": "MISSING_DATA",
+   "rule_ids": [
+    "GEN-EXCL-001"
+   ],
+   "description": "JDG, brak informacji o zadłużeniu → NEEDS_DATA (nie odmowa)",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "debt": {
+     "amount_on_right_date": null
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NEEDS_DATA",
+    "missing_data_contains": [
+     "debt.amount_on_right_date"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 2a ust. 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SP-001",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SICKPAY-ELIG-001",
+    "SICKPAY-RATE-002",
+    "SICK-ELIG-001"
+   ],
+   "description": "Pracownica w ciąży — wynagrodzenie chorobowe 100%",
+   "fixture": "pregnant_sick_employee",
+   "patch": {},
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "rate": "1.00"
+   },
+   "legal_basis": [
+    "KP art. 92 § 1 pkt 2"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SP-002",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "SICKPAY-RATE-001"
+   ],
+   "description": "Bez ciąży (potwierdzone) — 80%",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "pregnancy": {
+     "is_pregnant_during_incapacity": false
+    },
+    "incapacity": {
+     "codes": []
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "rate": "0.80"
+   },
+   "legal_basis": [
+    "KP art. 92 § 1 pkt 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SP-003",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SICKPAY-ELIG-001"
+   ],
+   "description": "Ukończone 50 lat w 2026, niezdolność w 2026 → nadal limit 33 dni",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "person": {
+     "birth_date": "1976-05-10"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "fact": {
+     "f_sick_pay_day_limit": 33
+    }
+   },
+   "legal_basis": [
+    "KP art. 92 § 5"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SP-004",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SICKPAY-ELIG-001"
+   ],
+   "description": "Ukończone 50 lat w 2026, niezdolność w 2027 → limit 14 dni",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "person": {
+     "birth_date": "1976-05-10"
+    },
+    "incapacity": {
+     "start_date": "2027-01-04",
+     "end_date": "2027-01-31"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "fact": {
+     "f_sick_pay_day_limit": 14
+    }
+   },
+   "legal_basis": [
+    "KP art. 92 § 1 pkt 1, § 5"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SP-005",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SICKPAY-TRN-001",
+    "SICK-RATE-002",
+    "SICK-EXCL-001"
+   ],
+   "description": "Wykorzystane 33 dni → zasiłek chorobowy 100% (ciąża)",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "benefit_history": {
+     "sickness_periods": [],
+     "sickness_periods_confirmed_complete": true,
+     "employer_sick_pay_days_in_year": 33
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "rate": "1.00",
+    "daily_amount_exact": "150"
+   },
+   "legal_basis": [
+    "KP art. 92 § 4",
+    "USTAWA art. 11 ust. 2 pkt 1, art. 36 ust. 3"
+   ],
+   "assumptions": [
+    "4500 × 1,00 / 30 = 150"
+   ]
+  },
+  {
+   "test_id": "T-SP-006",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "SICKPAY-EXCL-001",
+    "SICK-ELIG-002"
+   ],
+   "description": "Pracownica 10 dni po zatrudnieniu — brak prawa do zasiłku → brak wynagrodzenia chorobowego",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2026-10-23",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE",
+    "reasons_contain": [
+     "NO_SICKNESS_BENEFIT_RIGHT"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 92 § 3 pkt 2",
+    "USTAWA art. 4 ust. 1 pkt 1"
+   ],
+   "assumptions": [
+    "Brak wyjątków z art. 4 ust. 3 (graduation_date null → raport NEEDS_DATA dopuszczalny)"
+   ]
+  },
+  {
+   "test_id": "T-SICK-001",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SICK-ELIG-003",
+    "SICK-ELIG-004"
+   ],
+   "description": "Dobrowolne od 2026-08-01, niezdolność 2026-10-29 → 89 dni, okres wyczekiwania niespełniony",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "SELF_EMPLOYED",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2026-08-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "person": {
+     "graduation_date": null
+    },
+    "incapacity": {
+     "start_date": "2026-10-29",
+     "end_date": "2026-11-30"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "fact": {
+     "f_continuous_sickness_insurance_days": 89
+    }
+   },
+   "legal_basis": [
+    "USTAWA art. 4 ust. 1 pkt 2"
+   ],
+   "assumptions": [
+    "Liczenie dni wg C3/C8"
+   ]
+  },
+  {
+   "test_id": "T-SICK-002",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SICK-ELIG-003"
+   ],
+   "description": "Dobrowolne od 2026-08-01, niezdolność 2026-10-30 → 90 dni, spełniony",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "SELF_EMPLOYED",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2026-08-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "incapacity": {
+     "start_date": "2026-10-30",
+     "end_date": "2026-11-30"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "rate": "1.00",
+    "payer_of_benefit": "ZUS"
+   },
+   "legal_basis": [
+    "USTAWA art. 4 ust. 1 pkt 2, art. 11 ust. 2 pkt 1, art. 61 ust. 1 pkt 2 lit. b"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SICK-003",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SICK-ELIG-004"
+   ],
+   "description": "Przerwa 30 dni między tytułami — okresy się sumują",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2026-01-01",
+       "to": "2026-08-31"
+      },
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2026-10-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "incapacity": {
+     "start_date": "2026-10-05",
+     "end_date": "2026-10-20"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "fact": {
+     "f_continuous_sickness_insurance_days": 247
+    }
+   },
+   "legal_basis": [
+    "USTAWA art. 4 ust. 2"
+   ],
+   "assumptions": [
+    "Przerwa 2026-09-01..2026-09-30 = 30 dni (C8); dni ubezpieczenia: 243 (01.01-31.08) + 4 (01.10-04.10) = 247"
+   ]
+  },
+  {
+   "test_id": "T-SICK-004",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "SICK-ELIG-004",
+    "SICK-ELIG-002"
+   ],
+   "description": "Przerwa 31 dni — bez sumowania; 4 dni < 30",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2026-01-01",
+       "to": "2026-08-30"
+      },
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2026-10-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "person": {
+     "graduation_date": null
+    },
+    "incapacity": {
+     "start_date": "2026-10-05",
+     "end_date": "2026-10-20"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "fact": {
+     "f_continuous_sickness_insurance_days": 4
+    }
+   },
+   "legal_basis": [
+    "USTAWA art. 4 ust. 1-2"
+   ],
+   "assumptions": [
+    "Przerwa 2026-08-31..2026-09-30 = 31 dni"
+   ]
+  },
+  {
+   "test_id": "T-SICK-005",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "SICK-ELIG-005"
+   ],
+   "description": "Absolwentka — ubezpieczenie w 60 dni od dyplomu → zasiłek od 1. dnia",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2026-10-23",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "person": {
+     "graduation_date": "2026-08-24"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "status": "ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 4 ust. 3 pkt 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SICK-006",
+   "kind": "MISSING_DATA",
+   "rule_ids": [
+    "SICK-RATE-001",
+    "SICK-RATE-002"
+   ],
+   "description": "Brak kodu B i brak odpowiedzi o ciąży → stawka nieustalona (NEEDS_DATA), nie 80%",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "incapacity": {
+     "codes": []
+    },
+    "pregnancy": {
+     "is_pregnant_during_incapacity": null
+    },
+    "benefit_history": {
+     "sickness_periods": [],
+     "sickness_periods_confirmed_complete": true,
+     "employer_sick_pay_days_in_year": 33
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "status": "NEEDS_DATA",
+    "rate": null,
+    "missing_data_contains": [
+     "pregnancy.is_pregnant_during_incapacity"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 11, art. 57 ust. 2"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SICK-007",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SICK-DUR-001"
+   ],
+   "description": "Niezdolność w ciąży → okres zasiłkowy 270 dni",
+   "fixture": "pregnant_sick_employee",
+   "patch": {},
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "period.max_days": 270
+   },
+   "legal_basis": [
+    "USTAWA art. 8 ust. 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SICK-008",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "SICK-DUR-001"
+   ],
+   "description": "Bez ciąży (potwierdzone) → 182 dni",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "incapacity": {
+     "codes": []
+    },
+    "pregnancy": {
+     "is_pregnant_during_incapacity": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "period.max_days": 182
+   },
+   "legal_basis": [
+    "USTAWA art. 8 ust. 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SICK-009",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "SICK-DUR-003"
+   ],
+   "description": "Przerwa 45 dni, poprzednia niezdolność poza ciążą, nowa w ciąży → poprzedniej nie wlicza się",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "benefit_history": {
+     "sickness_periods": [
+      {
+       "from": "2026-05-01",
+       "to": "2026-05-20",
+       "codes": [],
+       "paid_as": "EMPLOYER_SICK_PAY"
+      }
+     ],
+     "sickness_periods_confirmed_complete": true,
+     "employer_sick_pay_days_in_year": 20
+    },
+    "pregnancy": {
+     "pregnancy_start_date": "2026-06-08",
+     "is_pregnant_during_incapacity": true
+    },
+    "incapacity": {
+     "start_date": "2026-07-05",
+     "end_date": "2026-07-14"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "fact": {
+     "f_benefit_period_days_used": 10
+    }
+   },
+   "legal_basis": [
+    "USTAWA art. 9 ust. 2 zd. 2"
+   ],
+   "assumptions": [
+    "Przerwa 2026-05-21..2026-07-04 = 45 dni ≤ 60"
+   ]
+  },
+  {
+   "test_id": "T-SICK-010",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SICK-DUR-003"
+   ],
+   "description": "Przerwa 45 dni, obie niezdolności w ciąży → sumowanie",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "benefit_history": {
+     "sickness_periods": [
+      {
+       "from": "2026-07-01",
+       "to": "2026-07-20",
+       "codes": [
+        "B"
+       ],
+       "paid_as": "EMPLOYER_SICK_PAY"
+      }
+     ],
+     "sickness_periods_confirmed_complete": true,
+     "employer_sick_pay_days_in_year": 20
+    },
+    "incapacity": {
+     "start_date": "2026-09-04",
+     "end_date": "2026-09-13"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "fact": {
+     "f_benefit_period_days_used": 30
+    }
+   },
+   "legal_basis": [
+    "USTAWA art. 9 ust. 2 zd. 1"
+   ],
+   "assumptions": [
+    "Przerwa 2026-07-21..2026-09-03 = 45 dni"
+   ]
+  },
+  {
+   "test_id": "T-SICK-011",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SICK-ELIG-006",
+    "SICK-DUR-002"
+   ],
+   "description": "Umowa ustała, niezdolność w ciąży 10 dni później, trwa 45 dni → zasiłek po ustaniu, bez limitu 91 dni, płaci ZUS",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "CIVIL_CONTRACT_MANDATE",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2025-01-01",
+       "to": "2026-10-31",
+       "termination_reason": "CONTRACT_EXPIRY"
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "person": {
+     "has_pension_or_disability_pension": false,
+     "continues_or_started_gainful_activity": false,
+     "receives_unemployment_or_preretirement_benefit": false,
+     "mandatory_krus": false
+    },
+    "incapacity": {
+     "start_date": "2026-11-10",
+     "end_date": "2026-12-24"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "rate": "1.00",
+    "payer_of_benefit": "ZUS",
+    "period.max_days": 270
+   },
+   "legal_basis": [
+    "USTAWA art. 7 pkt 1, art. 8 ust. 2 zd. 2, art. 61 ust. 1 pkt 2 lit. d"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SICK-012",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "SICK-ELIG-006",
+    "SICK-ELIG-001"
+   ],
+   "description": "Niezdolność 15 dni po ustaniu tytułu → brak prawa",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "CIVIL_CONTRACT_MANDATE",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2025-01-01",
+       "to": "2026-10-31"
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "incapacity": {
+     "start_date": "2026-11-15",
+     "end_date": "2026-12-31"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 7 pkt 1"
+   ],
+   "assumptions": [
+    "Dni od ustania: 2026-11-15 − 2026-10-31 = 15 > 14"
+   ]
+  },
+  {
+   "test_id": "T-SICK-013",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SICK-ELIG-006"
+   ],
+   "description": "Niezdolność trwała 29 dni → brak prawa po ustaniu",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "CIVIL_CONTRACT_MANDATE",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2025-01-01",
+       "to": "2026-10-31"
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "incapacity": {
+     "start_date": "2026-11-05",
+     "end_date": "2026-12-03"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 7"
+   ],
+   "assumptions": [
+    "2026-11-05..2026-12-03 = 29 dni"
+   ]
+  },
+  {
+   "test_id": "T-SICK-014",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "SICK-RATE-001",
+    "SICK-CALC-001"
+   ],
+   "description": "Zasiłek 80%: podstawa 4500, dzienna 120,00",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "incapacity": {
+     "codes": []
+    },
+    "pregnancy": {
+     "is_pregnant_during_incapacity": false
+    },
+    "benefit_history": {
+     "sickness_periods": [],
+     "sickness_periods_confirmed_complete": true,
+     "employer_sick_pay_days_in_year": 33
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "SICKNESS_BENEFIT"
+   },
+   "expected": {
+    "rate": "0.80",
+    "daily_amount_exact": "120"
+   },
+   "legal_basis": [
+    "USTAWA art. 11 ust. 1, art. 36 ust. 3"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-001",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "MAT-ELIG-001",
+    "MAT-DUR-001",
+    "RATE-MAT-001",
+    "CALC-MAT-001",
+    "MAT-CLS-001",
+    "MAT-DUR-009"
+   ],
+   "description": "Pracownica, 1 dziecko, 100%: 140 dni × 200 zł",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-08-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "rate": "1.00",
+    "period.max_weeks": 20,
+    "period.to": "2027-08-01",
+    "daily_amount_exact": "200",
+    "total_amount_exact": "28000"
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1 pkt 1, art. 31 ust. 1",
+    "KP art. 180 § 1, 183(1)"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-002",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "MAT-DUR-001"
+   ],
+   "description": "Bliźnięta → 31 tygodni",
+   "fixture": "employee_mother",
+   "patch": {
+    "children": {
+     "count_at_birth": 2,
+     "items": [
+      {
+       "birth_date": "2027-03-15",
+       "birth_weight_g": 2600
+      },
+      {
+       "birth_date": "2027-03-15",
+       "birth_weight_g": 2500
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 31
+   },
+   "legal_basis": [
+    "KP art. 180 § 1 pkt 2"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-003",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "MAT-DUR-001"
+   ],
+   "description": "6 dzieci → 37 tygodni (5 i więcej)",
+   "fixture": "employee_mother",
+   "patch": {
+    "children": {
+     "count_at_birth": 6,
+     "items": [
+      {
+       "birth_date": "2027-03-15"
+      },
+      {
+       "birth_date": "2027-03-15"
+      },
+      {
+       "birth_date": "2027-03-15"
+      },
+      {
+       "birth_date": "2027-03-15"
+      },
+      {
+       "birth_date": "2027-03-15"
+      },
+      {
+       "birth_date": "2027-03-15"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 37
+   },
+   "legal_basis": [
+    "KP art. 180 § 1 pkt 5"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-004",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "MAT-NEG-001",
+    "RISK-003"
+   ],
+   "description": "Umowa wygasła przed porodem (koniec umowy), brak art. 30 → NOT_ELIGIBLE + ostrzeżenie",
+   "fixture": "employee_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "CIVIL_CONTRACT_MANDATE",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2024-01-01",
+       "to": "2027-02-28",
+       "termination_reason": "CONTRACT_EXPIRY"
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "employment": {
+     "contract_type": null,
+     "leaves": []
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE",
+    "reasons_contain": [
+     "NOT_INSURED_ON_BIRTH_DATE"
+    ],
+    "warnings": [
+     "RISK_NOT_INSURED_ON_BIRTH"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1, art. 30"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-005",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "MAT-ELIG-004"
+   ],
+   "description": "Upadłość pracodawcy w ciąży → zasiłek po ustaniu, płaci ZUS",
+   "fixture": "employee_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2022-02-01",
+       "to": "2026-12-31",
+       "termination_reason": "EMPLOYER_BANKRUPTCY"
+      }
+     ],
+     "titles_confirmed_complete": true
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "payer_of_benefit": "ZUS"
+   },
+   "legal_basis": [
+    "USTAWA art. 30 ust. 1 pkt 1, art. 61 ust. 1 pkt 2 lit. d"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-006",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "MAT-ELIG-007"
+   ],
+   "description": "Likwidacja pracodawcy w ciąży, brak innego zatrudnienia → zasiłek w wysokości macierzyńskiego do porodu",
+   "fixture": "employee_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2022-02-01",
+       "to": "2026-12-31",
+       "termination_reason": "EMPLOYER_LIQUIDATION"
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "employment": {
+     "other_employment_provided": false,
+     "leaves": []
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_EQUIVALENT_ALLOWANCE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "rate": "1.00",
+    "period.to": "2027-03-14"
+   },
+   "legal_basis": [
+    "USTAWA art. 30 ust. 3"
+   ],
+   "assumptions": [
+    "'do dnia porodu' = do dnia poprzedzającego poród (DERIVED); od dnia porodu — zasiłek macierzyński art. 30 ust. 1"
+   ]
+  },
+  {
+   "test_id": "T-MAT-007",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "MAT-ELIG-007"
+   ],
+   "description": "Rozwiązanie z naruszeniem prawa (sąd) — NIE daje zasiłku w wysokości macierzyńskiego przed porodem",
+   "fixture": "employee_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2022-02-01",
+       "to": "2026-12-31",
+       "termination_reason": "UNLAWFUL_TERMINATION_COURT_CONFIRMED"
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "employment": {
+     "other_employment_provided": false,
+     "leaves": []
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_EQUIVALENT_ALLOWANCE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 30 ust. 3 (zamknięty katalog)"
+   ],
+   "assumptions": [
+    "CONF-001: treść zadania szersza niż ustawa"
+   ]
+  },
+  {
+   "test_id": "T-MAT-008",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "MAT-ELIG-006"
+   ],
+   "description": "Umowa terminowa przedłużona do porodu (potwierdzone) → macierzyński po ustaniu",
+   "fixture": "employee_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2025-03-01",
+       "to": "2027-03-15",
+       "termination_reason": "CONTRACT_EXPIRY"
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "employment": {
+     "contract_type": "FIXED_TERM",
+     "extended_until_birth_kp177": true,
+     "leaves": []
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "payer_of_benefit": "ZUS"
+   },
+   "legal_basis": [
+    "USTAWA art. 30 ust. 4",
+    "KP art. 177 § 3"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-009",
+   "kind": "MISSING_DATA",
+   "rule_ids": [
+    "MAT-CLS-002"
+   ],
+   "description": "Umowa terminowa, przedłużenie nie potwierdzone → NEEDS_REVIEW (reguła BLOCKED)",
+   "fixture": "employee_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2025-03-01",
+       "to": "2026-12-31"
+      }
+     ],
+     "titles_confirmed_complete": false
+    },
+    "employment": {
+     "contract_type": "FIXED_TERM",
+     "contract_end_date": "2026-12-31",
+     "is_replacement_contract": false,
+     "extended_until_birth_kp177": null,
+     "leaves": []
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NEEDS_REVIEW",
+    "applied_rules_contain": [
+     "MAT-CLS-002"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 177 § 3"
+   ],
+   "assumptions": [
+    "GAP-007"
+   ]
+  },
+  {
+   "test_id": "T-MAT-010",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "MAT-ELIG-001"
+   ],
+   "description": "Poród w czasie urlopu wychowawczego → ELIGIBLE",
+   "fixture": "employee_mother",
+   "patch": {
+    "employment": {
+     "contract_type": "INDEFINITE",
+     "working_time_fraction": "1.0",
+     "leaves": [
+      {
+       "type": "CHILDCARE_LEAVE",
+       "from": "2026-09-01",
+       "to": "2027-08-31"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-011",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "MAT-DUR-002"
+   ],
+   "description": "Start 43 dni przed terminem (>6 tyg.) → błąd planu",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "maternity_start_date": "2027-01-31",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-01-31",
+       "to": "2027-06-19"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "plan_errors": [
+     "PRE_BIRTH_EXCEEDS_6_WEEKS"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 180 § 2"
+   ],
+   "assumptions": [
+    "2027-03-15 − 2027-01-31 = 43 dni = 6,14 tyg."
+   ]
+  },
+  {
+   "test_id": "T-MAT-012",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "MAT-DUR-002"
+   ],
+   "description": "Start dokładnie 42 dni przed terminem → OK",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "maternity_start_date": "2027-02-01",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-02-01",
+       "to": "2027-06-20"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "plan_errors": []
+   },
+   "legal_basis": [
+    "KP art. 180 § 2"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-013",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "MAT-DUR-003"
+   ],
+   "description": "Martwe urodzenie 2027-02-01 → 8 tygodni, koniec 2027-03-28",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-02-01"
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-02-01",
+       "stillborn": true
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "period.to": "2027-03-28"
+   },
+   "legal_basis": [
+    "KP art. 180(1) § 1"
+   ],
+   "assumptions": [
+    "C3/C5"
+   ]
+  },
+  {
+   "test_id": "T-MAT-014",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "MAT-DUR-003"
+   ],
+   "description": "Zgon w 50. dniu życia → koniec = max(8 tyg., zgon + 7 dni) = 2027-03-29",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-02-01"
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-02-01",
+       "death_date": "2027-03-23"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.to": "2027-03-29"
+   },
+   "legal_basis": [
+    "KP art. 180(1) § 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-015",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "MAT-ELIG-002",
+    "MAT-DUR-007"
+   ],
+   "description": "Przysposobienie dziecka 13-letniego → ELIGIBLE, 20 tyg. przycięte do dnia przed 14. urodzinami",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "ADOPTION",
+     "date": "2027-01-10",
+     "court_adoption_application_date": "2027-01-05"
+    },
+    "children": {
+     "count_at_event": 1,
+     "items": [
+      {
+       "birth_date": "2013-04-01"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LIKE_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "period.to": "2027-03-31"
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1 pkt 2",
+    "KP art. 183 § 1(1)"
+   ],
+   "assumptions": [
+    "C7: ukończenie 14 lat = 2027-04-01; MAT-DUR-008 (9 tyg.) zablokowana — 11 tyg. > 9, więc brak konfliktu"
+   ]
+  },
+  {
+   "test_id": "T-MAT-016",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "MAT-ELIG-002"
+   ],
+   "description": "Dziecko w dniu przyjęcia ma ukończone 14 lat → NOT_ELIGIBLE",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "ADOPTION",
+     "date": "2027-04-01",
+     "court_adoption_application_date": "2027-03-20"
+    },
+    "children": {
+     "count_at_event": 1,
+     "items": [
+      {
+       "birth_date": "2013-04-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LIKE_LEAVE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1 pkt 2"
+   ],
+   "assumptions": [
+    "GAP-005"
+   ]
+  },
+  {
+   "test_id": "T-MAT-017",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "MAT-EXCL-001"
+   ],
+   "description": "Rodzina zastępcza zawodowa → NOT_ELIGIBLE",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FOSTER_PARENT"
+    },
+    "event": {
+     "type": "FOSTER",
+     "date": "2027-01-10",
+     "foster_family_type": "PROFESSIONAL"
+    },
+    "children": {
+     "count_at_event": 1,
+     "items": [
+      {
+       "birth_date": "2024-05-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LIKE_LEAVE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE",
+    "reasons_contain": [
+     "PROFESSIONAL_FOSTER_FAMILY"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1 pkt 3"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-018",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "MAT-ELIG-003"
+   ],
+   "description": "Rodzina zastępcza niezawodowa, dziecko 8-letnie z odroczonym obowiązkiem szkolnym → ELIGIBLE",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FOSTER_PARENT"
+    },
+    "event": {
+     "type": "FOSTER",
+     "date": "2027-01-10",
+     "foster_family_type": "NON_PROFESSIONAL"
+    },
+    "children": {
+     "count_at_event": 1,
+     "items": [
+      {
+       "birth_date": "2018-06-01"
+      }
+     ],
+     "school_obligation_deferred": true
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LIKE_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1 pkt 3"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-019",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "MAT-SHARE-001",
+    "MAT-SHARE-007"
+   ],
+   "description": "Matka 14 tyg., ojciec przejmuje 6 tyg. → poprawny plan",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FATHER"
+    },
+    "plan": {
+     "mother_resigns_remaining_maternity": true,
+     "transfer_start_date": "2027-06-21",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-06-20"
+      },
+      {
+       "parent": "FATHER",
+       "leave_type": "MATERNITY_LEAVE_TRANSFERRED",
+       "from": "2027-06-21",
+       "to": "2027-08-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE_TRANSFERRED"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "plan_errors": []
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 3, art. 29a ust. 2",
+    "KP art. 180 § 4"
+   ],
+   "assumptions": [
+    "98 dni matki = 14 tyg."
+   ]
+  },
+  {
+   "test_id": "T-MAT-020",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "MAT-SHARE-001"
+   ],
+   "description": "Matka 13 tyg. 6 dni → ojciec nie może przejąć",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FATHER"
+    },
+    "plan": {
+     "mother_resigns_remaining_maternity": true,
+     "transfer_start_date": "2027-06-20",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-06-19"
+      },
+      {
+       "parent": "FATHER",
+       "leave_type": "MATERNITY_LEAVE_TRANSFERRED",
+       "from": "2027-06-20",
+       "to": "2027-08-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE_TRANSFERRED"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE"
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 3"
+   ],
+   "assumptions": [
+    "97 dni < 98"
+   ]
+  },
+  {
+   "test_id": "T-MAT-021",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "MAT-SHARE-007"
+   ],
+   "description": "Matka 14 tyg. + ojciec 7 tyg. = 21 > 20 → błąd planu",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FATHER"
+    },
+    "plan": {
+     "mother_resigns_remaining_maternity": true,
+     "transfer_start_date": "2027-06-21",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-06-20"
+      },
+      {
+       "parent": "FATHER",
+       "leave_type": "MATERNITY_LEAVE_TRANSFERRED",
+       "from": "2027-06-21",
+       "to": "2027-08-08"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE_TRANSFERRED"
+   },
+   "expected": {
+    "plan_errors": [
+     "MATERNITY_DIMENSION_EXCEEDED"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 180 § 14"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SUPP-001",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SUPP-ELIG-001",
+    "SUPP-CALC-001"
+   ],
+   "description": "26. tydz., 900 g, szpital 51 dni → 8 tygodni",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 26
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 900
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-10",
+       "to": "2027-03-01"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 8
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 1, § 3"
+   ],
+   "assumptions": [
+    "51 dni → ceil(51/7)=8"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-002",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-001"
+   ],
+   "description": "Hospitalizacja 120 dni → przycięcie do okna 15 tyg. (105 dni) → 15 tygodni",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 25
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 800
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-10",
+       "to": "2027-05-09"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 15
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SUPP-003",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SUPP-ELIG-002"
+   ],
+   "description": "34. tydz., 2100 g, szpital 16 dni → 3 tygodnie",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 34
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 2100
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-10",
+       "to": "2027-01-25"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 3
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 2, § 3"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-SUPP-004",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt od 4. dnia → poza oknem 5–28 → brak urlopu",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-14",
+       "to": "2027-01-14"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "fact": {
+     "f_has_qualifying_late_hospital_stay": false
+    }
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "ASSUMPTION-SUPP-DAY0"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-005",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 2 dni od 5. dnia → 1 tydzień",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-15",
+       "to": "2027-01-16"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 1
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "ASSUMPTION-SUPP-DAY0"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-006",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "SUPP-CALC-001"
+   ],
+   "description": "Bliźnięta: 1200 g i 950 g → wariant ≤1000 g (15 tyg.), pobyt dłuższego 30 dni → 5 tyg.",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 31
+    },
+    "children": {
+     "count_at_birth": 2,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 1200
+      },
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 950
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-10",
+       "to": "2027-01-29"
+      },
+      {
+       "child_index": 1,
+       "from": "2027-01-10",
+       "to": "2027-02-08"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 5
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 1, § 2, § 3"
+   ],
+   "assumptions": [
+    "30 dni → ceil(30/7)=5"
+   ]
+  },
+  {
+   "test_id": "T-PAR-001",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "PAR-DUR-001"
+   ],
+   "description": "1 dziecko → pula 41 tygodni",
+   "fixture": "employee_mother",
+   "patch": {},
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 41
+   },
+   "legal_basis": [
+    "KP art. 182(1a) § 1 pkt 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-PAR-002",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "PAR-DUR-002"
+   ],
+   "description": "Bliźnięta z 'Za życiem' → 67 tygodni",
+   "fixture": "employee_mother",
+   "patch": {
+    "children": {
+     "count_at_birth": 2,
+     "items": [
+      {
+       "birth_date": "2027-03-15"
+      },
+      {
+       "birth_date": "2027-03-15"
+      }
+     ],
+     "za_zyciem_certificate": true
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 67
+   },
+   "legal_basis": [
+    "KP art. 182(1a) § 2 pkt 2"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-PAR-003",
+   "kind": "MISSING_DATA",
+   "rule_ids": [
+    "PAR-DUR-001",
+    "PAR-DUR-002"
+   ],
+   "description": "Nieznany status 'Za życiem' → NEEDS_DATA dla wymiaru",
+   "fixture": "employee_mother",
+   "patch": {
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-03-15"
+      }
+     ],
+     "za_zyciem_certificate": null
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "status": "NEEDS_DATA",
+    "missing_data_contains": [
+     "children.za_zyciem_certificate"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 182(1a) § 1-2"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-PAR-004",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "PAR-SHARE-001"
+   ],
+   "description": "Matka planuje 33 tyg. rodzicielskiego (>41−9) → błąd planu",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "parental_start_date": "2027-08-02",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-08-01"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2028-03-19"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "plan_errors": [
+     "NON_TRANSFERABLE_9W_VIOLATED"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 182(1a) § 4"
+   ],
+   "assumptions": [
+    "2027-08-02..2028-03-19 = 231 dni = 33 tyg."
+   ]
+  },
+  {
+   "test_id": "T-PAR-005",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "PAR-SHARE-001"
+   ],
+   "description": "Matka 32 tyg. → OK",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "parental_start_date": "2027-08-02",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-08-01"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2028-03-12"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "plan_errors": []
+   },
+   "legal_basis": [
+    "KP art. 182(1a) § 4"
+   ],
+   "assumptions": [
+    "224 dni = 32 tyg."
+   ]
+  },
+  {
+   "test_id": "T-PAR-006",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "PAR-WORK-002",
+    "PAR-WORK-003"
+   ],
+   "description": "10 tyg. rodzicielskiego przy ½ etatu → +5 tyg. (35 dni); zasiłek ×0,5",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "parental_start_date": "2027-08-02",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2027-10-10",
+       "work_fraction": "0.5"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "fact": {
+     "f_parental_extension": {
+      "weeks": "5",
+      "days": 35
+     }
+    },
+    "daily_amount_exact": "70"
+   },
+   "legal_basis": [
+    "KP art. 182(1f) § 2",
+    "USTAWA art. 31 ust. 2, 4a"
+   ],
+   "assumptions": [
+    "6000 × 0,70 × 0,5 / 30 = 70"
+   ]
+  },
+  {
+   "test_id": "T-PAR-007",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "PAR-WORK-001"
+   ],
+   "description": "Praca 0,6 etatu → błąd planu",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "parental_start_date": "2027-08-02",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2027-10-10",
+       "work_fraction": "0.6"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "plan_errors": [
+     "WORK_FRACTION_ABOVE_HALF"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 182(1e) § 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-PAR-008",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "PAR-COND-001"
+   ],
+   "description": "Ostatni dzień rodzicielskiego 2034-01-01 (dziecko kończy 6 lat w 2033) → błąd planu",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "parental_start_date": "2033-12-20",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2033-12-20",
+       "to": "2034-01-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "plan_errors": [
+     "PARENTAL_PARTS_OR_DEADLINE_VIOLATED"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 182(1c)"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-PAR-009",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "PAR-COND-001"
+   ],
+   "description": "6 części rodzicielskiego → błąd planu",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2027-08-15"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-09-01",
+       "to": "2027-09-14"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-10-01",
+       "to": "2027-10-14"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-11-01",
+       "to": "2027-11-14"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-12-01",
+       "to": "2027-12-14"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2028-01-03",
+       "to": "2028-01-16"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "plan_errors": [
+     "PARENTAL_PARTS_OR_DEADLINE_VIOLATED"
+    ]
+   },
+   "legal_basis": [
+    "KP art. 182(1c)"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-PAT-001",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "PAT-ELIG-001",
+    "PAT-DUR-001",
+    "RATE-MAT-001"
+   ],
+   "description": "Ojciec, 2 tyg. w 1. roku życia → 100%",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FATHER",
+     "birth_date": "1990-01-01"
+    },
+    "plan": {
+     "paternity_start_date": "2027-04-01",
+     "segments": [
+      {
+       "parent": "FATHER",
+       "leave_type": "PATERNITY_LEAVE",
+       "from": "2027-04-01",
+       "to": "2027-04-14"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "rate": "1.00",
+    "total_amount_exact": "2800"
+   },
+   "legal_basis": [
+    "KP art. 182(3) § 1",
+    "USTAWA art. 31 ust. 1"
+   ],
+   "assumptions": [
+    "200 × 14"
+   ]
+  },
+  {
+   "test_id": "T-PAT-002",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "PAT-DUR-001"
+   ],
+   "description": "Ojcowski wykraczający poza dzień przed 1. urodzinami → NOT_ELIGIBLE / błąd",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FATHER"
+    },
+    "plan": {
+     "paternity_start_date": "2028-03-10",
+     "segments": [
+      {
+       "parent": "FATHER",
+       "leave_type": "PATERNITY_LEAVE",
+       "from": "2028-03-10",
+       "to": "2028-03-23"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE"
+   },
+   "legal_basis": [
+    "KP art. 182(3) § 1 pkt 1"
+   ],
+   "assumptions": [
+    "Ostatni dozwolony dzień 2028-03-14 (C7)"
+   ]
+  },
+  {
+   "test_id": "T-PAT-003",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "PAT-DUR-001"
+   ],
+   "description": "Część ojcowskiego 5 dni (<1 tydz.) → NOT_ELIGIBLE / błąd",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FATHER"
+    },
+    "plan": {
+     "paternity_start_date": "2027-04-01",
+     "segments": [
+      {
+       "parent": "FATHER",
+       "leave_type": "PATERNITY_LEAVE",
+       "from": "2027-04-01",
+       "to": "2027-04-05"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE"
+   },
+   "legal_basis": [
+    "KP art. 182(3) § 1(1)"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-RATE-001",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "RATE-MAT-003",
+    "APP-DL-001",
+    "CALC-MAT-001"
+   ],
+   "description": "Wniosek 81,5% w 21. dniu → 163 zł/dzień, 140 dni = 22 820 zł",
+   "fixture": "employee_mother",
+   "patch": {
+    "evaluation": {
+     "as_of_date": "2027-04-05",
+     "mode": "DECISION_SUPPORT"
+    },
+    "applications": {
+     "combined_815_filed_date": "2027-04-05"
+    },
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-08-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "rate": "0.815",
+    "daily_amount_exact": "163",
+    "total_amount_exact": "22820"
+   },
+   "legal_basis": [
+    "USTAWA art. 30a ust. 1, art. 31 ust. 3"
+   ],
+   "assumptions": [
+    "Termin: 2027-03-15 + 21 = 2027-04-05 (C11)"
+   ]
+  },
+  {
+   "test_id": "T-RATE-002",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "RATE-MAT-003",
+    "RATE-MAT-001"
+   ],
+   "description": "Wniosek w 22. dniu → 100% za macierzyński",
+   "fixture": "employee_mother",
+   "patch": {
+    "evaluation": {
+     "as_of_date": "2027-04-06",
+     "mode": "DECISION_SUPPORT"
+    },
+    "applications": {
+     "combined_815_filed_date": "2027-04-06"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "rate": "1.00"
+   },
+   "legal_basis": [
+    "USTAWA art. 30a ust. 1, art. 31 ust. 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-RATE-003",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "RATE-MAT-002",
+    "PAR-ELIG-001"
+   ],
+   "description": "Bez wniosku 81,5% → rodzicielski 70%",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2027-08-15"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "rate": "0.70",
+    "daily_amount_exact": "140"
+   },
+   "legal_basis": [
+    "USTAWA art. 31 ust. 2"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-RATE-004",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "RATE-MAT-004"
+   ],
+   "description": "Przy 81,5% — 9 tyg. ojca płatne 70%",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FATHER"
+    },
+    "applications": {
+     "combined_815_planned": true
+    },
+    "plan": {
+     "parental_start_date": "2028-03-13",
+     "segments": [
+      {
+       "parent": "FATHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2028-03-13",
+       "to": "2028-05-14",
+       "is_other_parent_reserved_9w": true
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "rate": "0.70"
+   },
+   "legal_basis": [
+    "USTAWA art. 31 ust. 3f"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-RATE-005",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "RATE-MAT-005"
+   ],
+   "description": "81,5%, ale rodzicielski dopiero po 1. urodzinach → 70%",
+   "fixture": "employee_mother",
+   "patch": {
+    "applications": {
+     "combined_815_planned": true
+    },
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-08-01"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2028-03-15",
+       "to": "2028-04-11"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "rate": "0.70"
+   },
+   "legal_basis": [
+    "USTAWA art. 31 ust. 3g"
+   ],
+   "assumptions": [
+    "1. urodziny 2028-03-15 — pierwszy dzień PO 1. roku życia"
+   ]
+  },
+  {
+   "test_id": "T-RATE-006",
+   "kind": "MISSING_DATA",
+   "rule_ids": [
+    "RATE-MAT-008"
+   ],
+   "description": "Ojciec bierze część rodzicielskiego (poza 9 tyg.) przy 81,5% matki → NEEDS_REVIEW",
+   "fixture": "employee_mother",
+   "patch": {
+    "person": {
+     "role": "FATHER"
+    },
+    "applications": {
+     "combined_815_planned": true
+    },
+    "plan": {
+     "parental_start_date": "2027-12-01",
+     "segments": [
+      {
+       "parent": "FATHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-12-01",
+       "to": "2027-12-28",
+       "is_other_parent_reserved_9w": false
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "status": "NEEDS_REVIEW",
+    "reasons_contain": [
+     "FATHER_RATE_UNDER_MOTHER_815"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 30a ust. 3, art. 31 ust. 3"
+   ],
+   "assumptions": [
+    "CONF / Q-LEG-03"
+   ]
+  },
+  {
+   "test_id": "T-RATE-007",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SUPP-COND-001",
+    "RATE-MAT-001"
+   ],
+   "description": "Uzupełniający przy wniosku 81,5% → nadal 100%",
+   "fixture": "employee_mother",
+   "patch": {
+    "applications": {
+     "combined_815_planned": true
+    },
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 34
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 2100
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-10",
+       "to": "2027-01-25"
+      }
+     ],
+     "za_zyciem_certificate": false
+    },
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE",
+       "from": "2027-05-30",
+       "to": "2027-06-19"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "rate": "1.00"
+   },
+   "legal_basis": [
+    "USTAWA art. 31 ust. 1, ust. 3 (zakres)"
+   ],
+   "assumptions": [
+    "CONF-005"
+   ]
+  },
+  {
+   "test_id": "T-BASE-001",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "BASE-EMP-001"
+   ],
+   "description": "12 miesięcy po 5000 zł → podstawa 5000",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": [
+      {
+       "month": "2026-03",
+       "fixed_components_net": "5000.00",
+       "days_worked": 22,
+       "days_required": 22
+      },
+      {
+       "month": "2026-04",
+       "fixed_components_net": "5000.00",
+       "days_worked": 21,
+       "days_required": 21
+      },
+      {
+       "month": "2026-05",
+       "fixed_components_net": "5000.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2026-06",
+       "fixed_components_net": "5000.00",
+       "days_worked": 21,
+       "days_required": 21
+      },
+      {
+       "month": "2026-07",
+       "fixed_components_net": "5000.00",
+       "days_worked": 23,
+       "days_required": 23
+      },
+      {
+       "month": "2026-08",
+       "fixed_components_net": "5000.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2026-09",
+       "fixed_components_net": "5000.00",
+       "days_worked": 22,
+       "days_required": 22
+      },
+      {
+       "month": "2026-10",
+       "fixed_components_net": "5000.00",
+       "days_worked": 22,
+       "days_required": 22
+      },
+      {
+       "month": "2026-11",
+       "fixed_components_net": "5000.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2026-12",
+       "fixed_components_net": "5000.00",
+       "days_worked": 21,
+       "days_required": 21
+      },
+      {
+       "month": "2027-01",
+       "fixed_components_net": "5000.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2027-02",
+       "fixed_components_net": "5000.00",
+       "days_worked": 20,
+       "days_required": 20
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "5000"
+   },
+   "legal_basis": [
+    "USTAWA art. 36 ust. 1, art. 38 ust. 1, art. 47"
+   ],
+   "assumptions": [
+    "Kwoty już po potrąceniu składek pracownika"
+   ]
+  },
+  {
+   "test_id": "T-BASE-002",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "BASE-EMP-004"
+   ],
+   "description": "Miesiąc z 5/21 dni przepracowanych (choroba) wyłączony → 11 miesięcy",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": [
+      {
+       "month": "2026-03",
+       "fixed_components_net": "6000.00",
+       "days_worked": 22,
+       "days_required": 22
+      },
+      {
+       "month": "2026-04",
+       "fixed_components_net": "6000.00",
+       "days_worked": 21,
+       "days_required": 21
+      },
+      {
+       "month": "2026-05",
+       "fixed_components_net": "6000.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2026-06",
+       "fixed_components_net": "6000.00",
+       "days_worked": 21,
+       "days_required": 21
+      },
+      {
+       "month": "2026-07",
+       "fixed_components_net": "6000.00",
+       "days_worked": 23,
+       "days_required": 23
+      },
+      {
+       "month": "2026-08",
+       "fixed_components_net": "6000.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2026-09",
+       "fixed_components_net": "6000.00",
+       "days_worked": 22,
+       "days_required": 22
+      },
+      {
+       "month": "2026-10",
+       "fixed_components_net": "6000.00",
+       "days_worked": 22,
+       "days_required": 22
+      },
+      {
+       "month": "2026-11",
+       "fixed_components_net": "1000.00",
+       "days_worked": 5,
+       "days_required": 21,
+       "absence_reason": "SICKNESS"
+      },
+      {
+       "month": "2026-12",
+       "fixed_components_net": "6000.00",
+       "days_worked": 21,
+       "days_required": 21
+      },
+      {
+       "month": "2027-01",
+       "fixed_components_net": "6000.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2027-02",
+       "fixed_components_net": "6000.00",
+       "days_worked": 20,
+       "days_required": 20
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "6000"
+   },
+   "legal_basis": [
+    "USTAWA art. 38 ust. 2 pkt 1"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-BASE-003",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "BASE-EMP-008"
+   ],
+   "description": "Pełny etat, wyliczona podstawa 3900 < minimum → 4147,0974 (dokładnie)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": [
+      {
+       "month": "2027-02",
+       "fixed_components_net": "3900.00",
+       "days_worked": 20,
+       "days_required": 20
+      }
+     ]
+    },
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2027-02-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "4147.0974"
+   },
+   "legal_basis": [
+    "USTAWA art. 45 ust. 1, art. 36 ust. 2"
+   ],
+   "assumptions": [
+    "MIN_WAGE 4806,00 (UNCONFIRMED); zaokrąglenie GAP-001"
+   ]
+  },
+  {
+   "test_id": "T-BASE-004",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "BASE-NEMP-001"
+   ],
+   "description": "Zleceniobiorczyni: 12 m-cy podstawy składki 5000 → przychód 4314,50",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "CIVIL_CONTRACT_MANDATE",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2025-01-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "payer": {
+     "insured_count_on_nov30_prev_year": 5
+    },
+    "income_history": {
+     "manual_base_override": null,
+     "months": [
+      {
+       "month": "2026-03",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-04",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-05",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-06",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-07",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-08",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-09",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-10",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-11",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2026-12",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2027-01",
+       "gross_contribution_base": "5000.00"
+      },
+      {
+       "month": "2027-02",
+       "gross_contribution_base": "5000.00"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "4314.5"
+   },
+   "legal_basis": [
+    "USTAWA art. 48 ust. 1, art. 3 pkt 4, art. 52"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-BASE-005",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "BASE-NEMP-002"
+   ],
+   "description": "JDG, 4 pełne miesiące; zadeklarowana podstawa 10000 (netto 8629), najniższa 5000 (netto 4314,50) → 4314,50 + (4314,50/12)×4",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "SELF_EMPLOYED",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2026-11-01",
+       "to": null,
+       "contribution_base_is_declared": true
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "income_history": {
+     "manual_base_override": null,
+     "months": [
+      {
+       "month": "2026-11",
+       "gross_contribution_base": "10000.00"
+      },
+      {
+       "month": "2026-12",
+       "gross_contribution_base": "10000.00"
+      },
+      {
+       "month": "2027-01",
+       "gross_contribution_base": "10000.00"
+      },
+      {
+       "month": "2027-02",
+       "gross_contribution_base": "10000.00"
+      }
+     ],
+     "minimum_contribution_base_by_month": {
+      "2026-11": "5000.00",
+      "2026-12": "5000.00",
+      "2027-01": "5000.00",
+      "2027-02": "5000.00"
+     }
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "5752.6666666667"
+   },
+   "legal_basis": [
+    "USTAWA art. 48a ust. 1"
+   ],
+   "assumptions": [
+    "Wartości najniższej podstawy są danymi testowymi, NIE prawnymi (GAP-023)",
+    "Porównanie do 10 miejsc po przecinku; 4314.5 × 4/3 = 5752.666…"
+   ]
+  },
+  {
+   "test_id": "T-BASE-006",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "BASE-GEN-001"
+   ],
+   "description": "Zasiłek chorobowy do dnia przed porodem, macierzyński od porodu (przerwa 0) → ta sama podstawa",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-03-14",
+     "previous_base_amount": "5123.45"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "5123.45"
+   },
+   "legal_basis": [
+    "USTAWA art. 43"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-BASE-007",
+   "kind": "MISSING_DATA",
+   "rule_ids": [
+    "BASE-GEN-001"
+   ],
+   "description": "Przerwa 20 dni → NEEDS_REVIEW (wykładnia 'miesiąca kalendarzowego')",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-02-22",
+     "previous_base_amount": "5123.45"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NEEDS_REVIEW"
+   },
+   "legal_basis": [
+    "USTAWA art. 43"
+   ],
+   "assumptions": [
+    "CONF-006"
+   ]
+  },
+  {
+   "test_id": "T-INT-001",
+   "kind": "INTEGRATION",
+   "rule_ids": [
+    "SICKPAY-ELIG-001",
+    "SICKPAY-TRN-001",
+    "SICK-RATE-002",
+    "BASE-GEN-001",
+    "MAT-ELIG-001",
+    "RATE-MAT-003",
+    "PAR-SHARE-001",
+    "RATE-MAT-004"
+   ],
+   "description": "Pracownica: L4 w ciąży (33 dni wynagrodzenia 100% → zasiłek 100%) do dnia przed porodem; macierzyński + rodzicielski 81,5% (32 tyg.), ojciec 9 tyg. 70%; ta sama podstawa",
+   "fixture": "employee_mother",
+   "patch": {
+    "evaluation": {
+     "as_of_date": "2026-11-21",
+     "mode": "FORECAST"
+    },
+    "applications": {
+     "combined_815_planned": true
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-03-14",
+     "previous_base_amount": "6000.00"
+    },
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-08-01"
+      },
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2028-03-12"
+      },
+      {
+       "parent": "FATHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2028-03-13",
+       "to": "2028-05-14",
+       "is_other_parent_reserved_9w": true
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "plan_errors": [],
+    "rate": "0.815"
+   },
+   "legal_basis": [
+    "KP art. 92",
+    "USTAWA art. 11, 29, 30a, 31, 43",
+    "KP art. 182(1a)"
+   ],
+   "assumptions": [
+    "selector zwraca segment matki; segment ojca sprawdzany w T-RATE-004"
+   ]
+  },
+  {
+   "test_id": "T-INT-002",
+   "kind": "INTEGRATION",
+   "rule_ids": [
+    "GEN-EXCL-001",
+    "GEN-CLS-002",
+    "MAT-ELIG-001"
+   ],
+   "description": "JDG z zadłużeniem 300 zł w dniu porodu → zawieszenie; po spłacie prawo odżywa (komunikat)",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "debt": {
+     "amount_on_right_date": "300.00",
+     "repaid_in_full_date": null
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE",
+    "suspended_until_debt_repaid": true,
+    "payer_of_benefit": "ZUS"
+   },
+   "legal_basis": [
+    "USTAWA art. 2a, art. 61 ust. 1 pkt 2 lit. b, art. 64 ust. 3"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-INT-003",
+   "kind": "INTEGRATION",
+   "rule_ids": [
+    "MAT-DUR-001",
+    "SUPP-ELIG-002",
+    "SUPP-COND-001",
+    "PAR-DUR-001"
+   ],
+   "description": "Bliźnięta 34. tydz. → macierzyński 31 tyg. + uzupełniający 3 tyg. + rodzicielski 43 tyg.",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 34
+    },
+    "children": {
+     "count_at_birth": 2,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 2100
+      },
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 1900
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 1,
+       "from": "2027-01-10",
+       "to": "2027-01-25"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 43
+   },
+   "legal_basis": [
+    "KP art. 180 § 1 pkt 2, 180(2) § 1 pkt 2, 182(1a) § 1 pkt 2"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-INT-004",
+   "kind": "INTEGRATION",
+   "rule_ids": [
+    "MAT-ELIG-001",
+    "MAT-DUR-003",
+    "PAR-DUR-001",
+    "PAR-ELIG-001"
+   ],
+   "description": "Martwe urodzenie → tylko 8 tyg. macierzyńskiego; rodzicielski nie jest proponowany (NEEDS_REVIEW, nie ELIGIBLE)",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-02-01"
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-02-01",
+       "stillborn": true
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "status": "NOT_ELIGIBLE"
+   },
+   "legal_basis": [
+    "KP art. 180(1), art. 182(1a) § 1 (cel: opieka nad dzieckiem)"
+   ],
+   "assumptions": [
+    "GAP-014: PAR-ELIG-001 warunek f_child_alive_on → FALSE"
+   ]
+  },
+  {
+   "test_id": "T-INT-005",
+   "kind": "INTEGRATION",
+   "rule_ids": [
+    "MAT-ELIG-001",
+    "GEN-EXCL-001",
+    "BASE-NEMP-001"
+   ],
+   "description": "Brakujące dane (brak titles, brak zadłużenia) → NEEDS_DATA, nigdy NOT_ELIGIBLE",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "insurance": {
+     "titles": [],
+     "titles_confirmed_complete": false
+    },
+    "debt": {
+     "amount_on_right_date": null
+    },
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NEEDS_DATA",
+    "missing_data_contains": [
+     "insurance.titles"
+    ]
+   },
+   "legal_basis": [
+    "Zasada §6 promptu: brak danych ≠ odmowa"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-INT-006",
+   "kind": "INTEGRATION",
+   "rule_ids": [
+    "SICK-DUR-005"
+   ],
+   "description": "Reguła z valid_from 2027-01-01 pomijana na dzień 2026-11-21 i raportowana w future_changes",
+   "fixture": "pregnant_sick_employee",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2022-02-01",
+       "to": null
+      },
+      {
+       "title_type": "CIVIL_CONTRACT_MANDATE",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2025-01-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "EMPLOYER_SICK_PAY"
+   },
+   "expected": {
+    "applied_rules_contain": [
+     "SICK-DUR-005:FUTURE_SKIPPED"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 9 ust. 4 (przypis 3)"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-PAR-010",
+   "kind": "NEGATIVE",
+   "rule_ids": [
+    "PAR-SHARE-002"
+   ],
+   "description": "Jednoczesne korzystanie: matka 32 tyg. + ojciec 15 tyg. = 47 > 41 → błąd planu",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "parental_start_date": "2027-08-02",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2028-03-12"
+      },
+      {
+       "parent": "FATHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2027-11-14"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "plan_errors": [
+     "PARENTAL_POOL_EXCEEDED"
+    ]
+   },
+   "legal_basis": [
+    "USTAWA art. 29a ust. 3",
+    "KP art. 182(1a) § 6"
+   ],
+   "assumptions": [
+    "224 + 105 dni = 47 tyg."
+   ]
+  },
+  {
+   "test_id": "T-PAR-011",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "PAR-SHARE-002",
+    "PAR-SHARE-001"
+   ],
+   "description": "Matka 32 tyg. + ojciec 9 tyg. (w tym jednocześnie) = 41 → OK",
+   "fixture": "employee_mother",
+   "patch": {
+    "plan": {
+     "parental_start_date": "2027-08-02",
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2028-03-12"
+      },
+      {
+       "parent": "FATHER",
+       "leave_type": "PARENTAL_LEAVE",
+       "from": "2027-08-02",
+       "to": "2027-10-03"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "PARENTAL_LEAVE"
+   },
+   "expected": {
+    "plan_errors": []
+   },
+   "legal_basis": [
+    "USTAWA art. 29a ust. 3"
+   ],
+   "assumptions": []
+  },
+  {
+   "test_id": "T-BASE-008",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "BASE-EMP-002"
+   ],
+   "description": "Ubezpieczenie od 2026-09-01: 6 pełnych miesięcy po 4800 → podstawa 4800",
+   "fixture": "employee_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "EMPLOYMENT_CONTRACT",
+       "sickness_insurance_mode": "MANDATORY",
+       "from": "2026-09-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "income_history": {
+     "manual_base_override": null,
+     "months": [
+      {
+       "month": "2026-09",
+       "fixed_components_net": "4800.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2026-10",
+       "fixed_components_net": "4800.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2026-11",
+       "fixed_components_net": "4800.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2026-12",
+       "fixed_components_net": "4800.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2027-01",
+       "fixed_components_net": "4800.00",
+       "days_worked": 20,
+       "days_required": 20
+      },
+      {
+       "month": "2027-02",
+       "fixed_components_net": "4800.00",
+       "days_worked": 20,
+       "days_required": 20
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "4800"
+   },
+   "legal_basis": [
+    "USTAWA art. 36 ust. 2, art. 47"
+   ],
+   "assumptions": [
+    "4800 > minimum 4147,0974"
+   ]
+  },
+  {
+   "test_id": "T-BASE-009",
+   "kind": "EXCEPTION",
+   "rule_ids": [
+    "BASE-NEMP-004",
+    "BASE-NEMP-001"
+   ],
+   "description": "Zleceniobiorczyni: listopad — działalność 10 z 30 dni (zasiłek) → miesiąc wyłączony, średnia z 11 = 4314,50",
+   "fixture": "self_employed_mother",
+   "patch": {
+    "insurance": {
+     "titles": [
+      {
+       "title_type": "CIVIL_CONTRACT_MANDATE",
+       "sickness_insurance_mode": "VOLUNTARY",
+       "from": "2025-01-01",
+       "to": null
+      }
+     ],
+     "titles_confirmed_complete": true
+    },
+    "payer": {
+     "insured_count_on_nov30_prev_year": 5
+    },
+    "income_history": {
+     "manual_base_override": null,
+     "months": [
+      {
+       "month": "2026-03",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2026-04",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2026-05",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2026-06",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2026-07",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2026-08",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2026-09",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2026-10",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2026-11",
+       "gross_contribution_base": "1000.00",
+       "activity_days_non_employee": 10,
+       "absence_reason": "SICKNESS"
+      },
+      {
+       "month": "2026-12",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2027-01",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      },
+      {
+       "month": "2027-02",
+       "gross_contribution_base": "5000.00",
+       "activity_days_non_employee": 30
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "4314.5"
+   },
+   "legal_basis": [
+    "USTAWA art. 50 ust. 1 pkt 1, art. 52"
+   ],
+   "assumptions": [
+    "Listopad ma 30 dni; 10 < 15"
+   ]
+  }
+ ]
+}

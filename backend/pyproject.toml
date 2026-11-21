@@ -1,0 +1,16 @@
+[project]
+name = "zus-przewodnik-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+description = "FastAPI + deterministyczny silnik reguł (HackNation 2026, zadanie ZUS)"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

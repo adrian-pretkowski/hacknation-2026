@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/zus-parenthood/input.schema.json",
+  "title": "ZUS Parenthood Rules — Evaluation Input",
+  "description": "Minimalny model danych dla silnika reguł (03_rules.yaml v0.1.0). Konwencje: daty ISO 8601 (YYYY-MM-DD); kwoty jako string dziesiętny z 2 miejscami (Money) — NIGDY float; ułamki jako string dziesiętny (Fraction). null = BRAK INFORMACJI (UNKNOWN), a nie odpowiedź przecząca — przecząca odpowiedź to jawne false / pusta lista z flagą *_confirmed_none=true. Pola x-required-when opisują wymagalność warunkową. Mapowanie pole→reguły generuje tools/build_catalog.py (11_CONSISTENCY_AUDIT.md).",
+  "type": "object",
+  "required": ["evaluation", "person", "event"],
+  "$defs": {
+    "Date": {"type": ["string", "null"], "format": "date"},
+    "Money": {"type": ["string", "null"], "pattern": "^-?[0-9]+(\\.[0-9]{1,2})?$", "description": "Kwota PLN jako string dziesiętny; implementacja: decimal.Decimal."},
+    "Fraction": {"type": ["string", "null"], "pattern": "^(0(\\.[0-9]+)?|1(\\.0+)?)$"},
+    "TriBool": {"type": ["boolean", "null"], "description": "true / false / null=nieznane"},
+    "Period": {
+      "type": "object",
+      "required": ["from"],
+      "properties": {
+        "from": {"$ref": "#/$defs/Date"},
+        "to": {"$ref": "#/$defs/Date", "description": "Włącznie. null = trwa / nieznany koniec."}
+      }
+    },
+    "InsuranceTitle": {
+      "type": "object",
+      "required": ["title_type", "sickness_insurance_mode", "from"],
+      "properties": {
+        "title_type": {"enum": ["EMPLOYMENT_CONTRACT", "CIVIL_CONTRACT_MANDATE", "AGENCY_CONTRACT", "SELF_EMPLOYED", "SELF_EMPLOYED_COLLABORATOR", "CLERGY", "CLERGY_SELF_PAYER", "SEAFARER_ART6_24", "FOREIGN_EMPLOYER", "OTHER"], "x-legal-basis": "USTAWA art. 3 pkt 1, art. 2a, art. 61"},
+        "sickness_insurance_mode": {"enum": ["MANDATORY", "VOLUNTARY", "NONE"], "x-legal-basis": "USTAWA art. 4 ust. 1", "description": "Pobierane z danych ZUS/zaświadczenia — NIE wywodzone z rodzaju umowy."},
+        "from": {"$ref": "#/$defs/Date"},
+        "to": {"$ref": "#/$defs/Date"},
+        "termination_reason": {"enum": [null, "CONTRACT_EXPIRY", "NOTICE_BY_EMPLOYEE", "NOTICE_BY_EMPLOYER", "MUTUAL_AGREEMENT", "EMPLOYER_DEATH", "EMPLOYER_BANKRUPTCY", "EMPLOYER_LIQUIDATION", "UNLAWFUL_TERMINATION_COURT_CONFIRMED", "UNLAWFUL_TERMINATION_PENDING", "BUSINESS_CLOSED", "VOLUNTARY_INSURANCE_DEREGISTERED", "OTHER"], "x-legal-basis": "USTAWA art. 30 ust. 1, 3"},
+        "contribution_base_is_declared": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 48a"},
+        "gap_reason_before": {"enum": [null, "CHILDCARE_LEAVE", "UNPAID_LEAVE", "MILITARY_SERVICE_CONSCRIPT", "OTHER"], "x-legal-basis": "USTAWA art. 4 ust. 2", "description": "Przyczyna przerwy przed tym tytułem."},
+        "payer_nip": {"type": ["string", "null"], "description": "Opcjonalnie; nie jest potrzebne do ewaluacji."}
+      }
+    },
+    "Leave": {
+      "type": "object",
+      "required": ["type", "from"],
+      "properties": {
+        "type": {"enum": ["UNPAID_LEAVE", "CHILDCARE_LEAVE", "CARER_LEAVE", "DETENTION", "KP_63_2_P8_ABSENCE", "HEALTH_RESTORATION_LEAVE"]},
+        "from": {"$ref": "#/$defs/Date"},
+        "to": {"$ref": "#/$defs/Date"}
+      }
+    },
+    "IncomeMonth": {
+      "type": "object",
+      "required": ["month"],
+      "properties": {
+        "month": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$"},
+        "gross_contribution_base": {"$ref": "#/$defs/Money", "description": "Niepracownik: podstawa wymiaru składki chorobowej (przed odliczeniem 13,71%)."},
+        "fixed_components_net": {"$ref": "#/$defs/Money", "description": "Pracownik: składniki stałe po potrąceniu składek pracownika (art. 3 pkt 3)."},
+        "variable_components_prorated_net": {"$ref": "#/$defs/Money", "description": "Składniki zmienne pomniejszane proporcjonalnie (uzupełniane)."},
+        "variable_components_actual_net": {"$ref": "#/$defs/Money", "description": "Składniki zmienne w kwocie faktycznej (nieuzupełniane)."},
+        "components_retained_during_benefit_net": {"$ref": "#/$defs/Money", "x-legal-basis": "USTAWA art. 41 ust. 1"},
+        "days_worked": {"type": ["integer", "null"], "minimum": 0},
+        "days_required": {"type": ["integer", "null"], "minimum": 0},
+        "absence_reason": {"enum": [null, "SICKNESS", "MATERNITY", "CARE", "REHABILITATION", "UNPAID_LEAVE", "OTHER_JUSTIFIED", "UNJUSTIFIED"]},
+        "activity_days_non_employee": {"type": ["integer", "null"], "minimum": 0, "x-legal-basis": "USTAWA art. 50"}
+      }
+    },
+    "PeriodicComponent": {
+      "type": "object",
+      "required": ["period_type", "period_end_month", "amount_net"],
+      "properties": {
+        "period_type": {"enum": ["QUARTER", "YEAR", "OTHER"]},
+        "period_end_month": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$"},
+        "amount_net": {"$ref": "#/$defs/Money"},
+        "retained_during_benefit": {"$ref": "#/$defs/TriBool"}
+      }
+    },
+    "Child": {
+      "type": "object",
+      "required": ["birth_date"],
+      "properties": {
+        "birth_date": {"$ref": "#/$defs/Date"},
+        "stillborn": {"type": "boolean", "default": false},
+        "death_date": {"$ref": "#/$defs/Date"},
+        "birth_weight_g": {"type": ["integer", "null"], "minimum": 0},
+        "za_zyciem_certificate": {"$ref": "#/$defs/TriBool"}
+      }
+    },
+    "HospitalStay": {
+      "type": "object",
+      "required": ["from"],
+      "properties": {"child_index": {"type": "integer", "minimum": 0}, "from": {"$ref": "#/$defs/Date"}, "to": {"$ref": "#/$defs/Date"}}
+    },
+    "PlanSegment": {
+      "type": "object",
+      "required": ["parent", "leave_type", "from", "to"],
+      "properties": {
+        "parent": {"enum": ["MOTHER", "FATHER", "OTHER_FAMILY_MEMBER", "ADOPTIVE_PARENT_1", "ADOPTIVE_PARENT_2"]},
+        "leave_type": {"enum": ["MATERNITY_LEAVE", "MATERNITY_LEAVE_TRANSFERRED", "MATERNITY_LEAVE_HOSPITALIZATION_SUBSTITUTE", "MATERNITY_LIKE_LEAVE", "SUPPLEMENTARY_MATERNITY_LEAVE", "PARENTAL_LEAVE", "PATERNITY_LEAVE"]},
+        "from": {"$ref": "#/$defs/Date"},
+        "to": {"$ref": "#/$defs/Date"},
+        "work_fraction": {"$ref": "#/$defs/Fraction", "default": "0", "x-legal-basis": "KP art. 182(1e); USTAWA art. 31 ust. 4a"},
+        "is_other_parent_reserved_9w": {"$ref": "#/$defs/TriBool", "description": "Segment z 9 nieprzenoszalnych tygodni drugiego rodzica (USTAWA art. 31 ust. 3f). Jeśli null — wyznacza f_segment_is_other_parent_reserved_9w."}
+      }
+    },
+    "Document": {
+      "type": "object",
+      "required": ["doc_type", "status"],
+      "properties": {
+        "doc_type": {"type": "string", "description": "Kod dokumentu z 07_CALCULATION_SPEC § Dokumenty (np. E_ZLA, PAYER_CERTIFICATE_Z3, BIRTH_CERTIFICATE_SHORT)."},
+        "status": {"enum": ["PROVIDED", "MISSING", "NEEDS_VERIFICATION", "OBTAINABLE_BY_ZUS"]},
+        "issued_date": {"$ref": "#/$defs/Date"}
+      }
+    }
+  },
+  "properties": {
+    "evaluation": {
+      "type": "object",
+      "required": ["as_of_date"],
+      "properties": {
+        "as_of_date": {"$ref": "#/$defs/Date", "description": "Data, wg której ocenia się obowiązywanie przepisów (domyślnie 2026-11-21).", "x-source": "system"},
+        "mode": {"enum": ["DECISION_SUPPORT", "FORECAST"], "description": "FORECAST — zdarzenie przyszłe (planowany poród); wynik jest prognozą."},
+        "ruleset_version": {"type": "string"}
+      }
+    },
+    "person": {
+      "type": "object",
+      "required": ["role"],
+      "properties": {
+        "role": {"enum": ["MOTHER", "FATHER", "OTHER_FAMILY_MEMBER", "ADOPTIVE_PARENT", "FOSTER_PARENT"], "x-source": "user"},
+        "birth_date": {"$ref": "#/$defs/Date", "x-source": "mObywatel(sym.)/user", "x-legal-basis": "KP art. 92 § 1, § 5", "x-required-when": "employee with incapacity (limit 33/14 dni)"},
+        "graduation_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 4 ust. 3 pkt 1", "x-required-when": "waiting period not met"},
+        "special_status": {"enum": [null, "NONE", "MP_SENATOR_WITHIN_90_DAYS", "CUSTOMS_SERVICE_KAS"]},
+        "has_pension_or_disability_pension": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 13 ust. 1 pkt 1; art. 18 ust. 7"},
+        "continues_or_started_gainful_activity": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 13 ust. 1 pkt 2"},
+        "receives_unemployment_or_preretirement_benefit": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 13 ust. 1 pkt 4"},
+        "mandatory_krus": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 13 ust. 1 pkt 5"},
+        "on_health_restoration_leave": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 18 ust. 7"}
+      }
+    },
+    "mother": {
+      "type": "object",
+      "description": "Dane matki, gdy oceniany jest ojciec / inny członek rodziny.",
+      "properties": {
+        "sickness_insured": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 29 ust. 9-10, 31 ust. 3h"},
+        "incapable_of_independent_living_certificate": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 29 ust. 5"},
+        "hospitalized_unable_to_care": {"$ref": "#/$defs/TriBool"},
+        "hospital_admission_date": {"$ref": "#/$defs/Date"},
+        "hospital_discharge_date": {"$ref": "#/$defs/Date"},
+        "death_date": {"$ref": "#/$defs/Date"},
+        "abandoned_child_date": {"$ref": "#/$defs/Date"},
+        "employment_start_date": {"$ref": "#/$defs/Date"},
+        "employment_fraction": {"$ref": "#/$defs/Fraction"}
+      }
+    },
+    "insurance": {
+      "type": "object",
+      "properties": {
+        "titles": {"type": "array", "items": {"$ref": "#/$defs/InsuranceTitle"}, "x-source": "ZUS(sym.)/Z-3/Z-3a/poświadczenie", "description": "Wszystkie tytuły ubezpieczenia chorobowego (bieżące i historyczne). Pusta lista + titles_confirmed_complete=true = brak ubezpieczenia."},
+        "titles_confirmed_complete": {"type": "boolean", "default": false}
+      }
+    },
+    "employment": {
+      "type": "object",
+      "properties": {
+        "contract_type": {"enum": [null, "INDEFINITE", "FIXED_TERM", "PROBATION_OVER_1_MONTH", "PROBATION_UP_TO_1_MONTH", "REPLACEMENT"]},
+        "contract_end_date": {"$ref": "#/$defs/Date"},
+        "is_replacement_contract": {"$ref": "#/$defs/TriBool", "x-legal-basis": "KP art. 177 § 3(1)"},
+        "extended_until_birth_kp177": {"$ref": "#/$defs/TriBool", "description": "Potwierdzenie przedłużenia do dnia porodu (np. ze świadectwa pracy). null → ocenia MAT-CLS-002 (BLOCKED)."},
+        "other_employment_provided": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 30 ust. 3"},
+        "working_time_fraction": {"$ref": "#/$defs/Fraction", "x-legal-basis": "USTAWA art. 45 ust. 1"},
+        "working_time_change_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 40"},
+        "contract_monthly_salary": {"$ref": "#/$defs/Money", "x-legal-basis": "USTAWA art. 37 ust. 2 pkt 1; art. 49 ust. 1 pkt 2"},
+        "employer_sick_pay_rate_override": {"$ref": "#/$defs/Fraction", "x-legal-basis": "KP art. 92 § 1 pkt 1"},
+        "leaves": {"type": "array", "items": {"$ref": "#/$defs/Leave"}, "x-legal-basis": "USTAWA art. 12 ust. 2; art. 29 ust. 1"}
+      }
+    },
+    "payer": {
+      "type": "object",
+      "properties": {
+        "insured_count_on_nov30_prev_year": {"type": ["integer", "null"], "minimum": 0, "x-legal-basis": "USTAWA art. 61 ust. 1-2", "x-source": "Z-3 zał. 2 pkt 11 / user"}
+      }
+    },
+    "pregnancy": {
+      "type": "object",
+      "properties": {
+        "expected_due_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 53 ust. 2; KP art. 180 § 2"},
+        "pregnancy_start_date": {"$ref": "#/$defs/Date", "description": "Szacowana data początku ciąży (z dokumentacji). Używana do ustalenia 'w okresie ciąży'.", "x-legal-basis": "USTAWA art. 30; KP art. 177 § 3"},
+        "is_pregnant_during_incapacity": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 11 ust. 2 pkt 1; art. 57 ust. 2"}
+      }
+    },
+    "event": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"enum": ["BIRTH", "ADOPTION", "FOSTER", "PREGNANCY_INCAPACITY", "SICKNESS"]},
+        "date": {"$ref": "#/$defs/Date", "description": "BIRTH: data porodu (FORECAST: przewidywana); ADOPTION/FOSTER: data przyjęcia dziecka."},
+        "court_adoption_application_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 29 ust. 1 pkt 2"},
+        "adoption_final_date": {"$ref": "#/$defs/Date", "x-legal-basis": "KP art. 182(3) § 1 pkt 2"},
+        "foster_family_type": {"enum": [null, "NON_PROFESSIONAL", "PROFESSIONAL"], "x-legal-basis": "USTAWA art. 29 ust. 1 pkt 3"}
+      }
+    },
+    "birth": {
+      "type": "object",
+      "properties": {
+        "completed_gestation_weeks": {"type": ["integer", "null"], "minimum": 0, "maximum": 45, "x-legal-basis": "KP art. 180(2) § 1"}
+      }
+    },
+    "children": {
+      "type": "object",
+      "properties": {
+        "count_at_birth": {"type": ["integer", "null"], "minimum": 1, "x-legal-basis": "KP art. 180 § 1"},
+        "count_at_event": {"type": ["integer", "null"], "minimum": 1, "x-legal-basis": "KP art. 183 § 1"},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/Child"}},
+        "birth_dates": {"type": "array", "items": {"$ref": "#/$defs/Date"}, "description": "Skrót — gdy items nie podano."},
+        "za_zyciem_certificate": {"$ref": "#/$defs/TriBool", "x-legal-basis": "KP art. 182(1a) § 2; USTAWA art. 61b ust. 4a"},
+        "school_obligation_deferred": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 29 ust. 1 pkt 3"},
+        "hospital_stays": {"type": "array", "items": {"$ref": "#/$defs/HospitalStay"}, "x-legal-basis": "KP art. 180(2)"},
+        "abandoned_or_placed_date": {"$ref": "#/$defs/Date", "x-legal-basis": "KP art. 182"}
+      }
+    },
+    "incapacity": {
+      "type": "object",
+      "description": "Bieżąca niezdolność do pracy (e-ZLA) — dla zasiłku chorobowego w ciąży.",
+      "properties": {
+        "start_date": {"$ref": "#/$defs/Date"},
+        "end_date": {"$ref": "#/$defs/Date"},
+        "codes": {"type": "array", "items": {"enum": ["A", "B", "C", "D", "E"]}, "x-legal-basis": "USTAWA art. 57"},
+        "cause": {"enum": [null, "ILLNESS", "COMMUTE_ACCIDENT", "ORGAN_DONOR", "OTHER"]},
+        "certificate_present": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 53 ust. 1"},
+        "gainful_work_during_leave_reported": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 17"},
+        "certificate_forged": {"$ref": "#/$defs/TriBool"},
+        "caused_by_own_intentional_offence_final_judgment": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 15"}
+      }
+    },
+    "benefit_history": {
+      "type": "object",
+      "properties": {
+        "sickness_periods": {"type": "array", "items": {"allOf": [{"$ref": "#/$defs/Period"}, {"properties": {"codes": {"type": "array", "items": {"enum": ["A", "B", "C", "D", "E"]}}, "paid_as": {"enum": ["EMPLOYER_SICK_PAY", "SICKNESS_BENEFIT", "NONE"]}}}]}, "x-legal-basis": "USTAWA art. 9", "x-source": "e-ZLA (PUE sym.) / Z-3 zał. 2 pkt 9-10"},
+        "sickness_periods_confirmed_complete": {"type": "boolean", "default": false},
+        "employer_sick_pay_days_in_year": {"type": ["integer", "null"], "minimum": 0, "x-legal-basis": "KP art. 92 § 1"},
+        "previous_benefit_end_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 43"},
+        "previous_base_amount": {"$ref": "#/$defs/Money", "x-legal-basis": "USTAWA art. 43"}
+      }
+    },
+    "income_history": {
+      "type": "object",
+      "properties": {
+        "months": {"type": "array", "items": {"$ref": "#/$defs/IncomeMonth"}, "x-source": "Z-3 zał. 2 pkt 16 / Z-3a zał. 3 pkt 14 / ZUS(sym.)"},
+        "quarterly_components": {"type": "array", "items": {"$ref": "#/$defs/PeriodicComponent"}, "x-legal-basis": "USTAWA art. 42 ust. 2"},
+        "annual_components": {"type": "array", "items": {"$ref": "#/$defs/PeriodicComponent"}, "x-legal-basis": "USTAWA art. 42 ust. 3"},
+        "minimum_contribution_base_by_month": {"type": "object", "patternProperties": {"^[0-9]{4}-[0-9]{2}$": {"$ref": "#/$defs/Money"}}, "x-legal-basis": "USTAWA art. 48a, 49 (wartości — ustawa o s.u.s., niezałączona)"},
+        "manual_base_override": {"$ref": "#/$defs/Money", "description": "Podstawa podana wprost (np. z poświadczenia ZUS). Gdy podana — f_benefit_base ją zwraca z flagą source=MANUAL."}
+      }
+    },
+    "applications": {
+      "type": "object",
+      "properties": {
+        "combined_815_filed_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 30a"},
+        "combined_815_planned": {"$ref": "#/$defs/TriBool", "description": "FORECAST: czy użytkownik zamierza złożyć wniosek 81,5%."}
+      }
+    },
+    "plan": {
+      "type": "object",
+      "properties": {
+        "segments": {"type": "array", "items": {"$ref": "#/$defs/PlanSegment"}},
+        "maternity_start_date": {"$ref": "#/$defs/Date"},
+        "parental_start_date": {"$ref": "#/$defs/Date"},
+        "paternity_start_date": {"$ref": "#/$defs/Date"},
+        "transfer_start_date": {"$ref": "#/$defs/Date"},
+        "mother_resigns_remaining_maternity": {"$ref": "#/$defs/TriBool"}
+      }
+    },
+    "debt": {
+      "type": "object",
+      "description": "Zadłużenie składkowe (zaświadczenie — symulacja).",
+      "properties": {
+        "amount_on_right_date": {"$ref": "#/$defs/Money", "x-legal-basis": "USTAWA art. 2a ust. 1"},
+        "repaid_in_full_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 2a ust. 1-2; art. 64 ust. 3"}
+      }
+    },
+    "rehabilitation": {
+      "type": "object",
+      "properties": {"zus_medical_opinion_positive": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 18 ust. 3, 6"}}
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {"documents": {"type": "array", "items": {"$ref": "#/$defs/Document"}}}
+    }
+  },
+  "x-engine-context-fields": {
+    "description": "Pola wyznaczane przez silnik w trakcie ewaluacji (nie są wejściem): benefit, entitlement_basis, segment.leave_type, segment.parent (iteracja po plan.segments), base.amount, base.reference_event_date, benefit_period.end_date.",
+    "fields": ["benefit", "entitlement_basis", "segment.leave_type", "segment.parent", "base.amount", "base.reference_event_date", "benefit_period.end_date"]
+  }
+}
