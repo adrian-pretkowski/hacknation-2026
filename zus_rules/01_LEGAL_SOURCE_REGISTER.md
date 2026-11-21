@@ -29,7 +29,7 @@ Data referencyjna oceny: **2026-11-21**. Kody dokumentów są używane w `03_rul
 |---|---|---|---|
 | Ustawa o systemie ubezpieczeń społecznych (art. 6, 18 ust. 8, 19, 47a) | USTAWA art. 1, 2a, 3, 48a, 49, ROZP_DOK | najniższa podstawa składek, limit dobrowolnego chorobowego, katalog tytułów | Wartości jako **wejście/parametr** (GAP-023); limit 23 550 zł z ZALACZNIK — potwierdzony (M08); najniższa podstawa JDG 2026: 5652 zł, preferencyjna 1441,80 zł (24 mies.) — mentor (M08) |
 | Ustawa o minimalnym wynagrodzeniu + akt ustalający kwotę na 2026 | USTAWA art. 2a, 45 | próg zadłużenia, minimalna podstawa | 4 806 zł z ZALACZNIK — potwierdzone przez mentora (M07) |
-| Ustawa o świadczeniach rodzinnych (świadczenie rodzicielskie) | USTAWA art. 31 ust. 3a | podwyższenie zasiłku | **Brak kwoty** → RATE-MAT-007 BLOCKED (GAP-002) |
+| Ustawa o świadczeniach rodzinnych (świadczenie rodzicielskie) | USTAWA art. 31 ust. 3a | podwyższenie zasiłku | Kwota 1000 zł — mentor fachowy (M10, 2026-11-21) → RATE-MAT-007 ACTIVE; niepełny miesiąc — M10c (GAP-002) |
 | Ustawa „Za życiem” art. 4 ust. 3 | KP 182(1a) § 2, USTAWA 61b ust. 4a | definicja zaświadczenia | Wejście bool od użytkownika |
 | Przeciętne wynagrodzenie (komunikaty) | USTAWA art. 46, 19 ust. 2 | max podstawa po ustaniu, waloryzacja | BLOCKED (GAP-002, GAP-009) |
 | USTAWA art. 29 ust. 5 — definicja „członka najbliższej rodziny” (pełna) | KP 175(1) | uprawnieni do przejęcia | Rola wejściowa bez weryfikacji (GAP-013) |

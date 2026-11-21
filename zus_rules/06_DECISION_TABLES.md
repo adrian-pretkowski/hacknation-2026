@@ -81,9 +81,9 @@ Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez zn
 | 5 | rodzicielski | T | T | – | drugi rodzic | **70%** | RATE-MAT-004 |
 | 6 | rodzicielski | T | F | T | wnioskodawca | **81,5%** | RATE-MAT-003 |
 | 7 | rodzicielski | T | F | F | wnioskodawca | **70%** | RATE-MAT-005 |
-| 8 | rodzicielski | T | F | – | ojciec (część dzielona) | **NEEDS_REVIEW** | RATE-MAT-008 (BLOCKED) |
+| 8 | rodzicielski | T | F | – | ojciec (część dzielona) | **81,5%** (M11) | RATE-MAT-008 |
 | 9 | dowolny z pracą ≤½ etatu | – | – | – | – | stawka × (1 − wymiar pracy) | PAR-WORK-003 |
-| 10 | kwota < świadczenie rodzicielskie | – | – | – | – | podwyższenie — NEEDS_REVIEW (brak kwoty) | RATE-MAT-007 (BLOCKED) |
+| 10 | kwota < świadczenie rodzicielskie | – | – | – | – | podwyższenie do 1000 zł/mies. (M10; niepełny miesiąc — M10c) | RATE-MAT-007 |
 
 Pierwszeństwo: 8 > 7 > 5 > 6/3 > 4/2 > 1; modyfikator 9 stosowany zawsze na końcu.
 
