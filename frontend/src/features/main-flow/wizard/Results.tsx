@@ -7,14 +7,14 @@ import { API_MODE, type EvaluateResponse, evaluate } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
 import { type PreviewResult, compareTotals, negligible, previewEvaluate } from "../preview/engine";
-import { daysBetween } from "../preview/exact";
 import type { Answers, Variant } from "./answers";
 import {
-  DEADLINE_LABEL, DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, PARENT_LABEL, PAYER_LABEL,
+  DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, PAYER_LABEL,
   STATUS_HEADLINE, SUBMIT_LABEL,
 } from "./labels";
-import { todayIso, toEvaluateRequest } from "./request";
+import { toEvaluateRequest } from "./request";
 import { TimelineView } from "./TimelineView";
+import { Deadlines } from "./DeadlinesCards";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 /** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania - test tekstu kwoty). */
@@ -202,30 +202,6 @@ function VariantComparison({ pA, pB, variant, recommended, onChoose }: {
         ))}
       </div>
       <p className="mt-3 text-xs text-zinc-600">Ryzyko wariantu A: jeśli w 1. roku życia dziecka nie wykorzystasz ani dnia rodzicielskiego, za rodzicielski dostaniesz 70%, a macierzyński wyrówna się do 100% dopiero na wniosek.</p>
-    </section>
-  );
-}
-
-function Deadlines({ response }: { response: EvaluateResponse }) {
-  const list = response.deadlines ?? [];
-  if (list.length === 0) return null;
-  const today = todayIso();
-  return (
-    <section className={card} aria-labelledby="dl-h">
-      <h3 id="dl-h" className="text-lg font-semibold">Kalendarz terminów</h3>
-      <ol className="mt-3 space-y-2">
-        {list.map((d, i) => {
-          const left = daysBetween(today, d.date);
-          const tone = left < 0 ? "text-zinc-500 line-through" : left <= 14 ? "text-zus-red" : "text-zus-ink";
-          return (
-            <li key={i} className="flex flex-col gap-0.5 border-l-4 border-zus-green-dark pl-3 text-sm sm:flex-row sm:items-baseline sm:gap-3">
-              <span className={`shrink-0 font-semibold tabular-nums ${tone}`}>{formatDate(d.date)}</span>
-              <span className="flex-1">{DEADLINE_LABEL[d.code] ?? d.code} <span className="text-zinc-500">· {PARENT_LABEL[d.who ?? ""] ?? d.who}</span></span>
-              <span className={`shrink-0 text-xs ${tone}`}>{left < 0 ? "minął" : left === 0 ? "dziś" : `za ${left} dni`}</span>
-            </li>
-          );
-        })}
-      </ol>
     </section>
   );
 }
