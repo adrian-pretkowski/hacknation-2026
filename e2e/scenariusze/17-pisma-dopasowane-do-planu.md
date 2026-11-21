@@ -4,7 +4,7 @@ Widok: komputer
 > Na telefonie kroki kreatora są schowane pod „Pokaż historię” — ścieżka zmiany odpowiedzi jest ta sama.
 
 1. Otwórz stronę główną.
-2. Kliknij „Mama na etacie, poród 1 grudnia”.
+2. Kliknij „Mama na etacie, poród za 10 dni”.
 3. Kliknij „Praca i ubezpieczenie”.
 4. Wybierz „20 lub mniej”.
 5. Kliknij „Pokaż wynik teraz”.
