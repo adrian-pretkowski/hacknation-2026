@@ -4,7 +4,13 @@
 # w tym samym commicie. Usuwanie ID tylko z uzasadnieniem w commicie (np. zmiana 08 z wpisem w mentors.md).
 # Raport: cd backend; .\.venv\Scripts\python -m tests.test_cases --all
 
-# GEN — wyłączenie przy zadłużeniu (GEN-EXCL-001)
+# GEN — płatnik (GEN-CLS-001/002, BE1-04) i wyłączenie przy zadłużeniu (GEN-EXCL-001)
+T-GEN-001
+T-GEN-002
+T-GEN-003
+T-GEN-004
+T-GEN-005
+T-GEN-006
 T-GEN-007
 T-GEN-008
 T-GEN-009
@@ -21,5 +27,21 @@ T-MAT-013
 T-RATE-001
 T-RATE-002
 
+# SICK — prawo, okres wyczekiwania, stawka (BE1-04)
+T-SICK-001
+T-SICK-002
+T-SICK-003
+T-SICK-004
+T-SICK-005
+T-SICK-006
+T-SICK-012
+
+# SP — wynagrodzenie chorobowe: prawo, stawka, limit dni (BE1-04)
+T-SP-001
+T-SP-002
+T-SP-003
+T-SP-004
+
 # INT
+T-INT-002
 T-INT-005

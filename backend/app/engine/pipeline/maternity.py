@@ -3,6 +3,7 @@
 Kroki: 3–4 prawo (MAT-ELIG-001 + alternatywne podstawy z ``exceptions``, wykluczenia EXCLUSION, reguły
 BLOCKED grupy), 5 okres (MAT-DUR-001 z ``overrides`` MAT-DUR-00x, MAT-DUR-009), 7 stawka segmentu
 (RATE-MAT-001/003 przez ``overrides``, zależność APP-DL-001), 8 kwota (CALC-MAT-001), status wg DT-9.
+BE1-04: płatnik (GEN-CLS-*) i zadłużenie (GEN-EXCL-001/002) z ``general.py``.
 Reguły z faktami spoza rejestru są raportowane w ``not_evaluated_rules`` (jawne ograniczenia).
 """
 from __future__ import annotations
@@ -10,14 +11,14 @@ from __future__ import annotations
 from typing import Any
 
 from app.core.dates import days_in, end_after_days, to_date
-from app.core.money import dec_str, mul
+from app.core.money import dec_str
 from app.engine.pipeline.engine import Engine, aggregate_status
+from app.engine.pipeline.general import debt_exclusion, payer_of_benefit, pct
 
 # Reguły istotne dla macierzyńskiego, których przebieg nie uruchomił (np. alternatywne podstawy przy ubezpieczeniu)
 # — raportowane jak w slice_v0; Engine sam dopisuje reguły z faktami spoza rejestru
 NOT_RUN = ["MAT-ELIG-004", "MAT-ELIG-005", "MAT-ELIG-006", "MAT-NEG-001", "MAT-DUR-002", "BASE-EMP-001",
-           "BASE-NEMP-001", "BASE-GEN-001", "GEN-CLS-001",
-           "GEN-CLS-002", "GEN-EXCL-002"]
+           "BASE-NEMP-001", "BASE-GEN-001"]
 # Reguły BLOCKED/HUMAN_REVIEW, które mogą zmienić wynik macierzyńskiego po porodzie (DT-9 wiersz 3)
 REVIEW_RULES = ["MAT-DUR-005", "RATE-MAT-007"]
 DURATION_RULES = ["MAT-DUR-001", "MAT-DUR-003", "MAT-DUR-004", "MAT-DUR-005"]
@@ -58,8 +59,11 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
             reason("NOT_INSURED_ON_BIRTH_ART30_NOT_EVALUATED", "MAT-ELIG-001",
                    "Brak ubezpieczenia chorobowego w dniu porodu. Ta wersja nie ocenia jeszcze przypadków z art. 30 "
                    "(zasiłek po ustaniu ubezpieczenia) — wymaga weryfikacji.", "art. 29 ust. 1 pkt 1; art. 30")
+    suspended = None
     if eligible is True:
         for exc in eng.exclusions("MAT-ELIG-001"):
+            if exc.rule_id == "GEN-EXCL-001":
+                continue  # zadłużenie (GEN-EXCL-001/002) — general.debt_exclusion
             if exc.decided or exc.unknown:
                 applied.append(exc.rule_id)
             if exc.unknown:
@@ -67,13 +71,11 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                 needs_data = True
             elif exc.fired:
                 excluded = True
-                result = eng.rules.rule(exc.rule_id)["result"]
-                threshold = mul(ctx.param("MIN_WAGE_2026_MONTHLY"), ctx.param("DEBT_THRESHOLD_MIN_WAGE_RATIO"))
-                reason(result["reason_code"], exc.rule_id,
-                       f"Zadłużenie składkowe przekracza {_pct(ctx.param('DEBT_THRESHOLD_MIN_WAGE_RATIO'))} "
-                       f"minimalnego "
-                       f"wynagrodzenia ({dec_str(threshold)} zł) "
-                       f"— zasiłek nie przysługuje do czasu spłaty.", "art. 2a ust. 1")
+        debt = debt_exclusion(eng)
+        applied += debt.applied
+        reasons += debt.reasons
+        excluded, needs_data = excluded or debt.excluded, needs_data or debt.needs_data
+        suspended = debt.suspended_until_debt_repaid
     for rule_id in REVIEW_RULES:
         if eng.eval(rule_id).kind == "BLOCKED":
             review = True
@@ -123,12 +125,12 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
             if winner.rule_id == "RATE-MAT-003":
                 reason("RATE_COMBINED_815", "RATE-MAT-003",
                        f"Wniosek o łączny zasiłek złożony w {ctx.param('APP_COMBINED_DEADLINE_DAYS')} dni od porodu — "
-                       f"{_pct(rate)} podstawy.",
+                       f"{pct(rate)} podstawy.",
                        "art. 31 ust. 3; art. 30a ust. 1")
             elif winner.rule_id == "RATE-MAT-001":
                 reason("RATE_FULL_100", "RATE-MAT-001",
-                       f"Zasiłek za okres urlopu macierzyńskiego — {_pct(rate)} podstawy. Wniosek o "
-                       f"{_pct(ctx.param('MAT_RATE_COMBINED'))} można złożyć do "
+                       f"Zasiłek za okres urlopu macierzyńskiego — {pct(rate)} podstawy. Wniosek o "
+                       f"{pct(ctx.param('MAT_RATE_COMBINED'))} można złożyć do "
                        f"{deadline.isoformat()}.", "art. 31 ust. 1; art. 30a ust. 1")
     ctx.state["rate"] = rate
 
@@ -148,16 +150,20 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
         if rule_id not in eng.not_evaluated and rule_id not in eng.trace:
             eng.not_evaluated.append(rule_id)
 
+    # Płatnik (GEN-CLS-*) — nie zmienia statusu prawa (T-GEN-005)
+    payer, payer_rule = payer_of_benefit(eng)
+    if payer_rule is not None:
+        applied.append(payer_rule)
+
     status = aggregate_status(excluded=excluded, review=review, needs_data=needs_data, eligible=eligible)
-    return {
+    benefit = {
         "benefit_type": "MATERNITY_BENEFIT", "leave_type": "MATERNITY_LEAVE", "status": status,
         "rate": dec_str(rate) if rate is not None else None, "period": period, "days": days,
         "daily_amount_exact": dec_str(daily) if daily is not None else None,
         "total_amount_exact": dec_str(total) if total is not None else None,
-        "payer_of_benefit": None, "reasons": reasons, "applied_rules": applied,
+        "payer_of_benefit": payer, "reasons": reasons, "applied_rules": applied,
     }
+    if suspended is not None:
+        benefit["suspended_until_debt_repaid"] = suspended
+    return benefit
 
-
-def _pct(ratio: Any) -> str:
-    """0.815 → „81,5%” (tekst komunikatu z parametru, nie z literału)."""
-    return dec_str(ratio * 100).replace(".", ",") + "%"

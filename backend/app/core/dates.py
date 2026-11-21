@@ -63,3 +63,15 @@ def age_years_on(birth: date, on: date) -> int:
     """C7: pełne lata (urodziny = ukończenie). „Do N roku życia” ⇔ age_years_on(...) < N."""
     years = on.year - birth.year
     return years - 1 if add_years(birth, years) > on else years
+
+
+def add_months(day: date, months: int) -> date:
+    """Miesiące kalendarzowe: ten sam dzień miesiąca; brak takiego dnia → ostatni dzień miesiąca (DERIVED, GAP-011)."""
+    month_index = day.month - 1 + months
+    year, month = day.year + month_index // 12, month_index % 12 + 1
+    for last in (31, 30, 29, 28):
+        try:
+            return date(year, month, min(day.day, last))
+        except ValueError:
+            continue
+    raise ValueError(f"Niepoprawna data: {day} + {months} mies.")
