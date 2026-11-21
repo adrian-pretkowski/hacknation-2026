@@ -17,21 +17,16 @@
 15. Przejdź dalej.
 16. Sprawdź, że nagłówek to „Co już wykorzystano”.
 17. Wybierz „Nie”.
-18. Z listy „Ile tygodni urlopu macierzyńskiego wykorzystano?” wybierz „19 tyg.”.
+18. Ustaw suwak „Macierzyński wykorzystany” na „19”.
 19. Sprawdź, że widać „Od porodu minęło 16 tyg.”.
-20. Z listy „Ile tygodni urlopu macierzyńskiego wykorzystano?” wybierz „14 tyg.”.
-21. Ustaw suwak „Rodzicielski wykorzystany przez mamę” na „26”.
-22. Ustaw suwak „Rodzicielski wykorzystany przez tatę” na „23”.
-23. Sprawdź, że widać „zaczyna się dopiero po całym urlopie macierzyńskim”.
-24. Sprawdź, że widać „Razem wykorzystano 49 tyg. rodzicielskiego”.
-25. Sprawdź, że widać „podaj, na ile części”.
-26. Sprawdź, że nie można przejść dalej.
-27. Ustaw suwak „Rodzicielski wykorzystany przez mamę” na „0”.
-28. Ustaw suwak „Rodzicielski wykorzystany przez tatę” na „0”.
-29. Sprawdź, że można przejść dalej.
-30. Przejdź dalej.
-31. Przejdź dalej.
-32. Sprawdź, że nagłówek to „Twój plan”.
-33. Sprawdź, że widać „Urlop macierzyński — zostało”.
-34. Sprawdź, że widać „6 tyg.”.
-35. Sprawdź, że widać „może wykorzystać tylko tata”.
+20. Sprawdź, że nie można przejść dalej.
+21. Ustaw suwak „Macierzyński wykorzystany” na „14”.
+22. Sprawdź, że widać „dostępny po wykorzystaniu całego urlopu macierzyńskiego”.
+23. Sprawdź, że można przejść dalej.
+24. Przejdź dalej.
+25. Przejdź dalej.
+26. Sprawdź, że nagłówek to „Twój plan”.
+27. Sprawdź, że widać „Urlop macierzyński — zostało”.
+28. Sprawdź, że widać „6 tyg.”.
+29. Sprawdź, że widać „może wykorzystać tylko tata”.
+30. Sprawdź, że widać „do przejęcia przez tatę”.
