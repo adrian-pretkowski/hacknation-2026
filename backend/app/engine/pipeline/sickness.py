@@ -395,11 +395,11 @@ def _set_amounts(eng: Engine, benefit: dict[str, Any], rate: Decimal | None, seg
     return rate is not None and bool(segments)
 
 
-SICKNESS_HISTORY_ASSUMPTION = {
-    "code": "SICKNESS_HISTORY_UNKNOWN",
-    "text": "Brak historii wcześniejszych zwolnień — dni i kwoty policzono przy założeniu, że w ostatnich 60 dniach "
-            "nie było innych niezdolności do pracy (art. 9 ust. 2); wykorzystana część okresu zasiłkowego może być "
-            "większa."}
+def _history_assumption(eng: Engine) -> dict[str, str]:
+    return {"code": "SICKNESS_HISTORY_UNKNOWN",
+            "text": f"Brak historii wcześniejszych zwolnień — dni i kwoty policzono przy założeniu, że w ostatnich "
+                    f"{eng.ctx.param('BENEFIT_PERIOD_BREAK_DAYS')} dniach nie było innych niezdolności do pracy "
+                    f"(art. 9 ust. 2); wykorzystana część okresu zasiłkowego może być większa."}
 
 
 def _mixed_period_review(eng: Engine, right: _Right, start: date | None, end: date | None) -> None:
@@ -410,8 +410,9 @@ def _mixed_period_review(eng: Engine, right: _Right, start: date | None, end: da
     right.review = True
     right.reasons.append(make_reason(
         eng, "MIXED_BENEFIT_PERIOD_GAP_006", "SICK-DUR-001",
-        "Niezdolność zaczęła się przed ciążą i trwa w ciąży — długość okresu zasiłkowego (182 czy 270 dni) "
-        "wymaga oceny ZUS.", "art. 8 ust. 1"))
+        f"Niezdolność zaczęła się przed ciążą i trwa w ciąży — długość okresu zasiłkowego "
+        f"({eng.ctx.param('BENEFIT_PERIOD_STD_DAYS')} czy {eng.ctx.param('BENEFIT_PERIOD_PREGNANCY_TB_DAYS')} dni) "
+        f"wymaga oceny ZUS.", "art. 8 ust. 1"))
 
 
 def evaluate_sickness(eng: Engine) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
@@ -420,18 +421,19 @@ def evaluate_sickness(eng: Engine) -> tuple[list[dict[str, Any]], list[dict[str,
     ctx.state["benefit"] = BENEFIT
     right = _sickness_right(eng)
     _human_review(eng, right, assumptions)
+    start = to_date(ctx.field("incapacity.start_date"))
+    end = to_date(ctx.field("incapacity.end_date"))
+    _mixed_period_review(eng, right, start, end)
     ctx.state[SICKNESS_RIGHT_STATE] = right.exists
     payer, payer_rule = payer_of_benefit(eng)
     if payer_rule is not None:
         right.applied.append(payer_rule)
 
-    start = to_date(ctx.field("incapacity.start_date"))
-    end = to_date(ctx.field("incapacity.end_date"))
     employee = ctx.fact("f_is_employee_on", date=start) if start else None
     period = _benefit_period(eng)
-    _mixed_period_review(eng, right, start, end)
-    if period.used is None and period.limit is not None and start is not None:
-        assumptions.append(SICKNESS_HISTORY_ASSUMPTION)
+    history_missing = "benefit_history.sickness_periods" in eng.missing
+    if period.used is None and period.limit is not None and start is not None and history_missing:
+        assumptions.append(_history_assumption(eng))
     plan = _day_plan(eng, start, end, employee, period)
     benefits: list[dict[str, Any]] = []
     if employee is True:
