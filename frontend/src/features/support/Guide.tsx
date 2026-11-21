@@ -244,7 +244,7 @@ function SensitiveGuide() {
     <div className="space-y-8">
       <header className="rounded-3xl bg-zus-blue-50 p-6 sm:p-10">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-rose-600 shadow-sm"><Icon name="heart" className="h-6 w-6" /></span>
-        <p className="mt-4 text-xs font-semibold tracking-wider text-zus-navy/70 uppercase">Przewodnik · tryb spokojny</p>
+        <p className="mt-4 text-xs font-semibold tracking-wider text-zus-navy uppercase">Przewodnik · ścieżka po stracie</p>
         <h1 className="mt-1 text-2xl font-semibold text-zus-navy sm:text-3xl">Wsparcie po stracie dziecka</h1>
         {intro && (
           <div className="mt-4 max-w-2xl text-base leading-relaxed text-zinc-800">
@@ -296,9 +296,9 @@ export function Guide({ sensitive = false }: { sensitive?: boolean }) {
             <Link href="/" className="inline-flex items-center gap-2 rounded-full bg-zus-green-dark px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
               Sprawdź, co Ci przysługuje <Icon name="arrow" className="h-4 w-4" />
             </Link>
-            <Link href="/wsparcie/spokojny" className="inline-flex items-center gap-2 rounded-full border border-zus-blue/40 bg-zus-blue-50 px-5 py-2.5 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
+            <Link href="/wsparcie/po-stracie" className="inline-flex items-center gap-2 rounded-full border border-zus-blue/40 bg-zus-blue-50 px-5 py-2.5 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
               <Icon name="heart" className="h-4 w-4 text-rose-600" />
-              <span>Poronienie lub strata dziecka - tryb spokojny</span>
+              <span>Poronienie lub strata dziecka - ścieżka po stracie</span>
             </Link>
           </div>
           <nav aria-label="Na tej stronie" className="mt-8">

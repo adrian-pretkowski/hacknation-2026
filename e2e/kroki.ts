@@ -196,7 +196,7 @@ export const KROKI: Krok[] = [
       await expect(el).toHaveValue((await el.getAttribute("type")) === "date" ? data(w) : w);
     } },
   { opis: "Sprawdź, że jestem zalogowany jako „Anna Przykładowa”", wzorce: [re("sprawdź, że jestem zalogowan[ya] jako «Q»")],
-    wykonaj: async ({ page }, o) => { await expect(page.locator("header").getByRole("button", { name: zawiera(`Konto testowe: ${o}`) })).toBeVisible(); } },
+    wykonaj: async ({ page }, o) => { await expect(page.locator("header").getByRole("button", { name: zawiera(o) }).filter({ hasText: "konto testowe" })).toBeVisible(); } },
   { opis: "Sprawdź, że widać baner „SYMULACJA”", wzorce: [re("sprawdź, że widać baner «Q»")],
     wykonaj: async ({ page }, t) => { await expect(page.getByText(t).filter({ visible: true }).first()).toBeVisible(); } },
   { opis: "Sprawdź, że strona nie przewija się w poziomie", wzorce: [re("sprawdź, że strona nie przewija się (w poziomie|na boki)")],

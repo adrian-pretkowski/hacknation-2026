@@ -16,7 +16,7 @@ import { DEMO_REQUEST } from "./demoRequest";
 import { formatIsoDate, formatParamValue, paramLabel, unitLabel } from "./paramLabels";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
-const inputCls = "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-zus-navy focus:outline-none focus:ring-2 focus:ring-zus-navy/30";
+const inputCls = "w-full rounded-md border border-zinc-500 bg-white px-3 py-2 text-sm focus:border-zus-navy focus:outline-none focus:ring-2 focus:ring-zus-navy/30";
 const btn = "rounded-md bg-zus-navy px-4 py-2 text-sm font-semibold text-white hover:bg-zus-navy/90 disabled:opacity-50";
 const btnGhost = "rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zus-navy hover:bg-zinc-50";
 const STATUS_LABEL: Record<string, string> = { CONFIRMED: "potwierdzony", UNCONFIRMED: "niepotwierdzony", MISSING: "brak wartości" };

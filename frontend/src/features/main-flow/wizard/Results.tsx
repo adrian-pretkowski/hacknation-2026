@@ -191,7 +191,7 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
           return (
             <div key={lane} className="flex items-center gap-2">
               <span className="w-10 shrink-0 text-xs font-medium text-zinc-700">{PARENT_LABEL[lane]}</span>
-              <div className="relative h-8 min-w-0 flex-1 rounded bg-zinc-100">
+              <div className="relative isolate h-8 min-w-0 flex-1 rounded bg-zinc-100">
                 {segments.map((s, i) => s.parent !== lane ? null : (
                   <button key={i} id={`tl-bar-${i}`} type="button"
                     aria-label={`${segLabel(s)}, ${formatDate(s.from)} – ${formatDate(s.to)}, ${s.days} dni${errorsOf(s).length ? ", plan do poprawy" : ""}`}
@@ -199,7 +199,7 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
                     onClick={() => setActive(i)} onFocus={() => setActive(i)} onKeyDown={(e) => onKey(e, i)}
                     title={`${LEAVE_LABEL[s.leave_type]} ${formatDate(s.from)}–${formatDate(s.to)}`}
                     className={`absolute top-1 bottom-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy ${LEAVE_COLOR[s.leave_type]} ${s.history ? "opacity-35" : ""} ${s.work_fraction !== "0" ? "bg-[repeating-linear-gradient(45deg,transparent_0_4px,rgba(255,255,255,.45)_4px_8px)]" : ""} ${s.needs_review ? "outline-2 outline-dashed outline-zus-yellow" : ""} ${errorsOf(s).length ? "ring-2 ring-zus-red" : ""} ${active === i ? "ring-2 ring-zinc-900" : ""}`}
-                    style={{ left: `${pos(s.from)}%`, width: `max(${(s.days / span) * 100}%, 6px)` }} />
+                    style={{ left: `min(${pos(s.from)}%, calc(100% - 24px))`, width: `max(${(s.days / span) * 100}%, 24px)`, zIndex: 1000 - Math.min(s.days, 999) }} />
                 ))}
                 {todayPos !== null && <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-zinc-900" style={{ left: `${todayPos}%` }} />}
                 {/* powrót do pracy = dzień po ostatnim okresie; przy końcu osi znacznik na prawej krawędzi */}
@@ -348,7 +348,7 @@ function RiskRadar({ response }: { response: EvaluateResponse }) {
       <ul className="mt-3 space-y-2">
         {list.map((w, i) => (
           <li key={i} className={`flex gap-3 border-l-4 bg-zus-gray-50 px-3 py-2 text-sm ${SEVERITY[w.severity].cls}`}>
-            <span><span className="font-medium">{SEVERITY[w.severity].label}: </span>{w.message} <RuleText entry={w.rule_id} className="mt-0.5 block text-xs opacity-80" /></span>
+            <span><span className="font-medium">{SEVERITY[w.severity].label}: </span>{w.message} <RuleText entry={w.rule_id} className="mt-0.5 block text-xs" /></span>
           </li>
         ))}
       </ul>
@@ -412,7 +412,7 @@ function SupportBlock({ kind }: { kind: "loss" | "preterm" | "zazyciem" }) {
       <div className="min-w-0">
         <h3 id={`sup-${kind}`} className="text-lg font-semibold">{text.h}</h3>
         <p className="mt-1 text-base">{text.p}</p>
-        <p className="mt-3 text-sm">Lista organizacji i przydatne linki: <a href={kind === "loss" ? "/wsparcie/spokojny" : "/wsparcie"} target="_blank" rel="noopener" className="font-semibold underline underline-offset-2">przewodnik<span className="sr-only"> (otwiera się w nowej karcie - wynik zostaje)</span></a>. Rzecznik Praw Pacjenta: <a href="tel:800190590" className="font-semibold underline underline-offset-2">800 190 590</a>.</p>
+        <p className="mt-3 text-sm">Lista organizacji i przydatne linki: <a href={kind === "loss" ? "/wsparcie/po-stracie" : "/wsparcie"} target="_blank" rel="noopener" className="font-semibold underline underline-offset-2">przewodnik<span className="sr-only"> (otwiera się w nowej karcie - wynik zostaje)</span></a>. Rzecznik Praw Pacjenta: <a href="tel:800190590" className="font-semibold underline underline-offset-2">800 190 590</a>.</p>
       </div>
     </section>
   );
