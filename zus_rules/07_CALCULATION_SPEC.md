@@ -196,4 +196,4 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `PARENTAL_BENEFIT_FLOOR_MONTHLY` | RATE-MAT-007 | BLOCKED → NEEDS_REVIEW, gdy kwota może być niższa |
 | `AVERAGE_WAGE_CAP_AFTER_TITLE` | BASE-GEN-002 | BLOCKED |
 | ~~`MIN_WAGE_2026_MONTHLY`~~ — potwierdzona 4806,00 zł (M07, 2026-11-21), status CONFIRMED | BASE-EMP-008, GEN-EXCL-001 | bez assumption `MIN_WAGE_FROM_ATTACHMENT` |
-| najniższa podstawa składek (wejście per miesiąc) | BASE-NEMP-002/003 | NEEDS_DATA gdy brak |
+| najniższa podstawa składek (wejście per miesiąc) — 2026: `JDG_MIN_CONTRIB_BASE_2026` 5652,00 zł, preferencyjna `JDG_PREFERENTIAL_CONTRIB_BASE_2026` 1441,80 zł przez `JDG_PREFERENTIAL_MONTHS` od założenia działalności (M08); 2027 — brak wartości | BASE-NEMP-002/003 | NEEDS_DATA gdy brak wejścia; parametry 2026 = podpowiedź w kreatorze / symulacji danych ZUS, nie domyślna wartość silnika (preferencja zależy od wyboru płatnika) |

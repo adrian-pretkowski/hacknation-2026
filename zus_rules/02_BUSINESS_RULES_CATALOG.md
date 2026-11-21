@@ -2384,7 +2384,7 @@ Przeciętny miesięczny przychód (podstawa wymiaru składek − 13,71%) za 12 m
 - **Dane:** `income_history.months` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-BASE-004, T-INT-005, T-BASE-009
-- **Uwagi:** Przychód miesiąca = podstawa wymiaru składki chorobowej × (1 − 0,1371). Limit z Załącznika: 23 550 × 0,8629 = 20 321,30 (dobrowolne chorobowe) — parametr UNCONFIRMED.
+- **Uwagi:** Przychód miesiąca = podstawa wymiaru składki chorobowej × (1 − 0,1371). Limit z Załącznika: 23 550 × 0,8629 = 20 321,30 (dobrowolne chorobowe) — potwierdzony przez mentora (M08).
 
 ### BASE-NEMP-002
 
@@ -2405,7 +2405,7 @@ Suma: przeciętnej najniższej podstawy (po odliczeniu 13,71%) za pełne miesią
 - **Dane:** `income_history.months`, `income_history.minimum_contribution_base_by_month` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-BASE-005
-- **Uwagi:** Kluczowe dla JDG w ciąży (ryzyko podwyższania podstawy — RISK-002). Najniższa podstawa składek — wartości z ustawy o s.u.s. NIEZAŁĄCZONEJ → wymagany parametr wejściowy per miesiąc (GAP-023). Ust. 2-4 (przerwy ≤30 dni) → P1.
+- **Uwagi:** Kluczowe dla JDG w ciąży (ryzyko podwyższania podstawy — RISK-002). Najniższa podstawa składek (M08, 2026-11-21): 2026 — 5652,00 zł, a przez 24 mies. od założenia działalności (ZUS preferencyjny) 1441,80 zł (parametry JDG_*); źródłem wartości dla danego miesiąca pozostaje wejście minimum_contribution_base_by_month (dane z ZUS — symulacja), parametry służą do podpowiedzi i kontroli; wartości dla 2027 nieznane (GAP-023). Ust. 2-4 (przerwy ≤30 dni) → P1.
 
 ### BASE-NEMP-003
 

@@ -27,7 +27,7 @@ Data referencyjna oceny: **2026-11-21**. Kody dokumentów są używane w `03_rul
 
 | Odesłanie | Gdzie | Potrzebne do | Skutek w MVP |
 |---|---|---|---|
-| Ustawa o systemie ubezpieczeń społecznych (art. 6, 18 ust. 8, 19, 47a) | USTAWA art. 1, 2a, 3, 48a, 49, ROZP_DOK | najniższa podstawa składek, limit dobrowolnego chorobowego, katalog tytułów | Wartości jako **wejście/parametr** (GAP-023); limit 23 550 zł z ZALACZNIK (UNCONFIRMED) |
+| Ustawa o systemie ubezpieczeń społecznych (art. 6, 18 ust. 8, 19, 47a) | USTAWA art. 1, 2a, 3, 48a, 49, ROZP_DOK | najniższa podstawa składek, limit dobrowolnego chorobowego, katalog tytułów | Wartości jako **wejście/parametr** (GAP-023); limit 23 550 zł z ZALACZNIK — potwierdzony (M08); najniższa podstawa JDG 2026: 5652 zł, preferencyjna 1441,80 zł (24 mies.) — mentor (M08) |
 | Ustawa o minimalnym wynagrodzeniu + akt ustalający kwotę na 2026 | USTAWA art. 2a, 45 | próg zadłużenia, minimalna podstawa | 4 806 zł z ZALACZNIK — potwierdzone przez mentora (M07) |
 | Ustawa o świadczeniach rodzinnych (świadczenie rodzicielskie) | USTAWA art. 31 ust. 3a | podwyższenie zasiłku | **Brak kwoty** → RATE-MAT-007 BLOCKED (GAP-002) |
 | Ustawa „Za życiem” art. 4 ust. 3 | KP 182(1a) § 2, USTAWA 61b ust. 4a | definicja zaświadczenia | Wejście bool od użytkownika |

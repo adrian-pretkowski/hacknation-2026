@@ -108,7 +108,10 @@ meta:
     # --- podstawa wymiaru
     CONTRIBUTION_DEDUCTION_RATE: {value: "0.1371", unit: ratio, source: "USTAWA art. 3 pkt 3 (pracownicy — M06), pkt 4; art. 45 ust. 1"}
     MIN_WAGE_2026_MONTHLY: {value: "4806.00", unit: PLN, source: "ZALACZNIK; potwierdzone przez mentora fachowego ZUS (M07, 2026-11-21)", status: CONFIRMED}
-    VOLUNTARY_MAX_CONTRIB_BASE_2026: {value: "23550.00", unit: PLN, source: "ZALACZNIK (przepis ustawy o s.u.s. niezałączony)", status: UNCONFIRMED}
+    VOLUNTARY_MAX_CONTRIB_BASE_2026: {value: "23550.00", unit: PLN, source: "ZALACZNIK; potwierdzone przez mentora fachowego ZUS (M08, 2026-11-21)", status: CONFIRMED}
+    JDG_MIN_CONTRIB_BASE_2026: {value: "5652.00", unit: PLN, source: "Najniższa podstawa składek JDG 2026 — mentor fachowy ZUS (M08, 2026-11-21); ustawa o s.u.s. niezałączona", status: CONFIRMED}
+    JDG_PREFERENTIAL_CONTRIB_BASE_2026: {value: "1441.80", unit: PLN, source: "Preferencyjna podstawa składek JDG 2026 (30% płacy minimalnej) — mentor fachowy ZUS (M08, 2026-11-21)", status: CONFIRMED}
+    JDG_PREFERENTIAL_MONTHS: {value: 24, unit: months, source: "Okres preferencyjnych składek od założenia działalności — mentor fachowy ZUS (M08, 2026-11-21)", status: CONFIRMED}
     AVERAGE_WAGE_CAP_AFTER_TITLE: {value: null, unit: PLN, source: "USTAWA art. 46 (kwota ogłaszana odrębnie — brak w materiałach)", status: MISSING}
     # --- płatnik, terminy, zadłużenie
     PAYER_INSURED_THRESHOLD: {value: 20, unit: insured_persons, source: "USTAWA art. 61 ust. 1"}
@@ -3132,7 +3135,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Przychód miesiąca = podstawa wymiaru składki chorobowej × (1 − 0,1371). Limit z Załącznika: 23 550 × 0,8629 = 20 321,30 (dobrowolne chorobowe) — parametr UNCONFIRMED."
+  notes: "Przychód miesiąca = podstawa wymiaru składki chorobowej × (1 − 0,1371). Limit z Załącznika: 23 550 × 0,8629 = 20 321,30 (dobrowolne chorobowe) — potwierdzony przez mentora (M08)."
 
 - id: BASE-NEMP-002
   name: "Podstawa przy zadeklarowanej kwocie i ubezpieczeniu <12 miesięcy (art. 48a)"
@@ -3161,7 +3164,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Kluczowe dla JDG w ciąży (ryzyko podwyższania podstawy — RISK-002). Najniższa podstawa składek — wartości z ustawy o s.u.s. NIEZAŁĄCZONEJ → wymagany parametr wejściowy per miesiąc (GAP-023). Ust. 2-4 (przerwy ≤30 dni) → P1."
+  notes: "Kluczowe dla JDG w ciąży (ryzyko podwyższania podstawy — RISK-002). Najniższa podstawa składek (M08, 2026-11-21): 2026 — 5652,00 zł, a przez 24 mies. od założenia działalności (ZUS preferencyjny) 1441,80 zł (parametry JDG_*); źródłem wartości dla danego miesiąca pozostaje wejście minimum_contribution_base_by_month (dane z ZUS — symulacja), parametry służą do podpowiedzi i kontroli; wartości dla 2027 nieznane (GAP-023). Ust. 2-4 (przerwy ≤30 dni) → P1."
 
 - id: BASE-NEMP-003
   name: "Podstawa niepracownika — niezdolność w pierwszym miesiącu"
