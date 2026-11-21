@@ -317,3 +317,30 @@ def debt_unpaid_beyond_months(ctx: Context, months: Any = None) -> bool | None:
     if as_of is None:
         return ctx.need("evaluation.as_of_date")
     return as_of > limit
+
+
+# ---------------------------------------------------------------------------------------- BE1-05
+@fact("f_months_since_title_end")
+def months_since_title_end(ctx: Context, date: Any = None) -> int | None:
+    """07 §3: pełne miesiące kalendarzowe między ustaniem tytułu a ``date`` (GAP-011). USTAWA art. 7 pkt 2."""
+    day = to_date(date)
+    titles = _titles(ctx)
+    if day is None or not titles:
+        return None
+    open_title, last_end = _last_title_end(titles, day)
+    if open_title or last_end is None:
+        return None
+    months = 0
+    while add_months(last_end, months + 1) <= day:
+        months += 1
+    return months
+
+
+@fact("f_number_of_sickness_titles")
+def number_of_sickness_titles(ctx: Context) -> int | None:
+    """07 §3: liczba tytułów ubezpieczenia chorobowego aktywnych w dniu niezdolności. USTAWA art. 9 (od 2027)."""
+    day = event_day(ctx)
+    titles = _titles(ctx)
+    if day is None or titles is None:
+        return None
+    return len(_active_titles(titles, day))
