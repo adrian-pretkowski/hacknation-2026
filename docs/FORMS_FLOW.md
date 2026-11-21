@@ -1,0 +1,44 @@
+# Wymaganie: „Od czego chcesz zacząć?” — kreator albo szybkie pisma (FE1-09)
+
+Zgłoszone przez lidera 2026-11-21. Zadanie: `docs/TASKS.md` FE1-09. Wymaganie zadania, którego dotyczy: **g) dokumenty, terminy, sposób złożenia wniosków** (`docs/EVALUATION_CRITERIA.md` § 2: ZAM, Z-3/Z-3a, ZAS-53, ZAS-12, e-ZLA).
+
+## Cel
+Nie każdy użytkownik chce przejść cały kreator. Część osób wie, jakiego pisma potrzebuje, i chce je od razu wypełnić. Ekran startowy daje więc wybór jednej z dwóch dróg, a pisma są dostępne z obu.
+
+## Etapy
+
+| Etap | Zakres | Status |
+|---|---|---|
+| 1 | Ekran startowy: sekcja **„Od czego chcesz zacząć?”** z dwiema kartami wyboru: **„Sprawdź, co Ci przysługuje”** (kreator → plan, przycisk „Zaczynamy →”) i **„Złóż pisma szybko”** (przycisk „Wybierz pismo →”). Droga „pisma” to ekran **„Które pismo chcesz złożyć?”** z kafelkami pism (ikona z symbolem, nazwa, do czego służy, **kiedy złożyć**, **kto wypełnia**) | zrobione (FE1-09) |
+| 2 | Te same kafelki na podsumowaniu wyniku kreatora (sekcja **„Pisma do wypełnienia”** pod „Co i gdzie złożyć”). Pisma pasujące do wyniku (`missing_documents.doc_type`) są wyróżnione etykietą „Pasuje do Twojego planu”; pozostałe też można otworzyć | zrobione (FE1-09) |
+| 3 | Wypełnianie pisma formularzem (prefill z odpowiedzi kreatora, wysyłka jako SYMULACJA przez `/api/sim/applications`) | **osobne zadanie — do zdefiniowania**; teraz kafelek otwiera ekran pisma z opisem i informacją „w przygotowaniu” |
+
+## Pisma (kolejność i grupy)
+
+| Grupa | Symbol | Nazwa | Kto wypełnia | Kiedy złożyć | Polecane, gdy `doc_type` |
+|---|---|---|---|---|---|
+| Zasiłek macierzyński | **ZAM** | Wniosek o zasiłek macierzyński (od 24.10.2026 obejmuje dawne ZUR i ZAO) | ubezpieczony (mama lub tata), gdy płaci ZUS | po urodzeniu / przyjęciu dziecka, z odpisem aktu urodzenia; wariant 81,5% — w ciągu `APP_COMBINED_DEADLINE_DAYS` dni od porodu | `ZAM_APPLICATION`, `MATERNITY_APPLICATION_ANNEX6` |
+| Zaświadczenia płatnika | **Z-3** | Zaświadczenie płatnika składek — pracownik | pracodawca | gdy płaci ZUS (płatnik do `PAYER_INSURED_THRESHOLD` ubezpieczonych), do wniosku o zasiłek | `PAYER_CERTIFICATE_Z3`, `PAYER_CERTIFICATE_Z3_OR_Z3A` |
+| Zaświadczenia płatnika | **Z-3a** | Zaświadczenie płatnika składek — osoba niebędąca pracownikiem | płatnik (np. zleceniodawca) | gdy płaci ZUS, do wniosku o zasiłek | `PAYER_CERTIFICATE_Z3A`, `PAYER_CERTIFICATE_Z3_OR_Z3A` |
+| Zasiłek chorobowy w ciąży | **ZAS-12** | Zaświadczenie płatnika — wniosek o zasiłek za dalszy okres | płatnik (zwykle pracodawca); zamiennie Z-3 / Z-3a | kolejne zwolnienie w ciągłości z poprzednim | — (silnik jeszcze nie wskazuje) |
+| Zasiłek chorobowy w ciąży | **ZAS-53** | Wniosek o zasiłek chorobowy | ubezpieczony (zwłaszcza JDG, gdy nie ma płatnika wystawiającego Z-3/Z-3a) | w czasie niezdolności do pracy, z pierwszym zwolnieniem (e-ZLA) | `SICKNESS_APPLICATION_ANNEX1` |
+
+Kolor ikony: zielony — wypełniasz Ty, granatowy — wypełnia płatnik składek.
+
+## Zasady
+- Symbole formularzy pochodzą z treści zadania i informacji ZUS, nie z rozporządzenia (CONF-007, APP-DOC-003, SICK-DOC-001) — w UI dopisek „wg informacji ZUS”. Opis ZAS-12 — wg wzoru formularza na zus.pl; **do potwierdzenia z mentorem**.
+- Liczby z przepisów w tekstach pism tylko z `PARAMS` (`APP_COMBINED_DEADLINE_DAYS`, `PAYER_INSURED_THRESHOLD`).
+- Bez brandingu ZUS (logo, kolory formularzy). Wysyłka pism (etap 3) wyłącznie jako SYMULACJA.
+- Każde przejście (start → lista pism → pismo → powrót) trafia do historii przeglądarki; z pisma otwartego z wyniku przycisk wraca do planu, z listy — do listy.
+- RWD: 375 px bez poziomego scrolla; kafelek klikalny w całości, nazwa przycisku „Wypełnij <symbol> →”.
+
+## Implementacja
+- Katalog pism: `frontend/src/features/documents/forms.ts` (`FORMS`, `FORM_GROUPS`, `formsForDocTypes`).
+- Kafelki i ekran pisma: `frontend/src/features/documents/FormPicker.tsx` (`FormPicker`, `FormIcon`, `FormDetail` — w etapie 3 tu trafi formularz).
+- Wybór drogi: `frontend/src/features/main-flow/wizard/Intro.tsx` (`PathCard`); widoki `forms` / `form`: `Wizard.tsx`; sekcja na wyniku: `Results.tsx` (`FormsToFill`).
+- E2E: `e2e/scenariusze/14-szybkie-pisma.md`.
+
+## Otwarte
+- Etap 3: definicja pól formularzy (ROZP_DOK zał. 1, 6; Z-3 zał. 2; Z-3a zał. 3), prefill z kreatora, wysyłka SYMULACJA — osobne zadanie (powiązane z FE2-04).
+- ZAS-12 — potwierdzić z mentorem zakres i czy pokazywać w ścieżce rodzica (wypełnia płatnik).
+- Silnik nie zwraca `doc_type` dla ZAS-12; podgląd FE (`preview/engine.ts`) nie zwraca Z-3a ani ZAS-53 — wyróżnienie tych pism na wyniku pojawi się, gdy wyniki przejdą na silnik API (FE1-01).

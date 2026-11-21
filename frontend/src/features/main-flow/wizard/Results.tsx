@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { FormPicker } from "@/features/documents/FormPicker";
+import { type FormCode, formsForDocTypes } from "@/features/documents/forms";
 import { API_MODE, type EvaluateResponse, evaluate } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 import { type PreviewResult, type Seg, compareTotals, negligible, previewEvaluate } from "../preview/engine";
@@ -18,8 +20,10 @@ const hasPayout = (p: PreviewResult) => p.response.overall_status !== "NOT_ELIGI
   && !!p.summary.ownTotal && !/^0+(\.0*)?$/.test(p.summary.ownTotal);
 const pct = (rate: string, work = "0") => `${(Number(rate) * 100).toLocaleString("pl-PL")}%${work !== "0" ? ` × ${(1 - Number(work)).toLocaleString("pl-PL")}` : ""}`;
 
-export function Results({ answers, onEdit, canEdit = () => true }: {
+export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
   answers: Answers; onEdit: (stepId: string) => void; canEdit?: (stepId: string) => boolean;
+  /** FE1-09: klik w kafelek pisma na podsumowaniu (etap 2) */
+  onOpenForm?: (code: FormCode) => void;
 }) {
   const reqA = useMemo(() => toEvaluateRequest(answers, "COMBINED_815"), [answers]);
   const reqB = useMemo(() => toEvaluateRequest(answers, "FULL_100_70"), [answers]);
@@ -53,6 +57,7 @@ export function Results({ answers, onEdit, canEdit = () => true }: {
       <Deadlines response={r} />
       <RiskRadar response={r} />
       <Documents response={r} payer={current.summary.payer} />
+      {onOpenForm && <FormsToFill response={r} onOpen={onOpenForm} />}
       {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
       <CalcDetails p={current} />
       {!sensitive && <EngineCrossCheck answers={answers} variant={variant} preview={current} />}
@@ -363,6 +368,22 @@ function Documents({ response, payer }: { response: EvaluateResponse; payer: str
         ))}
       </ul>
       <p className="mt-2 text-xs text-zinc-600">Wysyłka wniosków i pobranie odpisu z USC w tym demo to SYMULACJA.</p>
+    </section>
+  );
+}
+
+/** FE1-09 etap 2: te same kafelki pism co na ścieżce „Szybkie pisma”; polecane wg `missing_documents`. */
+function FormsToFill({ response, onOpen }: { response: EvaluateResponse; onOpen: (code: FormCode) => void }) {
+  const recommended = formsForDocTypes((response.missing_documents ?? []).map((d) => d.doc_type));
+  return (
+    <section className={card} aria-labelledby="forms-h">
+      <h3 id="forms-h" className="text-lg font-semibold">Pisma do wypełnienia</h3>
+      <p className="mt-1 mb-4 text-sm text-zinc-700">
+        {recommended.length > 0
+          ? `Do Twojego planu pasuje: ${recommended.join(", ")}. Pozostałe pisma też możesz otworzyć.`
+          : "Kliknij pismo, aby je wypełnić."}
+      </p>
+      <FormPicker onOpen={onOpen} recommended={recommended} headingLevel={4} />
     </section>
   );
 }
