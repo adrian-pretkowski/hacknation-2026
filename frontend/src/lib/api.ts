@@ -78,3 +78,32 @@ export async function getHealth(): Promise<Health | null> {
     return null;
   }
 }
+
+// Panel admina parametrów (BE2-05, FE1-03): GET/PUT /api/admin/parameters z nagłówkiem X-Admin-Token.
+export type Parameter = components["schemas"]["Parameter"];
+export type ParameterList = components["schemas"]["ParameterList"];
+export type ParameterUpdate = components["schemas"]["ParameterUpdate"];
+
+async function adminCall(token: string, init?: { method: "PUT"; body: ParameterUpdate }): Promise<ParameterList> {
+  if (API_MODE === "mock") {
+    throw new ApiError(null, "Panel admina wymaga działającego API — w trybie demo (bez backendu) jest niedostępny.");
+  }
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/api/admin/parameters`, {
+      method: init?.method ?? "GET",
+      headers: { "X-Admin-Token": token, ...(init ? { "Content-Type": "application/json" } : {}) },
+      body: init ? JSON.stringify(init.body) : undefined,
+    });
+  } catch {
+    throw new ApiError(null, `Brak połączenia z API (${API_URL}). Czy backend jest uruchomiony?`);
+  }
+  if (!response.ok) {
+    const problem = (await response.json().catch(() => null)) as Problem | null;
+    throw new ApiError(problem, problem?.detail ?? problem?.title ?? `Błąd API: HTTP ${response.status}`);
+  }
+  return (await response.json()) as ParameterList;
+}
+
+export const listParameters = (token: string) => adminCall(token);
+export const updateParameters = (token: string, body: ParameterUpdate) => adminCall(token, { method: "PUT", body });
