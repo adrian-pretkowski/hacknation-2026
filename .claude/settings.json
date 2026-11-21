@@ -7,6 +7,7 @@
       "Bash(.venv/Scripts/python -m pytest:*)",
       "Bash(.venv/Scripts/python -m ruff check:*)",
       "Bash(python scripts/smoke.py:*)",
+      "Bash(python .claude/hooks/review_trigger.py mark:*)",
       "Bash(npm run lint:*)",
       "Bash(npm run typecheck:*)",
       "Bash(npm run build:*)",
@@ -14,16 +15,49 @@
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git merge-base:*)",
       "Bash(git branch:*)",
       "Bash(git worktree list:*)",
       "PowerShell(scripts\\verify.ps1:*)"
     ],
-    "deny": [
+    "ask": [
       "Bash(git push:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(git clean:*)",
+      "Bash(git merge *)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr merge:*)",
+      "PowerShell(git push:*)",
+      "PowerShell(git merge *)",
+      "PowerShell(gh pr create:*)",
+      "PowerShell(gh pr merge:*)",
+      "Bash(git * push *)",
+      "PowerShell(git * push *)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Bash(git push * -f)",
+      "Bash(git push *+*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)",
+      "PowerShell(git push --force*)",
+      "PowerShell(git push -f*)",
+      "PowerShell(git push * --force*)",
+      "PowerShell(git push * -f*)",
+      "PowerShell(git push * -f)",
+      "PowerShell(git push *+*)",
+      "PowerShell(git reset --hard*)",
+      "PowerShell(git clean*)",
       "Read(./.env)",
-      "Read(./.env.*)"
+      "Read(./.env.*)",
+      "Bash(git * push *--force*)",
+      "Bash(git * push * -f*)",
+      "Bash(git * push *+*)",
+      "PowerShell(git * push *--force*)",
+      "PowerShell(git * push * -f*)",
+      "PowerShell(git * push *+*)"
     ]
   },
   "hooks": {
@@ -33,8 +67,40 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/rules_gate.py\"",
+            "command": "python \"$(git rev-parse --show-toplevel)/.claude/hooks/rules_gate.py\"",
             "timeout": 180
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$(git rev-parse --show-toplevel)/.claude/hooks/review_trigger.py\" hook",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$(git rev-parse --show-toplevel)/.claude/hooks/review_trigger.py\" hook",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$(git rev-parse --show-toplevel)/.claude/hooks/review_trigger.py\" hook",
+            "timeout": 30
           }
         ]
       }

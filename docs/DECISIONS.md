@@ -19,6 +19,7 @@ Kolejność źródeł: (1) treść zadania i regulamin (`docs/CHALLENGE.md`) →
 | D12 | Kwoty jako dokładny Decimal (string), bez zaokrągleń do czasu odpowiedzi M04; FE skraca do 2 miejsc z „…” | Brak reguł zaokrąglania w materiałach (GAP-001) | zus_rules/09 |
 | D13 | Deploy publiczny, zdalne repo i `git push` — tylko na wyraźne polecenie lidera | Skill § 10; koszty i konta | skill |
 | D14 | Plik `PROGRESS.md` jako wspólny checkpoint, aktualizowany przy każdym zakończonym zadaniu | Ciągłość pracy wielu osób i sesji Claude Code | decyzja zespołu |
+| D15 | Review po każdym commicie: subagent `reviewer` + komenda `/review`; wyzwalanie przez git hook `post-commit` (znacznik w `.git/zus-review/`) i hooki Claude Code (PostToolUse dla Bash i PowerShell, SessionStart, UserPromptSubmit; commit wykrywany po zmianie HEAD); PR/merge/push tylko po zgodzie lidera; `git push`, `git merge`, `gh pr create/merge` w `ask` (Bash i PowerShell, także `git -C … push`), force push (`--force`, `-f`, `+ref`, również z opcjami globalnymi gita) i `reset --hard` w `deny` | Jakość i zgodność z regułami przy 6 osobach pracujących równolegle; subagent nie uruchamia się sam po commicie z terminala, więc hook tylko oznacza commit i przypomina | decyzja lidera |
 
 ## Konfrontacja: wcześniejszy setup vs skill `hackathon-bootstrap`
 | Obszar | Wcześniej | Skill | Decyzja |

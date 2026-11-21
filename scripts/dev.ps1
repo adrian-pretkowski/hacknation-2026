@@ -3,6 +3,9 @@
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 
+# Git hook post-commit (znacznik „czeka na review” → komenda /review w Claude Code)
+git -C $root config core.hooksPath .githooks
+
 $venvPython = Join-Path $root "backend\.venv\Scripts\python.exe"
 if (-not (Test-Path $venvPython)) {
     python -m venv (Join-Path $root "backend\.venv")

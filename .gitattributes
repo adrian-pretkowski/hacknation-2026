@@ -1,0 +1,3 @@
+# Skrypty uruchamiane przez sh (git hooks) muszą mieć końce linii LF — inaczej shebang "/bin/sh\r" nie działa.
+.githooks/* text eol=lf
+*.sh text eol=lf
