@@ -1,4 +1,4 @@
-"""BE1-06: renderer wyjaśnień (I5) — każda reguła FIRED świadczenia ma zdanie i przepis.
+"""BE1-06: renderer wyjaśnień (I5) - każda reguła FIRED świadczenia ma zdanie i przepis.
 
 Przypadki: szablon z placeholderami, placeholder parametru prawnego, brak szablonu / brak pliku / placeholder bez
 wartości (fallback na nazwę reguły), odpowiedź /api/evaluate (demo) zgodna z kontraktem.

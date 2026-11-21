@@ -1,4 +1,4 @@
-"""Syntetyczne profile demo (INT-03). Dane fikcyjne — nie pochodzą z systemów ZUS ani gov.
+"""Syntetyczne profile demo (INT-03). Dane fikcyjne - nie pochodzą z systemów ZUS ani gov.
 
 Profil opisuje „stan konta" osoby; serwisy w `services.py` budują z niego odpowiedzi i pozwalają
 nadpisać wybrane elementy (zdarzenie, liczba ubezpieczonych u płatnika, dług, e-ZLA), żeby dało się
@@ -33,12 +33,12 @@ class DemoProfile:
     payer: dict[str, Any]
     income_history: dict[str, Any]
     benefit_history: dict[str, Any] = field(default_factory=dict)
-    # saldo zadłużenia składkowego w czasie: (od daty, kwota) — obowiązuje ostatni wpis <= as_of
+    # saldo zadłużenia składkowego w czasie: (od daty, kwota) - obowiązuje ostatni wpis <= as_of
     debt_timeline: tuple[tuple[dt.date, Decimal], ...] = ()
     certificates: tuple[Certificate, ...] = ()
 
     def data(self) -> dict[str, Any]:
-        """Fragment wejścia silnika (`EvaluateRequest`) — kopia, bezpieczna do modyfikacji."""
+        """Fragment wejścia silnika (`EvaluateRequest`) - kopia, bezpieczna do modyfikacji."""
         return deepcopy({
             "person": {"role": self.role},
             "insurance": {"titles": list(self.titles)},
@@ -66,7 +66,7 @@ _PROFILES = [
         certificates=(Certificate("EZLA-SIM-0001", D(2026, 12, 1), D(2026, 12, 1), D(2027, 1, 14)),
                       Certificate("EZLA-SIM-0002", D(2027, 1, 15), D(2027, 1, 15), D(2027, 3, 14))),
     ),
-    # JDG z dobrowolnym chorobowym i zaległością składkową — blokuje prawo (GEN-EXCL-001).
+    # JDG z dobrowolnym chorobowym i zaległością składkową - blokuje prawo (GEN-EXCL-001).
     DemoProfile(
         "self_employed_debt", "Joanna Działalna", "MOTHER",
         (_title("SELF_EMPLOYED", "VOLUNTARY", D(2025, 1, 10)),),
@@ -84,7 +84,7 @@ _PROFILES = [
         {"insured_count_on_nov30_prev_year": 12, "payer_name": "Mały Zakład Demo"},
         {"manual_base_override": "7400.00"},
     ),
-    # Dobrowolne chorobowe opłacane krótko — nie spełnia okresu wyczekiwania (90 dni).
+    # Dobrowolne chorobowe opłacane krótko - nie spełnia okresu wyczekiwania (90 dni).
     DemoProfile(
         "voluntary_short_waiting", "Katarzyna Krótka", "MOTHER",
         (_title("SELF_EMPLOYED", "VOLUNTARY", D(2027, 1, 5)),),

@@ -1,4 +1,4 @@
-"""Modele żądania — podzbiór zus_rules/04_INPUT_DATA_SCHEMA.json zgodny z contracts/openapi.yaml.
+"""Modele żądania - podzbiór zus_rules/04_INPUT_DATA_SCHEMA.json zgodny z contracts/openapi.yaml.
 
 extra="allow": pełny model wejścia jest przyjmowany (forward compatibility), slice-v0 czyta tylko te pola.
 """

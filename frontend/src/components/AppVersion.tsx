@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { APP_VERSION, getHealth } from "@/lib/api";
 
-/** Stopka: wersja wdrożonej aplikacji (FE z tagu, BE z /api/health) i zestawu reguł — INT-11. */
+/** Stopka: wersja wdrożonej aplikacji (FE z tagu, BE z /api/health) i zestawu reguł - INT-11. */
 export function AppVersion() {
   const [backend, setBackend] = useState<{ app: string; rules: string } | null>(null);
 

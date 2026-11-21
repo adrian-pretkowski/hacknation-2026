@@ -1,11 +1,11 @@
 """Pipeline silnika reguł (interfejs I1, BE1-02): ``evaluate(payload) -> wynik wg contracts/openapi.yaml``.
 
 Zakres dziś: zasiłek macierzyński matki po porodzie (``maternity.py``) na regułach z 03_rules.yaml (tryby, wyjątki,
-overrides, DT-9, ślad ``applied_rules``, ``future_changes``), niezdolność do pracy — prawo, płatnik i stawka zasiłku
-chorobowego i wynagrodzenia chorobowego (``sickness.py``, BE1-04). Kroki ogólne GEN-* — ``general.py``.
+overrides, DT-9, ślad ``applied_rules``, ``future_changes``), niezdolność do pracy - prawo, płatnik i stawka zasiłku
+chorobowego i wynagrodzenia chorobowego (``sickness.py``, BE1-04). Kroki ogólne GEN-* - ``general.py``.
 Urlop rodzicielski, ojcowski, przejęcie macierzyńskiego, walidacje planu (``plan_errors``) i powrót do pracy
-(``return_to_work``) — ``parental.py`` (BE2-02). Uzupełniający i na warunkach macierzyńskiego — BE2-01.
-Dokumenty, terminy i ryzyka (``missing_documents``, ``deadlines``, RISK-* w ``warnings``) — ``guidance.py`` (BE2-04).
+(``return_to_work``) - ``parental.py`` (BE2-02). Uzupełniający i na warunkach macierzyńskiego - BE2-01.
+Dokumenty, terminy i ryzyka (``missing_documents``, ``deadlines``, RISK-* w ``warnings``) - ``guidance.py`` (BE2-04).
 Każde świadczenie dostaje ``explanation`` i ``legal_basis`` z renderera ``app.engine.explain`` (BE1-06).
 """
 from __future__ import annotations
@@ -42,14 +42,14 @@ from app.engine.pipeline.verification import insurance_verification
 
 ENGINE_NAME = "rules-engine"
 ROUNDING = {"code": "ROUNDING_UNCONFIRMED",
-            "text": "Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."}
+            "text": "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."}
 PARAM_ASSUMPTIONS = {
     "MIN_WAGE_2026_MONTHLY": {"code": "MIN_WAGE_FROM_ATTACHMENT",
                               "text": "Płaca minimalna 2026 wzięta z Załącznika HackNation (niepotwierdzona)."},
     "PUBLIC_HOLIDAYS": {"code": "PUBLIC_HOLIDAYS_UNCONFIRMED",
                         "text": "Termin w sobotę, niedzielę lub święto przesunięto na następny dzień roboczy "
                                 "(M15); lista świąt 2026–2031 przygotowana przez zespół "
-                                "(public_holidays.yaml) — do potwierdzenia."},
+                                "(public_holidays.yaml) - do potwierdzenia."},
 }
 
 
@@ -127,6 +127,6 @@ def _response(eng: Engine, benefits: list[dict[str, Any]], assumptions: list[dic
         "applied_rules": eng.applied_trace(),
         "future_changes": eng.future,
         "warnings": eng.warnings,  # BE2-01: RISK-003, MAT-DUR-008; BE2-04: RISK-001/002
-        "missing_documents": [],  # BE2-04 (guidance.py) — nadpisywane, gdy są świadczenia
+        "missing_documents": [],  # BE2-04 (guidance.py) - nadpisywane, gdy są świadczenia
         "deadlines": [],
     }

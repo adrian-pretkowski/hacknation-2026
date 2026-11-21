@@ -109,7 +109,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
         const v = values[f.meta.name];
         const label = f.label ?? f.meta.label_guess;
         if (isEmpty(v)) {
-          if (isRequired(f)) out.push({ key: f.meta.name, label, message: f.noMeta ? "Wybierz jedną z odpowiedzi." : "To pole jest wymagane — uzupełnij je." });
+          if (isRequired(f)) out.push({ key: f.meta.name, label, message: f.noMeta ? "Wybierz jedną z odpowiedzi." : "To pole jest wymagane - uzupełnij je." });
         } else if (typeof v === "string" && !f.noMeta) {
           const e = formatError(f.meta, v);
           if (e) out.push({ key: f.meta.name, label, message: e });
@@ -160,7 +160,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
   if (sent) {
     return (
       <section aria-labelledby={`${idp}-done`} className="overflow-hidden rounded-2xl border border-zus-green-dark bg-white">
-        <SimBanner integration="ZUS (eZUS/PUE) — elektroniczne złożenie pisma" />
+        <SimBanner integration="ZUS (eZUS/PUE) - elektroniczne złożenie pisma" />
         <div className="p-5 sm:p-7">
           <div className="flex items-start gap-4">
             <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zus-green-50 text-2xl text-zus-green-dark">✓</span>
@@ -169,10 +169,10 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
                 Hej, Twoje pismo {code} zostało wysłane do ZUS!
               </h3>
               <p role="status" className="mt-2 text-sm text-zinc-700">
-                Numer zgłoszenia: <strong>{sent.id}</strong>. To SYMULACJA — w wersji demonstracyjnej nic nie trafia do ZUS.
+                Numer zgłoszenia: <strong>{sent.id}</strong>. To SYMULACJA - w wersji demonstracyjnej nic nie trafia do ZUS.
               </p>
               <p className="mt-2 text-sm text-zinc-700">
-                Wypełniony formularz pobrał się na Twoje urządzenie jako <strong className="break-all">{sent.fileName}</strong> — zachowaj go jako potwierdzenie.
+                Wypełniony formularz pobrał się na Twoje urządzenie jako <strong className="break-all">{sent.fileName}</strong> - zachowaj go jako potwierdzenie.
               </p>
             </div>
           </div>
@@ -274,7 +274,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
           return (
             <div key={t} className="overflow-x-auto">
               <table className="min-w-full border-collapse text-xs">
-                <caption className="mb-1 text-left text-sm font-medium">Tabela {t} (strona {page}) — kolumny jak na formularzu</caption>
+                <caption className="mb-1 text-left text-sm font-medium">Tabela {t} (strona {page}) - kolumny jak na formularzu</caption>
                 <thead><tr><th scope="col" className="p-1 text-left">Wiersz</th>{cols.map((c) => <th key={c} scope="col" className="p-1">kol. {c}</th>)}</tr></thead>
                 <tbody>
                   {rows.map((r) => (
@@ -312,24 +312,24 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
   };
 
   return (
-    <form noValidate onSubmit={submit} className="space-y-5" aria-label={`Formularz ${code} — ${FORMS[code].name}`}>
+    <form noValidate onSubmit={submit} className="space-y-5" aria-label={`Formularz ${code} - ${FORMS[code].name}`}>
       <div className="overflow-hidden rounded-2xl border border-amber-300 bg-white">
-        <SimBanner integration="ZUS (eZUS/PUE) — elektroniczne złożenie pisma" />
+        <SimBanner integration="ZUS (eZUS/PUE) - elektroniczne złożenie pisma" />
         <div className="space-y-2 p-4 text-sm text-zinc-700">
           <p>
             {filledCount > 0
               ? <>Uzupełniliśmy <strong>{filledCount}</strong> {plural(filledCount, "pole", "pola", "pól")} danymi{" "}
                 {user ? <>z konta <strong>{user.firstName} {user.lastName}</strong> (SYMULACJA)</> : null}{user && answers ? " i " : ""}{answers ? "z Twoich odpowiedzi w kreatorze" : ""}. Sprawdź je przed wysłaniem.</>
-              : "Nie mamy jeszcze Twoich danych — wypełnij pola poniżej."}
+              : "Nie mamy jeszcze Twoich danych - wypełnij pola poniżej."}
           </p>
           {missingRequired > 0 && (
-            <p className="font-medium text-amber-900">Brakuje {missingRequired} {missingRequired === 1 ? "wymaganego pola" : "wymaganych pól"} — {missingRequired === 1 ? "jest oznaczone" : "są oznaczone"} „Uzupełnij”. Prosimy o uzupełnienie.</p>
+            <p className="font-medium text-amber-900">Brakuje {missingRequired} {missingRequired === 1 ? "wymaganego pola" : "wymaganych pól"} - {missingRequired === 1 ? "jest oznaczone" : "są oznaczone"} „Uzupełnij”. Prosimy o uzupełnienie.</p>
           )}
           {!user && (
             <p>
               Masz konto testowe?{" "}
               <button type="button" onClick={() => requestLogin()} className="font-semibold text-zus-navy underline underline-offset-2">Zaloguj się (SYMULACJA)</button>
-              {" "}— uzupełnimy dane osobowe i płatnika.
+              {" "}- uzupełnimy dane osobowe i płatnika.
             </p>
           )}
           <p className="text-xs text-zinc-600">Pola oznaczone <span className="text-zus-red">*</span> są wymagane. Tekst w pliku PDF zapiszemy WIELKIMI LITERAMI, jak wymaga formularz.</p>
@@ -344,7 +344,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
               <li key={e.key}>
                 {e.key.startsWith("oneOf:") ? <span>{e.label}: {e.message}</span>
                   : <a href={`#${fieldId(e.key)}`} className="underline underline-offset-2">{e.label}</a>}
-                {!e.key.startsWith("oneOf:") && <span> — {e.message}</span>}
+                {!e.key.startsWith("oneOf:") && <span> - {e.message}</span>}
               </li>
             ))}
             {errors.length > 12 && <li>…i {errors.length - 12} więcej</li>}

@@ -1,6 +1,6 @@
 import { ruleParts } from "./rules";
 
-/** Jedna reguła: krótki opis (podstawa) i pod spodem opis z katalogu 02 — zamiast ID (ID tylko w podpowiedzi `title`). */
+/** Jedna reguła: krótki opis (podstawa) i pod spodem opis z katalogu 02 - zamiast ID (ID tylko w podpowiedzi `title`). */
 export function RuleText({ entry, className = "" }: { entry: string; className?: string }) {
   const p = ruleParts(entry);
   return (

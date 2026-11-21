@@ -1,6 +1,6 @@
 # Wypełnienie pisma formularzem i wysyłka (SYMULACJA) z pobraniem PDF (FE1-23)
 
-> Wymaganie: docs/FORMS_FLOW.md, etap 3. Dane z konta testowego (fikcyjna osoba); wysyłka to SYMULACJA — nic nie trafia do ZUS.
+> Wymaganie: docs/FORMS_FLOW.md, etap 3. Dane z konta testowego (fikcyjna osoba); wysyłka to SYMULACJA - nic nie trafia do ZUS.
 
 1. Otwórz stronę główną.
 2. Kliknij „Wybierz pismo →”.

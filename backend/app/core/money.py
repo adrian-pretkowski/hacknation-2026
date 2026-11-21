@@ -1,7 +1,7 @@
-"""Kwoty — konwencje C1–C2 z zus_rules/07_CALCULATION_SPEC.md.
+"""Kwoty - konwencje C1–C2 z zus_rules/07_CALCULATION_SPEC.md.
 
 C1: decimal.Decimal, precyzja 28, bez zaokrągleń pośrednich (wynik *_exact).
-C2: polityka zaokrągleń nieustalona (GAP-001) — round_preview() tylko do podglądu w UI.
+C2: polityka zaokrągleń nieustalona (GAP-001) - round_preview() tylko do podglądu w UI.
 """
 from __future__ import annotations
 
@@ -42,10 +42,10 @@ def dec_str(value: Decimal) -> str:
 
 
 def round_to_step(value: Decimal, step: Decimal) -> Decimal:
-    """Zaokrąglenie ROUND_HALF_UP do kroku z parametru (np. 0,01 zł) — tylko tam, gdzie reguła je przewiduje (M07a)."""
+    """Zaokrąglenie ROUND_HALF_UP do kroku z parametru (np. 0,01 zł) - tylko tam, gdzie reguła je przewiduje (M07a)."""
     return value.quantize(step, rounding=ROUND_HALF_UP)
 
 
 def round_preview(value: Decimal) -> Decimal:
-    """Podgląd do 0,01 zł ROUND_HALF_UP — wymaga assumption ROUNDING_UNCONFIRMED (C2, GAP-001)."""
+    """Podgląd do 0,01 zł ROUND_HALF_UP - wymaga assumption ROUNDING_UNCONFIRMED (C2, GAP-001)."""
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)

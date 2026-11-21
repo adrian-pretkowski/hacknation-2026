@@ -15,13 +15,13 @@ function BenefitCard({ benefit }: { benefit: Benefit }) {
   return (
     <article className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm" aria-label="Wynik: zasiłek macierzyński">
       <header className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-lg font-semibold">Zasiłek macierzyński — urlop macierzyński</h3>
+        <h3 className="text-lg font-semibold">Zasiłek macierzyński - urlop macierzyński</h3>
         <span className={`rounded px-2 py-1 text-sm font-medium ${STATUS_STYLE[benefit.status] ?? ""}`}>
           {STATUS_LABEL[benefit.status] ?? benefit.status}
         </span>
       </header>
       <dl className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-        <div><dt className="text-zinc-500">Okres</dt><dd data-testid="period">{formatDate(benefit.period?.from)} – {formatDate(benefit.period?.to)} ({benefit.period?.max_weeks ?? "—"} tyg., {benefit.days ?? "—"} dni)</dd></div>
+        <div><dt className="text-zinc-500">Okres</dt><dd data-testid="period">{formatDate(benefit.period?.from)} – {formatDate(benefit.period?.to)} ({benefit.period?.max_weeks ?? "-"} tyg., {benefit.days ?? "-"} dni)</dd></div>
         <div><dt className="text-zinc-500">Stawka</dt><dd data-testid="rate">{formatRate(benefit.rate)} podstawy</dd></div>
         <div><dt className="text-zinc-500">Za dzień</dt><dd>{formatMoney(benefit.daily_amount_exact)}</dd></div>
         <div><dt className="text-zinc-500">Łącznie za okres</dt><dd data-testid="total" className="text-base font-semibold">{formatMoney(benefit.total_amount_exact)}</dd></div>

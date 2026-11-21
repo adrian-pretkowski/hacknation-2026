@@ -1,6 +1,6 @@
-// FE2-05 / FE2-06: przewodnik — ryzyka, ochrona z KP 177, organizacje wsparcia, linki (zus.pl, gov.pl, PIP), tryb wrażliwy.
-// Treści z frontend/src/content (BA-02, interfejs I4) — tu tylko prezentacja. Komponent serwerowy, bez stanu.
-// FE2-06: układ wizualny — nagłówek z wezwaniami do działania, spis treści, „Krok po kroku” jako oś czasu, karty z ikonami,
+// FE2-05 / FE2-06: przewodnik - ryzyka, ochrona z KP 177, organizacje wsparcia, linki (zus.pl, gov.pl, PIP), tryb wrażliwy.
+// Treści z frontend/src/content (BA-02, interfejs I4) - tu tylko prezentacja. Komponent serwerowy, bez stanu.
+// FE2-06: układ wizualny - nagłówek z wezwaniami do działania, spis treści, „Krok po kroku” jako oś czasu, karty z ikonami,
 // klikalne telefony i e-maile, podstawa prawna jako etykiety.
 // Tryb wrażliwy (strata dziecka): wsparcie na górze, spokojny język, pozostałe informacje zwinięte (na żądanie).
 import Link from "next/link";
@@ -42,7 +42,7 @@ function Icon({ name, className = "h-5 w-5" }: { name: IconName; className?: str
 }
 
 // ---------- tekst: minimalny Markdown z treści BA (bez HTML z treści) ----------
-// Telefony i e-maile w treści stają się linkami (tel:, mailto:) — wygodne na telefonie.
+// Telefony i e-maile w treści stają się linkami (tel:, mailto:) - wygodne na telefonie.
 const CONTACT_RE = /(\b22 \d{3} \d{2} \d{2}\b|\b1\d{2} \d{3}\b|\b800 \d{3} \d{3}\b|(?<=pod )112\b|[\w.+-]+@[\w-]+\.[a-z]{2,})/g;
 
 function contacts(text: string, keyBase: string): ReactNode[] {
@@ -120,7 +120,7 @@ const TITLE_PHONE_RE = /\b1\d{2} \d{3}\b|\b22 \d{3} \d{2} \d{2}\b|\b800 \d{3} \d
 function Card({ block, icon, tone, level = "h3" }: { block: ContentBlock; icon: IconName; tone: Tone; level?: "h3" | "h4" }) {
   const H = level;
   const t = TONE[tone];
-  // Numer w tytule (np. telefon zaufania) — duży przycisk „Zadzwoń” zamiast samego tekstu.
+  // Numer w tytule (np. telefon zaufania) - duży przycisk „Zadzwoń” zamiast samego tekstu.
   const phone = TITLE_PHONE_RE.exec(block.title)?.[0];
   return (
     <article className={`flex h-full flex-col rounded-2xl border border-t-4 border-zinc-200 bg-white p-5 shadow-sm ${t.bar}`}>
@@ -169,10 +169,10 @@ function CardSection({ id, anchor, icon, tone, title, intro, eyebrow, blocks, ca
 const STEP_ICONS: IconName[] = ["doc", "calendar", "baby", "user", "users", "briefcase"];
 type Step = { title: string; text: string };
 
-/** Lista „1. **Tytuł** — opis” z treści BA → kroki osi czasu; null, gdy treść ma inny format. */
+/** Lista „1. **Tytuł** - opis” z treści BA → kroki osi czasu; null, gdy treść ma inny format. */
 function parseSteps(md: string): Step[] | null {
   const lines = md.split("\n").filter((l) => l.trim());
-  const steps = lines.map((l) => /^\d+\.\s+\*\*(.+?)\*\*\s*[—–-]\s*(.+)$/.exec(l));
+  const steps = lines.map((l) => /^\d+\.\s+\*\*(.+?)\*\*\s*[-–-]\s*(.+)$/.exec(l));
   return steps.every(Boolean) ? steps.map((m) => ({ title: m![1], text: m![2] })) : null;
 }
 
@@ -228,10 +228,10 @@ function FullSections() {
         </div>
       </section>
       <CardSection id="risks-h" anchor="na-co-uwazac" icon="alert" tone="amber" title="Na co uważać" blocks={RISKS}
-        intro="Sygnały ryzyka — nie są decyzją ZUS. Kalkulator pokazuje je w wyniku jako ostrzeżenia." />
+        intro="Sygnały ryzyka - nie są decyzją ZUS. Kalkulator pokazuje je w wyniku jako ostrzeżenia." />
       <CardSection id="kp-h" anchor="ochrona-pracy" icon="shield" tone="blue" title="Ochrona pracy" eyebrow="Kodeks pracy, art. 177" blocks={LEGAL_PROTECTION} />
       <CardSection id="orgs-h" anchor="wsparcie" icon="heart" tone="rose" title="Organizacje wsparcia" blocks={orgs}
-        intro="Lista przykładowa — ZUS nie prowadzi zweryfikowanej listy organizacji." />
+        intro="Lista przykładowa - ZUS nie prowadzi zweryfikowanej listy organizacji." />
       <CardSection id="links-h" anchor="linki" icon="link" tone="navy" title="Gdzie szukać informacji" blocks={links} />
     </div>
   );
@@ -258,7 +258,7 @@ function SensitiveGuide() {
       </header>
       {lossOrgs.length > 0 && (
         <section aria-labelledby="loss-orgs-h">
-          <SectionHead id="loss-orgs-h" icon="phone" tone="rose" title="Gdzie szukać pomocy" intro="Możesz zadzwonić od razu — rozmowa jest bezpłatna." />
+          <SectionHead id="loss-orgs-h" icon="phone" tone="rose" title="Gdzie szukać pomocy" intro="Możesz zadzwonić od razu - rozmowa jest bezpłatna." />
           <div className="grid gap-4 md:grid-cols-2">{lossOrgs.map((b) => <Card key={b.id} block={b} icon="heart" tone="rose" />)}</div>
         </section>
       )}
@@ -298,7 +298,7 @@ export function Guide({ sensitive = false }: { sensitive?: boolean }) {
             </Link>
             <Link href="/wsparcie/spokojny" className="inline-flex items-center gap-2 rounded-full border border-zus-blue/40 bg-zus-blue-50 px-5 py-2.5 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
               <Icon name="heart" className="h-4 w-4 text-rose-600" />
-              <span>Poronienie lub strata dziecka — tryb spokojny</span>
+              <span>Poronienie lub strata dziecka - tryb spokojny</span>
             </Link>
           </div>
           <nav aria-label="Na tej stronie" className="mt-8">
@@ -311,7 +311,7 @@ export function Guide({ sensitive = false }: { sensitive?: boolean }) {
       </header>
       <FullSections />
       <p className="rounded-2xl bg-zus-gray-50 p-4 text-xs text-zinc-600">
-        Treści mają charakter informacyjny i nie są decyzją ZUS. Wynik dla Twojej sytuacji — z wyjaśnieniem, jak go policzyliśmy — pokaże kreator.
+        Treści mają charakter informacyjny i nie są decyzją ZUS. Wynik dla Twojej sytuacji - z wyjaśnieniem, jak go policzyliśmy - pokaże kreator.
       </p>
     </div>
   );

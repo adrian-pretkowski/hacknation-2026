@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/zus-parenthood/output.schema.json",
-  "title": "ZUS Parenthood Rules — Evaluation Result",
+  "title": "ZUS Parenthood Rules - Evaluation Result",
   "type": "object",
   "required": ["evaluation_id", "ruleset_version", "law_reference_date", "evaluated_at", "mode", "benefits", "missing_data", "missing_documents", "warnings", "plan_errors", "applied_rules", "assumptions"],
   "$defs": {
@@ -18,7 +18,7 @@
       "properties": {
         "code": {"type": "string"},
         "rule_id": {"type": "string"},
-        "message": {"type": "string", "description": "Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły — bez LLM."},
+        "message": {"type": "string", "description": "Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły - bez LLM."},
         "legal_basis": {"type": "array", "items": {"$ref": "#/$defs/LegalRef"}},
         "truth_value": {"enum": ["TRUE", "FALSE", "UNKNOWN"]}
       }
@@ -111,7 +111,7 @@
     },
     "plan_errors": {
       "type": "array",
-      "description": "Błędy walidacji planu (validation_error) — nie zmieniają statusu prawa.",
+      "description": "Błędy walidacji planu (validation_error) - nie zmieniają statusu prawa.",
       "items": {"type": "object", "required": ["code", "rule_id"], "properties": {"code": {"type": "string"}, "rule_id": {"type": "string"}, "segment_index": {"type": "integer"}}}
     },
     "insurance_verification": {

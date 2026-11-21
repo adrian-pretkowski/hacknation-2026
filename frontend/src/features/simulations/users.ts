@@ -1,4 +1,4 @@
-// SYMULACJA — fikcyjni użytkownicy testowi do demonstracji logowania i pobierania danych.
+// SYMULACJA - fikcyjni użytkownicy testowi do demonstracji logowania i pobierania danych.
 // Wszystkie osoby, daty i kwoty są wymyślone; nie odpowiadają żadnej rzeczywistej osobie ani sprawie ZUS.
 // Identyfikatory = ProfileId z contracts/openapi.yaml (docelowo profile w demo/profiles/, INT-03).
 import type { Answers, Title } from "../main-flow/wizard/answers";
@@ -59,7 +59,7 @@ export const TEST_USERS: TestUser[] = [
     role: "MOTHER",
     title: "SELF_EMPLOYED",
     titleLabel: "działalność gospodarcza, dobrowolne ubezpieczenie chorobowe",
-    payerName: "Ewa Testowa — działalność (fikcyjna)",
+    payerName: "Ewa Testowa - działalność (fikcyjna)",
     insuredFrom: "2025-01-01",
     voluntarySickness: true,
     contractType: null,

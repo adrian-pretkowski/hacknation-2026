@@ -1,4 +1,4 @@
-"""BE2-06: sprawy — lista, szczegóły, ewaluacja z porównaniem z ``expected``, upload PDF, ``insurance_verification``.
+"""BE2-06: sprawy - lista, szczegóły, ewaluacja z porównaniem z ``expected``, upload PDF, ``insurance_verification``.
 
 Kryteria: sprawa syntetyczna daje „zgodne ✓” (MATCH / MATCH_WITH_TOLERANCE); upload PDF zwraca listę brakujących pól
 (NEEDS_DATA) bez zapisu pliku; odpowiedzi zgodne z kontraktem. Tylko dane syntetyczne (``demo/cases``).
@@ -136,10 +136,10 @@ def test_insurance_verification_sickness_waiting_period_boundary():
     start = data["incapacity"]["start_date"]
     body = pipeline.evaluate(data)["insurance_verification"]
     assert body["waiting_period_met"] == "TRUE" and "SICK-ELIG-002" in body["rule_ids"]
-    # tytuł od 10 dni przed niezdolnością — okres wyczekiwania 30 dni nie upłynął
+    # tytuł od 10 dni przed niezdolnością - okres wyczekiwania 30 dni nie upłynął
     from datetime import date, timedelta
     data["insurance"]["titles"][0]["from"] = (date.fromisoformat(start) - timedelta(days=10)).isoformat()
     assert pipeline.evaluate(data)["insurance_verification"]["waiting_period_met"] == "FALSE"
-    data["incapacity"]["cause"] = "COMMUTE_ACCIDENT"  # art. 4 ust. 3 — bez okresu wyczekiwania (SICK-ELIG-005)
+    data["incapacity"]["cause"] = "COMMUTE_ACCIDENT"  # art. 4 ust. 3 - bez okresu wyczekiwania (SICK-ELIG-005)
     body = pipeline.evaluate(data)["insurance_verification"]
     assert body["waiting_period_met"] == "NOT_REQUIRED" and "SICK-ELIG-005" in body["rule_ids"]

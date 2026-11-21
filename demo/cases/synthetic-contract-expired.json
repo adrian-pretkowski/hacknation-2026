@@ -1,6 +1,6 @@
 {
   "case_id": "synthetic-contract-expired",
-  "title": "Umowa zlecenia wygasła przed porodem — brak prawa",
+  "title": "Umowa zlecenia wygasła przed porodem - brak prawa",
   "source": "SYNTHETIC",
   "note": "Dane syntetyczne (T-MAT-004): brak ubezpieczenia w dniu porodu, brak podstawy z art. 30 → brak prawa + ostrzeżenie RISK-003.",
   "input": {

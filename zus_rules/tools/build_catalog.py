@@ -202,11 +202,11 @@ for rid in untested_p0:
 CAT_ORDER = ["GENERAL", "EMPLOYER_SICK_PAY", "SICKNESS", "REHABILITATION", "MATERNITY", "MATERNITY_EQUIVALENT",
              "SUPPLEMENTARY_MATERNITY", "PARENTAL", "PATERNITY", "BASE", "RISK"]
 CAT_TITLE = {
-    "GENERAL": "Reguły ogólne — płatnik, zadłużenie, terminy", "EMPLOYER_SICK_PAY": "Wynagrodzenie chorobowe (KP art. 92)",
-    "SICKNESS": "Zasiłek chorobowy (w tym ciąża)", "REHABILITATION": "Świadczenie rehabilitacyjne (poza priorytetem — oznaczone osobno)",
-    "MATERNITY": "Zasiłek macierzyński — prawo, okres macierzyński, przejęcie, stawki", "MATERNITY_EQUIVALENT": "Zasiłek w wysokości zasiłku macierzyńskiego",
+    "GENERAL": "Reguły ogólne - płatnik, zadłużenie, terminy", "EMPLOYER_SICK_PAY": "Wynagrodzenie chorobowe (KP art. 92)",
+    "SICKNESS": "Zasiłek chorobowy (w tym ciąża)", "REHABILITATION": "Świadczenie rehabilitacyjne (poza priorytetem - oznaczone osobno)",
+    "MATERNITY": "Zasiłek macierzyński - prawo, okres macierzyński, przejęcie, stawki", "MATERNITY_EQUIVALENT": "Zasiłek w wysokości zasiłku macierzyńskiego",
     "SUPPLEMENTARY_MATERNITY": "Uzupełniający urlop macierzyński", "PARENTAL": "Urlop rodzicielski",
-    "PATERNITY": "Urlop ojcowski", "BASE": "Podstawa wymiaru", "RISK": "Ostrzeżenia o ryzykach (pkt H zadania) — nie zmieniają statusu",
+    "PATERNITY": "Urlop ojcowski", "BASE": "Podstawa wymiaru", "RISK": "Ostrzeżenia o ryzykach (pkt H zadania) - nie zmieniają statusu",
 }
 
 
@@ -229,9 +229,9 @@ def cond_text(c, depth=0):
     return f"{pad}- {left} **{c.get('operator')}** {val}"
 
 
-lines = ["# 02 — BUSINESS RULES CATALOG", "",
+lines = ["# 02 - BUSINESS RULES CATALOG", "",
          f"> **Plik generowany** z `03_rules.yaml` (v{RULES['meta']['version']}, data referencyjna {REF_DATE}) przez `tools/build_catalog.py`. Nie edytować ręcznie.",
-         "", f"Liczba reguł: **{len(rules)}**. Status `evaluation`: ACTIVE — wykonywana automatycznie; BLOCKED — zwraca NEEDS_REVIEW; HUMAN_REVIEW — przesłanka oceniana przez człowieka; FUTURE — jeszcze nie obowiązuje; INFORMATIONAL — dokumenty/terminy/ostrzeżenia.", "",
+         "", f"Liczba reguł: **{len(rules)}**. Status `evaluation`: ACTIVE - wykonywana automatycznie; BLOCKED - zwraca NEEDS_REVIEW; HUMAN_REVIEW - przesłanka oceniana przez człowieka; FUTURE - jeszcze nie obowiązuje; INFORMATIONAL - dokumenty/terminy/ostrzeżenia.", "",
          "## Indeks", "", "| ID | Nazwa | Typ | Prio | Eval | Pewność | Interpretacja | Testy |", "|---|---|---|---|---|---|---|---|"]
 for cat in CAT_ORDER:
     for r in rules:
@@ -244,17 +244,17 @@ for cat in CAT_ORDER:
     lines += ["", f"## {CAT_TITLE.get(cat, cat)}", ""]
     for r in group:
         lb = r["legal_basis"]
-        lines += [f"### {r['id']}", "", f"**{r['name']}** — `{r['rule_type']}` · {r['implementation_priority']} · {r['automation_status']} · eval: **{r['evaluation']}**", "",
+        lines += [f"### {r['id']}", "", f"**{r['name']}** - `{r['rule_type']}` · {r['implementation_priority']} · {r['automation_status']} · eval: **{r['evaluation']}**", "",
                   r["description"], "",
-                  f"- **Podstawa:** {r['source_document']} — {r['source_location']}",
+                  f"- **Podstawa:** {r['source_document']} - {r['source_location']}",
                   f"- **Fragment:** „{r['source_excerpt']}”",
-                  f"- **Obowiązuje:** od {r['valid_from'] or '—'} do {r['valid_to'] or '—'}",
+                  f"- **Obowiązuje:** od {r['valid_from'] or '-'} do {r['valid_to'] or '-'}",
                   "- **Warunki:**", cond_text(r["conditions"], 1),
                   f"- **Rezultat:** `{json.dumps(r['result'], ensure_ascii=False)}`",
-                  f"- **Wyjątki:** {', '.join(r['exceptions']) or '—'} · **Zależy od:** {', '.join(r['dependencies']) or '—'} · **Ma pierwszeństwo przed:** {', '.join(r['overrides']) or '—'}",
-                  f"- **Dane:** {', '.join(f'`{x}`' for x in r['required_inputs']) or '—'} · brak danych → `{r['missing_data_behavior']}`",
+                  f"- **Wyjątki:** {', '.join(r['exceptions']) or '-'} · **Zależy od:** {', '.join(r['dependencies']) or '-'} · **Ma pierwszeństwo przed:** {', '.join(r['overrides']) or '-'}",
+                  f"- **Dane:** {', '.join(f'`{x}`' for x in r['required_inputs']) or '-'} · brak danych → `{r['missing_data_behavior']}`",
                   f"- **Jakość:** pewność {r['confidence']}, interpretacja {r['interpretation_status']}",
-                  f"- **Testy:** {', '.join(tests_by_rule.get(r['id'], [])) or '—'}"]
+                  f"- **Testy:** {', '.join(tests_by_rule.get(r['id'], [])) or '-'}"]
         if r.get("notes"):
             lines.append(f"- **Uwagi:** {r['notes']}")
         lines.append("")
@@ -264,14 +264,14 @@ for cat in CAT_ORDER:
 errors = [f for f in findings if f[0] == "ERROR"]
 warns = [f for f in findings if f[0] == "WARN"]
 by = lambda key: defaultdict(int, {k: sum(1 for r in rules if r[key] == k) for k in {r[key] for r in rules}})
-a = ["# 11 — CONSISTENCY AUDIT (generowany)", "",
+a = ["# 11 - CONSISTENCY AUDIT (generowany)", "",
      f"Wygenerowano przez `tools/build_catalog.py` z `03_rules.yaml` v{RULES['meta']['version']}. **Błędy: {len(errors)} · Ostrzeżenia: {len(warns)}**", "",
      "## Statystyki", "",
      f"- Reguły: {len(rules)}; testy: {len(TESTS['tests'])}; fakty użyte: {len(facts_used)} (zdefiniowane w 07: {len(SPEC_FACTS)}); pola użyte: {len(fields_used)}; parametry: {len(PARAMS)}",
      f"- Priorytet: " + ", ".join(f"{k}={v}" for k, v in sorted(by('implementation_priority').items())),
      f"- Evaluation: " + ", ".join(f"{k}={v}" for k, v in sorted(by('evaluation').items())),
      f"- Interpretacja: " + ", ".join(f"{k}={v}" for k, v in sorted(by('interpretation_status').items())),
-     f"- Parametry nieużywane w warunkach (używane w funkcjach 07): {', '.join(sorted(unused_params)) or '—'}", "",
+     f"- Parametry nieużywane w warunkach (używane w funkcjach 07): {', '.join(sorted(unused_params)) or '-'}", "",
      "## Wyniki kontroli", ""]
 if findings:
     a += ["| Poziom | Reguła/test | Opis |", "|---|---|---|"] + [f"| {l} | {r} | {m} |" for l, r, m in findings]
@@ -280,16 +280,16 @@ else:
 checks = [
     ("1. Każda reguła ma podstawę źródłową", not any("source" in m or "missing key legal_basis" in m for _, _, m in errors)),
     ("2. Wejście i rezultat zdefiniowane", not any("missing key" in m for _, _, m in errors)),
-    ("3. Wyjątki zidentyfikowane", "częściowo — patrz 09 (GAP-*) — wyciągi niekompletne"),
+    ("3. Wyjątki zidentyfikowane", "częściowo - patrz 09 (GAP-*) - wyciągi niekompletne"),
     ("4. Zależności wskazują istniejące reguły", not any("unknown rule" in m for _, _, m in errors)),
     ("5. Okres obowiązywania uwzględniony", not any("valid_from" in m or "FUTURE" in m for _, _, m in errors)),
-    ("6. Brak danych nie prowadzi do fałszywej odmowy", "TAK — logika Kleene (C9), missing_data_behavior, testy MISSING_DATA"),
+    ("6. Brak danych nie prowadzi do fałszywej odmowy", "TAK - logika Kleene (C9), missing_data_behavior, testy MISSING_DATA"),
     ("7. Ocena człowieka nie zamieniona na bool", not any("without block" in m for _, _, m in errors)),
     ("8. Dokumenty oddzielone od uprawnień", not any("document rule" in m for _, _, m in warns)),
-    ("9. Obliczenia mają jednostki/granice/zaokrąglenia", "jednostki i granice TAK; zaokrąglenia — BRAK w źródłach (GAP-001), jawnie oznaczone"),
+    ("9. Obliczenia mają jednostki/granice/zaokrąglenia", "jednostki i granice TAK; zaokrąglenia - BRAK w źródłach (GAP-001), jawnie oznaczone"),
     ("10. Wszystkie reguły P0 mają testy", not untested_p0),
     ("11. Schemat zawiera pola używane przez reguły", not any("not in 04_INPUT" in m for _, _, m in errors)),
-    ("12. YAML interpretowalny bez LLM", "TAK — zamknięty zestaw operatorów, fakty jako nazwane funkcje (07)"),
+    ("12. YAML interpretowalny bez LLM", "TAK - zamknięty zestaw operatorów, fakty jako nazwane funkcje (07)"),
 ]
 a += ["", "## Checklista QA (§13)", "", "| Kontrola | Wynik |", "|---|---|"]
 for name, ok in checks:
@@ -297,20 +297,20 @@ for name, ok in checks:
 a += ["", "## Macierz pokrycia: przepis → reguła biznesowa → reguła wykonywalna → test", "",
       "| Przepis | Reguła | Wykonanie | Testy |", "|---|---|---|---|"]
 for r in sorted(rules, key=lambda x: (x["source_document"], x["source_location"])):
-    a.append(f"| {r['source_document']} {r['source_location']} | {r['id']} | {r['evaluation']} | {', '.join(tests_by_rule.get(r['id'], [])) or '—'} |")
+    a.append(f"| {r['source_document']} {r['source_location']} | {r['id']} | {r['evaluation']} | {', '.join(tests_by_rule.get(r['id'], [])) or '-'} |")
 a += ["", "## Przepisy zidentyfikowane, ale nieuwzględnione w regułach wykonywalnych", "",
       "| Przepis | Przyczyna |", "|---|---|",
       "| USTAWA art. 2 pkt 3, 6; rozdz. 4-5 (zasiłek wyrównawczy, opiekuńczy) | Poza zakresem produktu (nie w pkt a–j zadania); art. 32-35 nie ma w wyciągu |",
-      "| USTAWA art. 6 ust. 2 (kwarantanna, leczenie odwykowe, dawstwo) | P2 — rzadkie; częściowo w SICK-RATE-002 (dawstwo) |",
-      "| USTAWA art. 14, 7a, 52a, 52b | Grupy szczególne (nosicielstwo, żołnierze, służba zastępcza, małżonek Prezydenta) — OUT_OF_SCOPE |",
+      "| USTAWA art. 6 ust. 2 (kwarantanna, leczenie odwykowe, dawstwo) | P2 - rzadkie; częściowo w SICK-RATE-002 (dawstwo) |",
+      "| USTAWA art. 14, 7a, 52a, 52b | Grupy szczególne (nosicielstwo, żołnierze, służba zastępcza, małżonek Prezydenta) - OUT_OF_SCOPE |",
       "| USTAWA art. 19 ust. 2-3 (waloryzacja) | Brak wskaźników w materiałach (GAP-009) |",
-      "| USTAWA art. 53-58a (e-ZLA — wystawianie, rejestry, błędy) | Procedura lekarska/płatnika — tylko jako źródło danych (kody A-E) |",
-      "| USTAWA art. 61 ust. 4, 61a, 62 ust. 1-2, 4-6, 63, 65, 66, 66a | Procedura wypłaty — informacyjnie w przewodniku, nie w silniku |",
-      "| USTAWA art. 29 ust. 2a, 8; art. 29a ust. 4; art. 30a ust. 4 | Przypadki szczególne (KAS, przepisy odrębne) — OUT_OF_SCOPE |",
-      "| KP art. 177 § 1, § 1(1), § 4 | Ochrona przed zwolnieniem — treść informacyjna (pkt I zadania), nie wpływa na zasiłek |",
+      "| USTAWA art. 53-58a (e-ZLA - wystawianie, rejestry, błędy) | Procedura lekarska/płatnika - tylko jako źródło danych (kody A-E) |",
+      "| USTAWA art. 61 ust. 4, 61a, 62 ust. 1-2, 4-6, 63, 65, 66, 66a | Procedura wypłaty - informacyjnie w przewodniku, nie w silniku |",
+      "| USTAWA art. 29 ust. 2a, 8; art. 29a ust. 4; art. 30a ust. 4 | Przypadki szczególne (KAS, przepisy odrębne) - OUT_OF_SCOPE |",
+      "| KP art. 177 § 1, § 1(1), § 4 | Ochrona przed zwolnieniem - treść informacyjna (pkt I zadania), nie wpływa na zasiłek |",
       "| KP art. 181, 182(1d) § 3, 183 § 7-8, 185, 186(4), 189(1) | Uprawnienia pracownicze bez wpływu na zasiłek / P2 |",
       "| ROZP_DOK § 5, 7-10, 14, 18-19, 21-25, 28, 31, 34-41, zał. 5, 7 | Dokumenty dla przypadków P2 lub poza zakresem (zagranica, opiekuńczy); mapowane informacyjnie |",
-      "| ROZP_WN § 19-21 | Urlop wychowawczy / obniżenie wymiaru — poza zakresem |",
+      "| ROZP_WN § 19-21 | Urlop wychowawczy / obniżenie wymiaru - poza zakresem |",
       "", "## Mapa pól wejścia → reguły", "", "| Pole | Reguły |", "|---|---|"]
 for f, users in sorted(fields_used.items()):
     a.append(f"| `{f}` | {', '.join(sorted(users))} |")

@@ -1,13 +1,13 @@
 import type { PlannerChoice } from "@/lib/api";
 import { addDays } from "../preview/exact";
 
-/** FE1-10: przykłady z porodem w przyszłości liczone od dziś — walidacja dat nie zablokuje ich po terminie. */
+/** FE1-10: przykłady z porodem w przyszłości liczone od dziś - walidacja dat nie zablokuje ich po terminie. */
 const inDays = (n: number) => {
   const d = new Date(); // data lokalna, jak todayIso() w request.ts
   return addDays(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`, n);
 };
 
-// Odpowiedzi kreatora (stan UI). Zamieniane na EvaluateRequest w request.ts — tylko tam powstaje model kontraktu.
+// Odpowiedzi kreatora (stan UI). Zamieniane na EvaluateRequest w request.ts - tylko tam powstaje model kontraktu.
 
 export type Role = "MOTHER" | "FATHER" | "GUARDIAN";
 export type Stage = "PREGNANT" | "BORN";
@@ -37,10 +37,10 @@ export type Answers = {
   children: number;
   preterm: boolean;
   gestationWeeks: string;
-  /** Masa urodzeniowa (przy kilkorgu dzieci: najlżejszego) ≤ SUPP_WEIGHT_THRESHOLD_G — FE1-05, zamiast dokładnej masy. */
+  /** Masa urodzeniowa (przy kilkorgu dzieci: najlżejszego) ≤ SUPP_WEIGHT_THRESHOLD_G - FE1-05, zamiast dokładnej masy. */
   lowBirthWeight: Tri;
   hospitalWeeks: string;
-  /** FE1-08: liczba dni pobytu z zaświadczenia ze szpitala; hospitalWeeks = ceil(dni / WEEK_AS_DAYS) — wartość wysyłana do API. */
+  /** FE1-08: liczba dni pobytu z zaświadczenia ze szpitala; hospitalWeeks = ceil(dni / WEEK_AS_DAYS) - wartość wysyłana do API. */
   hospitalDays: string;
   lateHospitalQualifies: Tri;
   zaZyciem: boolean;
@@ -51,7 +51,7 @@ export type Answers = {
   partnerInsured: Tri;
   maternityStart: string;
   usedMaternityFully: Tri;
-  usedMaternityWeeks: string; // FE1-09: przy „Nie” — ile tygodni macierzyńskiego wykorzystano
+  usedMaternityWeeks: string; // FE1-09: przy „Nie” - ile tygodni macierzyńskiego wykorzystano
   usedParentalMotherWeeks: string;
   usedParentalFatherWeeks: string;
   usedParts: string;

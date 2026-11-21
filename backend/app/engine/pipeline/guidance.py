@@ -1,12 +1,12 @@
 """Przewodnik po wyniku (BE2-04): dokumenty (``missing_documents``), terminy (``deadlines``) i ryzyka (``warnings``).
 
-Krok po ocenie świadczeń — nie zmienia statusu ani kwot (reguły INFORMATIONAL / DEADLINE / VALIDATION):
+Krok po ocenie świadczeń - nie zmienia statusu ani kwot (reguły INFORMATIONAL / DEADLINE / VALIDATION):
 - dokumenty: SICK-DOC-001/002 (chorobowy), APP-DOC-001…005 (macierzyński, urodzenie, przyjęcie dziecka, po ustaniu
   tytułu), APP-DOC-006 per segment planu (``f_documents_for_segment``); tylko świadczenia, które nie są odmową
   (NOT_ELIGIBLE / OUT_OF_SCOPE), bez dokumentów oznaczonych w ``evidence.documents`` jako PROVIDED,
 - terminy: APP-DL-001 (wniosek 81,5%, ``f_combined_application_deadline``) i APP-DL-002 (wnioski urlopowe KP,
-  ``f_leave_application_deadlines``) — dla osoby, której dotyczy ewaluacja,
-- ryzyka: RISK-001/002/003 (pkt H zadania, M17) — tylko ostrzeżenia, nigdy zmiana statusu.
+  ``f_leave_application_deadlines``) - dla osoby, której dotyczy ewaluacja,
+- ryzyka: RISK-001/002/003 (pkt H zadania, M17) - tylko ostrzeżenia, nigdy zmiana statusu.
 """
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ def guidance(eng: Engine, benefits: list[dict[str, Any]]) -> dict[str, Any]:
 
 # ------------------------------------------------------------------------------------------- ryzyka
 def _risks(eng: Engine) -> None:
-    """RISK-001/002/003 dotyczą ciąży ubezpieczonej — tylko matka (urodzenie, niezdolność w ciąży)."""
+    """RISK-001/002/003 dotyczą ciąży ubezpieczonej - tylko matka (urodzenie, niezdolność w ciąży)."""
     ctx = eng.ctx
     if ctx.field("person.role") != "MOTHER" or ctx.field("event.type") not in ("BIRTH", "PREGNANCY_INCAPACITY"):
         return

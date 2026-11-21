@@ -1,4 +1,4 @@
-"""BE1-02: prymitywy pipeline'u — tryby FUTURE/BLOCKED/HUMAN_REVIEW, fakty spoza rejestru, overrides, DT-9, router."""
+"""BE1-02: prymitywy pipeline'u - tryby FUTURE/BLOCKED/HUMAN_REVIEW, fakty spoza rejestru, overrides, DT-9, router."""
 from datetime import date
 from decimal import Decimal
 

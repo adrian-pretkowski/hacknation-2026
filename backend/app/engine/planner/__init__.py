@@ -1,6 +1,6 @@
 """Planer i optymalizator wyborów urlopowych obojga rodziców (BE2-07).
 
-``model.STEPS`` — graf decyzji (kroki, opcje, ograniczenia z 03_rules.yaml); ``optimizer.Planner`` — najlepszy
+``model.STEPS`` - graf decyzji (kroki, opcje, ograniczenia z 03_rules.yaml); ``optimizer.Planner`` - najlepszy
 następny wybór, cofanie o N kroków, eksport grafu. Kwoty liczone deterministycznie (Decimal), bez LLM.
 """
 from app.engine.planner.model import STEPS, ParentProfile, Profile, State

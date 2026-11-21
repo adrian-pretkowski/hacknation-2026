@@ -1,12 +1,12 @@
-# PRD — Przewodnik Przyszłego Rodzica
+# PRD - Przewodnik Przyszłego Rodzica
 
 Wymagania nadrzędne: `docs/CHALLENGE.md`. Ten dokument opisuje decyzje produktowe zespołu.
 
-**Wizja:** osobisty przewodnik, który na podstawie danych z ZUS (symulowanych) lub wpisanych przez rodzica pokazuje, co przysługuje w ciąży i po narodzinach dziecka, ile i na jak długo, jak podzielić urlopy z partnerem oraz co, gdzie i kiedy złożyć. Dla ZUS — mniej wadliwych wniosków i sporów dzięki informacji przed porodem.
+**Wizja:** osobisty przewodnik, który na podstawie danych z ZUS (symulowanych) lub wpisanych przez rodzica pokazuje, co przysługuje w ciąży i po narodzinach dziecka, ile i na jak długo, jak podzielić urlopy z partnerem oraz co, gdzie i kiedy złożyć. Dla ZUS - mniej wadliwych wniosków i sporów dzięki informacji przed porodem.
 
-**Propozycja wartości:** „Wiesz, ile i na jak długo dostaniesz — zanim złożysz wniosek — wyliczone tak, jak policzy ZUS, z podstawą prawną każdej decyzji.”
+**Propozycja wartości:** „Wiesz, ile i na jak długo dostaniesz - zanim złożysz wniosek - wyliczone tak, jak policzy ZUS, z podstawą prawną każdej decyzji.”
 
-**Użytkownicy:** przyszła matka/ojciec (pracownik, zleceniobiorca, przedsiębiorca), rodzic adopcyjny, rodzina zastępcza niezawodowa; pośrednio — konsultant ZUS i jury.
+**Użytkownicy:** przyszła matka/ojciec (pracownik, zleceniobiorca, przedsiębiorca), rodzic adopcyjny, rodzina zastępcza niezawodowa; pośrednio - konsultant ZUS i jury.
 
 ## Główny scenariusz (user journey)
 1. Wejście → „Zaloguj przez mObywatel (SYMULACJA)” albo „Wybierz przykładową sprawę” / „Wgraj wniosek” albo „Wpiszę dane sam”.
@@ -21,8 +21,8 @@ Wymagania nadrzędne: `docs/CHALLENGE.md`. Ten dokument opisuje decyzje produkto
 
 ## Zasady produktowe
 - Silnik deterministyczny; AI nie ustala uprawnień ani kwot.
-- **Wyjaśnialność (wyróżnik, wskazany przez jury):** przy każdej kwocie blok „Pokaż, jak to policzyliśmy” — kroki, dni × stawka, przepis i ID reguły, założenia, reguły jeszcze nieoceniane (D19).
-- Brak danych nigdy nie oznacza odmowy — pytamy o brakujące pole.
+- **Wyjaśnialność (wyróżnik, wskazany przez jury):** przy każdej kwocie blok „Pokaż, jak to policzyliśmy” - kroki, dni × stawka, przepis i ID reguły, założenia, reguły jeszcze nieoceniane (D19).
+- Brak danych nigdy nie oznacza odmowy - pytamy o brakujące pole.
 - Każda symulacja jawnie oznaczona; bez brandingu ZUS/mObywatel.
 - Tryb wrażliwy dla martwego urodzenia, poronienia, zgonu dziecka lub matki.
 - Wynik informacyjny, nie decyzja ZUS.

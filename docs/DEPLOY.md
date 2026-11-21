@@ -4,8 +4,8 @@ Wdrożenie odbywa się **wyłącznie po wypchnięciu tagu** `vX.Y.Z` (workflow `
 
 ## Układ
 Dwie aplikacje Heroku, obie jako kontenery (stack `container`):
-- **backend** — obraz z `backend/Dockerfile`, port z `$PORT`;
-- **frontend** — obraz z `frontend/Dockerfile`, adres API wpisywany w buildzie (`NEXT_PUBLIC_API_URL`).
+- **backend** - obraz z `backend/Dockerfile`, port z `$PORT`;
+- **frontend** - obraz z `frontend/Dockerfile`, adres API wpisywany w buildzie (`NEXT_PUBLIC_API_URL`).
 
 Wersja aplikacji = nazwa tagu (`APP_VERSION`); widać ją w stopce i w `GET /api/health` (`app_version`).
 
@@ -39,5 +39,5 @@ Workflow: sprawdza format tagu i że commit jest na `main` → ponownie uruchami
 
 ## Uwagi
 - Obrazy zawierają wyłącznie dane syntetyczne; `cases/` i `materials/` są poza gitem i poza obrazami.
-- Dyski Heroku są nietrwałe — nie zapisuj na nich stanu (panel admina na razie trzyma parametry w pamięci/plikach z repo).
+- Dyski Heroku są nietrwałe - nie zapisuj na nich stanu (panel admina na razie trzyma parametry w pamięci/plikach z repo).
 - Cofnięcie wydania: `heroku releases:rollback -a <aplikacja>` albo wypchnięcie nowego tagu.

@@ -1,5 +1,5 @@
 // FE1-23: wstępne wypełnienie pism danymi z konta testowego (SYMULACJA) i z odpowiedzi kreatora.
-// Dane osobowe poniżej są FIKCYJNE (do demonstracji) — nie odpowiadają żadnej rzeczywistej osobie, firmie ani rachunkowi.
+// Dane osobowe poniżej są FIKCYJNE (do demonstracji) - nie odpowiadają żadnej rzeczywistej osobie, firmie ani rachunkowi.
 // Czego nie wiemy, nie zgadujemy: pole zostaje puste, a formularz prosi o uzupełnienie (jak NEEDS_DATA w silniku).
 import { formatDate } from "@/lib/format";
 import type { Answers } from "@/features/main-flow/wizard/answers";
@@ -62,7 +62,7 @@ function payerFields(b: Builder, u: TestUser | null, ids: { nip: string; regon: 
   if (!u) return;
   b.set(ids.name, u.payerName, "account");
   if (u.title === "SELF_EMPLOYED") {
-    // Przy własnej działalności płatnikiem jest ubezpieczona — PESEL z konta, NIP nieznany (zostaje do uzupełnienia).
+    // Przy własnej działalności płatnikiem jest ubezpieczona - PESEL z konta, NIP nieznany (zostaje do uzupełnienia).
     const p = PERSON[u.id];
     if (p) b.set(ids.pesel, p.pesel, "account");
     return;
@@ -142,7 +142,7 @@ export function buildPrefill(code: FormCode, a: Answers | null, u: TestUser | nu
       payerFields(b, u, { nip: "p1_002", regon: "p1_003", pesel: "p1_004", name: "p1_006", addr: ["p1_007", "p1_008", "p1_009", "p1_010", "p1_011"], phone: "p1_013" });
       personFields(b, u, { pesel: "p1_014", birth: "p1_015", first: "p1_017", last: "p1_018", addr: ["p2_019", "p2_020", "p2_021", "p2_022", "p2_023"], bank: "p2_025" });
       if (u || a) b.set("p1_000", true, s);
-      // Świadczenie: po porodzie — macierzyński; w ciąży ze zwolnieniem — chorobowy (okres z e-ZLA).
+      // Świadczenie: po porodzie - macierzyński; w ciąży ze zwolnieniem - chorobowy (okres z e-ZLA).
       if (f.stage === "BORN" || f.guardianKind) b.set("p2_030", true, "wizard");
       else if (u?.ezla.length) { b.set("p2_026", true, "account"); b.set("p2_027", ezlaPeriods(u, true), "account"); }
       if (f.payerSize === "LE20") b.set(code === "Z-3" ? "p4_078" : "p4_082", "TAK", s);

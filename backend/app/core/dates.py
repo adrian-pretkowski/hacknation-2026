@@ -1,4 +1,4 @@
-"""Daty i okresy — konwencje C3–C8, C11 z zus_rules/07_CALCULATION_SPEC.md."""
+"""Daty i okresy - konwencje C3–C8, C11 z zus_rules/07_CALCULATION_SPEC.md."""
 from __future__ import annotations
 
 import calendar
@@ -61,7 +61,7 @@ def contains_full_calendar_month(start: date, end: date) -> bool:
 
 
 def deadline_after(event: date, days: int) -> date:
-    """C11: termin „X dni po zdarzeniu” — ostatni dzień = zdarzenie + X (bez przesunięcia na dzień roboczy, GAP-020)."""
+    """C11: termin „X dni po zdarzeniu” - ostatni dzień = zdarzenie + X (bez przesunięcia na dzień roboczy, GAP-020)."""
     return event + timedelta(days=days)
 
 

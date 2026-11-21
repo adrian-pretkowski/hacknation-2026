@@ -3,8 +3,8 @@
 Na dzień zdarzenia (poród / przyjęcie dziecka: ``event.date``; niezdolność: ``incapacity.start_date``):
 ubezpieczenie chorobowe (``f_sickness_insured_on``, USTAWA art. 29 ust. 1 / art. 6), tryb
 (``f_sickness_insurance_mode_on``), dni nieprzerwanego ubezpieczenia (``f_continuous_sickness_insurance_days``)
-i okres wyczekiwania: zasiłek chorobowy — SICK-ELIG-002/003 wg trybu (art. 4 ust. 1; wyjątki SICK-ELIG-005
-→ NOT_REQUIRED), macierzyński — nie dotyczy (MAT-CLS-001). Bez wpływu na status świadczeń;
+i okres wyczekiwania: zasiłek chorobowy - SICK-ELIG-002/003 wg trybu (art. 4 ust. 1; wyjątki SICK-ELIG-005
+→ NOT_REQUIRED), macierzyński - nie dotyczy (MAT-CLS-001). Bez wpływu na status świadczeń;
 brak danych → UNKNOWN (nigdy FALSE). ``source_documents`` = dokumenty z ``evidence`` (PROVIDED) i źródło tytułów.
 """
 from __future__ import annotations

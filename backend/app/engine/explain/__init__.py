@@ -27,7 +27,7 @@ PAYERS = {"ZUS": "ZUS", "CONTRIBUTION_PAYER": "płatnik składek (pracodawca)"}
 def load_templates(path: str | None = None) -> dict[str, str]:
     """Szablony z pliku YAML; brak pliku → pusty słownik (fallback na nazwę reguły).
 
-    Wynik jest cache'owany — zmiana ``templates.pl.yaml`` wymaga restartu backendu
+    Wynik jest cache'owany - zmiana ``templates.pl.yaml`` wymaga restartu backendu
     (lub ``load_templates.cache_clear()``).
     """
     file = Path(path) if path else TEMPLATES_PATH
@@ -88,7 +88,7 @@ def legal_ref(rule: dict[str, Any]) -> dict[str, str] | None:
     location = rule.get("source_location")
     if document not in DOCUMENTS or not location:
         return None
-    # część source_location zaczyna się od nazwy aktu („KP art. 180 § 1”) — bez dublowania w „KP KP art. …”
+    # część source_location zaczyna się od nazwy aktu („KP art. 180 § 1”) - bez dublowania w „KP KP art. …”
     return {"document": document, "location": str(location).removeprefix(f"{document} ").strip()}
 
 

@@ -47,7 +47,7 @@ def _implemented(client) -> set[tuple[str, str]]:
 # --- ścieżki i statusy -------------------------------------------------------------------------------------------
 def test_implemented_subset_of_declared(client):
     declared = {(path, method) for path, method, _ in OPERATIONS}
-    assert _implemented(client) <= declared, "Endpoint działa, ale nie ma go w kontrakcie — najpierw kontrakt"
+    assert _implemented(client) <= declared, "Endpoint działa, ale nie ma go w kontrakcie - najpierw kontrakt"
 
 
 def test_x_status_matches_implementation(client):
@@ -56,9 +56,9 @@ def test_x_status_matches_implementation(client):
         status = op.get("x-status")
         assert status in {"implemented", "planned"}, f"{method.upper()} {path}: brak x-status"
         if (path, method) in implemented:
-            assert status == "implemented", f"{method.upper()} {path} działa — zmień x-status na implemented"
+            assert status == "implemented", f"{method.upper()} {path} działa - zmień x-status na implemented"
         else:
-            assert status == "planned", f"{method.upper()} {path} nie działa — nie może mieć x-status implemented"
+            assert status == "planned", f"{method.upper()} {path} nie działa - nie może mieć x-status implemented"
             assert op.get("x-task") and op.get("x-owner"), f"{method.upper()} {path}: planned bez x-task/x-owner"
 
 
