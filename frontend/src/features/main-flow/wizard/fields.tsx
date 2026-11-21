@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { formatMoney } from "@/lib/format";
 
 export const inputCls =
   "mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark";
@@ -71,35 +72,45 @@ export const TRI_OPTIONS = [
 ];
 
 /** Suwak z polem liczbowym obok (precyzyjna wartość). Pusta wartość = „nie podano” (UNKNOWN w silniku). */
-export function Slider({ label, hint, value, onChange, min, max, step = 1, unit, emptyLabel = "nie podano" }: {
+export function Slider({ label, hint, value, onChange, min, max, step = 1, unit, emptyLabel = "nie podano", money = false }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void;
   min: number; max: number; step?: number; unit: string; emptyLabel?: string;
+  /** Kwota w zł: pole tekstowe przyjmuje grosze (przecinek lub kropka), wyświetlanie przez lib/format. */
+  money?: boolean;
 }) {
   const id = useId();
-  const num = value === "" ? null : Number(value);
+  const hintId = `${id}-hint`;
+  const normalized = value.replace(",", ".");
+  const num = value === "" || Number.isNaN(Number(normalized)) ? null : Number(normalized);
+  const show = (v: string) => (money ? formatMoney(v) : `${Number(v).toLocaleString("pl-PL")} ${unit}`);
+  const clean = (raw: string) => (money ? raw.replace(/[^\d.,]/g, "").replace(/([.,].{0,2}).*$/, "$1") : raw.replace(/\D/g, ""));
   return (
     <div className="text-sm">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <label htmlFor={id} className="font-medium">{label}</label>
         <span className="text-base font-semibold text-zus-navy" aria-hidden="true">
-          {num === null ? <span className="text-sm font-normal text-zinc-500">{emptyLabel}</span> : `${num.toLocaleString("pl-PL")} ${unit}`}
+          {num === null ? <span className="text-sm font-normal text-zinc-500">{emptyLabel}</span> : show(normalized)}
         </span>
       </div>
       <div className="mt-2 flex items-center gap-3">
         <input id={id} type="range" min={min} max={max} step={step} value={num ?? min}
-          aria-valuetext={num === null ? emptyLabel : `${num} ${unit}`}
+          aria-valuetext={num === null ? emptyLabel : show(normalized)} aria-describedby={hint ? hintId : undefined}
           className={`h-2 w-full cursor-pointer accent-zus-green-dark ${num === null ? "opacity-50" : ""}`}
           onChange={(e) => onChange(e.target.value)} />
-        <input inputMode="numeric" aria-label={`${label} — wpisz wartość`} placeholder="—"
-          className="w-20 shrink-0 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-right text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark"
-          value={value} onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))} />
+        <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} — wpisz wartość`} placeholder="—"
+          aria-describedby={hint ? hintId : undefined}
+          className={`${money ? "w-28" : "w-20"} shrink-0 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-right text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark`}
+          value={value} onChange={(e) => onChange(clean(e.target.value))} />
       </div>
-      <div className="mt-1 flex justify-between text-xs text-zinc-500" aria-hidden="true">
-        <span>{min.toLocaleString("pl-PL")}</span>
-        {value !== "" && <button type="button" onClick={() => onChange("")} className="underline underline-offset-2 hover:text-zus-navy">wyczyść</button>}
-        <span>{max.toLocaleString("pl-PL")}</span>
+      <div className="mt-1 flex items-center justify-between text-xs text-zinc-500">
+        <span aria-hidden="true">{money ? formatMoney(String(min)) : min.toLocaleString("pl-PL")}</span>
+        {value !== "" && (
+          <button type="button" onClick={() => onChange("")} aria-label={`Wyczyść: ${label}`}
+            className="underline underline-offset-2 hover:text-zus-navy focus-visible:outline-2 focus-visible:outline-zus-green-dark">wyczyść</button>
+        )}
+        <span aria-hidden="true">{money ? formatMoney(String(max)) : max.toLocaleString("pl-PL")}</span>
       </div>
-      {hint && <p className="mt-1 text-xs text-zinc-600">{hint}</p>}
+      {hint && <p id={hintId} className="mt-1 text-xs text-zinc-600">{hint}</p>}
     </div>
   );
 }

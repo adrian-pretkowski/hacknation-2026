@@ -323,7 +323,7 @@ export const STEPS: Step[] = [
         <ZusFetch source="salary" a={a} set={set}
           what={a.title === "SELF_EMPLOYED" ? "Pobierz zadeklarowaną podstawę składek z ostatnich 12 miesięcy." : "Pobierz podstawę wymiaru z ostatnich 12 miesięcy."} />
         <Slider label={a.title === "SELF_EMPLOYED" ? "Zadeklarowana podstawa składek (zł / miesiąc)" : "Wynagrodzenie brutto (zł / miesiąc)"}
-          unit="zł" min={0} max={30000} step={100} value={a.salaryGross} emptyLabel="nie podano — bez kwot"
+          unit="zł" money min={0} max={30000} step={100} value={a.salaryGross} emptyLabel="nie podano — bez kwot"
           hint="Przyjmujemy kwotę stałą przez 12 miesięcy; od brutto odejmujemy składki społeczne. Puste = pokażemy okresy bez kwot."
           onChange={(salaryGross) => set({ salaryGross })} />
       </div>

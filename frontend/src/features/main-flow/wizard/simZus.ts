@@ -1,6 +1,8 @@
 // SYMULACJA pobrania danych z systemów ZUS — wyłącznie dane syntetyczne, bez żadnego połączenia z ZUS.
 // Docelowo: GET /api/sim/zus-profile i GET /api/sim/debt-certificate (contracts/openapi.yaml, x-status: planned, INT-03).
 // Wartości poniżej są przykładowe i deterministyczne; nie odpowiadają żadnej rzeczywistej osobie ani sprawie.
+import { formatMoney } from "@/lib/format";
+import { PARAMS } from "../preview/params";
 import type { Answers } from "./answers";
 
 export type SimSource = "insurance" | "salary" | "debt" | "usedLeave" | "partner";
@@ -23,7 +25,7 @@ function build(source: SimSource, a: Answers): SimResult {
       const summary = [`ubezpieczenie chorobowe od ${insuredFrom.split("-").reverse().join(".")}`];
       if (a.title === "EMPLOYMENT" || a.title === "MANDATE") {
         patch.payerSize = "GT20";
-        summary.push("płatnik zgłasza więcej niż 20 osób");
+        summary.push(`płatnik zgłasza więcej niż ${PARAMS.PAYER_INSURED_THRESHOLD} osób`);
       }
       if (a.title === "MANDATE" || a.title === "SELF_EMPLOYED") {
         patch.voluntarySickness = "YES";
@@ -37,7 +39,7 @@ function build(source: SimSource, a: Answers): SimResult {
     }
     case "salary": {
       const salaryGross = a.title === "SELF_EMPLOYED" ? "5000" : a.title === "MANDATE" ? "4800" : "7500";
-      return { patch: { salaryGross }, summary: [`średnia podstawa z 12 miesięcy: ok. ${Number(salaryGross).toLocaleString("pl-PL")} zł brutto / mies.`] };
+      return { patch: { salaryGross }, summary: [`średnia podstawa z 12 miesięcy: ok. ${formatMoney(salaryGross)} brutto / mies.`] };
     }
     case "debt":
       return { patch: { debt: "0.00" }, summary: ["brak zaległości w składkach na wskazany dzień"] };
