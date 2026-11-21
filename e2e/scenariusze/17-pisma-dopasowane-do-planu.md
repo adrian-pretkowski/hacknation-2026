@@ -1,4 +1,4 @@
-# Na podsumowaniu widać tylko pisma dopasowane do planu, pozostałe po kliknięciu (FE1-14)
+# Na podsumowaniu widać tylko pisma dopasowane do planu, pozostałe po kliknięciu (FE1-16)
 
 Widok: komputer
 > Na telefonie kroki kreatora są schowane pod „Pokaż historię” — ścieżka zmiany odpowiedzi jest ta sama.

@@ -8,7 +8,8 @@ import { maternityWeeks } from "../preview/engine";
 import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
 import type { Answers } from "./answers";
-import { Check, Choice, Field, NumberSelect, Slider, TRI_OPTIONS, inputCls } from "./fields";
+import { Check, Choice, DateField, Field, NumberSelect, Slider, TRI_OPTIONS, inputCls } from "./fields";
+import { dateErrors, dateWarnings, hasErrors } from "./validation";
 import { Optimizer, optimizerVisible } from "./Optimizer";
 import { todayIso } from "./request";
 import { ZusFetch } from "./ZusFetch";
@@ -165,17 +166,16 @@ export const STEPS: Step[] = [
     id: "event",
     title: "Data i dzieci",
     visible: (a) => a.role !== null,
-    complete: (a) => !!a.eventDate && a.children >= 1 && (a.role !== "GUARDIAN" || a.childAgeYears !== ""),
+    complete: (a) => !!a.eventDate && !hasErrors(a, "eventDate") && a.children >= 1 && (a.role !== "GUARDIAN" || a.childAgeYears !== ""),
     summary: (a) => join([
       a.eventDate && `${a.role === "GUARDIAN" ? "Przyjęcie dziecka" : a.stage === "BORN" ? "Poród" : "Poród planowany"} ${formatDate(a.eventDate)}`,
       a.children > 1 && `${a.children} dzieci`,
       a.role === "GUARDIAN" && a.childAgeYears !== "" && `wiek ${plYears(Number(a.childAgeYears))}`]),
     render: ({ a, set }) => (
       <div className="space-y-4">
-        <Field label={a.role === "GUARDIAN" ? "Data przyjęcia dziecka" : a.stage === "BORN" ? "Data porodu" : "Planowana data porodu"}
-          hint={a.stage === "PREGNANT" ? "Z karty ciąży; wynik będzie prognozą." : undefined}>
-          <input type="date" className={inputCls} value={a.eventDate} onChange={(e) => set({ eventDate: e.target.value })} />
-        </Field>
+        <DateField label={a.role === "GUARDIAN" ? "Data przyjęcia dziecka" : a.stage === "BORN" ? "Data porodu" : "Planowana data porodu"}
+          hint={a.stage === "PREGNANT" ? "Z karty ciąży; wynik będzie prognozą." : undefined}
+          value={a.eventDate} error={dateErrors(a).eventDate} onChange={(eventDate) => set({ eventDate })} />
         <Field label={a.role === "GUARDIAN" ? "Ile dzieci przyjmujesz jednocześnie?" : "Ile dzieci przy jednym porodzie?"}>
           <select className={inputCls} value={a.children} onChange={(e) => set({ children: Number(e.target.value) })}>
             {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n === 5 ? "5 lub więcej" : n}</option>)}
@@ -198,7 +198,7 @@ export const STEPS: Step[] = [
     id: "loss",
     title: "Strata dziecka",
     visible: (a) => a.sensitive && isBirth(a),
-    complete: (a) => a.lossKind === "STILLBORN" || !!a.deathDate,
+    complete: (a) => a.lossKind === "STILLBORN" || (!!a.deathDate && !hasErrors(a, "deathDate")),
     summary: (a) => (a.lossKind === "STILLBORN" ? "Martwe urodzenie" : join(["Zgon po porodzie", a.deathDate && formatDate(a.deathDate)])),
     render: ({ a, set }) => (
       <div className="space-y-4">
@@ -208,9 +208,8 @@ export const STEPS: Step[] = [
           { value: "DIED", label: "Dziecko zmarło po porodzie" },
         ]} />
         {a.lossKind === "DIED" && (
-          <Field label="Data śmierci dziecka">
-            <input type="date" className={inputCls} value={a.deathDate} onChange={(e) => set({ deathDate: e.target.value })} />
-          </Field>
+          <DateField label="Data śmierci dziecka" value={a.deathDate} error={dateErrors(a).deathDate}
+            onChange={(deathDate) => set({ deathDate })} />
         )}
         {a.stillborn && a.children > 1 && (
           <Choice legend="Czy któreś z dzieci żyje?" value={a.allStillborn ? "NO" : "YES"} columns={2}
@@ -278,7 +277,7 @@ export const STEPS: Step[] = [
     id: "insurance",
     title: "Praca i ubezpieczenie",
     visible: (a) => a.role !== null,
-    complete: (a) => a.title !== null && (a.title === "NONE" || !!a.insuredFrom)
+    complete: (a) => a.title !== null && (a.title === "NONE" || !!a.insuredFrom) && !hasErrors(a, "contractEnd")
       && (a.title !== "EMPLOYMENT" || a.contractType !== null),
     summary: (a) => (a.title ? join([TITLE_TEXT[a.title], a.title !== "NONE" && a.insuredFrom && `od ${formatDate(a.insuredFrom)}`,
       a.contractType === "FIXED_TERM" && "na czas określony"]) : null),
@@ -297,9 +296,8 @@ export const STEPS: Step[] = [
         {a.title && a.title !== "NONE" && (
           <>
             <ZusFetch source="insurance" a={a} set={set} what="Nie pamiętasz dat? Pobierzemy okres ubezpieczenia i dane płatnika." />
-            <Field label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej.">
-              <input type="date" className={inputCls} value={a.insuredFrom} onChange={(e) => set({ insuredFrom: e.target.value })} />
-            </Field>
+            <DateField label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej."
+              value={a.insuredFrom} warning={dateWarnings(a).insuredFrom} onChange={(insuredFrom) => set({ insuredFrom })} />
           </>
         )}
         {a.title === "EMPLOYMENT" && (
@@ -309,9 +307,8 @@ export const STEPS: Step[] = [
               { value: "FIXED_TERM", label: "Na czas określony / próbny" },
             ]} />
             {a.contractType === "FIXED_TERM" && (
-              <Field label="Do kiedy trwa umowa?">
-                <input type="date" className={inputCls} value={a.contractEnd} onChange={(e) => set({ contractEnd: e.target.value })} />
-              </Field>
+              <DateField label="Do kiedy trwa umowa?" value={a.contractEnd} error={dateErrors(a).contractEnd}
+                onChange={(contractEnd) => set({ contractEnd })} />
             )}
             {a.contractType === "FIXED_TERM" && a.contractEnd && a.eventDate && a.contractEnd < a.eventDate && (
               <Choice legend="Czy umowa kończy się po upływie 3. miesiąca ciąży?" value={a.contractEndsAfter3rdMonth} columns={3}
@@ -362,6 +359,7 @@ export const STEPS: Step[] = [
         {a.usedMaternityFully === "NO" && (
           <NumberSelect label="Ile tygodni urlopu macierzyńskiego wykorzystano?" value={a.usedMaternityWeeks} from={0}
             to={maternityWeeks(a.children) - 1} unit={(n) => `${n} tyg.`} unknownLabel="Nie wiem"
+            describedBy={usedErrors(a).maternity ? "used-maternity-err" : undefined}
             hint={`Pełny wymiar: ${maternityWeeks(a.children)} tyg. Policzymy, ile zostało.`}
             onChange={(usedMaternityWeeks) => set({ usedMaternityWeeks })} />
         )}
@@ -375,13 +373,16 @@ export const STEPS: Step[] = [
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Slider label="Rodzicielski wykorzystany przez mamę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalMotherWeeks}
+            describedBy={[usedErrors(a).parental && "used-parental-err", usedErrors(a).maternity && "used-maternity-err"].filter(Boolean).join(" ") || undefined}
             emptyLabel="0 tyg." onChange={(usedParentalMotherWeeks) => set({ usedParentalMotherWeeks })} />
           <Slider label="Rodzicielski wykorzystany przez tatę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalFatherWeeks}
+            describedBy={[usedErrors(a).parental && "used-parental-err", usedErrors(a).maternity && "used-maternity-err"].filter(Boolean).join(" ") || undefined}
             emptyLabel="0 tyg." onChange={(usedParentalFatherWeeks) => set({ usedParentalFatherWeeks })} />
         </div>
         <FieldError id="used-parental-err" text={usedErrors(a).parental} />
         <NumberSelect label="Na ile części (wniosków) podzielono rodzicielski?" hint="Każdy wniosek to osobna część." value={a.usedParts}
           from={0} to={PARAMS.PARENTAL_MAX_PARTS} unknownLabel={null} unit={(n) => (n === 0 ? "Jeszcze nie korzystaliśmy" : `${n}`)}
+          describedBy={usedErrors(a).parts ? "used-parts-err" : undefined}
           onChange={(usedParts) => set({ usedParts })} />
         <FieldError id="used-parts-err" text={usedErrors(a).parts} />
         <Choice legend="Jaki wariant wypłaty wybrano?" value={a.usedVariant} columns={3} onChange={(usedVariant) => set({ usedVariant })} options={[
@@ -414,7 +415,7 @@ export const STEPS: Step[] = [
     id: "plans",
     title: "Plany",
     visible: (a) => a.role !== null && a.stage !== "BORN" && !a.sensitive,
-    complete: () => true,
+    complete: (a) => !hasErrors(a, "maternityStart"),
     summary: (a) => {
       const wb = weeksBefore(a);
       return join([
@@ -442,9 +443,8 @@ export const STEPS: Step[] = [
               </select>
             </Field>
             {weeksBefore(a) === "custom" && (
-              <Field label="Dokładna data rozpoczęcia">
-                <input type="date" className={inputCls} value={a.maternityStart} onChange={(e) => set({ maternityStart: e.target.value })} />
-              </Field>
+              <DateField label="Dokładna data rozpoczęcia" value={a.maternityStart} error={dateErrors(a).maternityStart}
+                onChange={(maternityStart) => set({ maternityStart })} />
             )}
           </div>
         )}

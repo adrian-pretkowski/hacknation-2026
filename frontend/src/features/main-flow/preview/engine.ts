@@ -325,7 +325,9 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       // urlop biegnie bez przerw od porodu: gdy od porodu minęło więcej tygodni, niż wykorzystano, mama przerwała urlop
       const sinceWeeks = Math.floor(daysBetween(ev, today) / W);
       if (maternityLeft !== null && maternityLeft > 0) {
-        warn("MATERNITY_PARTLY_USED", "INFO", "MAT-SHARE-001", usedMat! < sinceWeeks
+        warn("MATERNITY_PARTLY_USED", "INFO", "MAT-SHARE-001", usedMat! < sinceWeeks && usedMat! < P.MOTHER_MIN_WEEKS_BEFORE_TRANSFER
+          ? `Mama zakończyła urlop macierzyński po ${usedMat} tyg., przed upływem ${P.MOTHER_MIN_WEEKS_BEFORE_TRANSFER} tyg. To sytuacja szczególna (np. pobyt w szpitalu, orzeczenie o niezdolności do samodzielnej egzystencji) — kto może wykorzystać pozostałe ${maternityLeft} tyg., sprawdź w ZUS.`
+          : usedMat! < sinceWeeks
           ? `Mama zakończyła urlop macierzyński po ${usedMat} tyg. Pozostałe ${maternityLeft} tyg. może wykorzystać tylko tata (przejęcie po rezygnacji mamy, która wykorzystała co najmniej ${P.MOTHER_MIN_WEEKS_BEFORE_TRANSFER} tyg.).`
           : `Urlop macierzyński trwa — zostało ${maternityLeft} tyg., bez przerw od dziś do końca wymiaru.`);
       }

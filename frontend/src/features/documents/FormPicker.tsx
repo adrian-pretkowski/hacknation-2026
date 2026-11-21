@@ -86,7 +86,7 @@ export function FormPicker({ onOpen, recommended = [], headingLevel = 3, codes, 
   );
 }
 
-/** Na wyniku (FE1-14): widać tylko pisma dopasowane do planu, pozostałe po kliknięciu „Pokaż pozostałe pisma”.
+/** Na wyniku (FE1-16): widać tylko pisma dopasowane do planu, pozostałe po kliknięciu „Pokaż pozostałe pisma”.
  *  Bez dopasowania — informacja, że nic nie pasuje, i ten sam przycisk (wszystkie pisma zwinięte). */
 export function MatchedFormPicker({ onOpen, recommended, headingLevel = 4 }: {
   onOpen: (code: FormCode) => void; recommended: FormCode[]; headingLevel?: 3 | 4;
