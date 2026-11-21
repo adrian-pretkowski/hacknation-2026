@@ -54,5 +54,10 @@ Po zakończeniu, zablokowaniu lub przekazaniu zadania z `docs/TASKS.md` — **w 
 5. Zmiany wymagań/wymagania pokryte → `docs/coverage.md`; nowe decyzje → `docs/DECISIONS.md`; odpowiedzi mentorów → `docs/mentors.md`.
 Na początku pracy nad zadaniem wpisz się w § 3 i ustaw `IN_PROGRESS (rola)` w TASKS. Konflikt merge w PROGRESS/TASKS: zachowaj wpisy obu stron (dziennik jest tylko dopisywany).
 
+## Code review po każdym commicie (obowiązkowe)
+- Każdy commit na gałęzi roboczej przechodzi review: komenda **`/review`** uruchamia subagenta `reviewer`, który sprawdza gałąź względem `main` (reguły fachowe z `docs/` i `zus_rules/`, reguły techniczne z tego pliku i kontraktu) i wydaje werdykt `READY_TO_MERGE` / `CHANGES_REQUIRED`.
+- Przypomnienie jest automatyczne: git hook `.githooks/post-commit` (włącza `scripts\dev.ps1`: `git config core.hooksPath .githooks`) oznacza commit jako czekający, a hooki Claude Code po `git commit`, na starcie sesji i przy poleceniu wskazują, że trzeba uruchomić `/review`.
+- Przy `READY_TO_MERGE` Claude pyta o PR, merge do `main` i push `main` — wykonuje tylko to, na co lider się zgodzi; nigdy force push. Przy `CHANGES_REQUIRED` popraw i zrób kolejny commit (kolejne review).
+
 ## Claude Code w repo
-Hook po edycji `zus_rules/` lub `backend/app/engine|core|modules|tests`: audyt + pytest (`.claude/hooks/rules_gate.py`). Subagenci: `legal-checker`, `case-extractor`, `ui-verifier`. Komendy: `/implement-fact`, `/implement-rule-group`, `/run-golden`, `/screen`, `/pre-pr` (sprawdza też aktualizację PROGRESS).
+Hook po edycji `zus_rules/` lub `backend/app/engine|core|modules|tests`: audyt + pytest (`.claude/hooks/rules_gate.py`). Hook review: `.claude/hooks/review_trigger.py`. Subagenci: `reviewer`, `legal-checker`, `case-extractor`, `ui-verifier`. Komendy: `/review`, `/implement-fact`, `/implement-rule-group`, `/run-golden`, `/screen`, `/pre-pr` (sprawdza też aktualizację PROGRESS).

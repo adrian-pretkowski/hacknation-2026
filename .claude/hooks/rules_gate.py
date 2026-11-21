@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
+ROOT = Path(__file__).resolve().parents[2]  # lokalizacja skryptu — odporna na nieaktualne CLAUDE_PROJECT_DIR
 WATCHED = ("zus_rules/", "backend/app/", "backend/tests/", "contracts/")
 
 
@@ -39,12 +39,12 @@ def main() -> int:
     python = backend_python()
     failures = []
     audit = subprocess.run([python, "zus_rules/tools/build_catalog.py"], cwd=ROOT,
-                           capture_output=True, text=True, encoding="utf-8", env=env)
+                           capture_output=True, text=True, encoding="utf-8", env=env, check=False)
     if audit.returncode != 0:
         failures.append("AUDYT REGUŁ (zus_rules/tools/build_catalog.py):\n" + audit.stdout[-3000:] + audit.stderr[-1000:])
 
     tests = subprocess.run([python, "-m", "pytest", "-q", "-x", "-p", "no:warnings"], cwd=ROOT / "backend",
-                           capture_output=True, text=True, encoding="utf-8", env=env)
+                           capture_output=True, text=True, encoding="utf-8", env=env, check=False)
     if tests.returncode not in (0, 5):  # 5 = brak testów
         failures.append("PYTEST (backend):\n" + tests.stdout[-3000:] + tests.stderr[-1000:])
 

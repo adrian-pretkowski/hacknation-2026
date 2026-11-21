@@ -5,7 +5,7 @@
 ## 1. Stan teraz
 | Pole | Wartość |
 |---|---|
-| Ostatnia aktualizacja | 2026-11-21 · INT (INT-01 kontrakt v1, Claude Code) |
+| Ostatnia aktualizacja | 2026-11-21 · INT (INT-06 review po commicie, Claude Code) |
 | Faza | Bootstrap zakończony → start równoległej implementacji P0 (blok 1) |
 | Werdykt | **READY FOR PARALLEL DEVELOPMENT** (z zastrzeżeniami: brak zdalnego repo i deployu — decyzja lidera) |
 | Działa end-to-end | Kalkulator zasiłku macierzyńskiego matki (slice_v0): UI → `POST /api/evaluate` → wynik w UI |
@@ -33,7 +33,7 @@
 ## 3. W toku (jedna linia na osobę — nadpisuj swoją)
 | Rola | Zadanie | Gałąź / worktree | Od | Uwagi |
 |---|---|---|---|---|
-| INT | INT-01 — review kontraktu v1 przez BE i FE | — (brak zdalnego repo) | 2026-11-21 | po akceptacji → DONE; następne: INT-03 |
+| INT | INT-06 — review po każdym commicie (czeka na commit lidera i `/review`) | `int/INT-06-reviewer` | 2026-11-21 | **Przy commicie (lider):** `git add .githooks/post-commit && git update-index --chmod=+x .githooks/post-commit`, sprawdź `git ls-files -s .githooks` → `100755` (repo ma `core.fileMode=false` — bez tego hook nie zadziała na Linux/macOS). INT-01 scalone do main (PR #1) — status w TASKS do potwierdzenia przez lidera; następne: INT-03 |
 | BE-1 | — | — | — | |
 | BE-2 | — | — | — | |
 | FE-1 | — | — | — | |
@@ -63,3 +63,4 @@
 | 2026-11-21 | Claude Code (analiza) | — | Specyfikacja prawna `zus_rules/`: 119 reguł, 92 testy, luki i konflikty, 17 pytań do mentorów | `python zus_rules/tools/build_catalog.py` → errors=0 | — |
 | 2026-11-21 | INT (Claude Code) | INT-00 | Bootstrap: kontrakt OpenAPI P0, backend FastAPI (slice_v0, Problem 422), frontend Next.js 16 (kalkulator → realne API), smoke, `dev.ps1`/`verify.ps1`, compose, CI, docs (CHALLENGE, PRD, MVP, ARCHITECTURE, DECISIONS, ASSUMPTIONS, TASKS, DEMO, SUBMISSION, MATERIALS), PROGRESS | `scripts\verify.ps1` PASS; smoke lokalnie i w Docker PASS; przeglądarka 1440 i 375 px | brak (commit wykona lider po przeniesieniu) |
 | 2026-11-21 | INT (Claude Code) | INT-01 | Kontrakt v1.0.0 (addytywny wobec v0): pełne modele `04`/`05` jako `In*`/`Out*`, opcjonalne pola wyniku (segmenty, dokumenty, terminy, ostrzeżenia, plan_errors, insurance_verification, return_to_work), 12 operacji `planned` (sprawy, admin z `AdminToken`, 7 symulacji z `simulated: true`), `ContentBlock` (I4); test kontraktu: zaimplementowane ⊆ zadeklarowane, zgodność `x-status`, wszystkie przykłady, drift vs 04/05, oznaczenie symulacji, mock FE; `gen:api` z `--default-non-nullable false` (bez zmian w kodzie FE); `ADMIN_TOKEN` w `.env.example` | `pytest` → 84 passed; porównanie v0→v1 → ADDITIVE OK; `scripts\verify.ps1` → PASS; smoke nie uruchamiany ponownie (brak zmian w kodzie API) | — (commit: lider) |
+| 2026-11-21 | INT (Claude Code) | INT-06 | Review po każdym commicie: subagent `reviewer` (kontrole A1–D6, werdykt READY_TO_MERGE/CHANGES_REQUIRED), komenda `/review` (pytanie o PR, merge do main, push main; tylko po zgodzie lidera), hook `review_trigger.py` (git `post-commit` przez `core.hooksPath` w `dev.ps1` + PostToolUse Bash/PowerShell, SessionStart, UserPromptSubmit; wykrycie commitu po zmianie HEAD), `git push`/`git merge` w `ask`, force push i `reset --hard` w `deny` (Bash i PowerShell), `.gitattributes` (LF dla hooków), ścieżki hooków odporne na nieaktualne `CLAUDE_PROJECT_DIR` | symulacja payloadów hooka: commit → przypomnienie, echo „git commit” bez zmiany HEAD → cisza, `mark` z worktree → wynik dla gałęzi; próbne review reviewerem (2 rundy, drzewo robocze): runda 1 → CHANGES_REQUIRED (10 uwag), runda 2 → CHANGES_REQUIRED (bit +x hooka nieopisany + 4 drobne) — wszystkie poprawione, finalne review: `/review` po commicie lidera; pytest 84 passed, audyt errors=0 | — (commit: lider) |

@@ -1,0 +1,6 @@
+#!/bin/sh
+# Po każdym commicie (także z terminala/IDE) oznacza commit jako czekający na review.
+# Włączenie (raz na klon): git config core.hooksPath .githooks   — robi to scripts/dev.ps1
+root="$(git rev-parse --show-toplevel)"
+if command -v python >/dev/null 2>&1; then py=python; else py=python3; fi
+"$py" "$root/.claude/hooks/review_trigger.py" git-post-commit || true
