@@ -110,9 +110,6 @@ export function TimelineView({ segments, planErrors, returnToWork = [] }: Props 
       <div id="tl-details" hidden={!open}>
         {open && <VerticalPath segments={segments} returnToWork={returnToWork} errorsOf={errorsOf} />}
       </div>
-      {returnToWork.length > 0 && (
-        <p className="mt-3 text-sm">Powrót do pracy: {returnToWork.map((r) => (PARENT_LABEL[r.parent] ?? r.parent) + " " + formatDate(r.date) + (r.part_time_fraction ? " (" + fractionText(r.part_time_fraction) + " etatu)" : "")).join(" · ")}.</p>
-      )}
       {unplaced.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm text-zus-red" role="alert">
           {unplaced.map((e, i) => <li key={i}>{errorLine(e)}</li>)}
