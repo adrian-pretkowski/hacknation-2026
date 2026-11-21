@@ -66,7 +66,7 @@ def _payload(demo: dict, patches) -> dict:
 # BE1-04: pipeline ocenia płatnika (GEN-CLS-*) i przedawnienie długu (GEN-EXCL-002), których slice_v0 nie liczy —
 # te pola i braki danych zgłoszone wyłącznie przez te reguły są wyłączone z porównania (testy: test_facts_insurance.py)
 BEYOND_SLICE_RULES = {"GEN-CLS-001", "GEN-CLS-002", "GEN-EXCL-002"}
-BEYOND_SLICE_FIELDS = ("payer_of_benefit", "suspended_until_debt_repaid")
+BEYOND_SLICE_FIELDS = ("payer_of_benefit", "suspended_until_debt_repaid", "entitlement_basis")
 # BE2-02: rodzicielski, ojcowski, przejęcie i walidacje planu — tylko w pipeline; parytet dotyczy macierzyńskiego matki
 BEYOND_SLICE_PREFIXES = ("PAR-", "PAT-", "MAT-SHARE-", "RATE-MAT-002", "RATE-MAT-004", "RATE-MAT-006", "RATE-MAT-008")
 
@@ -81,8 +81,9 @@ def _maternity(benefits: list[dict]) -> list[dict]:
 
 def _comparable(body: dict) -> dict:
     body = copy.deepcopy(body)
+    # plan_errors, return_to_work (BE2-02), warnings RISK-* (BE2-01) — zwraca tylko pipeline
     for key in ("evaluation_id", "engine", "applied_rules", "future_changes", "not_evaluated_rules", "plan_errors",
-                "return_to_work"):
+                "return_to_work", "warnings"):
         body.pop(key, None)
     body["missing_data"] = [{**item, "rule_ids": [r for r in item["rule_ids"] if not _beyond_slice(r)]}
                             for item in body["missing_data"] if not all(_beyond_slice(r) for r in item["rule_ids"])]
@@ -98,7 +99,11 @@ def _comparable(body: dict) -> dict:
     return body
 
 
-@pytest.mark.parametrize("name", list(VARIANTS))
+# BE2-01: art. 30 (MAT-ELIG-004/005/006, MAT-NEG-001) oceniany w pipeline — slice_v0 daje tu NEEDS_REVIEW
+BEYOND_SLICE_VARIANTS = {"not_insured_review"}
+
+
+@pytest.mark.parametrize("name", [v for v in VARIANTS if v not in BEYOND_SLICE_VARIANTS])
 def test_pipeline_matches_slice_v0(name, demo_payload):
     payload = _payload(demo_payload, VARIANTS[name])
     expected, actual = slice_v0.evaluate(payload), pipeline.evaluate(payload)
@@ -120,13 +125,16 @@ def test_pipeline_demo_values(demo_payload):
     assert (benefit["daily_amount_exact"], benefit["total_amount_exact"]) == ("163", "22820")
 
 
-def test_pipeline_not_insured_without_leave_data_is_review_and_asks_for_leaves(demo_payload):
-    # slice_v0 nie ocenia urlopu wychowawczego; pipeline: status jak slice (art. 30 nieoceniony → NEEDS_REVIEW, DT-9),
-    # ale dodatkowo pyta o employment.leaves (MAT-ELIG-001 może zajść przez urlop wychowawczy)
+def test_pipeline_not_insured_asks_for_art30_data_not_refusal(demo_payload):
+    # BE2-01: brak ubezpieczenia w dniu porodu — pipeline ocenia art. 30 (MAT-NEG-001): bez daty początku ciąży
+    # i przyczyny ustania tytułu nie odmawia, tylko pyta (D17); pyta też o employment.leaves (urlop wychowawczy)
     payload = _payload(demo_payload, VARIANTS["not_insured_review"][:1])
     body = pipeline.evaluate(payload)
-    assert body["benefits"][0]["status"] == slice_v0.evaluate(payload)["benefits"][0]["status"] == "NEEDS_REVIEW"
+    assert body["benefits"][0]["status"] == "NEEDS_DATA"
     assert {"field": "employment.leaves", "rule_ids": ["MAT-ELIG-001"]} in body["missing_data"]
+    full = pipeline.evaluate(_payload(demo_payload, VARIANTS["not_insured_review"]))  # + employment.leaves = []
+    assert full["benefits"][0]["status"] == "NEEDS_DATA"
+    assert {"pregnancy.pregnancy_start_date", "insurance.titles"} <= {i["field"] for i in full["missing_data"]}
 
 
 def test_pipeline_out_of_scope_event():

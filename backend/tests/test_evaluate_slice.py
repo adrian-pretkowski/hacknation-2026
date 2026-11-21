@@ -23,7 +23,8 @@ def test_t_rate_001_combined_815_within_21_days(client, demo_payload):
     assert benefit["rate"] == "0.815"
     assert benefit["period"] == {"from": "2027-03-15", "to": "2027-08-01", "max_weeks": 20}
     assert benefit["daily_amount_exact"] == "163" and benefit["total_amount_exact"] == "22820"
-    assert "MAT-ELIG-004" in body["not_evaluated_rules"]
+    # BE2-01: art. 30 oceniany (MAT-ELIG-004 w śladzie), nie w not_evaluated_rules
+    assert any(item["rule_id"] == "MAT-ELIG-004" for item in body["applied_rules"])
 
 
 def test_t_rate_002_day_22_gives_100(client, demo_payload):
@@ -52,7 +53,8 @@ def test_not_insured_is_review_not_refusal(client, demo_payload):
     payload = copy.deepcopy(demo_payload)
     payload["insurance"]["titles"][0]["to"] = "2027-02-28"
     _, benefit = _benefit(client, payload)
-    assert benefit["status"] == "NEEDS_REVIEW"
+    # BE2-01: art. 30 oceniany — brak daty początku ciąży / przyczyny ustania tytułu → pytamy (D17), nie odmawiamy
+    assert benefit["status"] == "NEEDS_DATA"
 
 
 def test_t_gen_006_007_debt_threshold(client, demo_payload):

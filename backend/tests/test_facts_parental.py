@@ -93,7 +93,8 @@ def test_adoption_with_base_right_is_eligible_and_maternity_like_period_not_eval
     parental = _benefit(body, "PARENTAL_LEAVE")
     assert parental["status"] == "ELIGIBLE" and parental["period"]["max_weeks"] == 41
     assert "MAT-ELIG-002" in parental["applied_rules"]
-    assert {"MAT-DUR-007", "MAT-DUR-008"} <= set(body["not_evaluated_rules"])
+    # BE2-01: okres urlopu na warunkach macierzyńskiego oceniany (MATERNITY_LIKE_LEAVE, MAT-DUR-007)
+    assert "MAT-DUR-007" in _benefit(body, "MATERNITY_LIKE_LEAVE")["applied_rules"]
 
 
 def test_adoption_child_14_years_has_no_parental_right():
@@ -369,12 +370,13 @@ def test_return_to_work_per_parent_with_part_time():
 
 
 def test_mother_parental_not_better_than_maternity_status():
-    # PAR-ELIG-001 zależy od MAT-ELIG-001: tytuł od 2027-05-01 → macierzyński NEEDS_REVIEW → rodzicielski też
+    # PAR-ELIG-001 zależy od MAT-ELIG-001: tytuł od 2027-05-01 → brak ubezpieczenia w dniu porodu i brak podstaw
+    # z art. 30 (BE2-01: MAT-NEG-001) → macierzyński NOT_ELIGIBLE → rodzicielski nie lepszy
     payload = _input("T-PAR-001")
     payload["insurance"]["titles"][0]["from"] = "2027-05-01"
     body = pipeline.evaluate(payload)
-    assert _benefit(body, "MATERNITY_LEAVE")["status"] == "NEEDS_REVIEW"
-    assert _benefit(body, "PARENTAL_LEAVE")["status"] == "NEEDS_REVIEW"
+    assert _benefit(body, "MATERNITY_LEAVE")["status"] == "NOT_ELIGIBLE"
+    assert _benefit(body, "PARENTAL_LEAVE")["status"] == "NOT_ELIGIBLE"
 
 
 def test_mother_parental_not_eligible_when_maternity_not_eligible():
