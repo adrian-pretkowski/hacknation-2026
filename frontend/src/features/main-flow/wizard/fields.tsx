@@ -58,6 +58,38 @@ export function Field({ label, hint, children, error, errorId }: {
   );
 }
 
+/** FE1-15: kwota w zł z groszami (przecinek lub kropka) — pusta = „nie podano”; błąd przy polu dla złego formatu lub 0. */
+export const moneyError = (raw: string): string | undefined => {
+  const v = raw.trim().replace(/\s/g, "").replace(",", ".");
+  if (v === "") return undefined;
+  if (!/^\d+(\.\d{1,2})?$/.test(v)) return "Wpisz kwotę w złotych, np. 7800 albo 7800,50 (najwyżej 2 miejsca po przecinku).";
+  if (Number(v) <= 0) return "Kwota musi być większa od zera — jeśli jej nie znasz, zostaw pole puste.";
+  return undefined;
+};
+
+/** FE1-15: samo pole kwoty (bez suwaka): dokładna kwota, podgląd w formacie PL, komunikat przy polu. */
+export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie podano" }: {
+  label: string; hint?: string; value: string; onChange: (v: string) => void; emptyLabel?: string;
+}) {
+  const id = useId();
+  const error = moneyError(value);
+  const normalized = value.trim().replace(/\s/g, "").replace(",", ".");
+  return (
+    <Field label={label} hint={hint} error={error} errorId={`${id}-err`}>
+      <span className="mt-1 flex items-center gap-3">
+        <input type="text" inputMode="decimal" autoComplete="off" placeholder="np. 7800,00" value={value}
+          className={`${inputCls} max-w-48 text-right ${error ? "border-zus-red" : ""}`}
+          aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-err` : `${id}-preview`}
+          onChange={(e) => onChange(e.target.value.replace(/[^\d.,]/g, ""))} />
+        <span id={`${id}-preview`} className="text-base font-semibold text-zus-navy" aria-live="polite">
+          {value.trim() === "" ? <span className="text-sm font-normal text-zinc-500">{emptyLabel}</span>
+            : error ? null : `${formatMoney(normalized)} zł`}
+        </span>
+      </span>
+    </Field>
+  );
+}
+
 /** FE1-10: pole daty z walidacją — aria-invalid i aria-describedby wskazują komunikat pod polem. */
 export function DateField({ label, hint, value, onChange, error, warning }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void; error?: string;

@@ -8,7 +8,7 @@ import { maternityWeeks } from "../preview/engine";
 import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
 import type { Answers } from "./answers";
-import { Check, Choice, DateField, Field, NumberSelect, Slider, TRI_OPTIONS, inputCls } from "./fields";
+import { Check, Choice, DateField, Field, MoneyField, NumberSelect, Slider, TRI_OPTIONS, inputCls, moneyError } from "./fields";
 import { dateErrors, dateWarnings, hasErrors } from "./validation";
 import { Optimizer, optimizerVisible } from "./Optimizer";
 import { todayIso } from "./request";
@@ -490,17 +490,17 @@ export const STEPS: Step[] = [
     id: "salary",
     title: "Wynagrodzenie",
     visible: (a) => a.role !== null && a.title !== "NONE",
-    complete: () => true,
+    complete: (a) => !moneyError(a.salaryGross),
     summary: (a) => {
-      const v = a.salaryGross.replace(",", ".");
+      const v = a.salaryGross.trim().replace(/\s/g, "").replace(",", ".");
       return /^\d+(\.\d{1,2})?$/.test(v) ? `${formatMoney(v)} brutto` : "nie podano";
     },
     render: ({ a, set }) => (
       <div className="space-y-4">
         <ZusFetch source="salary" a={a} set={set}
           what={a.title === "SELF_EMPLOYED" ? "Pobierz zadeklarowaną podstawę składek z ostatnich 12 miesięcy." : "Pobierz podstawę wymiaru z ostatnich 12 miesięcy."} />
-        <Slider label={a.title === "SELF_EMPLOYED" ? "Zadeklarowana podstawa składek (zł / miesiąc)" : "Wynagrodzenie brutto (zł / miesiąc)"}
-          unit="zł" money min={0} max={30000} step={100} value={a.salaryGross} emptyLabel="nie podano — bez kwot"
+        <MoneyField label={a.title === "SELF_EMPLOYED" ? "Zadeklarowana podstawa składek (zł / miesiąc)" : "Wynagrodzenie brutto (zł / miesiąc)"}
+          value={a.salaryGross} emptyLabel="nie podano — bez kwot"
           hint="Przyjmujemy kwotę stałą przez 12 miesięcy; od brutto odejmujemy składki społeczne. Puste = pokażemy okresy bez kwot."
           onChange={(salaryGross) => set({ salaryGross })} />
       </div>

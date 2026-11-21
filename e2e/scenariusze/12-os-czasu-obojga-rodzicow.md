@@ -20,7 +20,7 @@
 18. Przejdź dalej.
 19. Ustaw suwak „Ile tygodni rodzicielskiego weźmie tata?” na „9”.
 20. Przejdź dalej.
-21. Ustaw suwak „Wynagrodzenie brutto (zł / miesiąc)” na „6500”.
+21. W polu „Wynagrodzenie brutto (zł / miesiąc)” wpisz „6500”.
 22. Przejdź dalej.
 23. Sprawdź, że nagłówek to „Optymalizacja”.
 24. Przejdź dalej.

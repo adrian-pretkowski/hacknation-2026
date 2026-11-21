@@ -25,13 +25,18 @@
 21. Z listy „Kiedy chcesz zacząć urlop macierzyński?” wybierz „2 tygodnie przed porodem”.
 22. Ustaw suwak „Ile tygodni rodzicielskiego weźmie tata?” na „9”.
 23. Przejdź dalej.
-24. Ustaw suwak „Wynagrodzenie brutto (zł / miesiąc)” na „7800”.
-25. Przejdź dalej.
-26. Sprawdź, że nagłówek to „Optymalizacja”.
-27. Przejdź dalej.
-28. Sprawdź, że nagłówek to „Twój plan”.
-29. Sprawdź, że widać „Oś czasu”.
-30. Sprawdź, że widać „Co i gdzie złożyć”.
-31. Sprawdź, że widać „Kalendarz terminów”.
-32. Sprawdź, że strona nie przewija się w poziomie.
-33. Zrób zrzut ekranu „plan-mamy-na-etacie”.
+24. W polu „Wynagrodzenie brutto (zł / miesiąc)” wpisz „7800,555”.
+25. Sprawdź, że widać „najwyżej 2 miejsca po przecinku”.
+26. Sprawdź, że nie można przejść dalej.
+27. W polu „Wynagrodzenie brutto (zł / miesiąc)” wpisz „31250,50”.
+28. Sprawdź, że widać „31 250,50 zł”.
+29. W polu „Wynagrodzenie brutto (zł / miesiąc)” wpisz „7800”.
+30. Przejdź dalej.
+31. Sprawdź, że nagłówek to „Optymalizacja”.
+32. Przejdź dalej.
+33. Sprawdź, że nagłówek to „Twój plan”.
+34. Sprawdź, że widać „Oś czasu”.
+35. Sprawdź, że widać „Co i gdzie złożyć”.
+36. Sprawdź, że widać „Kalendarz terminów”.
+37. Sprawdź, że strona nie przewija się w poziomie.
+38. Zrób zrzut ekranu „plan-mamy-na-etacie”.

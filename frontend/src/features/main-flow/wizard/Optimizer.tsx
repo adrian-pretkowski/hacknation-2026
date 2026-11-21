@@ -7,7 +7,7 @@ import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResp
 import { formatMoney, formatRate } from "@/lib/format";
 import { baseFromGross } from "../preview/engine";
 import type { Answers } from "./answers";
-import { Choice, Slider, TRI_OPTIONS } from "./fields";
+import { Choice, MoneyField, TRI_OPTIONS } from "./fields";
 
 const STEP_TITLE: Record<string, string> = {
   COMBINED_815: "Wniosek 81,5%",
@@ -93,7 +93,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           onChange={(partnerInsured) => set({ partnerInsured, plannerChoices: [] })} options={TRI_OPTIONS} />
       )}
       {fatherInsured && (
-        <Slider label={`Wynagrodzenie brutto ${isMother ? "taty" : "mamy"} (zł / miesiąc)`} unit="zł" money min={0} max={30000} step={100}
+        <MoneyField label={`Wynagrodzenie brutto ${isMother ? "taty" : "mamy"} (zł / miesiąc)`}
           value={a.partnerSalaryGross} emptyLabel="nie podano"
           hint="Potrzebne, żeby porównać, komu bardziej opłaca się wziąć część urlopu."
           onChange={(partnerSalaryGross) => set({ partnerSalaryGross, plannerChoices: [] })} />
