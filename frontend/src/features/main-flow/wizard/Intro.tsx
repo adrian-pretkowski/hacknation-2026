@@ -95,9 +95,10 @@ function PathCard({ tag, title, text, points, cta, onClick, icon, primary }: {
   tag: string; title: string; text: string; points: string[]; cta: string; onClick: () => void; icon: "plan" | "forms"; primary?: boolean;
 }) {
   return (
-    <li className={`group relative isolate flex flex-col overflow-hidden rounded-2xl border-2 bg-linear-to-br via-white to-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6 ${
+    <li className={`group relative isolate flex flex-col rounded-2xl border-2 bg-linear-to-br via-white to-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6 ${
       primary ? "border-zus-green-dark from-zus-green-50" : "border-zinc-200 from-zus-blue-50 hover:border-zus-navy"}`}>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+      {/* overflow-hidden tylko na tle - nie ucina obwódki fokusu przycisku (after:inset-0 + outline-offset) */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[14px]">
         <div className={`absolute -right-12 -bottom-12 h-56 w-56 rounded-full blur-2xl ${primary ? "bg-zus-green-50" : "bg-zus-blue-50"}`} />
         <PathIcon icon={icon} className={`absolute -right-6 -bottom-8 h-44 w-44 -rotate-12 transition duration-500 group-hover:-rotate-6 group-hover:scale-105 sm:h-52 sm:w-52 ${
           primary ? "text-zus-green-dark/15" : "text-zus-navy/10"}`} />
