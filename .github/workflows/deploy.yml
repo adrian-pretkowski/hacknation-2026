@@ -76,14 +76,15 @@ jobs:
           echo "FE_URL=$fe_url" >> "$GITHUB_ENV"
       - name: Backend — CORS dla frontendu
         run: heroku config:set CORS_ORIGINS="$FE_URL" -a "$BE_APP"
+      # Heroku Registry nie przyjmuje manifestów z atestacjami BuildKit ("unsupported") — stąd --provenance/--sbom=false.
       - name: Backend — build, push, release
         run: |
-          docker build -f backend/Dockerfile --build-arg APP_VERSION="$APP_VERSION" -t registry.heroku.com/$BE_APP/web .
+          docker build --provenance=false --sbom=false --platform linux/amd64 -f backend/Dockerfile --build-arg APP_VERSION="$APP_VERSION" -t registry.heroku.com/$BE_APP/web .
           docker push registry.heroku.com/$BE_APP/web
           heroku container:release web -a "$BE_APP"
       - name: Frontend — build (adres API zapisany w buildzie), push, release
         run: |
-          docker build frontend --build-arg APP_VERSION="$APP_VERSION" --build-arg NEXT_PUBLIC_API_URL="$BE_URL" -t registry.heroku.com/$FE_APP/web
+          docker build --provenance=false --sbom=false --platform linux/amd64 frontend --build-arg APP_VERSION="$APP_VERSION" --build-arg NEXT_PUBLIC_API_URL="$BE_URL" -t registry.heroku.com/$FE_APP/web
           docker push registry.heroku.com/$FE_APP/web
           heroku container:release web -a "$FE_APP"
       - name: Weryfikacja — /api/health zwraca wersję z tagu
