@@ -164,6 +164,8 @@ def raise_to_parental_benefit_floor(ctx: Context) -> dict[str, Any] | None:
     start, end = to_date(ctx.field("segment.from")), to_date(ctx.field("segment.to"))
     if floor is None or start is None or end is None:
         return None
+    if (to_decimal(ctx.field("segment.work_fraction")) or Decimal(0)) > 0:
+        return None  # łączenie z pracą: sposób podwyższenia nieustalony (M10c) — bez podwyższenia na zapas
     daily = div(floor, int(ctx.param("MONTH_AS_DAYS")))
     days = days_in(start, end)
     return {"monthly": floor, "daily": daily, "total": mul(daily, Decimal(days)), "days": days}

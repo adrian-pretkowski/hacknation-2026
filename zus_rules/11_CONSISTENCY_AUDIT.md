@@ -4,7 +4,7 @@ Wygenerowano przez `tools/build_catalog.py` z `03_rules.yaml` v0.1.0. **Błędy:
 
 ## Statystyki
 
-- Reguły: 119; testy: 95; fakty użyte: 99 (zdefiniowane w 07: 102); pola użyte: 81; parametry: 82
+- Reguły: 119; testy: 96; fakty użyte: 99 (zdefiniowane w 07: 102); pola użyte: 81; parametry: 82
 - Priorytet: P0=70, P1=37, P2=12
 - Evaluation: ACTIVE=93, BLOCKED=6, FUTURE=1, HUMAN_REVIEW=3, INFORMATIONAL=16
 - Interpretacja: AMBIGUOUS=5, DERIVED=21, DIRECT=90, INCOMPLETE_SOURCE=3
@@ -88,10 +88,10 @@ Brak błędów i ostrzeżeń.
 | USTAWA USTAWA art. 30a ust. 1-2 | APP-DL-001 | ACTIVE | T-RATE-001 |
 | USTAWA USTAWA art. 30a ust. 3; art. 31 ust. 3 | RATE-MAT-008 | ACTIVE | T-RATE-006 |
 | USTAWA USTAWA art. 31 ust. 1 | RATE-MAT-001 | ACTIVE | T-MAT-001, T-PAT-001, T-RATE-002, T-RATE-007 |
-| USTAWA USTAWA art. 31 ust. 1-3, 4a, 5 (→ art. 11 ust. 4); art. 47 (→ art. 36 ust. 3) | CALC-MAT-001 | ACTIVE | T-MAT-001, T-RATE-001 |
+| USTAWA USTAWA art. 31 ust. 1-3, 4a, 5 (→ art. 11 ust. 4); art. 47 (→ art. 36 ust. 3) | CALC-MAT-001 | ACTIVE | T-MAT-001, T-RATE-001, T-RATE-008 |
 | USTAWA USTAWA art. 31 ust. 2 | RATE-MAT-002 | ACTIVE | T-RATE-003 |
 | USTAWA USTAWA art. 31 ust. 3; art. 30a ust. 1-2 | RATE-MAT-003 | ACTIVE | T-RATE-001, T-RATE-002, T-INT-001 |
-| USTAWA USTAWA art. 31 ust. 3a-3c; art. 62 ust. 4-6; ROZP_DOK § 28 | RATE-MAT-007 | ACTIVE | — |
+| USTAWA USTAWA art. 31 ust. 3a-3c; art. 62 ust. 4-6; ROZP_DOK § 28 | RATE-MAT-007 | ACTIVE | T-RATE-008 |
 | USTAWA USTAWA art. 31 ust. 3f; art. 30a ust. 1 (wyłączenie okresu z KP 182(1a) § 4) | RATE-MAT-004 | ACTIVE | T-RATE-004, T-INT-001 |
 | USTAWA USTAWA art. 31 ust. 3g | RATE-MAT-005 | ACTIVE | T-RATE-005 |
 | USTAWA USTAWA art. 31 ust. 3h; treść zadania pkt B | PAR-SHARE-003 | ACTIVE | — |

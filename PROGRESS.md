@@ -42,12 +42,13 @@
 
 ## 4. Następne kroki (kolejność)
 1. Lider: utworzyć zdalne repo (odblokowuje INT-04) i zdecydować o hostingu demo (INT-02). Repo przeniesione do `D:\hacknation-2026`, pierwsze commity zrobione.
-2. BA-01: mentorzy M01–M04, M11 (`docs/mentors.md`) — blokery B1–B3 (M05 rozstrzygnięte 2026-11-21).
+2. BA-01: mentorzy M01–M04, M18 i pytania uzupełniające M07a, M10c (`docs/mentors.md`) — blokery B1–B3 (M05–M17 odpowiedziane 2026-11-21).
 3. BE i FE: przejrzeć i zaakceptować kontrakt v1 (INT-01). Kontrakt już odblokowuje FE1-01..03, FE2-02..04, BE2-05/06, INT-03 — typy FE: `npm run gen:api`.
 4. BE1-01: interfejs rejestru faktów I2 jako pierwszy commit (odblokowuje BE2-01..04).
 5. Równolegle: FE2-01 (layout), FE1-01 (główny przepływ — kreator gotowy na podglądzie w FE; do podpięcia realne `/api/evaluate` i `/api/sim/*`).
 6. **BE-1 — uwaga (z gałęzi `be2/BE2-03-art43-m05`):** nowy helper `contains_full_calendar_month` w `core/dates.py`, krok 6 (podstawa, BASE-GEN-001) i pole `base` w wyniku w `pipeline/maternity.py`; parytet ze slice pomija `base`. Runner 08 (BE1-03): `expected` `base.amount_exact` mapuje się na `benefits[0].base.amount_exact`.
-7. Checkpoint CP1: pełny silnik (`ENGINE=rules`) daje ten sam wynik co slice dla `demo/` + T-MAT-*, T-RATE-* zielone.
+7. **BE-2 i FE-1 — uwaga (seria BA-01, odpowiedzi mentora M06–M17):** RATE-MAT-007 (podwyższenie do 1000 zł, M10) już zaimplementowane w `facts/maternity.py` i `pipeline/maternity.py` (część BE2-02 — nie duplikować); `ENGINE=slice` (slice_v0) nie podwyższa — odstępstwo zamierzone. FE-1: podgląd `preview/engine.ts` nie ma jeszcze zmian z M10/M11/M15 (RATE-MAT-007 nieoceniona, ojciec przy 81,5% → NEEDS_REVIEW zamiast 81,5%, termin 21 dni bez przesunięcia na dzień roboczy) — szczegóły w `docs/mentors.md`.
+8. Checkpoint CP1: pełny silnik (`ENGINE=rules`) daje ten sam wynik co slice dla `demo/` + T-MAT-*, T-RATE-* zielone.
 
 ## 5. Blokery i otwarte pytania
 | ID | Bloker | Właściciel | Link |

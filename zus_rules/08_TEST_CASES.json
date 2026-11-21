@@ -3012,6 +3012,51 @@
    ]
   },
   {
+   "test_id": "T-RATE-008",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "RATE-MAT-007",
+    "CALC-MAT-001"
+   ],
+   "description": "Podstawa 800 zł, 100% → 800 zł/mies. < 1000 zł → podwyższenie: 1000/30 zł za dzień × 140 dni (M10)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": "800.00"
+    },
+    "applications": {
+     "combined_815_planned": false
+    },
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-08-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "rate": "1.00",
+    "daily_amount_exact": "33.3333333333",
+    "total_amount_exact": "4666.6666666667"
+   },
+   "legal_basis": [
+    "USTAWA art. 31 ust. 3a-3c"
+   ],
+   "assumptions": [
+    "PARENTAL_BENEFIT_FLOOR_MONTHLY = 1000 zł (M10)",
+    "Dzienna po podwyższeniu = 1000/30 (M09); niepełny miesiąc — M10c",
+    "Porównanie do 10 miejsc po przecinku"
+   ]
+  },
+  {
    "test_id": "T-RATE-007",
    "kind": "POSITIVE",
    "rule_ids": [

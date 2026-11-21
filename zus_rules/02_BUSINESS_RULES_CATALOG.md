@@ -78,7 +78,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [RATE-MAT-001](#rate-mat-001) | 100% — macierzyński, na warunkach macierzyńskiego, uzupełniający, ojcowski | RATE | P0 | ACTIVE | HIGH | DIRECT | 4 |
 | [RATE-MAT-003](#rate-mat-003) | 81,5% — wniosek o łączny zasiłek złożony w 21 dni | RATE | P0 | ACTIVE | HIGH | DIRECT | 3 |
 | [RATE-MAT-006](#rate-mat-006) | Jednorazowe wyrównanie macierzyńskiego do 100% | CALCULATION | P1 | ACTIVE | HIGH | DIRECT | 0 |
-| [RATE-MAT-007](#rate-mat-007) | Podwyższenie do kwoty świadczenia rodzicielskiego | CALCULATION | P1 | ACTIVE | MEDIUM | DERIVED | 0 |
+| [RATE-MAT-007](#rate-mat-007) | Podwyższenie do kwoty świadczenia rodzicielskiego | CALCULATION | P1 | ACTIVE | MEDIUM | DERIVED | 1 |
 | [APP-DL-001](#app-dl-001) | Termin 21 dni na wniosek o zasiłek 81,5% | DEADLINE | P0 | ACTIVE | MEDIUM | DERIVED | 1 |
 | [APP-DOC-001](#app-doc-001) | Dokumenty — urlop macierzyński przed porodem | DOCUMENT_REQUIREMENT | P0 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [APP-DOC-002](#app-doc-002) | Dokumenty — urodzenie dziecka (akt urodzenia / martwe urodzenie) | DOCUMENT_REQUIREMENT | P0 | INFORMATIONAL | HIGH | DIRECT | 0 |
@@ -86,7 +86,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [APP-DOC-004](#app-doc-004) | Dokumenty — macierzyński po ustaniu ubezpieczenia / zasiłek w wysokości macierzyńskiego | DOCUMENT_REQUIREMENT | P1 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [APP-DOC-005](#app-doc-005) | Dokumenty — przyjęcie dziecka (przysposobienie / rodzina zastępcza) | DOCUMENT_REQUIREMENT | P0 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [APP-DOC-006](#app-doc-006) | Dokumenty — rodzicielski, ojcowski, uzupełniający, przejęcie przez ojca | DOCUMENT_REQUIREMENT | P1 | INFORMATIONAL | HIGH | DIRECT | 0 |
-| [CALC-MAT-001](#calc-mat-001) | Kwota zasiłku macierzyńskiego za segment | CALCULATION | P0 | ACTIVE | HIGH | DERIVED | 2 |
+| [CALC-MAT-001](#calc-mat-001) | Kwota zasiłku macierzyńskiego za segment | CALCULATION | P0 | ACTIVE | HIGH | DERIVED | 3 |
 | [MAT-ELIG-007](#mat-elig-007) | Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu | ELIGIBILITY | P1 | ACTIVE | HIGH | DIRECT | 2 |
 | [SUPP-ELIG-001](#supp-elig-001) | Uzupełniający urlop — poród przed 28. tyg. lub masa ≤1000 g | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [SUPP-ELIG-002](#supp-elig-002) | Uzupełniający urlop — poród 28–37 tydz. i masa >1000 g | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
@@ -1586,7 +1586,7 @@ Jeżeli miesięczna kwota zasiłku jest niższa niż świadczenie rodzicielskie 
 - **Wyjątki:** — · **Zależy od:** RATE-MAT-001, RATE-MAT-002, RATE-MAT-003 · **Ma pierwszeństwo przed:** —
 - **Dane:** `income_history` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DERIVED
-- **Testy:** —
+- **Testy:** T-RATE-008
 - **Uwagi:** Odblokowana po odpowiedzi mentora M10 (2026-11-21): świadczenie rodzicielskie = 1000 zł miesięcznie (PARENTAL_BENEFIT_FLOOR_MONTHLY), uwzględniamy w MVP; porównanie miesięcznej kwoty base × rate × (1 − wf) przed zaokrągleniem. Po podwyższeniu dzienna kwota = 1000 / 30 (art. 36 ust. 3, M09), kwota za segment = dzienna × dni — sposób liczenia za niepełny miesiąc (ust. 3b-3c) do potwierdzenia (M10c). GAP-002 częściowo zamknięty.
 
 ### APP-DL-001
@@ -1737,7 +1737,7 @@ Kwota = podstawa × stawka × (1 − wymiar pracy) / 30 × liczba dni kalendarzo
 - **Wyjątki:** — · **Zależy od:** RATE-MAT-001, RATE-MAT-002, RATE-MAT-003, RATE-MAT-004, RATE-MAT-005, PAR-WORK-003, BASE-EMP-001, BASE-NEMP-001 · **Ma pierwszeństwo przed:** —
 - **Dane:** `plan.segments`, `income_history` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DERIVED
-- **Testy:** T-MAT-001, T-RATE-001
+- **Testy:** T-MAT-001, T-RATE-001, T-RATE-008
 - **Uwagi:** Dzienna stawka 1/30 dla zasiłku macierzyńskiego wynika z odesłania art. 47 → art. 36 ust. 3 'odpowiednio' (DERIVED) — potwierdzone przez mentora fachowego ZUS (M09, 2026-11-21): stawka dzienna = podstawa / 30. Zaokrąglenia — GAP-001. Kwota 'miesięczna' w UI = base × rate (informacyjnie).
 
 
