@@ -2,6 +2,7 @@
 
 // Kroki kreatora: najpierw pytania, które wykluczają całe gałęzie (kim jesteś → etap → zdarzenie → ubezpieczenie).
 // Każdy krok ma warunek widoczności — pytanie pojawia się tylko wtedy, gdy ma znaczenie dla wyniku.
+import { formatDate, formatMoney } from "@/lib/format";
 import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
 import type { Answers } from "./answers";
@@ -25,8 +26,16 @@ export type Step = {
   title: string;
   visible: (a: Answers) => boolean;
   complete: (a: Answers) => boolean;
+  /** Krótka historia wyboru pokazywana pod nazwą kroku na liście kroków (null = nic do pokazania). */
+  summary: (a: Answers) => string | null;
   render: (p: StepProps) => React.ReactNode;
 };
+
+const TRI_TEXT = { YES: "tak", NO: "nie", UNKNOWN: "nie wiem" } as const;
+const TITLE_TEXT = { EMPLOYMENT: "Umowa o pracę", MANDATE: "Umowa zlecenia", SELF_EMPLOYED: "Działalność (JDG)", NONE: "Bez ubezpieczenia / nie wiem" } as const;
+const GUARDIAN_TEXT = { ADOPTION: "Adopcja", FOSTER_NON_PROFESSIONAL: "Rodzina zastępcza niezawodowa", FOSTER_PROFESSIONAL: "Zawodowa rodzina zastępcza" } as const;
+const plWeeks = (n: number) => `${n} tydz.`;
+const join = (parts: (string | null | false | undefined)[]) => parts.filter(Boolean).join(" · ") || null;
 
 const isBirth = (a: Answers) => a.role !== "GUARDIAN";
 const isWorker = (a: Answers) => a.title === "EMPLOYMENT" || a.title === "MANDATE";
@@ -37,6 +46,7 @@ export const STEPS: Step[] = [
     title: "Kim jesteś?",
     visible: (a) => !a.sensitive,
     complete: (a) => a.role !== null,
+    summary: (a) => (a.role === "MOTHER" ? "Jestem mamą" : a.role === "FATHER" ? "Jestem tatą" : a.role === "GUARDIAN" ? "Przyjmuję dziecko jako opiekun" : null),
     render: ({ a, set }) => (
       <Choice legend="Kim jesteś?" value={a.role} columns={3} onChange={(role) => set({ role })} options={[
         { value: "MOTHER", label: "Mamą", description: "jestem w ciąży lub urodziłam" },
@@ -50,6 +60,8 @@ export const STEPS: Step[] = [
     title: "Etap",
     visible: (a) => a.role !== null && !a.sensitive,
     complete: (a) => (a.role === "GUARDIAN" ? a.guardianKind !== null : a.stage !== null),
+    summary: (a) => (a.role === "GUARDIAN" ? (a.guardianKind ? GUARDIAN_TEXT[a.guardianKind] : null)
+      : a.stage === "PREGNANT" ? (a.role === "FATHER" ? "Partnerka jest w ciąży" : "Jestem w ciąży") : a.stage === "BORN" ? "Dziecko już jest na świecie" : null),
     render: ({ a, set }) =>
       a.role === "GUARDIAN" ? (
         <Choice legend="Jaka to forma przyjęcia dziecka?" value={a.guardianKind} columns={1} onChange={(guardianKind) => set({ guardianKind })} options={[
@@ -69,6 +81,10 @@ export const STEPS: Step[] = [
     title: "Data i dzieci",
     visible: (a) => a.role !== null,
     complete: (a) => !!a.eventDate && a.children >= 1 && (a.role !== "GUARDIAN" || a.childAgeYears !== ""),
+    summary: (a) => join([
+      a.eventDate && `${a.role === "GUARDIAN" ? "Przyjęcie dziecka" : a.stage === "BORN" ? "Poród" : "Poród planowany"} ${formatDate(a.eventDate)}`,
+      a.children > 1 && `${a.children} dzieci`,
+      a.role === "GUARDIAN" && a.childAgeYears !== "" && `wiek ${plYears(Number(a.childAgeYears))}`]),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <Field label={a.role === "GUARDIAN" ? "Data przyjęcia dziecka" : a.stage === "BORN" ? "Data porodu" : "Planowana data porodu"}
@@ -98,6 +114,7 @@ export const STEPS: Step[] = [
     title: "Strata dziecka",
     visible: (a) => a.sensitive && isBirth(a),
     complete: (a) => a.lossKind === "STILLBORN" || !!a.deathDate,
+    summary: (a) => (a.lossKind === "STILLBORN" ? "Martwe urodzenie" : join(["Zgon po porodzie", a.deathDate && formatDate(a.deathDate)])),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <p className="text-sm text-zinc-700">Bardzo nam przykro. Zapytamy tylko o to, co niezbędne.</p>
@@ -122,6 +139,13 @@ export const STEPS: Step[] = [
     title: "Okoliczności szczególne",
     visible: (a) => isBirth(a) && !a.sensitive && a.role !== null,
     complete: (a) => !a.preterm || (a.gestationWeeks !== "" || a.birthWeightG !== ""),
+    summary: (a) => join([
+      a.preterm && "Wcześniak / szpital",
+      a.preterm && a.gestationWeeks !== "" && `${a.gestationWeeks}. tydz.`,
+      a.preterm && a.birthWeightG !== "" && `${Number(a.birthWeightG).toLocaleString("pl-PL")} g`,
+      a.preterm && a.hospitalWeeks !== "" && `szpital ${plWeeks(Number(a.hospitalWeeks))}`,
+      a.zaZyciem && "„Za życiem”",
+    ]) ?? "Brak",
     render: ({ a, set }) => (
       <div className="space-y-3">
         <p className="text-sm text-zinc-600">Zaznacz, jeśli dotyczy. Jeśli dziecko jeszcze się nie urodziło, możesz wrócić do tego kroku później.</p>
@@ -155,6 +179,8 @@ export const STEPS: Step[] = [
     visible: (a) => a.role !== null,
     complete: (a) => a.title !== null && (a.title === "NONE" || !!a.insuredFrom)
       && (a.title !== "EMPLOYMENT" || a.contractType !== null),
+    summary: (a) => (a.title ? join([TITLE_TEXT[a.title], a.title !== "NONE" && a.insuredFrom && `od ${formatDate(a.insuredFrom)}`,
+      a.contractType === "FIXED_TERM" && "na czas określony"]) : null),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <Choice legend="Z jakiego tytułu masz ubezpieczenie?" value={a.title} onChange={(title) => set({ title })} options={[
@@ -224,6 +250,8 @@ export const STEPS: Step[] = [
     title: "Co już wykorzystano",
     visible: (a) => a.stage === "BORN" && a.role === "MOTHER" && !a.sensitive,
     complete: () => true,
+    summary: (a) => join([`mama ${plWeeks(Number(a.usedParentalMotherWeeks || 0))}`, `tata ${plWeeks(Number(a.usedParentalFatherWeeks || 0))}`,
+      Number(a.usedParts) > 0 && `${a.usedParts} cz.`]),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <ZusFetch source="usedLeave" a={a} set={set} what="Pobierz wykorzystane już urlopy i wypłacone zasiłki." />
@@ -251,6 +279,7 @@ export const STEPS: Step[] = [
     title: "Partnerka",
     visible: (a) => a.role === "FATHER",
     complete: () => true,
+    summary: (a) => join([`Ubezpieczona: ${TRI_TEXT[a.partnerInsured]}`, a.fatherTakesOverMaternity && "przejmuję część macierzyńskiego"]),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <ZusFetch source="partner" a={a} set={set} what="Za zgodą partnerki: sprawdź jej status ubezpieczenia chorobowego." />
@@ -268,6 +297,14 @@ export const STEPS: Step[] = [
     title: "Plany",
     visible: (a) => a.role !== null && a.stage !== "BORN" && !a.sensitive,
     complete: () => true,
+    summary: (a) => {
+      const wb = weeksBefore(a);
+      return join([
+        a.role === "MOTHER" && (wb === "0" ? "start w dniu porodu" : wb === "custom" ? `start ${formatDate(a.maternityStart)}` : `start ${wb} tydz. przed porodem`),
+        (a.role !== "FATHER" || a.partnerInsured !== "NO") && `tata ${plWeeks(a.fatherParentalWeeks)} rodzicielskiego`,
+        a.role === "MOTHER" && a.workFraction !== "0" && `praca ${a.workFraction === "0.25" ? "¼" : "½"} etatu`,
+      ]);
+    },
     render: ({ a, set }) => (
       <div className="space-y-5">
         {a.role === "MOTHER" && (
@@ -318,6 +355,10 @@ export const STEPS: Step[] = [
     title: "Wynagrodzenie",
     visible: (a) => a.role !== null && a.title !== "NONE",
     complete: () => true,
+    summary: (a) => {
+      const v = a.salaryGross.replace(",", ".");
+      return /^\d+(\.\d{1,2})?$/.test(v) ? `${formatMoney(v)} brutto` : "nie podano";
+    },
     render: ({ a, set }) => (
       <div className="space-y-4">
         <ZusFetch source="salary" a={a} set={set}

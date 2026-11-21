@@ -16,6 +16,7 @@ export function Wizard() {
   const [a, setA] = useState<Answers>(EMPTY_ANSWERS);
   const [view, setView] = useState<View>({ kind: "intro" });
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const [storyOpen, setStoryOpen] = useState(false);
   const steps = useMemo(() => STEPS.filter((s) => s.visible(a)), [a]);
   const index = view.kind === "step" ? Math.min(view.index, steps.length - 1) : steps.length - 1;
   const step = steps[index];
@@ -49,6 +50,7 @@ export function Wizard() {
   const loadPreset = (answers: Partial<Answers>) => { setA({ ...EMPTY_ANSWERS, ...answers }); show({ kind: "result" }); };
   const start = () => { setA(EMPTY_ANSWERS); show({ kind: "step", index: 0 }); };
   const startSensitive = () => { setA({ ...EMPTY_ANSWERS, sensitive: true, role: "MOTHER", stage: "BORN", stillborn: true }); show({ kind: "step", index: 0 }); };
+  const answered = steps.filter((s, i) => (done || i < index) && s.summary(a)).length;
   const progress = done ? 100 : Math.round(((index + 1) / (steps.length + 1)) * 100);
 
   if (view.kind === "intro") {
@@ -65,38 +67,58 @@ export function Wizard() {
           </svg>
           Strona startowa
         </button>
-        <div className="flex items-center justify-between text-xs text-zinc-600">
-          <span>{done ? "Gotowe" : `Krok ${index + 1} z ${steps.length}`}</span><span>{progress}%</span>
-        </div>
-        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-zinc-200" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Postęp">
-          <div className="h-full rounded-full bg-zus-green transition-all" style={{ width: `${progress}%` }} />
-        </div>
-        <ol className="relative mt-4 flex gap-1 overflow-x-auto pb-1 text-sm lg:flex-col lg:overflow-visible">
-          {steps.map((s, i) => {
-            const current = !done && i === index;
-            const complete = s.complete(a) && (done || i < index);
-            return (
-              <li key={s.id} className="relative shrink-0">
-                <button type="button" onClick={() => go(i)} aria-current={current ? "step" : undefined}
-                  className={`flex w-full items-center gap-2 rounded-full px-2 py-1.5 text-left lg:rounded-lg ${current ? "bg-zus-green-50 font-semibold text-zus-navy" : "text-zinc-700 hover:bg-zinc-100"}`}>
-                  <span aria-hidden="true" className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs ${
-                    current ? "border-zus-green-dark bg-zus-green-dark text-white" : complete ? "border-zus-green-dark text-zus-green-dark" : "border-zinc-300 text-zinc-500"}`}>
+        <section aria-labelledby="story-h" className="rounded-2xl border border-zinc-200 bg-white p-4">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 id="story-h" className="text-base font-semibold text-zus-navy">Twoja historia</h2>
+            <span className="text-xs text-zinc-600">{done ? "Gotowe" : `Krok ${index + 1} z ${steps.length}`}</span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-200" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Postęp">
+            <div className="h-full rounded-full bg-zus-green transition-all" style={{ width: `${progress}%` }} />
+          </div>
+          <button type="button" onClick={() => setStoryOpen((o) => !o)} aria-expanded={storyOpen}
+            className="mt-3 w-full rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-semibold text-zus-navy lg:hidden">
+            {storyOpen ? "Ukryj historię" : `Pokaż historię (${answered})`}
+          </button>
+          <ol className={`mt-4 ${storyOpen ? "block" : "hidden"} lg:block`}>
+            {steps.map((s, i) => {
+              const current = !done && i === index;
+              const visited = done || i < index;
+              const complete = s.complete(a) && visited;
+              const summary = s.summary(a);
+              return (
+                <li key={s.id} className="relative pb-4 pl-9 last:pb-0">
+                  <span aria-hidden="true" className="absolute top-7 bottom-0 left-[11px] w-0.5 bg-zinc-200" />
+                  <span aria-hidden="true" className={`absolute top-0.5 left-0 flex h-6 w-6 items-center justify-center rounded-full border-2 text-[11px] font-semibold ${
+                    current ? "border-zus-green-dark bg-zus-green-dark text-white" : complete ? "border-zus-green-dark bg-zus-green-50 text-zus-green-dark" : "border-zinc-300 bg-white text-zinc-500"}`}>
                     {complete ? "✓" : i + 1}
                   </span>
-                  <span className="whitespace-nowrap lg:whitespace-normal">{s.title}</span>
-                  {complete && <span className="sr-only"> (uzupełniony)</span>}
-                </button>
-              </li>
-            );
-          })}
-          <li className="shrink-0">
-            <button type="button" onClick={() => show({ kind: "result" })} aria-current={done ? "step" : undefined}
-              className={`flex w-full items-center gap-2 rounded-full px-2 py-1.5 text-left lg:rounded-lg ${done ? "bg-zus-green-50 font-semibold text-zus-navy" : "text-zinc-700 hover:bg-zinc-100"}`}>
-              <span aria-hidden="true" className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs ${done ? "border-zus-green-dark bg-zus-green-dark text-white" : "border-zinc-300 text-zinc-500"}`}>★</span>
-              Twój plan
-            </button>
-          </li>
-        </ol>
+                  <button type="button" onClick={() => go(i)} aria-current={current ? "step" : undefined}
+                    className={`group block w-full rounded-lg px-2 py-1 text-left focus-visible:outline-2 focus-visible:outline-zus-green-dark ${current ? "bg-zus-green-50" : "hover:bg-zinc-50"}`}>
+                    <span className={`block text-xs ${current ? "font-semibold text-zus-green-dark" : "text-zinc-500"}`}>
+                      {current ? `Teraz: ${s.title}` : s.title}
+                    </span>
+                    {(visited || current) && summary ? (
+                      <span className={`mt-0.5 block text-sm ${visited ? "font-semibold text-zus-navy" : "text-zus-navy"}`}>
+                        <span className="sr-only">Wybrano: </span>{summary}
+                      </span>
+                    ) : !visited && !current ? null : (
+                      <span className="mt-0.5 block text-sm text-zinc-500">jeszcze bez odpowiedzi</span>
+                    )}
+                    {visited && <span className="mt-0.5 block text-xs text-zinc-500 underline-offset-2 group-hover:text-zus-navy group-hover:underline">zmień</span>}
+                    {complete && <span className="sr-only"> (uzupełniony)</span>}
+                  </button>
+                </li>
+              );
+            })}
+            <li className="relative pl-9">
+              <span aria-hidden="true" className={`absolute top-0.5 left-0 flex h-6 w-6 items-center justify-center rounded-full border-2 text-[11px] ${done ? "border-zus-green-dark bg-zus-green-dark text-white" : "border-zinc-300 bg-white text-zinc-500"}`}>★</span>
+              <button type="button" onClick={() => show({ kind: "result" })} aria-current={done ? "step" : undefined}
+                className={`block w-full rounded-lg px-2 py-1 text-left text-sm font-semibold focus-visible:outline-2 focus-visible:outline-zus-green-dark ${done ? "bg-zus-green-50 text-zus-navy" : "text-zus-navy hover:bg-zinc-50"}`}>
+                Twój plan
+              </button>
+            </li>
+          </ol>
+        </section>
         {!a.sensitive ? (
           <button type="button" onClick={startSensitive} className="mt-4 text-left text-xs text-zinc-600 underline underline-offset-2">
             Poród martwego dziecka lub strata dziecka — tryb spokojny
