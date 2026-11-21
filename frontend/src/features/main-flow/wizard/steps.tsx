@@ -36,6 +36,15 @@ const TRI_TEXT = { YES: "tak", NO: "nie", UNKNOWN: "nie wiem" } as const;
 const TITLE_TEXT = { EMPLOYMENT: "Umowa o pracę", MANDATE: "Umowa zlecenia", SELF_EMPLOYED: "Działalność (JDG)", NONE: "Bez ubezpieczenia / nie wiem" } as const;
 const GUARDIAN_TEXT = { ADOPTION: "Adopcja", FOSTER_NON_PROFESSIONAL: "Rodzina zastępcza niezawodowa", FOSTER_PROFESSIONAL: "Zawodowa rodzina zastępcza" } as const;
 const plWeeks = (n: number) => `${n} tydz.`;
+/** FE1-07: limit tygodni urlopu uzupełniającego z PARAMS (KP art. 180(2)); `known` = tydzień ciąży i masa rozstrzygają wariant. */
+const suppCapWeeks = (a: Answers): { cap: number; known: boolean } => {
+  const gw = a.gestationWeeks === "" ? null : Number(a.gestationWeeks);
+  const weight = a.birthWeightG === "" ? null : Number(a.birthWeightG);
+  const early = (gw !== null && gw < PARAMS.SUPP_GESTATION_EARLY_WEEK) || (weight !== null && weight <= PARAMS.SUPP_WEIGHT_THRESHOLD_G);
+  if (early) return { cap: PARAMS.SUPP_CAP_WEEK_EARLY, known: true };
+  if (gw !== null && weight !== null) return { cap: PARAMS.SUPP_CAP_WEEK_PRETERM, known: true };
+  return { cap: PARAMS.SUPP_CAP_WEEK_EARLY, known: false };
+};
 const join = (parts: (string | null | false | undefined)[]) => parts.filter(Boolean).join(" · ") || null;
 
 const isBirth = (a: Answers) => a.role !== "GUARDIAN";
@@ -158,10 +167,24 @@ export const STEPS: Step[] = [
               unit={(n) => `${n}. tydzień`} onChange={(gestationWeeks) => set({ gestationWeeks })} />
             <Slider label="Masa urodzeniowa" unit="g" min={300} max={5000} step={50} value={a.birthWeightG}
               hint="Przy kilkorgu dzieci: najniższa." onChange={(birthWeightG) => set({ birthWeightG })} />
-            <div className="sm:col-span-2">
-              <Slider label="Łącznie tygodni w szpitalu" unit="tyg." min={0} max={26} value={a.hospitalWeeks}
-                hint="Kilka pobytów sumuje się; niepełny tydzień liczy się jako pełny. Przy kilkorgu dzieci: najdłuższy pobyt."
-                onChange={(hospitalWeeks) => set({ hospitalWeeks })} />
+            <div className="space-y-2 sm:col-span-2">
+              {a.children > 1 && (
+                <p role="note" className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+                  Masz {a.children} dzieci z tego porodu: podaj czas pobytu w szpitalu tego dziecka, które było w szpitalu
+                  najdłużej. To ono wyznacza długość urlopu uzupełniającego (KP art. 180<sup>2</sup> § 2).
+                </p>
+              )}
+              {(() => {
+                const { cap, known } = suppCapWeeks(a);
+                const value = a.hospitalWeeks !== "" && Number(a.hospitalWeeks) > cap ? String(cap) : a.hospitalWeeks;
+                return (
+                  <NumberSelect label={a.children > 1 ? "Łącznie tygodni w szpitalu (dziecko najdłużej w szpitalu)" : "Łącznie tygodni w szpitalu"}
+                    from={0} to={cap} value={value} unit={(n) => (n === cap ? `${n} tyg. lub więcej` : `${n} tyg.`)}
+                    unknownLabel="Nie wiem"
+                    hint={`Kilka pobytów sumuje się; niepełny tydzień liczy się jako pełny. Urlop uzupełniający wynosi najwyżej ${cap} tyg. — dłuższy pobyt go nie wydłuża.${known ? "" : ` Limit ${PARAMS.SUPP_CAP_WEEK_EARLY} tyg. dotyczy porodu przed ${PARAMS.SUPP_GESTATION_EARLY_WEEK}. tygodniem ciąży lub masy do ${PARAMS.SUPP_WEIGHT_THRESHOLD_G} g; w pozostałych przypadkach ${PARAMS.SUPP_CAP_WEEK_PRETERM} tyg.`}`}
+                    onChange={(hospitalWeeks) => set({ hospitalWeeks })} />
+                );
+              })()}
             </div>
             {Number(a.gestationWeeks) >= 37 && (
               <Choice legend="Czy pobyt w szpitalu (≥ 2 dni) zaczął się między 5. a 28. dniem życia?" value={a.lateHospitalQualifies}

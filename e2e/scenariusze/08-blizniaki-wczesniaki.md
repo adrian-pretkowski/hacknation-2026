@@ -12,15 +12,16 @@
 10. Zaznacz „Wcześniak lub pobyt dziecka w szpitalu”.
 11. Z listy „Ukończony tydzień ciąży przy porodzie” wybierz „30. tydzień”.
 12. Ustaw suwak „Masa urodzeniowa” na „1400”.
-13. Ustaw suwak „Łącznie tygodni w szpitalu” na „6”.
-14. Przejdź dalej.
-15. Wybierz „Umowa o pracę”.
-16. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „2021-03-01”.
-17. Wybierz „Na czas nieokreślony”.
-18. Wybierz „Nie”.
-19. Wybierz „Więcej niż 20”.
-20. Przejdź dalej.
+13. Z listy „Łącznie tygodni w szpitalu (dziecko najdłużej w szpitalu)” wybierz „6 tyg.”.
+14. Sprawdź, że widać „które było w szpitalu najdłużej”.
+15. Przejdź dalej.
+16. Wybierz „Umowa o pracę”.
+17. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „2021-03-01”.
+18. Wybierz „Na czas nieokreślony”.
+19. Wybierz „Nie”.
+20. Wybierz „Więcej niż 20”.
 21. Przejdź dalej.
 22. Przejdź dalej.
-23. Sprawdź, że nagłówek to „Twój plan”.
-24. Sprawdź, że widać „uzupełniający”.
+23. Przejdź dalej.
+24. Sprawdź, że nagłówek to „Twój plan”.
+25. Sprawdź, że widać „uzupełniający”.
