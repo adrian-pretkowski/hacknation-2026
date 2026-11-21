@@ -10,14 +10,16 @@ from decimal import Decimal
 from typing import Any
 
 from app.core.dates import (
+    add_months,
     contains_full_calendar_month,
     days_in,
     deadline_after,
     end_after_days,
     end_after_weeks,
+    next_working_day,
     to_date,
 )
-from app.core.money import div, mul, to_decimal
+from app.core.money import div, mul, round_to_step, to_decimal
 from app.engine.facts.registry import Context, fact
 
 
@@ -40,14 +42,16 @@ def maternity_leave_weeks(ctx: Context) -> int | None:
 
 @fact("f_combined_application_deadline")
 def combined_application_deadline(ctx: Context) -> date | None:
-    """07 §5: event.date + APP_COMBINED_DEADLINE_DAYS (C11). USTAWA art. 30a ust. 1-2.
+    """07 §5: event.date + APP_COMBINED_DEADLINE_DAYS (C11); termin w sobotę, niedzielę lub święto
+    (PUBLIC_HOLIDAYS) → następny dzień roboczy (M15 d). USTAWA art. 30a ust. 1-2.
 
     ADOPTION (późniejsza z dat przyjęcia i wniosku do sądu) — BE2-01.
     """
     event = to_date(ctx.field("event.date"))
     if event is None:
         return ctx.need("event.date")
-    return deadline_after(event, int(ctx.param("APP_COMBINED_DEADLINE_DAYS")))
+    holidays = frozenset(to_date(day) for day in ctx.param("PUBLIC_HOLIDAYS") or [])
+    return next_working_day(deadline_after(event, int(ctx.param("APP_COMBINED_DEADLINE_DAYS"))), holidays)
 
 
 @fact("f_combined_application_within_deadline")
@@ -122,6 +126,16 @@ def benefit_base(ctx: Context) -> Decimal | None:
     return ctx.need("income_history.manual_base_override")
 
 
+@fact("f_minimum_base")
+def minimum_base(ctx: Context) -> Decimal | None:
+    """07 §2/§6, BASE-EMP-008: płaca minimalna × (1 − CONTRIBUTION_DEDUCTION_RATE), zaokrąglona do groszy.
+
+    M07 (4806 zł) i M07a (zaokrąglenie do pełnych groszy, ROUND_HALF_UP): 4147,0974 → 4147,10 zł. USTAWA art. 45 ust. 1.
+    """
+    exact = mul(ctx.param("MIN_WAGE_2026_MONTHLY"), Decimal(1) - ctx.param("CONTRIBUTION_DEDUCTION_RATE"))
+    return round_to_step(exact, ctx.param("MIN_BASE_ROUNDING_STEP"))
+
+
 @fact("f_benefit_amount")
 def benefit_amount(ctx: Context) -> dict[str, Any] | None:
     """07 §2/§7: daily = base × rate × (1 − work_fraction) / MONTH_AS_DAYS; total = daily × dni(segment).
@@ -137,6 +151,56 @@ def benefit_amount(ctx: Context) -> dict[str, Any] | None:
     daily = div(mul(base, rate, Decimal(1) - work_fraction), int(ctx.param("MONTH_AS_DAYS")))
     days = days_in(start, end)
     return {"daily": daily, "total": mul(daily, Decimal(days)), "days": days}
+
+
+@fact("f_contract_end_after_third_month_of_pregnancy")
+def contract_end_after_third_month_of_pregnancy(ctx: Context) -> bool | None:
+    """07 §3, MAT-CLS-002: umowa rozwiązałaby się po upływie trzeciego miesiąca ciąży (KP art. 177 § 3).
+
+    Początek ciąży — data stwierdzona przez lekarza (zaświadczenie lekarskie, M13). Trzeci miesiąc ciąży =
+    [początek + 2 mies., początek + 3 mies. − 1 dzień]; „po upływie” ⇔ koniec umowy ≥ początek + 3 mies. (C3, DERIVED).
+    """
+    start = to_date(ctx.field("pregnancy.pregnancy_start_date"))
+    end = to_date(ctx.field("employment.contract_end_date"))
+    if start is None:
+        ctx.need("pregnancy.pregnancy_start_date")
+    if end is None:
+        ctx.need("employment.contract_end_date")
+    if start is None or end is None:
+        return None
+    return end >= add_months(start, 3)
+
+
+@fact("f_monthly_maternity_amount")
+def monthly_maternity_amount(ctx: Context) -> Decimal | None:
+    """07 §6: miesięczna kwota zasiłku = base × rate × (1 − work_fraction), przed zaokrągleniem (M10 b).
+
+    USTAWA art. 31 ust. 3a (porównanie ze świadczeniem rodzicielskim, RATE-MAT-007).
+    """
+    base = ctx.fact("f_benefit_base")
+    rate = to_decimal(ctx.field("rate"))
+    if base is None or rate is None:
+        return None
+    work_fraction = to_decimal(ctx.field("segment.work_fraction")) or Decimal(0)
+    return mul(base, rate, Decimal(1) - work_fraction)
+
+
+@fact("f_raise_to_parental_benefit_floor")
+def raise_to_parental_benefit_floor(ctx: Context) -> dict[str, Any] | None:
+    """07 §6, RATE-MAT-007: kwota podwyższona do PARENTAL_BENEFIT_FLOOR_MONTHLY (M10: 1000 zł).
+
+    daily = floor / MONTH_AS_DAYS (art. 36 ust. 3, M09); total = daily × dni(segment). Niepełny miesiąc
+    proporcjonalnie przez stawkę dzienną — założenie do potwierdzenia (M10c). USTAWA art. 31 ust. 3a-3c.
+    """
+    floor = to_decimal(ctx.param("PARENTAL_BENEFIT_FLOOR_MONTHLY"))
+    start, end = to_date(ctx.field("segment.from")), to_date(ctx.field("segment.to"))
+    if floor is None or start is None or end is None:
+        return None
+    if (to_decimal(ctx.field("segment.work_fraction")) or Decimal(0)) > 0:
+        return None  # łączenie z pracą: sposób podwyższenia nieustalony (M10c) — bez podwyższenia na zapas
+    daily = div(floor, int(ctx.param("MONTH_AS_DAYS")))
+    days = days_in(start, end)
+    return {"monthly": floor, "daily": daily, "total": mul(daily, Decimal(days)), "days": days}
 
 
 # ------------------------------------------------------------ martwe urodzenie / zgon dziecka (MAT-DUR-003/004/005)

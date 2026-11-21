@@ -53,11 +53,11 @@ Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez zn
 | 5 | F | F | – | T | – | – | ELIGIBLE | ZUS | MAT-ELIG-005 |
 | 6 | F | F | – | – | T | – | ELIGIBLE | ZUS | MAT-ELIG-006 |
 | 7 | F | F | – | – (sprawa w toku) | – | – | NEEDS_REVIEW | – | MAT-ELIG-005 |
-| 8 | F | F | – | – | ? (umowa terminowa, brak potwierdzenia) | – | NEEDS_REVIEW | – | MAT-CLS-002 (BLOCKED) |
+| 8 | F | F | – | – | ? (umowa terminowa, brak potwierdzenia) | – | ELIGIBLE, gdy koniec umowy ≥ początek ciąży (wg lekarza) + 3 mies.; brak daty → NEEDS_DATA (M13) | – | MAT-CLS-002 |
 | 9 | F | F | F | F | F | – | NOT_ELIGIBLE + ostrzeżenie | – | MAT-NEG-001, RISK-003 |
 
 **Brak okresu wyczekiwania** dla zasiłku macierzyńskiego (MAT-CLS-001, DERIVED).
-**Przed porodem** (wiersz 4, przyczyny śmierć/upadłość/likwidacja + brak innego zatrudnienia): **zasiłek w wysokości zasiłku macierzyńskiego (100%) do dnia porodu** — MAT-ELIG-007. Naruszenie prawa NIE daje tego świadczenia (CONF-001).
+**Przed porodem** (wiersz 4, przyczyny śmierć/upadłość/likwidacja + brak innego zatrudnienia): **zasiłek w wysokości zasiłku macierzyńskiego (100%) do dnia porodu** — MAT-ELIG-007. Także rozwiązanie umowy w ciąży z naruszeniem prawa stwierdzonym przez sąd (UNLAWFUL_TERMINATION_COURT_CONFIRMED) — wg treści zadania (M16 a, CONF-001 rozstrzygnięty); sprawa w toku → brak tego świadczenia.
 
 ## DT-5. Wymiar zasiłku za okres urlopu macierzyńskiego
 
@@ -81,9 +81,9 @@ Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez zn
 | 5 | rodzicielski | T | T | – | drugi rodzic | **70%** | RATE-MAT-004 |
 | 6 | rodzicielski | T | F | T | wnioskodawca | **81,5%** | RATE-MAT-003 |
 | 7 | rodzicielski | T | F | F | wnioskodawca | **70%** | RATE-MAT-005 |
-| 8 | rodzicielski | T | F | – | ojciec (część dzielona) | **NEEDS_REVIEW** | RATE-MAT-008 (BLOCKED) |
+| 8 | rodzicielski | T | F | – | ojciec (część dzielona) | **81,5%** (M11) | RATE-MAT-008 |
 | 9 | dowolny z pracą ≤½ etatu | – | – | – | – | stawka × (1 − wymiar pracy) | PAR-WORK-003 |
-| 10 | kwota < świadczenie rodzicielskie | – | – | – | – | podwyższenie — NEEDS_REVIEW (brak kwoty) | RATE-MAT-007 (BLOCKED) |
+| 10 | kwota < świadczenie rodzicielskie | – | – | – | – | podwyższenie do 1000 zł/mies. (M10; niepełny miesiąc — M10c) | RATE-MAT-007 |
 
 Pierwszeństwo: 8 > 7 > 5 > 6/3 > 4/2 > 1; modyfikator 9 stosowany zawsze na końcu.
 

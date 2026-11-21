@@ -65,12 +65,26 @@ def deadline_after(event: date, days: int) -> date:
     return event + timedelta(days=days)
 
 
+def next_working_day(day: date, holidays: set[date] | frozenset[date] = frozenset()) -> date:
+    """Termin przypadający w sobotę, niedzielę lub święto → następny dzień roboczy (M15 d, mentor fachowy ZUS)."""
+    while day.weekday() >= 5 or day in holidays:
+        day += timedelta(days=1)
+    return day
+
+
 def add_years(day: date, years: int) -> date:
     """C7: rocznica; 29.02 w roku nieprzestępnym → 28.02 (DERIVED)."""
     try:
         return day.replace(year=day.year + years)
     except ValueError:
         return day.replace(year=day.year + years, day=28)
+
+
+def add_months(day: date, months: int) -> date:
+    """Ten sam dzień N miesięcy później; brak takiego dnia → ostatni dzień miesiąca (DERIVED, jak add_years)."""
+    month_index = day.month - 1 + months
+    year, month = day.year + month_index // 12, month_index % 12 + 1
+    return date(year, month, min(day.day, calendar.monthrange(year, month)[1]))
 
 
 def age_years_on(birth: date, on: date) -> int:

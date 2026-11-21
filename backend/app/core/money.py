@@ -41,6 +41,11 @@ def dec_str(value: Decimal) -> str:
     return format(value.normalize(), "f")
 
 
+def round_to_step(value: Decimal, step: Decimal) -> Decimal:
+    """Zaokrąglenie ROUND_HALF_UP do kroku z parametru (np. 0,01 zł) — tylko tam, gdzie reguła je przewiduje (M07a)."""
+    return value.quantize(step, rounding=ROUND_HALF_UP)
+
+
 def round_preview(value: Decimal) -> Decimal:
     """Podgląd do 0,01 zł ROUND_HALF_UP — wymaga assumption ROUNDING_UNCONFIRMED (C2, GAP-001)."""
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)

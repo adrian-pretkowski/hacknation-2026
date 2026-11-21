@@ -11,12 +11,12 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | C3 | Daty: `datetime.date`, okresy **domknięte obustronnie** `[from, to]`. Liczba dni = `(to − from).days + 1`. | DERIVED |
 | C4 | Tydzień urlopu = 7 dni kalendarzowych. Wprost dla urlopu macierzyńskiego i na warunkach macierzyńskiego; dla rodzicielskiego, ojcowskiego, uzupełniającego — przyjęte analogicznie. | KP 183(1) § 1; GAP-003 |
 | C5 | Okres `N tygodni` od dnia `d`: koniec = `d + 7N − 1`. | DERIVED z C3–C4 |
-| C6 | Miesiąc przy zasiłku chorobowym = 30 dni (gdy okres oznaczony w miesiącach). Podstawa dzienna = podstawa / 30. | USTAWA art. 11 ust. 5, art. 36 ust. 3 |
-| C7 | „Ukończenie N lat/miesięcy” = dzień urodzin/miesięcznicy. „Do N roku życia” = **przed** ukończeniem N lat (`age < N`). | DERIVED; GAP-005 |
+| C6 | Miesiąc przy zasiłku chorobowym = 30 dni (gdy okres oznaczony w miesiącach). Podstawa dzienna = podstawa / 30 — także dla zasiłku macierzyńskiego (art. 47 → art. 36 ust. 3; potwierdzone M09). | USTAWA art. 11 ust. 5, art. 36 ust. 3; M09 |
+| C7 | „Ukończenie N lat/miesięcy” = dzień urodzin/miesięcznicy. „Do N roku życia” = **przed** ukończeniem N lat (`age < N`) — „do dnia urodzin” (M14 c). | DERIVED; GAP-005; M14 |
 | C8 | „Przerwa nie przekroczyła X dni” = liczba dni kalendarzowych **pomiędzy** dniem końca poprzedniego a dniem początku następnego okresu (bez obu końców) ≤ X. | DERIVED; GAP-004 |
 | C9 | Logika trójwartościowa Kleene: `all` = FALSE jeśli któryś FALSE, inaczej UNKNOWN jeśli któryś UNKNOWN; `any` = TRUE jeśli któryś TRUE, inaczej UNKNOWN jeśli któryś UNKNOWN; `not UNKNOWN = UNKNOWN`. Funkcja zwracająca `None` = UNKNOWN. | Wymóg projektu |
 | C10 | `operator: in` na polu-liście = część wspólna niepusta. `exists` = wartość ≠ null (pusta lista = istnieje). | 03_rules.yaml meta.dsl |
-| C11 | Liczenie „X dni po zdarzeniu” (termin): ostatni dzień = `zdarzenie + X`. Przesunięcie terminu przypadającego na dzień wolny — **brak w materiałach**. | GAP-020 |
+| C11 | Liczenie „X dni po zdarzeniu” (termin): ostatni dzień = `zdarzenie + X`; termin w sobotę, niedzielę lub święto (`PUBLIC_HOLIDAYS` z `public_holidays.yaml`, 2026–2031) → **następny dzień roboczy** (M15 d). | M15; GAP-020 zamknięty |
 
 ## 1. Kolejność obliczeń (pipeline)
 
@@ -40,9 +40,9 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | Udział kwartalny | `Σ wypłat za 4 kwartały przed miesiącem zdarzenia / 12` | PLN/mies. | art. 42 ust. 2 |
 | Udział roczny | `wypłata za rok poprzedni / 12` | PLN/mies. | art. 42 ust. 3 |
 | Uzupełnienie składnika zmiennego | `kwota / days_worked × days_required` | PLN | art. 37 ust. 2 pkt 2 |
-| Minimum (pełny etat) | `max(base, MIN_WAGE × (1 − 0,1371))` | PLN | art. 45 ust. 1 |
+| Minimum (pełny etat) | `max(base, round_HALF_UP(MIN_WAGE × (1 − 0,1371), 0,01))` = 4147,10 zł w 2026 (M07a) | PLN | art. 45 ust. 1; M07a |
 | Art. 48a (zadeklarowana, <12 m-cy) | `avg(min_base_net[m]) + (avg(declared_net[m] − min_base_net[m]) / 12) × n` dla n pełnych miesięcy | PLN | art. 48a ust. 1 |
-| Dzienny zasiłek | `base × rate × (1 − work_fraction) / 30` | PLN/dzień | art. 36 ust. 3, 31 ust. 4a, 47 |
+| Dzienny zasiłek | `base × rate × (1 − work_fraction) / 30` (M09 — potwierdzone) | PLN/dzień | art. 36 ust. 3, 31 ust. 4a, 47 |
 | Kwota segmentu | `daily × dni(segment)` | PLN | art. 11 ust. 4, 31 ust. 5 |
 | Wyrównanie do 100% | `base × (1 − 0,815) / 30 × dni(macierzyński)` | PLN | art. 31 ust. 4 (DERIVED) |
 | Wydłużenie rodzicielskiego | `tygodnie_łączenia × work_fraction` (tyg.) → dni = `floor(7 × wynik)` | tygodnie/dni | KP 182(1f) § 2, § 4 |
@@ -69,12 +69,12 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_days_since_title_end` | date | int | `date − to(ostatni tytuł)` w dniach | None | Dzień po ustaniu = 1 |
 | `f_months_since_title_end` | date | Decimal | Pełne miesiące kalendarzowe między ustaniem a `date` | None | GAP-011 |
 | `f_on_childcare_leave_on` | date | bool | `employment.leaves` zawiera CHILDCARE_LEAVE obejmujący `date` | leaves null → None | – |
-| `f_title_ended_during_pregnancy` | – | bool | `pregnancy_start_date ≤ to(ostatni tytuł) < event.date` | None | Data początku ciąży szacunkowa → GAP-007 |
+| `f_title_ended_during_pregnancy` | – | bool | `pregnancy_start_date ≤ to(ostatni tytuł) < event.date` | None | Data początku ciąży z zaświadczenia lekarskiego (M13; GAP-007 zamknięty) |
 | `f_last_title_termination_reason` | – | enum | `termination_reason` ostatniego tytułu | None | – |
 | `f_any_art30_basis` | – | bool | OR z warunków MAT-ELIG-004, -005, -006 | Kleene | – |
 | `f_planned_title_end_before_due_date` | – | bool | Najpóźniejsze `to` tytułów < `expected_due_date` i brak tytułu otwartego | None | – |
 | `f_title_started_during_or_shortly_before_pregnancy` | – | bool | Początek tytułu ≥ `pregnancy_start_date − RISK_WINDOW_DAYS` (parametr projektowy, domyślnie 90; NIE prawny) | None | RISK tylko informacyjnie |
-| `f_contract_end_after_third_month_of_pregnancy` | – | bool | `contract_end_date > pregnancy_start_date + 3 miesiące kalendarzowe` | None | Reguła BLOCKED (GAP-007) |
+| `f_contract_end_after_third_month_of_pregnancy` | – | bool | `contract_end_date ≥ pregnancy_start_date + 3 miesiące kalendarzowe` (trzeci miesiąc ciąży kończy się dzień wcześniej; data początku ciąży — stwierdzona przez lekarza, M13) | None | M13; GAP-007 zamknięty |
 | `f_contribution_base_is_declared` | – | bool | `contribution_base_is_declared` tytułu bieżącego | None | – |
 | `f_contribution_base_increase_during_pregnancy` | – | bool | Średnia podstawa w miesiącach ciąży > średnia z 3 mies. przed ciążą × `RISK_INCREASE_FACTOR` (projektowy, domyślnie 1,5) | None | RISK tylko informacyjnie |
 
@@ -114,7 +114,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_mother_maternity_weeks_used_after_birth` | – | Decimal | Dni segmentów MATERNITY_LEAVE matki od dnia porodu / 7 | None | – |
 | `f_total_maternity_weeks_planned` | – | Decimal | Suma dni wszystkich segmentów MATERNITY_* / 7 | None | – |
 | `f_maternity_like_leave_period` | – | object | `{weeks: tabela wg count_at_event, end: min(start + 7w − 1, dzień przed urodzinami granicznymi)}`; granica 7 (10 przy odroczeniu) dla FOSTER, 14 dla ADOPTION | None | C7 |
-| `f_maternity_like_weeks_after_age_cap` | – | Decimal | Tygodnie wynikające z `f_maternity_like_leave_period` po przycięciu | None | – |
+| `f_maternity_like_weeks_after_age_cap` | – | Decimal | Tygodnie wynikające z `f_maternity_like_leave_period` po przycięciu — bez podwyższenia do 9 tyg. (M14 a) | None | – |
 | `f_child_age_years_on` | date | int | Pełne lata od daty urodzenia dziecka (najstarszego z przyjętych) | None | C7 |
 | `f_child_alive_on` | date | bool | Dziecko (którekolwiek) żyje w `date` | None | – |
 | `f_parental_leave_weeks` | – | int | BIRTH: 41/43, „Za życiem” 65/67; ADOPTION/FOSTER: 41/43, w przypadku KP 183 § 3 — 38 (Za życiem 62) | None | `za_zyciem` null → None |
@@ -131,8 +131,8 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_paternity_window` | – | object | `{max_days: 14, deadline: birth + 12 mies. − 1 dzień}`; adopcja: `min(adoption_final + 12 mies. − 1, dzień przed 14. urodzinami)` | None | – |
 | `f_paternity_within_deadline` | – | bool | Wszystkie segmenty PATERNITY ≤ deadline, ≤2 części, każda ≥7 dni, Σ ≤14 dni | None | – |
 | `f_min_birth_weight_g` | – | int | min(birth_weight_g) dzieci z porodu | None | – |
-| `f_has_qualifying_late_hospital_stay` | – | bool | Istnieje pobyt ≥2 kolejne dni, którego pierwszy dzień ∈ [dzień 5, dzień 28] po porodzie (dzień porodu = 0) | None | ASSUMPTION-SUPP-DAY0, GAP-010 |
-| `f_supplementary_leave_weeks` | cap_week, window_start_day | int | Dla dziecka najdłużej hospitalizowanego: suma dni pobytu w oknie `[birth + window_start_day, birth + 7·cap_week − 1]`; `ceil(dni / 7)` | None | Wieloraczki: masa najlżejszego wybiera wariant, pobyt najdłuższy wyznacza dni (KP 180(2) § 2) |
+| `f_has_qualifying_late_hospital_stay` | – | bool | Istnieje pobyt ≥2 kolejne dni, którego pierwszy dzień ∈ [dzień 5, dzień 28] po porodzie (dzień porodu = dzień 1 → [poród + 4, poród + 27]) | None | M15 a; ASSUMPTION-SUPP-DAY1, GAP-010 zamknięty |
+| `f_supplementary_leave_weeks` | cap_week, window_start_day | int | Dla dziecka najdłużej hospitalizowanego: suma dni pobytu w oknie `[birth + window_start_day − 1, birth + 7·cap_week − 1]` — `window_start_day` = numer dnia, dzień porodu = 1 (M15 a; SUPP-ELIG-001/002: 1, SUPP-ELIG-003: 5); `ceil(dni / 7)` | None | Wieloraczki: masa najlżejszego wybiera wariant, pobyt najdłuższy wyznacza dni (KP 180(2) § 2) |
 | `f_maternity_benefit_eligible_any_parent` | – | bool | Którykolwiek rodzic ELIGIBLE w MAT-ELIG-* | Kleene | – |
 | `f_supplementary_claimants_count` | – | int | Liczba rodziców z segmentem SUPPLEMENTARY | 0 | – |
 
@@ -140,7 +140,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 
 | Funkcja | Argumenty | Zwraca | Sposób liczenia | Brak danych | Przypadki graniczne |
 |---|---|---|---|---|---|
-| `f_combined_application_deadline` | – | date | `event.date + 21` (ADOPTION: późniejsza z dat przyjęcia i wniosku do sądu + 21) | None | C11 |
+| `f_combined_application_deadline` | – | date | `next_working_day(event.date + 21)` (ADOPTION: późniejsza z dat przyjęcia i wniosku do sądu + 21) | None | C11, M15 d |
 | `f_combined_application_within_deadline` | – | bool | `combined_815_filed_date ≤ f_combined_application_deadline`; FORECAST: `combined_815_planned` | None | Dzień 21 → TRUE |
 | `f_segment_belongs_to_applicant_of_combined` | – | bool | Segment należy do rodzica, który złożył wniosek 81,5% (matka przy BIRTH) | None | Ojciec → RATE-MAT-008 (BLOCKED) |
 | `f_segment_is_other_parent_reserved_9w` | – | bool | `segment.is_other_parent_reserved_9w`, a jeśli null: pierwsze 9 tygodni PARENTAL rodzica ≠ wnioskodawca 81,5% | None | – |
@@ -156,14 +156,15 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_base_declared_short_insurance` | – | Decimal | §2 art. 48a | `minimum_contribution_base_by_month` null → None | GAP-023 |
 | `f_periodic_components_monthly_share` | – | Decimal | §2 udział kwartalny + roczny | Brak list → 0 tylko gdy Z-3 kompletne | – |
 | `f_filter_excluded_components` | – | list | Odrzuć `retained_during_benefit = true` | null → NEEDS_REVIEW | – |
-| `f_apply_minimum_base` | – | Decimal | §2 minimum (MIN_WAGE potwierdzona — M07) | None | Zaokrąglenie minimum „do dziesiątek” (M07) do doprecyzowania — dziś kwota dokładna |
+| `f_minimum_base` | – | Decimal | `MIN_WAGE × (1 − CONTRIBUTION_DEDUCTION_RATE)` zaokrąglone ROUND_HALF_UP do `MIN_BASE_ROUNDING_STEP` (0,01) | None | M07a: 4147,10 zł |
+| `f_apply_minimum_base` | – | Decimal | `max(base, f_minimum_base)` (§2 minimum) | None | M07, M07a |
 | `f_base_after_working_time_change` | – | – | — | — | Reguła BLOCKED (GAP-021) |
 | `f_working_time_change_in_base_window` | – | bool | `working_time_change_date` ∈ [początek okna 12 m-cy, koniec miesiąca zdarzenia] | None | – |
 | `f_gap_shorter_than_calendar_month` | – | bool | Przerwa = dni pomiędzy `previous_benefit_end_date` a początkiem zasiłku (`base.reference_event_date` → `plan.maternity_start_date` → `event.date`); TRUE ⇔ przerwa nie obejmuje pełnego miesiąca kalendarzowego (1.–ostatni dzień); brak przerwy/nakładanie → TRUE (M05) | None | CONF-006 rozstrzygnięty (M05): 2.02–14.03 (41 dni) → TRUE; 1.02–14.03 → FALSE; macierzyński od 1.02 przed porodem po L4 do 31.01 → TRUE |
 | `f_apply_after_title_cap` | – | – | — | — | BLOCKED (GAP-002) |
 | `f_benefit_amount` | – | object | Per segment: `daily = base × rate × (1 − wf) / 30`; `total = daily × dni` | None | C1, C2 |
 | `f_monthly_maternity_amount` | – | Decimal | `base × rate × (1 − wf)` | None | – |
-| `f_raise_to_parental_benefit_floor` | – | – | — | — | BLOCKED (GAP-002) |
+| `f_raise_to_parental_benefit_floor` | – | object | Gdy `f_monthly_maternity_amount` < `PARENTAL_BENEFIT_FLOOR_MONTHLY`: `daily = PARENTAL_BENEFIT_FLOOR_MONTHLY / 30`, `total = daily × dni(segment)`, `monthly = PARENTAL_BENEFIT_FLOOR_MONTHLY` | None | M10 (1000 zł); niepełny miesiąc proporcjonalnie przez dzienną /30 — założenie do potwierdzenia (M10c) |
 | `f_one_off_equalization` | – | Decimal | §2 wyrównanie | None | – |
 | `f_debt_on_right_date_exceeds_threshold` | – | bool | `debt.amount_on_right_date > MIN_WAGE × 0,01` | None | Równe progowi → FALSE („przekraczającą”) |
 | `f_debt_fully_repaid` | – | bool | `repaid_in_full_date` istnieje i ≤ as_of | None | – |
@@ -193,7 +194,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | Parametr | Używany przez | Skutek |
 |---|---|---|
 | `ROUNDING_POLICY` | wszystkie kwoty | `amount_rounded = null` + assumption |
-| `PARENTAL_BENEFIT_FLOOR_MONTHLY` | RATE-MAT-007 | BLOCKED → NEEDS_REVIEW, gdy kwota może być niższa |
+| ~~`PARENTAL_BENEFIT_FLOOR_MONTHLY`~~ — 1000,00 zł (M10, 2026-11-21), status CONFIRMED | RATE-MAT-007 (ACTIVE) | podwyższenie liczone automatycznie |
 | `AVERAGE_WAGE_CAP_AFTER_TITLE` | BASE-GEN-002 | BLOCKED |
 | ~~`MIN_WAGE_2026_MONTHLY`~~ — potwierdzona 4806,00 zł (M07, 2026-11-21), status CONFIRMED | BASE-EMP-008, GEN-EXCL-001 | bez assumption `MIN_WAGE_FROM_ATTACHMENT` |
-| najniższa podstawa składek (wejście per miesiąc) | BASE-NEMP-002/003 | NEEDS_DATA gdy brak |
+| najniższa podstawa składek (wejście per miesiąc) — 2026: `JDG_MIN_CONTRIB_BASE_2026` 5652,00 zł, preferencyjna `JDG_PREFERENTIAL_CONTRIB_BASE_2026` 1441,80 zł przez `JDG_PREFERENTIAL_MONTHS` od założenia działalności (M08); 2027 — brak wartości | BASE-NEMP-002/003 | NEEDS_DATA gdy brak wejścia; parametry 2026 = podpowiedź w kreatorze / symulacji danych ZUS, nie domyślna wartość silnika (preferencja zależy od wyboru płatnika) |

@@ -1,0 +1,100 @@
+# Dni ustawowo wolne od pracy w Polsce — lata 2026–2031 (parametr PUBLIC_HOLIDAYS, 03_rules.yaml).
+# Używane do przesunięcia terminu przypadającego w dzień wolny na następny dzień roboczy (M15 d, APP-DL-001).
+# Źródło: ustawa z 18.01.1951 o dniach wolnych od pracy (niezałączona do materiałów) — lista przygotowana przez zespół
+# (święta stałe + ruchome liczone od daty Wielkanocy), status UNCONFIRMED: do weryfikacji przed użyciem produkcyjnym.
+# Wigilia (24.12) — dzień wolny od 2025 r. Niedziele (Wielkanoc, Zielone Świątki) są dniami wolnymi i tak.
+meta:
+  parameter: PUBLIC_HOLIDAYS
+  years: [2026, 2027, 2028, 2029, 2030, 2031]
+  status: UNCONFIRMED
+holidays:
+  2026:
+    - {date: 2026-01-01, name: "Nowy Rok"}  # czwartek
+    - {date: 2026-01-06, name: "Trzech Króli"}  # wtorek
+    - {date: 2026-04-05, name: "Wielkanoc"}  # niedziela
+    - {date: 2026-04-06, name: "Poniedziałek Wielkanocny"}  # poniedziałek
+    - {date: 2026-05-01, name: "Święto Pracy"}  # piątek
+    - {date: 2026-05-03, name: "Święto Konstytucji 3 Maja"}  # niedziela
+    - {date: 2026-05-24, name: "Zielone Świątki (Zesłanie Ducha Świętego)"}  # niedziela
+    - {date: 2026-06-04, name: "Boże Ciało"}  # czwartek
+    - {date: 2026-08-15, name: "Wniebowzięcie NMP"}  # sobota
+    - {date: 2026-11-01, name: "Wszystkich Świętych"}  # niedziela
+    - {date: 2026-11-11, name: "Narodowe Święto Niepodległości"}  # środa
+    - {date: 2026-12-24, name: "Wigilia Bożego Narodzenia"}  # czwartek
+    - {date: 2026-12-25, name: "Boże Narodzenie (pierwszy dzień)"}  # piątek
+    - {date: 2026-12-26, name: "Boże Narodzenie (drugi dzień)"}  # sobota
+  2027:
+    - {date: 2027-01-01, name: "Nowy Rok"}  # piątek
+    - {date: 2027-01-06, name: "Trzech Króli"}  # środa
+    - {date: 2027-03-28, name: "Wielkanoc"}  # niedziela
+    - {date: 2027-03-29, name: "Poniedziałek Wielkanocny"}  # poniedziałek
+    - {date: 2027-05-01, name: "Święto Pracy"}  # sobota
+    - {date: 2027-05-03, name: "Święto Konstytucji 3 Maja"}  # poniedziałek
+    - {date: 2027-05-16, name: "Zielone Świątki (Zesłanie Ducha Świętego)"}  # niedziela
+    - {date: 2027-05-27, name: "Boże Ciało"}  # czwartek
+    - {date: 2027-08-15, name: "Wniebowzięcie NMP"}  # niedziela
+    - {date: 2027-11-01, name: "Wszystkich Świętych"}  # poniedziałek
+    - {date: 2027-11-11, name: "Narodowe Święto Niepodległości"}  # czwartek
+    - {date: 2027-12-24, name: "Wigilia Bożego Narodzenia"}  # piątek
+    - {date: 2027-12-25, name: "Boże Narodzenie (pierwszy dzień)"}  # sobota
+    - {date: 2027-12-26, name: "Boże Narodzenie (drugi dzień)"}  # niedziela
+  2028:
+    - {date: 2028-01-01, name: "Nowy Rok"}  # sobota
+    - {date: 2028-01-06, name: "Trzech Króli"}  # czwartek
+    - {date: 2028-04-16, name: "Wielkanoc"}  # niedziela
+    - {date: 2028-04-17, name: "Poniedziałek Wielkanocny"}  # poniedziałek
+    - {date: 2028-05-01, name: "Święto Pracy"}  # poniedziałek
+    - {date: 2028-05-03, name: "Święto Konstytucji 3 Maja"}  # środa
+    - {date: 2028-06-04, name: "Zielone Świątki (Zesłanie Ducha Świętego)"}  # niedziela
+    - {date: 2028-06-15, name: "Boże Ciało"}  # czwartek
+    - {date: 2028-08-15, name: "Wniebowzięcie NMP"}  # wtorek
+    - {date: 2028-11-01, name: "Wszystkich Świętych"}  # środa
+    - {date: 2028-11-11, name: "Narodowe Święto Niepodległości"}  # sobota
+    - {date: 2028-12-24, name: "Wigilia Bożego Narodzenia"}  # niedziela
+    - {date: 2028-12-25, name: "Boże Narodzenie (pierwszy dzień)"}  # poniedziałek
+    - {date: 2028-12-26, name: "Boże Narodzenie (drugi dzień)"}  # wtorek
+  2029:
+    - {date: 2029-01-01, name: "Nowy Rok"}  # poniedziałek
+    - {date: 2029-01-06, name: "Trzech Króli"}  # sobota
+    - {date: 2029-04-01, name: "Wielkanoc"}  # niedziela
+    - {date: 2029-04-02, name: "Poniedziałek Wielkanocny"}  # poniedziałek
+    - {date: 2029-05-01, name: "Święto Pracy"}  # wtorek
+    - {date: 2029-05-03, name: "Święto Konstytucji 3 Maja"}  # czwartek
+    - {date: 2029-05-20, name: "Zielone Świątki (Zesłanie Ducha Świętego)"}  # niedziela
+    - {date: 2029-05-31, name: "Boże Ciało"}  # czwartek
+    - {date: 2029-08-15, name: "Wniebowzięcie NMP"}  # środa
+    - {date: 2029-11-01, name: "Wszystkich Świętych"}  # czwartek
+    - {date: 2029-11-11, name: "Narodowe Święto Niepodległości"}  # niedziela
+    - {date: 2029-12-24, name: "Wigilia Bożego Narodzenia"}  # poniedziałek
+    - {date: 2029-12-25, name: "Boże Narodzenie (pierwszy dzień)"}  # wtorek
+    - {date: 2029-12-26, name: "Boże Narodzenie (drugi dzień)"}  # środa
+  2030:
+    - {date: 2030-01-01, name: "Nowy Rok"}  # wtorek
+    - {date: 2030-01-06, name: "Trzech Króli"}  # niedziela
+    - {date: 2030-04-21, name: "Wielkanoc"}  # niedziela
+    - {date: 2030-04-22, name: "Poniedziałek Wielkanocny"}  # poniedziałek
+    - {date: 2030-05-01, name: "Święto Pracy"}  # środa
+    - {date: 2030-05-03, name: "Święto Konstytucji 3 Maja"}  # piątek
+    - {date: 2030-06-09, name: "Zielone Świątki (Zesłanie Ducha Świętego)"}  # niedziela
+    - {date: 2030-06-20, name: "Boże Ciało"}  # czwartek
+    - {date: 2030-08-15, name: "Wniebowzięcie NMP"}  # czwartek
+    - {date: 2030-11-01, name: "Wszystkich Świętych"}  # piątek
+    - {date: 2030-11-11, name: "Narodowe Święto Niepodległości"}  # poniedziałek
+    - {date: 2030-12-24, name: "Wigilia Bożego Narodzenia"}  # wtorek
+    - {date: 2030-12-25, name: "Boże Narodzenie (pierwszy dzień)"}  # środa
+    - {date: 2030-12-26, name: "Boże Narodzenie (drugi dzień)"}  # czwartek
+  2031:
+    - {date: 2031-01-01, name: "Nowy Rok"}  # środa
+    - {date: 2031-01-06, name: "Trzech Króli"}  # poniedziałek
+    - {date: 2031-04-13, name: "Wielkanoc"}  # niedziela
+    - {date: 2031-04-14, name: "Poniedziałek Wielkanocny"}  # poniedziałek
+    - {date: 2031-05-01, name: "Święto Pracy"}  # czwartek
+    - {date: 2031-05-03, name: "Święto Konstytucji 3 Maja"}  # sobota
+    - {date: 2031-06-01, name: "Zielone Świątki (Zesłanie Ducha Świętego)"}  # niedziela
+    - {date: 2031-06-12, name: "Boże Ciało"}  # czwartek
+    - {date: 2031-08-15, name: "Wniebowzięcie NMP"}  # piątek
+    - {date: 2031-11-01, name: "Wszystkich Świętych"}  # sobota
+    - {date: 2031-11-11, name: "Narodowe Święto Niepodległości"}  # wtorek
+    - {date: 2031-12-24, name: "Wigilia Bożego Narodzenia"}  # środa
+    - {date: 2031-12-25, name: "Boże Narodzenie (pierwszy dzień)"}  # czwartek
+    - {date: 2031-12-26, name: "Boże Narodzenie (drugi dzień)"}  # piątek
