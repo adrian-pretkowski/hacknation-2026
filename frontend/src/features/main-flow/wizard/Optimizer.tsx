@@ -42,6 +42,9 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
   const fatherInsured = isMother ? a.partnerInsured !== "NO" : true;
   const motherGross = isMother ? ownGross : partnerGross;
   const fatherGross = isMother ? partnerGross : ownGross;
+  // planer (API) dostaje podstawę bez granic - minimum i limit nakłada silnik, nie przeglądarka (review FE1-20)
+  const motherBase = motherGross ? baseFromGross(motherGross) : null;
+  const fatherBase = fatherGross ? baseFromGross(fatherGross) : null;
   const choices = a.plannerChoices;
   const setChoices = (plannerChoices: PlannerChoice[]) => set({ plannerChoices });
   const missing = !ownGross ? "Wróć do kroku „Wynagrodzenie” i podaj swoje wynagrodzenie."
@@ -55,9 +58,9 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
       plannerSuggest({
         profile: {
           children_count: Math.min(Math.max(a.children, 1), 10), za_zyciem: a.zaZyciem,
-          mother: { base_monthly: baseFromGross(motherGross), gross_monthly: motherGross, insured: true },
+          mother: { base_monthly: motherBase, gross_monthly: motherGross, insured: true },
           father: fatherInsured && fatherGross
-            ? { base_monthly: baseFromGross(fatherGross), gross_monthly: fatherGross, insured: true }
+            ? { base_monthly: fatherBase, gross_monthly: fatherGross, insured: true }
             : { base_monthly: null, insured: false },
         },
         choices, objective: a.plannerObjective, lookback: 3,
@@ -74,7 +77,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
     return () => { cancelled = true; clearTimeout(timer); };
     // set jest stabilne w obrębie kreatora; zależymy od danych wejściowych planera
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [missing, motherGross, fatherGross, fatherInsured, a.children, a.zaZyciem, a.plannerObjective, choices]);
+  }, [missing, motherGross, fatherGross, motherBase, fatherBase, fatherInsured, a.children, a.zaZyciem, a.plannerObjective, choices]);
 
   const done = data?.current_best_plan?.choices.slice(0, choices.length) ?? [];
   const plan = data?.current_best_plan;
@@ -168,7 +171,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
             ))}
           </ul>
           {data.explanation && <p className="mt-3 text-sm text-zinc-700" aria-live="polite">{data.explanation}</p>}
-          <div className="mt-1 text-xs text-zinc-500">Przepisy:<RuleList ids={data.step.rule_ids} /></div>
+          <div className="mt-1 text-xs text-zinc-600">Przepisy:<RuleList ids={data.step.rule_ids} /></div>
         </fieldset>
       )}
 
@@ -187,7 +190,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
                 <li key={n} className="py-2">
                   <p className="flex gap-2"><span className="min-w-0 flex-1">{i.label}</span><span className="tabular-nums">{formatMoney(i.amount_exact)}</span></p>
                   <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` · ${formatRate(i.rate)}` : ""}</p>
-                  <RuleList ids={i.rule_ids} className="text-xs text-zinc-500" />
+                  <RuleList ids={i.rule_ids} className="text-xs text-zinc-600" />
                 </li>
               ))}
             </ul>

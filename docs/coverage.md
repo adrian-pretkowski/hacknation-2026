@@ -12,7 +12,7 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 | f) podstawa wymiaru z konkretnej sprawy | BASE-*, CALC-MAT-001, SICK-CALC-001 | Sprawy | T-BASE-*, /run-golden | ⬜ |
 | g) dokumenty, terminy, adresat (płatnik vs ZUS) | GEN-CLS-*, APP-*, SICK-DOC-* | Dokumenty | T-GEN-001..005, `test_facts_documents.py` | 🟨 BE2-04: `missing_documents` (APP-DOC-001…006, SICK-DOC-001/002; adresat `submit_to` ZUS/płatnik, `obtainable_by_zus`) i `deadlines` (APP-DL-001 - 81,5%, APP-DL-002 - wnioski urlopowe KP) w `engine/pipeline/guidance.py`; braki: dokumenty z akt osobowych (ROZP_WN § 22), ROZP_DOK § 32; ekran FE - do zrobienia |
 | h) zagrożenia i ryzyka | RISK-*, GEN-EXCL-* | Ryzyka | T-MAT-004, T-GEN-006 | 🟨 RISK-003 → `warnings` (T-MAT-004, BE2-01), RISK-001/002 → `warnings` (progi projektowe M17, `test_facts_documents.py`, BE2-04), GEN-EXCL-001/002 (BE1-04); opisy ryzyk dla użytkownika `frontend/src/content/risks.json` (BA-02) |
-| i) organizacje wsparcia (lista przykładowa - ZUS nie ma zweryfikowanej, M16d) | treść statyczna | Wsparcie | `test_content.py` | 🟨 treści `frontend/src/content/support.json` i `sensitive.json` (BA-02); ekran `/wsparcie` i `/wsparcie/spokojny` (FE2-05) |
+| i) organizacje wsparcia (lista przykładowa - ZUS nie ma zweryfikowanej, M16d) | treść statyczna | Wsparcie | `test_content.py` | 🟨 treści `frontend/src/content/support.json` i `sensitive.json` (BA-02); ekran `/wsparcie` i `/wsparcie/po-stracie` (FE2-05; FE1-30: dawne `/wsparcie/spokojny` przekierowuje) |
 | Logowanie mObywatel (symulacja) | adapter | Logowanie | ui-verifier | 🟨 mock FE `features/simulations/` (FE2-02), typy z kontraktu; podpięcie `/api/sim/*` po INT-03: kod QR → potwierdzenie kodem, 4 użytkowników testowych Backend: mocki w `backend/app/integrations/simulated/` (INT-03, `docs/ARCHITECTURE.md` § Symulowane systemy trzecie). |
 | Pobranie danych z ZUS (symulacja) / dane ręczne | adapter | Dane | ui-verifier | 🟨 mock FE `features/simulations/` (FE2-02), typy z kontraktu; podpięcie `/api/sim/*` po INT-03: „Pobierz dane z ZUS” w kreatorze + zakładka „Dane z ZUS” |
 | Zadłużenie składkowe (symulacja zaświadczenia) | adapter + GEN-EXCL-001 | Dane | T-GEN-006..009 | 🟨 mock FE `features/simulations/` (FE2-02), typy z kontraktu; podpięcie `/api/sim/*` po INT-03: zaświadczenie z progiem z parametrów; skutek GEN-EXCL-001 ocenia silnik |
@@ -26,3 +26,22 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 | Upload/wybór przykładowych wniosków, weryfikacja ubezpieczenia | cases + insurance_verification | Sprawy | `test_cases_module.py`, /run-golden | 🟨 API BE2-06: `/api/cases` (4 sprawy syntetyczne `demo/cases/`, porównanie z oczekiwanym wynikiem MATCH / MATCH_WITH_TOLERANCE / MISMATCH), upload PDF → MANUAL_REQUIRED + lista brakujących pól (bez AI, M16e; plik nie jest zapisywany), `insurance_verification` w wyniku `/api/evaluate`; ekran FE - do zrobienia |
 | RWD | frontend | wszystkie | ui-verifier 375/1440 | ⬜ |
 | Wskazanie funkcji z AI | docs/AI_USAGE.md | - | - | ⬜ |
+
+## Raport luk: kod vs słownik pojęć (2026-11-21)
+
+Raport z porównania słownika pojęć zespołu z `03_rules.yaml`, silnikiem i podglądem kreatora (commit bd10e52). Stan po FE1-19…FE1-26, BE2-12, BA-06:
+
+| Luka | Co | Zadanie | Status |
+|---|---|---|---|
+| A1 | Minimalna podstawa przy pełnym etacie (4147,10 zł) | FE1-20 (podgląd), BE2-12 (silnik, `f_apply_minimum_base`) | ✅ |
+| A2 | Limit podstawy przy dobrowolnym chorobowym (20 321,295 zł) | FE1-20, BE2-12 (BASE-NEMP-005) | ✅ |
+| A3 | Podwyższenie do kwoty świadczenia rodzicielskiego (1000 zł, M10c) w podglądzie | FE1-21 | ✅ |
+| A4 | Urlop na warunkach macierzyńskiego do dnia przed 14. / 7. / 10. urodzinami | FE1-26 | ✅ (KP 183 § 3 - BE2-10, M14b) |
+| A5 | Ojcowski przy adopcji od uprawomocnienia, najpóźniej przed 14. urodzinami | FE1-26 | ✅ |
+| A6 | Uzupełniający: poród w 37. tyg. - kod (< 37 / ≥ 37) zgodny z 03; niejednoznaczny jest słownik | - | ⚠️ poprawka słownika (poza repo) |
+| A7 | Umowa na zastępstwo i próbna ≤ 1 mies. bez przedłużenia do porodu | FE1-24 | ✅ |
+| B | Terminy: przed porodem (14 dni, UNCONFIRMED), rezygnacja (7), przejęcie przez ojca (14), na warunkach macierzyńskiego (7); `PREVIEW_ONLY` → nazwy z 03 | FE1-25 | ✅ (21 dni na rozpoczęcie - M20 c) |
+| C | Błędne ID reguł w podglądzie | FE1-19 (`scripts/check_preview_rule_ids.py`) | ✅ |
+| D | Ulga na start, student do 26 lat | FE1-22, BA-06 (parametry UNCONFIRMED, M20) | ✅ |
+| D | Zasiłek chorobowy w ciąży - backend liczy (`pipeline/sickness.py`), brak ekranu | - | ⬜ |
+| E | Słownik bez `LEAVE_APP_MATERNITY_FOR_FATHER_DAYS_BEFORE` i `MOTHER_MIN_WEEKS_SPECIAL` | uzupełnione w słowniku (poza repo) | ⚠️ do sprawdzenia z wyciągiem KP |

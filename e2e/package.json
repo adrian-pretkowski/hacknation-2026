@@ -7,7 +7,8 @@
     "test:telefon": "playwright test --project=telefon",
     "test:komputer": "playwright test --project=komputer",
     "slownik": "playwright test slownik --project=komputer",
-    "raport": "playwright show-report"
+    "raport": "playwright show-report",
+    "wcag": "playwright test -c wcag-audit.config.ts"
   },
   "type": "commonjs",
   "devDependencies": {

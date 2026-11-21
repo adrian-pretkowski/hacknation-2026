@@ -307,7 +307,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
                         const m = cell(r, c);
                         return <td key={c} className="p-0.5">{m && (
                           <input aria-label={`Tabela ${t}, wiersz ${r}, kolumna ${c}`} value={typeof values[m.name] === "string" ? (values[m.name] as string) : ""}
-                            onChange={(e) => set(m.name, e.target.value)} className="w-20 rounded border border-zinc-300 px-1.5 py-1 text-xs focus-visible:ring-2 focus-visible:ring-zus-green-dark focus-visible:outline-none" />
+                            onChange={(e) => set(m.name, e.target.value)} className="w-20 rounded border border-zinc-500 px-1.5 py-1 text-xs focus-visible:ring-2 focus-visible:ring-zus-green-dark focus-visible:outline-none" />
                         )}</td>;
                       })}
                     </tr>

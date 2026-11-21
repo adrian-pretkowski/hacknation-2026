@@ -54,6 +54,16 @@ export function toDecimalString(value: Ratio, maxFraction = 12): string {
   return `${negative ? "-" : ""}${int}${frac ? `.${frac}` : ""}`;
 }
 
+/** Zaokrąglenie do groszy, połówki w górę (ROUND_HALF_UP) - tylko tam, gdzie zasadę potwierdził mentor (M07a). */
+export function roundCents(value: Ratio): Ratio {
+  const hundred = BigInt(100);
+  const two = BigInt(2);
+  const negative = value.n < B0;
+  const n = negative ? -value.n : value.n;
+  const q = (n * hundred * two + value.d) / (two * value.d);
+  return norm(negative ? -q : q, hundred);
+}
+
 /** Liczba całkowita w górę (np. niepełny tydzień liczony jako pełny). */
 export function ceilInt(value: Ratio): number {
   const q = value.n / value.d;

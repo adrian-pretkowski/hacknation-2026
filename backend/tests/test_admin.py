@@ -1,33 +1,28 @@
 """BE2-05: panel admina parametrów - GET/PUT /api/admin/parameters (kontrakt ParameterList / ParameterUpdate).
 
-Kryterium akceptacji: zmiana MAT_RATE_COMBINED zmienia wynik /api/evaluate bez restartu. Dodatkowo: token (401),
-konflikt wersji (409), walidacja (422), valid_from (wartość obowiązuje od daty), trwałość w pliku JSON.
+Kryterium akceptacji: zmiana MAT_RATE_COMBINED zmienia wynik /api/evaluate bez restartu. Dodatkowo: dostęp bez
+tokenu (demo), konflikt wersji (409), walidacja (422), valid_from (wartość obowiązuje od daty), trwałość w pliku JSON.
 """
 from datetime import date
 from decimal import Decimal
 
 import pytest
 
-from app.core.config import get_settings
 from app.core.params import STORE, param
 from tests.test_contract import _validator
 
-TOKEN = "test-admin-token"
-AUTH = {"X-Admin-Token": TOKEN}
-
 
 @pytest.fixture(autouse=True)
-def _admin(tmp_path, monkeypatch):
-    monkeypatch.setattr(get_settings(), "admin_token", TOKEN)
+def _admin(tmp_path):
     STORE.use_file(tmp_path / "overrides.json")
     yield
     STORE.use_file(tmp_path / "empty.json")  # następne testy bez nadpisań
 
 
 def _put(client, *changes, base=None):
-    body = {"base_parameters_version": base or client.get("/api/admin/parameters", headers=AUTH).json()[
+    body = {"base_parameters_version": base or client.get("/api/admin/parameters").json()[
         "parameters_version"], "changes": list(changes)}
-    return client.put("/api/admin/parameters", json=body, headers=AUTH)
+    return client.put("/api/admin/parameters", json=body)
 
 
 def _by_name(body: dict) -> dict:
@@ -35,7 +30,7 @@ def _by_name(body: dict) -> dict:
 
 
 def test_list_parameters_matches_contract(client):
-    response = client.get("/api/admin/parameters", headers=AUTH)
+    response = client.get("/api/admin/parameters")
     assert response.status_code == 200
     body = response.json()
     assert not list(_validator("ParameterList").iter_errors(body))
@@ -45,18 +40,11 @@ def test_list_parameters_matches_contract(client):
     assert _by_name(body)["MATERNITY_WEEKS_BY_CHILDREN"]["value"]["1"] == 20
 
 
-@pytest.mark.parametrize("headers", [{}, {"X-Admin-Token": "zly"}])
-def test_admin_requires_token(client, headers):
-    for response in (client.get("/api/admin/parameters", headers=headers),
-                     client.put("/api/admin/parameters", headers=headers,
-                                json={"base_parameters_version": 1, "changes": []})):
-        assert response.status_code == 401
-        assert response.headers["content-type"].startswith("application/problem+json")
-
-
-def test_admin_disabled_without_configured_token(client, monkeypatch):
-    monkeypatch.setattr(get_settings(), "admin_token", None)
-    assert client.get("/api/admin/parameters", headers=AUTH).status_code == 401
+def test_admin_open_without_token(client):
+    """Demo: panel admina dostępny bezpośrednio - bez nagłówka X-Admin-Token."""
+    assert client.get("/api/admin/parameters").status_code == 200
+    response = client.put("/api/admin/parameters", json={"base_parameters_version": 1, "changes": []})
+    assert response.status_code == 422  # walidacja treści, nie 401
 
 
 def test_BE2_05_rate_change_changes_evaluation_without_restart(client, demo_payload):
@@ -108,7 +96,7 @@ def test_invalid_change_422_and_nothing_saved(client, change, field):
     assert response.status_code == 422
     body = response.json()
     assert body["errors"][0]["field"] == field
-    assert client.get("/api/admin/parameters", headers=AUTH).json()["parameters_version"] == 1
+    assert client.get("/api/admin/parameters").json()["parameters_version"] == 1
 
 
 def test_batch_is_atomic(client):

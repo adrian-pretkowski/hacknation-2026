@@ -10,19 +10,68 @@ const HOW = [
   { n: "3", title: "Wiecie, co i kiedy złożyć", text: "Lista dokumentów, adresat każdego wniosku, terminy i ryzyka, na które trzeba uważać." },
 ];
 
-function Illustration() {
+/** FE1-30: tło sekcji powitalnej - rodzina tuląca maluszka, pozytywka nad łóżeczkiem, delikatne serduszka. Ozdobne (aria-hidden). */
+function HeroBackdrop() {
+  const hang = "absolute top-0 hidden flex-col items-center md:flex";
   return (
-    <svg viewBox="0 0 220 160" className="h-auto w-full max-w-xs" aria-hidden="true">
-      <rect x="10" y="20" width="200" height="120" rx="16" className="fill-zus-green-50" />
-      <rect x="28" y="44" width="70" height="12" rx="6" className="fill-zus-navy" />
-      <rect x="98" y="44" width="56" height="12" rx="6" className="fill-zus-green" />
-      <rect x="154" y="44" width="38" height="12" rx="6" className="fill-zus-yellow" />
-      <rect x="62" y="68" width="24" height="12" rx="6" className="fill-zus-blue" />
-      <rect x="86" y="68" width="40" height="12" rx="6" className="fill-zus-green" />
-      <circle cx="40" cy="108" r="12" className="fill-white stroke-zus-green-dark" strokeWidth="3" />
-      <path d="M34 108l4 4 8-8" className="stroke-zus-green-dark" strokeWidth="3" fill="none" strokeLinecap="round" />
-      <rect x="60" y="102" width="90" height="6" rx="3" className="fill-zus-gray" />
-      <rect x="60" y="112" width="60" height="6" rx="3" className="fill-zus-gray" />
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-br from-zus-green-50 via-white to-amber-50" />
+      <div className="absolute -top-24 -right-10 h-80 w-80 rounded-full bg-amber-100/70 blur-3xl" />
+      <div className="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-zus-green-50 blur-3xl" />
+      <div className="absolute bottom-0 left-1/3 h-40 w-72 rounded-full bg-amber-50 blur-3xl" />
+
+      {/* pozytywka nad łóżeczkiem: gwiazdka, księżyc, chmurka na nitkach */}
+      <div className={`${hang} right-[24%]`}><span className="h-10 w-px bg-zus-green-dark/30" />
+        <svg viewBox="0 0 24 24" className="h-7 w-7 fill-amber-200 stroke-amber-400/70" strokeWidth="1"><path d="M12 2.5l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.4l-5.4 2.9 1.1-6.1-4.5-4.3 6.1-.8z" strokeLinejoin="round" /></svg></div>
+      <div className={`${hang} right-[17%]`}><span className="h-12 w-px bg-zus-green-dark/30" />
+        <svg viewBox="0 0 24 24" className="h-8 w-8 fill-zus-blue-50 stroke-zus-blue/40" strokeWidth="1"><path d="M20 13.5A8 8 0 1 1 10.5 4a6.2 6.2 0 0 0 9.5 9.5z" strokeLinejoin="round" /></svg></div>
+      <div className={`${hang} right-[9%]`}><span className="h-7 w-px bg-zus-green-dark/30" />
+        <svg viewBox="0 0 32 20" className="h-6 w-9 fill-white stroke-zus-blue/40" strokeWidth="1"><path d="M8 18a6 6 0 0 1-.6-12A8 8 0 0 1 22.5 5 6.5 6.5 0 0 1 25 18z" strokeLinejoin="round" /></svg></div>
+
+      {/* rozsypane serduszka */}
+      {[
+        "top-2 left-2 h-4 w-4 text-zus-green/40 -rotate-12 sm:top-6 sm:left-6 sm:h-5 sm:w-5",
+        "bottom-8 left-[44%] hidden h-6 w-6 text-zus-green/30 rotate-12 sm:block",
+        "top-1/2 left-[60%] h-4 w-4 text-amber-400/40 hidden md:block",
+        "bottom-2 right-3 h-5 w-5 text-zus-green/40 md:hidden",
+      ].map((c) => (
+        <svg key={c} viewBox="0 0 24 24" className={`absolute fill-current ${c}`}>
+          <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+/** Rodzice przytulający maluszka w kocyku, w świetle wschodzącego słońca. Ozdobne. */
+function FamilyIllustration() {
+  const heart = "M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z";
+  return (
+    <svg viewBox="0 0 240 210" className="h-auto w-full max-w-xs" aria-hidden="true">
+      <circle cx="120" cy="120" r="88" className="fill-amber-100" />
+      <circle cx="120" cy="120" r="64" className="fill-amber-50" />
+      {/* rodzic 1 */}
+      <path d="M44 210c0-62 14-100 46-104 26-2 34 22 34 44v60z" className="fill-zus-navy" />
+      <circle cx="88" cy="78" r="20" className="fill-orange-200" />
+      <path d="M68 76c0-16 10-24 22-24 11 0 19 7 19 17-8 1-20-3-26-10-3 7-8 13-15 17z" className="fill-zus-ink" />
+      {/* rodzic 2 */}
+      <path d="M116 210v-58c0-24 10-42 36-42 28 2 44 40 44 100z" className="fill-zus-green-dark" />
+      <circle cx="152" cy="86" r="19" className="fill-orange-100" />
+      <path d="M133 84c0-14 9-22 20-22 12 0 20 9 19 22-6-6-15-9-24-9-6 0-11 3-15 9z" className="fill-amber-800" />
+      <circle cx="166" cy="62" r="8" className="fill-amber-800" />
+      {/* maluszek w kocyku */}
+      <ellipse cx="122" cy="156" rx="40" ry="22" transform="rotate(-8 122 156)" className="fill-amber-50 stroke-white" strokeWidth="3" />
+      <path d="M92 158c14 10 40 10 62-2" className="fill-none stroke-amber-200" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="100" cy="148" r="13" className="fill-orange-100 stroke-white" strokeWidth="2" />
+      <path d="M95 148q2 2 4 0M103 147q2 2 4 0" className="fill-none stroke-zus-ink" strokeWidth="1.3" strokeLinecap="round" />
+      <circle cx="96" cy="153" r="2" className="fill-zus-green/50" />
+      {/* ramiona obejmujące */}
+      <path d="M70 150c10 26 40 30 62 22" className="fill-none stroke-zus-navy" strokeWidth="10" strokeLinecap="round" />
+      <path d="M182 150c-6 22-28 30-46 26" className="fill-none stroke-zus-green-dark" strokeWidth="10" strokeLinecap="round" />
+      {/* serduszka nad rodziną */}
+      <g className="fill-zus-green"><path d={heart} transform="translate(108 14) scale(.9)" /></g>
+      <g className="fill-zus-green/50"><path d={heart} transform="translate(138 30) scale(.55)" /></g>
+      <g className="fill-amber-300"><path d={heart} transform="translate(86 34) scale(.45)" /></g>
     </svg>
   );
 }
@@ -70,7 +119,8 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
 }) {
   return (
     <div className="space-y-12">
-      <section className="grid items-center gap-8 rounded-3xl bg-white px-5 py-8 sm:px-10 sm:py-12 md:grid-cols-[minmax(0,1fr)_16rem]">
+      <section className="relative isolate grid items-center gap-8 overflow-hidden rounded-3xl border border-zus-green-50 bg-white px-5 py-8 sm:px-10 sm:py-12 md:grid-cols-[minmax(0,1fr)_16rem]">
+        <HeroBackdrop />
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-zus-green-dark">Urlopy i zasiłki dla rodziców</p>
           <h1 ref={headingRef} tabIndex={-1} className="mt-2 text-3xl font-semibold leading-tight text-zus-navy focus:outline-none sm:text-4xl">
@@ -85,7 +135,7 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
           </button>
           <p className="mt-4 text-xs text-zinc-600">Wynik ma charakter informacyjny i nie jest decyzją ZUS.</p>
         </div>
-        <div className="hidden justify-center md:flex"><Illustration /></div>
+        <div className="hidden justify-center md:flex"><FamilyIllustration /></div>
       </section>
 
       {/* FE1-11: wybór drogi - kreator (pełny plan) albo szybkie pisma (docs/FORMS_FLOW.md) */}
@@ -114,7 +164,7 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
           </div>
           <button type="button" onClick={onSensitive}
             className="shrink-0 self-start rounded-full bg-zus-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-zus-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy sm:self-center">
-            Przejdź do trybu spokojnego
+            Przejdź do ścieżki po stracie
           </button>
         </section>
       </section>

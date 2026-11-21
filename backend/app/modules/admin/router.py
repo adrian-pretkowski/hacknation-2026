@@ -1,17 +1,16 @@
 """Panel admina parametrów (BE2-05): GET/PUT /api/admin/parameters (kontrakt: ParameterList, ParameterUpdate).
 
-Uwierzytelnienie: nagłówek ``X-Admin-Token`` = ``ADMIN_TOKEN`` z env (brak tokenu w env → zawsze 401; produkcyjnie
-SSO). Zmiana działa bez restartu - silnik czyta ``app.core.params.param()`` przy każdej ewaluacji. Logi bez wartości.
+Dostęp bez uwierzytelnienia (D36: demo - wejście bezpośrednio z przycisku „Panel admina” na stronie głównej);
+produkcyjnie: SSO. Zmiana działa bez restartu - silnik czyta ``app.core.params.param()`` przy każdej ewaluacji.
+Logi bez wartości.
 """
 from __future__ import annotations
 
-import hmac
 from typing import Any
 
-from fastapi import APIRouter, Header, Request
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from app.core.config import get_settings
 from app.core.params import STORE, ParameterError, VersionConflict, parameter_list
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -24,26 +23,13 @@ def _problem(status: int, title: str, detail: str, errors: list[dict[str, str]] 
     return JSONResponse(status_code=status, media_type="application/problem+json", content=body)
 
 
-def _unauthorized(token: str | None) -> JSONResponse | None:
-    expected = get_settings().admin_token
-    if expected is None:
-        return _problem(401, "Brak dostępu", "Panel admina wyłączony - ustaw ADMIN_TOKEN w środowisku.")
-    if not token or not hmac.compare_digest(token.encode(), expected.encode()):
-        return _problem(401, "Brak dostępu", "Brak lub zły nagłówek X-Admin-Token.")
-    return None
-
-
 @router.get("/parameters")
-def list_parameters(x_admin_token: str | None = Header(default=None)) -> Any:
-    denied = _unauthorized(x_admin_token)
-    return denied or parameter_list()
+def list_parameters() -> Any:
+    return parameter_list()
 
 
 @router.put("/parameters")
-async def update_parameters(request: Request, x_admin_token: str | None = Header(default=None)) -> Any:
-    denied = _unauthorized(x_admin_token)
-    if denied:
-        return denied
+async def update_parameters(request: Request) -> Any:
     try:
         body = await request.json()
     except ValueError:

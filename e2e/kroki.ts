@@ -156,6 +156,12 @@ export const KROKI: Krok[] = [
     wykonaj: (k, w, e) => wpisz(k, e, w) },
   { opis: "Ustaw suwak „Ile tygodni rodzicielskiego weźmie tata?” na „9”", wzorce: [re("ustaw suwak «Q» na «Q»")],
     wykonaj: (k, e, w) => wpisz(k, `${e} - wpisz wartość`, w) },
+  { opis: "W pytaniu „Czy pracujesz na pełny etat?” wybierz „Tak”  (opcja w grupie o tej etykiecie)",
+    wzorce: [re("w pytaniu «Q» wybierz «Q»")],
+    wykonaj: async ({ page }, pytanie, t) => {
+      const grupa = await znajdz(page, `pytanie „${pytanie}”`, (s) => [s.getByRole("group", { name: zawiera(pytanie) })]);
+      await grupa.getByRole("radio", { name: t, exact: true }).check();
+    } },
   { opis: "Wybierz „Mamą”  (opcja, pole wyboru albo zakładka)", wzorce: [re("wybierz( opcję)? «Q»")], wykonaj: wybierz },
   { opis: "Zaznacz „Wcześniak”  (pole wyboru; wystarczy początek etykiety)",wzorce: [re("zaznacz «Q»")],
     wykonaj: async ({ page }, t) => { await (await znajdz(page, `pole wyboru „${t}”`, (s) => [s.getByRole("checkbox", { name: zawiera(t) })])).check(); } },
@@ -190,7 +196,7 @@ export const KROKI: Krok[] = [
       await expect(el).toHaveValue((await el.getAttribute("type")) === "date" ? data(w) : w);
     } },
   { opis: "Sprawdź, że jestem zalogowany jako „Anna Przykładowa”", wzorce: [re("sprawdź, że jestem zalogowan[ya] jako «Q»")],
-    wykonaj: async ({ page }, o) => { await expect(page.locator("header").getByRole("button", { name: zawiera(`Konto testowe: ${o}`) })).toBeVisible(); } },
+    wykonaj: async ({ page }, o) => { await expect(page.locator("header").getByRole("button", { name: zawiera(o) }).filter({ hasText: "konto testowe" })).toBeVisible(); } },
   { opis: "Sprawdź, że widać baner „SYMULACJA”", wzorce: [re("sprawdź, że widać baner «Q»")],
     wykonaj: async ({ page }, t) => { await expect(page.getByText(t).filter({ visible: true }).first()).toBeVisible(); } },
   { opis: "Sprawdź, że strona nie przewija się w poziomie", wzorce: [re("sprawdź, że strona nie przewija się (w poziomie|na boki)")],

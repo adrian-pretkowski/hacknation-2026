@@ -15,10 +15,9 @@ import { STATUS_HEADLINE } from "../main-flow/wizard/labels";
 import { DEMO_REQUEST } from "./demoRequest";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
-const inputCls = "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-zus-navy focus:outline-none focus:ring-2 focus:ring-zus-navy/30";
+const inputCls = "w-full rounded-md border border-zinc-500 bg-white px-3 py-2 text-sm focus:border-zus-navy focus:outline-none focus:ring-2 focus:ring-zus-navy/30";
 const btn = "rounded-md bg-zus-navy px-4 py-2 text-sm font-semibold text-white hover:bg-zus-navy/90 disabled:opacity-50";
 const btnGhost = "rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zus-navy hover:bg-zinc-50";
-const TOKEN_KEY = "pr-admin-token"; // tylko sessionStorage (zamknięcie karty = wylogowanie)
 const STATUS_LABEL: Record<string, string> = { CONFIRMED: "potwierdzony", UNCONFIRMED: "niepotwierdzony", MISSING: "brak wartości" };
 
 /** Wartość parametru do wyświetlenia / edycji: tabela jako JSON, liczba jako tekst. */
@@ -27,21 +26,19 @@ const isTable = (p: Parameter) => p.value !== null && typeof p.value === "object
 const editable = (p: Parameter) => !Array.isArray(p.value); // lista z pliku (PUBLIC_HOLIDAYS) - edycja pliku, nie panelu
 
 export function AdminParameters() {
-  // token z tej karty (sessionStorage); na serwerze pusty - pole ma suppressHydrationWarning
-  const [token, setToken] = useState(() => typeof window === "undefined" ? "" : sessionStorage.getItem(TOKEN_KEY) ?? "");
+  // demo: bez tokenu (D36) - lista wczytywana od razu po wejściu na stronę
   const [data, setData] = useState<ParameterList | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(API_MODE !== "mock");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
 
-  const load = async (t = token) => {
+  const load = async () => {
     setBusy(true);
     setError(null);
     try {
-      setData(await listParameters(t));
-      sessionStorage.setItem(TOKEN_KEY, t);
+      setData(await listParameters());
     } catch (e) {
       setData(null);
       setError(e instanceof ApiError ? e.message : "Nie udało się wczytać parametrów.");
@@ -49,6 +46,16 @@ export function AdminParameters() {
       setBusy(false);
     }
   };
+
+  useEffect(() => {
+    if (API_MODE === "mock") return;
+    let cancelled = false;
+    listParameters()
+      .then((d) => { if (!cancelled) setData(d); })
+      .catch((e) => { if (!cancelled) setError(e instanceof ApiError ? e.message : "Nie udało się wczytać parametrów."); })
+      .finally(() => { if (!cancelled) setBusy(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -64,14 +71,10 @@ export function AdminParameters() {
           (data oceny sprawy) i jest widoczna w kolejnym wyliczeniu - bez restartu.</p>
       </header>
 
-      <form className={`${card} flex flex-col gap-3 sm:flex-row sm:items-end`} onSubmit={(e) => { e.preventDefault(); void load(); }}>
-        <label className="flex-1 text-sm font-medium">Token administratora
-          <input type="password" autoComplete="off" suppressHydrationWarning className={`${inputCls} mt-1`} value={token} onChange={(e) => setToken(e.target.value)}
-            aria-describedby="token-hint" />
-          <span id="token-hint" className="mt-1 block text-xs font-normal text-zinc-600">Wartość ADMIN_TOKEN z konfiguracji serwera. Przechowywana tylko w tej karcie.</span>
-        </label>
-        <button type="submit" className={btn} disabled={busy || !token || API_MODE === "mock"}>{busy ? "Wczytuję…" : "Wczytaj parametry"}</button>
-      </form>
+      {busy && !data && <p role="status" className="text-sm text-zinc-600">Wczytuję parametry…</p>}
+      {error && API_MODE !== "mock" && (
+        <button type="button" className={btn} disabled={busy} onClick={() => void load()}>{busy ? "Wczytuję…" : "Spróbuj ponownie"}</button>
+      )}
       {API_MODE === "mock" && <p className="text-sm text-zinc-700">Tryb demo bez backendu - panel admina jest niedostępny.</p>}
       {error && <p role="alert" className="rounded-md border border-zus-red bg-red-50 px-3 py-2 text-sm text-zus-red">{error}</p>}
 
@@ -118,7 +121,7 @@ export function AdminParameters() {
                   </div>
                   {editing === p.name && (
                     <EditForm param={p} onCancel={() => setEditing(null)} onSave={async (value, validFrom, reason) => {
-                      const next = await updateParameters(token, {
+                      const next = await updateParameters({
                         base_parameters_version: data.parameters_version,
                         changes: [{ name: p.name, value, valid_from: validFrom || null, reason }],
                       });

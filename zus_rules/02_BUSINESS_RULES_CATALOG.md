@@ -2,7 +2,7 @@
 
 > **Plik generowany** z `03_rules.yaml` (v0.1.0, data referencyjna 2026-11-21) przez `tools/build_catalog.py`. Nie edytować ręcznie.
 
-Liczba reguł: **119**. Status `evaluation`: ACTIVE - wykonywana automatycznie; BLOCKED - zwraca NEEDS_REVIEW; HUMAN_REVIEW - przesłanka oceniana przez człowieka; FUTURE - jeszcze nie obowiązuje; INFORMATIONAL - dokumenty/terminy/ostrzeżenia.
+Liczba reguł: **120**. Status `evaluation`: ACTIVE - wykonywana automatycznie; BLOCKED - zwraca NEEDS_REVIEW; HUMAN_REVIEW - przesłanka oceniana przez człowieka; FUTURE - jeszcze nie obowiązuje; INFORMATIONAL - dokumenty/terminy/ostrzeżenia.
 
 ## Indeks
 
@@ -122,6 +122,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE - wykonywana automatycznie; 
 | [BASE-NEMP-002](#base-nemp-002) | Podstawa przy zadeklarowanej kwocie i ubezpieczeniu <12 miesięcy (art. 48a) | CALCULATION | P0 | ACTIVE | HIGH | DIRECT | 1 |
 | [BASE-NEMP-003](#base-nemp-003) | Podstawa niepracownika - niezdolność w pierwszym miesiącu | CALCULATION | P1 | ACTIVE | HIGH | DIRECT | 0 |
 | [BASE-NEMP-004](#base-nemp-004) | Niepracownik - miesiące z zasiłkiem <½ miesiąca wyłączone | CALCULATION | P0 | ACTIVE | HIGH | DIRECT | 1 |
+| [BASE-NEMP-005](#base-nemp-005) | Górna granica podstawy - dobrowolne ubezpieczenie chorobowe | CALCULATION | P1 | ACTIVE | MEDIUM | DERIVED | 0 |
 | [BASE-GEN-001](#base-gen-001) | Brak ponownego ustalania podstawy przy przerwie < miesiąca kalendarzowego | CALCULATION | P0 | ACTIVE | HIGH | DERIVED | 6 |
 | [BASE-GEN-002](#base-gen-002) | Maksymalna podstawa zasiłku chorobowego po ustaniu tytułu | CALCULATION | P2 | BLOCKED | LOW | INCOMPLETE_SOURCE | 0 |
 | [RISK-001](#risk-001) | Ryzyko - umowa / działalność zawarta dla pozoru krótko przed ciążą lub w ciąży | VALIDATION | P1 | INFORMATIONAL | LOW | INCOMPLETE_SOURCE | 0 |
@@ -2445,6 +2446,25 @@ Gdy przychód zmalał wskutek pobierania zasiłku/świadczenia - wyłącza się 
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-BASE-009
 - **Uwagi:** 'Połowa miesiąca' - liczona w dniach kalendarzowych (DERIVED).
+
+### BASE-NEMP-005
+
+**Górna granica podstawy - dobrowolne ubezpieczenie chorobowe** - `CALCULATION` · P1 · AUTOMATABLE · eval: **ACTIVE**
+
+Przy dobrowolnym ubezpieczeniu chorobowym (zlecenie, działalność) podstawa wymiaru zasiłku nie może przekroczyć miesięcznego limitu podstawy składek po odliczeniu 13,71% (23 550,00 × 0,8629 = 20 321,295 zł w 2026 r.).
+
+- **Podstawa:** ZALACZNIK - Załącznik - limit podstawy składek przy dobrowolnym ubezpieczeniu chorobowym; USTAWA art. 48 ust. 1 (przychód = podstawa składek − 13,71%)
+- **Fragment:** „VOLUNTARY_MAX_CONTRIB_BASE_2026 = 23 550,00 zł (Załącznik; potwierdzone przez mentora fachowego ZUS, M08)”
+- **Obowiązuje:** od - do -
+- **Warunki:**
+  - WSZYSTKIE:
+    - `f_is_voluntary_sickness_title_for_base` **eq** True
+- **Rezultat:** `{"compute": "f_apply_voluntary_base_cap", "output": "base.amount"}`
+- **Wyjątki:** - · **Zależy od:** BASE-NEMP-001 · **Ma pierwszeństwo przed:** -
+- **Dane:** `insurance.titles` · brak danych → `NEEDS_DATA`
+- **Jakość:** pewność MEDIUM, interpretacja DERIVED
+- **Testy:** -
+- **Uwagi:** BE2-12 (raport luk słownika, A2): limit potwierdzony przez mentora (M08), wcześniej tylko w notach BASE-NEMP-001. Bez zaokrąglenia pośredniego (C1; zaokrąglenia - BE2-09/M04). Stosowany do nowo ustalanej podstawy (dziś: manual_base_override); podstawa przejęta z art. 43 (BASE-GEN-001) bez zmian.
 
 ### BASE-GEN-001
 

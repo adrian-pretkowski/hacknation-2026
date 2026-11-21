@@ -8,6 +8,7 @@ import { Intro } from "./Intro";
 import { Results } from "./Results";
 import { STEPS } from "./steps";
 
+const SITE_TITLE = "Przewodnik Przyszłego Rodzica";
 const btn = "rounded-full px-5 py-2.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark";
 
 // Widok kreatora: ekran startowy → kroki → wynik. Każde przejście trafia do historii przeglądarki,
@@ -58,6 +59,13 @@ export function Wizard() {
   const answered = steps.filter((s, i) => (done || i < index) && s.summary(a)).length;
   const progress = done ? 100 : Math.round(((index + 1) / (steps.length + 1)) * 100);
 
+  // FE1-30 (WCAG 2.4.2): tytuł karty przeglądarki opisuje bieżący krok kreatora.
+  const pageTitle = view.kind === "intro" ? null : view.kind === "forms" ? "Które pismo chcesz złożyć?"
+    : view.kind === "form" ? FORMS[view.code].name : done ? "Twój plan" : `${step.title} - krok ${index + 1} z ${steps.length}`;
+  useEffect(() => {
+    document.title = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
+  }, [pageTitle]);
+
   if (view.kind === "intro") {
     return <Intro headingRef={headingRef} onStart={start} onForms={() => show({ kind: "forms" })} onPreset={loadPreset} onSensitive={startSensitive} presets={PRESETS} />;
   }
@@ -68,9 +76,9 @@ export function Wizard() {
       <div className="mx-auto max-w-4xl">
         <button type="button" onClick={() => show({ kind: "intro" })} className={homeBtn}>← Strona startowa</button>
         <p className="mt-6 text-xs font-semibold tracking-wider text-zus-green-dark uppercase">{view.kind === "forms" ? "Szybkie pisma" : `Pismo ${view.code}`}</p>
-        <h2 ref={headingRef} tabIndex={-1} className="mt-1 mb-2 scroll-mt-4 text-2xl font-semibold text-zus-navy focus:outline-none">
+        <h1 ref={headingRef} tabIndex={-1} className="mt-1 mb-2 scroll-mt-4 text-2xl font-semibold text-zus-navy focus:outline-none">
           {view.kind === "forms" ? "Które pismo chcesz złożyć?" : FORMS[view.code].name}
-        </h2>
+        </h1>
         {view.kind === "forms" ? (
           <>
             <p className="mb-6 text-sm text-zinc-700">Kliknij pismo, aby je wypełnić. Nie wiesz, które wybrać?{" "}
@@ -89,7 +97,7 @@ export function Wizard() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[17rem_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
       <nav aria-label="Kroki kreatora" className="min-w-0 lg:sticky lg:top-4 lg:self-start">
         <button type="button" onClick={() => show({ kind: "intro" })}
           className="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
@@ -133,7 +141,7 @@ export function Wizard() {
                         <span className="sr-only">Wybrano: </span>{summary}
                       </span>
                     ) : !visited && !current ? null : (
-                      <span className="mt-0.5 block text-sm text-zinc-500">jeszcze bez odpowiedzi</span>
+                      <span className="mt-0.5 block text-sm text-zinc-600">jeszcze bez odpowiedzi</span>
                     )}
                     {visited && <span className="mt-0.5 block text-xs text-zinc-500 underline-offset-2 group-hover:text-zus-navy group-hover:underline">zmień</span>}
                     {complete && <span className="sr-only"> (uzupełniony)</span>}
@@ -150,29 +158,24 @@ export function Wizard() {
             </li>
           </ol>
         </section>
-        {!a.sensitive ? (
-          <button type="button" onClick={startSensitive}
-            className="mt-4 flex w-full items-start gap-2 rounded-xl border border-zus-blue/30 bg-zus-blue-50 p-3 text-left text-zus-navy hover:border-zus-blue/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy">
-            <span aria-hidden="true" className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-zus-blue">
-              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" /></svg>
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold">Gdy ciąża nie zakończyła się szczęśliwie</span>
-              <span className="mt-0.5 block text-xs underline underline-offset-2">Przejdź do trybu spokojnego</span>
-            </span>
-          </button>
-        ) : (
-          <button type="button" onClick={start} className="mt-4 text-left text-xs text-zinc-600 underline underline-offset-2">
-            Wyjdź z trybu spokojnego
-          </button>
-        )}
+        {/* Na ścieżce po stracie ta sama karta prowadzi z powrotem do zwykłej ścieżki. */}
+        <button type="button" onClick={a.sensitive ? start : startSensitive}
+          className="mt-4 flex w-full items-start gap-2 rounded-xl border border-zus-blue/30 bg-zus-blue-50 p-3 text-left text-zus-navy hover:border-zus-blue/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy">
+          <span aria-hidden="true" className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-zus-blue">
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" /></svg>
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold">{a.sensitive ? "Jesteś na ścieżce po stracie" : "Gdy ciąża nie zakończyła się szczęśliwie"}</span>
+            <span className="mt-0.5 block text-xs underline underline-offset-2">{a.sensitive ? "Wróć do zwykłej ścieżki" : "Przejdź do ścieżki po stracie"}</span>
+          </span>
+        </button>
       </nav>
 
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-wider text-zus-green-dark">{done ? "Wynik" : `Krok ${index + 1} z ${steps.length}`}</p>
-        <h2 ref={headingRef} tabIndex={-1} className="mt-1 mb-4 scroll-mt-4 text-2xl font-semibold text-zus-navy focus:outline-none">
+        <h1 ref={headingRef} tabIndex={-1} className="mt-1 mb-4 scroll-mt-4 text-2xl font-semibold text-zus-navy focus:outline-none">
           {done ? "Twój plan" : step.title}
-        </h2>
+        </h1>
         {done ? (
           <>
             <Results answers={a} onEdit={editStep} canEdit={(id) => steps.some((s) => s.id === id)} onOpenForm={(c) => openForm(c, "result")} />

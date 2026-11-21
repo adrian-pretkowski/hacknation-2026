@@ -1,9 +1,6 @@
-import type { Metadata } from "next";
-import { Guide } from "@/features/support/Guide";
+import { permanentRedirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Wsparcie po stracie dziecka · Przewodnik Przyszłego Rodzica" };
-
-// FE2-05: tryb wrażliwy - wsparcie na górze, pozostałe informacje na żądanie.
-export default function SensitiveGuidePage() {
-  return <Guide sensitive />;
+// FE1-30: dawny adres „trybu spokojnego” - stałe przekierowanie na ścieżkę po stracie (stare linki dalej działają).
+export default function LegacySensitiveGuidePage() {
+  permanentRedirect("/wsparcie/po-stracie");
 }
