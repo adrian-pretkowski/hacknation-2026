@@ -35,7 +35,8 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | Obliczenie | Wzór | Jednostka | Źródło |
 |---|---|---|---|
 | Przychód niepracownika (miesiąc) | `gross_contribution_base × (1 − 0,1371)` | PLN | USTAWA art. 3 pkt 4 |
-| Podstawa pracownika | `Σ wynagrodzeń netto-składkowych w wybranych miesiącach (po uzupełnieniu) / liczba wybranych miesięcy + Σ udziałów okresowych` | PLN/mies. | art. 36, 38, 42 |
+| Wynagrodzenie pracownika (miesiąc) | `brutto × (1 − 0,1371)` — zawsze (M06, CONF-002 zamknięty); pola `*_net` = kwota już po odliczeniu | PLN | USTAWA art. 3 pkt 3; M06 |
+| Podstawa pracownika | `Σ wynagrodzeń netto-składkowych w wybranych miesiącach (po uzupełnieniu) / liczba wybranych miesięcy + Σ udziałów okresowych`; okno 12 mies. kalendarzowych, przy krótszym zatrudnieniu — pełne miesiące całego okresu (M06) | PLN/mies. | art. 36 ust. 1-2, 38, 42 |
 | Udział kwartalny | `Σ wypłat za 4 kwartały przed miesiącem zdarzenia / 12` | PLN/mies. | art. 42 ust. 2 |
 | Udział roczny | `wypłata za rok poprzedni / 12` | PLN/mies. | art. 42 ust. 3 |
 | Uzupełnienie składnika zmiennego | `kwota / days_worked × days_required` | PLN | art. 37 ust. 2 pkt 2 |

@@ -2228,7 +2228,7 @@ Przeciętne miesięczne wynagrodzenie wypłacone za 12 miesięcy kalendarzowych 
 - **Dane:** `income_history.months`, `base.reference_event_date` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-BASE-001
-- **Uwagi:** 'Wynagrodzenie' = przychód po odliczeniu składek emerytalnej, rentowej i chorobowej potrąconych przez pracodawcę (art. 3 pkt 3) — kwoty z Z-3 (% potrąconej składki, zał. 2 pkt 16). 13,71% dla pracowników = założenie Załącznika (CONF-002). Dla macierzyńskiego 'miesiąc powstania niezdolności' → 'miesiąc powstania prawa' (art. 47 'odpowiednio', DERIVED).
+- **Uwagi:** 'Wynagrodzenie' = przychód po odliczeniu składek emerytalnej, rentowej i chorobowej potrąconych przez pracodawcę (art. 3 pkt 3) — pomniejszony zawsze o 13,71% (CONTRIBUTION_DEDUCTION_RATE) — ustalenie z mentorem M06 (2026-11-21), CONF-002 zamknięty; pola *_net = brutto × (1 − 0,1371). Dla macierzyńskiego 'miesiąc powstania niezdolności' → 'miesiąc powstania prawa' (art. 47 'odpowiednio', DERIVED).
 
 ### BASE-EMP-002
 
@@ -2248,6 +2248,7 @@ Gdy niezdolność powstała przed upływem 12 miesięcy — przeciętne wynagrod
 - **Dane:** `income_history.months`, `insurance.titles` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-BASE-008
+- **Uwagi:** M06 (2026-11-21, mentor fachowy): zatrudnienie krótsze niż 12 miesięcy → podstawa z pełnego okresu zatrudnienia (pełne miesiące kalendarzowe), zawsze po odliczeniu 13,71%.
 
 ### BASE-EMP-003
 
