@@ -1117,7 +1117,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P1
   automation_status: PARTIALLY_AUTOMATABLE
-  notes: "Silnik może wskazać 'zbliża się wyczerpanie okresu zasiłkowego — rozważ wniosek', ale prawa nie przyznaje bez orzeczenia (pole zwykle UNKNOWN → NEEDS_REVIEW)."
+  notes: "Silnik może wskazać 'zbliża się wyczerpanie okresu zasiłkowego — rozważ wniosek', ale prawa nie przyznaje bez orzeczenia (pole zwykle UNKNOWN → NEEDS_REVIEW). Zakres MVP (M16 c, mentor fachowy 2026-11-21): tylko podstawa — prawo po wyczerpaniu 270 dni zasiłku chorobowego w ciąży; bez głębszej analizy (rokowanie, orzeczenie, kwota)."
 
 - id: REHAB-EXCL-001
   name: "Wyłączenia świadczenia rehabilitacyjnego"
@@ -1348,7 +1348,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: ""
+  notes: "M16 b (2026-11-21, mentor fachowy): kalkulator pkt j) obejmuje także rodzinę zastępczą zawodową — wynik pokazuje brak prawa do zasiłku macierzyńskiego z tego tytułu (art. 29 ust. 1 pkt 3) z wyjaśnieniem, zamiast pomijać tę grupę."
 
 - id: MAT-ELIG-004
   name: "Zasiłek macierzyński po ustaniu ubezpieczenia — śmierć, upadłość, likwidacja pracodawcy"
@@ -1483,7 +1483,7 @@ rules:
     all:
       - {fact: f_is_employee_title_last, operator: eq, value: true}
       - {fact: f_title_ended_during_pregnancy, operator: eq, value: true}
-      - {fact: f_last_title_termination_reason, operator: in, value: [EMPLOYER_DEATH, EMPLOYER_BANKRUPTCY, EMPLOYER_LIQUIDATION]}
+      - {fact: f_last_title_termination_reason, operator: in, value: [EMPLOYER_DEATH, EMPLOYER_BANKRUPTCY, EMPLOYER_LIQUIDATION, UNLAWFUL_TERMINATION_COURT_CONFIRMED]}
       - {field: employment.other_employment_provided, operator: eq, value: false}
   result: {status: ELIGIBLE, set: {benefit: MATERNITY_EQUIVALENT_ALLOWANCE, period_end: DAY_BEFORE_BIRTH, rate: {param: MAT_RATE_FULL}, payer_of_benefit: ZUS}}
   exceptions: [GEN-EXCL-001]
@@ -1492,11 +1492,11 @@ rules:
   required_inputs: [insurance.titles, pregnancy.pregnancy_start_date, employment.other_employment_provided]
   missing_data_behavior: NEEDS_DATA
   evaluation: ACTIVE
-  confidence: HIGH
-  interpretation_status: DIRECT
+  confidence: MEDIUM
+  interpretation_status: DERIVED
   implementation_priority: P1
   automation_status: AUTOMATABLE
-  notes: "KONFLIKT z treścią zadania: zadanie wymienia też 'naruszenie przepisów prawa', ustawa art. 30 ust. 3 i ROZP_DOK § 17 — tylko śmierć/upadłość/likwidacja. Stosujemy ustawę (CONF-001). Stawka 100% — DERIVED z 'w wysokości zasiłku macierzyńskiego' i art. 31 ust. 1. 'Do dnia porodu' = do dnia poprzedzającego poród (M15 e, mentor fachowy 2026-11-21)."
+  notes: "CONF-001 rozstrzygnięty przez mentora fachowego ZUS (M16 a, 2026-11-21): stosujemy treść zadania — zasiłek przysługuje także po rozwiązaniu umowy w ciąży z naruszeniem przepisów prawa stwierdzonym przez sąd (UNLAWFUL_TERMINATION_COURT_CONFIRMED); wyciąg ustawy w materiałach wymienia tylko śmierć/upadłość/likwidację. Postępowanie w toku (UNLAWFUL_TERMINATION_PENDING) — prawo nie jest jeszcze stwierdzone. Stawka 100% — DERIVED z 'w wysokości zasiłku macierzyńskiego' i art. 31 ust. 1. 'Do dnia porodu' = do dnia poprzedzającego poród (M15 e, mentor fachowy 2026-11-21)."
 
 - id: MAT-NEG-001
   name: "Brak ubezpieczenia na dzień porodu — brak prawa"

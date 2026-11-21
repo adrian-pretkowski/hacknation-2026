@@ -87,7 +87,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [APP-DOC-005](#app-doc-005) | Dokumenty — przyjęcie dziecka (przysposobienie / rodzina zastępcza) | DOCUMENT_REQUIREMENT | P0 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [APP-DOC-006](#app-doc-006) | Dokumenty — rodzicielski, ojcowski, uzupełniający, przejęcie przez ojca | DOCUMENT_REQUIREMENT | P1 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [CALC-MAT-001](#calc-mat-001) | Kwota zasiłku macierzyńskiego za segment | CALCULATION | P0 | ACTIVE | HIGH | DERIVED | 3 |
-| [MAT-ELIG-007](#mat-elig-007) | Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu | ELIGIBILITY | P1 | ACTIVE | HIGH | DIRECT | 2 |
+| [MAT-ELIG-007](#mat-elig-007) | Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu | ELIGIBILITY | P1 | ACTIVE | MEDIUM | DERIVED | 2 |
 | [SUPP-ELIG-001](#supp-elig-001) | Uzupełniający urlop — poród przed 28. tyg. lub masa ≤1000 g | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [SUPP-ELIG-002](#supp-elig-002) | Uzupełniający urlop — poród 28–37 tydz. i masa >1000 g | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [SUPP-ELIG-003](#supp-elig-003) | Uzupełniający urlop — poród po 37. tyg. i hospitalizacja ≥2 dni od 5.–28. dnia | DURATION | P1 | ACTIVE | MEDIUM | DIRECT | 4 |
@@ -880,7 +880,7 @@ Przysługuje ubezpieczonemu, który po wyczerpaniu zasiłku chorobowego jest nad
 - **Dane:** `benefit_history.sickness_periods`, `rehabilitation.zus_medical_opinion_positive` · brak danych → `NEEDS_REVIEW`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** —
-- **Uwagi:** Silnik może wskazać 'zbliża się wyczerpanie okresu zasiłkowego — rozważ wniosek', ale prawa nie przyznaje bez orzeczenia (pole zwykle UNKNOWN → NEEDS_REVIEW).
+- **Uwagi:** Silnik może wskazać 'zbliża się wyczerpanie okresu zasiłkowego — rozważ wniosek', ale prawa nie przyznaje bez orzeczenia (pole zwykle UNKNOWN → NEEDS_REVIEW). Zakres MVP (M16 c, mentor fachowy 2026-11-21): tylko podstawa — prawo po wyczerpaniu 270 dni zasiłku chorobowego w ciąży; bez głębszej analizy (rokowanie, orzeczenie, kwota).
 
 ### REHAB-EXCL-001
 
@@ -1054,6 +1054,7 @@ Zasiłek macierzyński z tytułu przyjęcia dziecka nie przysługuje rodzinie za
 - **Dane:** `event.foster_family_type` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-MAT-017
+- **Uwagi:** M16 b (2026-11-21, mentor fachowy): kalkulator pkt j) obejmuje także rodzinę zastępczą zawodową — wynik pokazuje brak prawa do zasiłku macierzyńskiego z tego tytułu (art. 29 ust. 1 pkt 3) z wyjaśnieniem, zamiast pomijać tę grupę.
 
 ### MAT-ELIG-004
 
@@ -1756,14 +1757,14 @@ Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą ro
   - WSZYSTKIE:
     - `f_is_employee_title_last` **eq** True
     - `f_title_ended_during_pregnancy` **eq** True
-    - `f_last_title_termination_reason` **in** ['EMPLOYER_DEATH', 'EMPLOYER_BANKRUPTCY', 'EMPLOYER_LIQUIDATION']
+    - `f_last_title_termination_reason` **in** ['EMPLOYER_DEATH', 'EMPLOYER_BANKRUPTCY', 'EMPLOYER_LIQUIDATION', 'UNLAWFUL_TERMINATION_COURT_CONFIRMED']
     - `employment.other_employment_provided` **eq** False
 - **Rezultat:** `{"status": "ELIGIBLE", "set": {"benefit": "MATERNITY_EQUIVALENT_ALLOWANCE", "period_end": "DAY_BEFORE_BIRTH", "rate": {"param": "MAT_RATE_FULL"}, "payer_of_benefit": "ZUS"}}`
 - **Wyjątki:** GEN-EXCL-001 · **Zależy od:** — · **Ma pierwszeństwo przed:** —
 - **Dane:** `insurance.titles`, `pregnancy.pregnancy_start_date`, `employment.other_employment_provided` · brak danych → `NEEDS_DATA`
-- **Jakość:** pewność HIGH, interpretacja DIRECT
+- **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** T-MAT-006, T-MAT-007
-- **Uwagi:** KONFLIKT z treścią zadania: zadanie wymienia też 'naruszenie przepisów prawa', ustawa art. 30 ust. 3 i ROZP_DOK § 17 — tylko śmierć/upadłość/likwidacja. Stosujemy ustawę (CONF-001). Stawka 100% — DERIVED z 'w wysokości zasiłku macierzyńskiego' i art. 31 ust. 1. 'Do dnia porodu' = do dnia poprzedzającego poród (M15 e, mentor fachowy 2026-11-21).
+- **Uwagi:** CONF-001 rozstrzygnięty przez mentora fachowego ZUS (M16 a, 2026-11-21): stosujemy treść zadania — zasiłek przysługuje także po rozwiązaniu umowy w ciąży z naruszeniem przepisów prawa stwierdzonym przez sąd (UNLAWFUL_TERMINATION_COURT_CONFIRMED); wyciąg ustawy w materiałach wymienia tylko śmierć/upadłość/likwidację. Postępowanie w toku (UNLAWFUL_TERMINATION_PENDING) — prawo nie jest jeszcze stwierdzone. Stawka 100% — DERIVED z 'w wysokości zasiłku macierzyńskiego' i art. 31 ust. 1. 'Do dnia porodu' = do dnia poprzedzającego poród (M15 e, mentor fachowy 2026-11-21).
 
 
 ## Uzupełniający urlop macierzyński

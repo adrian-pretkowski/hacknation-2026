@@ -1412,11 +1412,11 @@
   },
   {
    "test_id": "T-MAT-007",
-   "kind": "NEGATIVE",
+   "kind": "POSITIVE",
    "rule_ids": [
     "MAT-ELIG-007"
    ],
-   "description": "Rozwiązanie z naruszeniem prawa (sąd) — NIE daje zasiłku w wysokości macierzyńskiego przed porodem",
+   "description": "Rozwiązanie umowy w ciąży z naruszeniem prawa stwierdzonym przez sąd → zasiłek w wysokości macierzyńskiego do dnia przed porodem (M16 a — stosujemy treść zadania)",
    "fixture": "employee_mother",
    "patch": {
     "insurance": {
@@ -1440,13 +1440,16 @@
     "benefit_type": "MATERNITY_EQUIVALENT_ALLOWANCE"
    },
    "expected": {
-    "status": "NOT_ELIGIBLE"
+    "status": "ELIGIBLE",
+    "rate": "1.00",
+    "period.to": "2027-03-14"
    },
    "legal_basis": [
     "USTAWA art. 30 ust. 3 (zamknięty katalog)"
    ],
    "assumptions": [
-    "CONF-001: treść zadania szersza niż ustawa"
+    "M16 a (2026-11-21, mentor fachowy): CONF-001 — stosujemy treść zadania",
+    "'do dnia porodu' = do dnia poprzedzającego poród (M15 e)"
    ]
   },
   {

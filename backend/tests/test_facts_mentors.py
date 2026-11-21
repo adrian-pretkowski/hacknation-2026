@@ -253,3 +253,18 @@ def test_m15_rules_reflect_mentor_answers():
     assert "dzień porodu = dzień 1" in rules.rule("SUPP-ELIG-003")["notes"]
     assert "M15 c" in rules.rule("SUPP-COND-001")["notes"]
     assert rules.rule("MAT-ELIG-007")["result"]["set"]["period_end"] == "DAY_BEFORE_BIRTH"
+
+
+# ------------------------------------------------------------ M16: zakres produktu (MAT-ELIG-007, MAT-EXCL-001, REHAB)
+def test_m16_a_mat_elig_007_includes_court_confirmed_unlawful_termination():
+    """CONF-001: stosujemy treść zadania — naruszenie prawa stwierdzone przez sąd (T-MAT-007 → POSITIVE)."""
+    reasons = next(c for c in ruleset().rule("MAT-ELIG-007")["conditions"]["all"]
+                   if c.get("fact") == "f_last_title_termination_reason")["value"]
+    assert "UNLAWFUL_TERMINATION_COURT_CONFIRMED" in reasons
+    assert "UNLAWFUL_TERMINATION_PENDING" not in reasons  # postępowanie w toku — prawo jeszcze niestwierdzone
+
+
+def test_m16_b_professional_foster_family_still_excluded():
+    """Pkt j) obejmuje rodzinę zastępczą zawodową, ale wynik to brak prawa (art. 29 ust. 1 pkt 3)."""
+    rule = ruleset().rule("MAT-EXCL-001")
+    assert rule["evaluation"] == "ACTIVE" and rule["result"]["status"] == "NOT_ELIGIBLE"
