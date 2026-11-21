@@ -22,7 +22,7 @@ const pct = (rate: string, work = "0") => `${(Number(rate) * 100).toLocaleString
 
 export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
   answers: Answers; onEdit: (stepId: string) => void; canEdit?: (stepId: string) => boolean;
-  /** FE1-09: klik w kafelek pisma na podsumowaniu (etap 2) */
+  /** FE1-11: klik w kafelek pisma na podsumowaniu (etap 2) */
   onOpenForm?: (code: FormCode) => void;
 }) {
   const reqA = useMemo(() => toEvaluateRequest(answers, "COMBINED_815"), [answers]);
@@ -372,7 +372,7 @@ function Documents({ response, payer }: { response: EvaluateResponse; payer: str
   );
 }
 
-/** FE1-09 etap 2: te same kafelki pism co na ścieżce „Szybkie pisma”; polecane wg `missing_documents`. */
+/** FE1-11 etap 2: te same kafelki pism co na ścieżce „Szybkie pisma”; polecane wg `missing_documents`. */
 function FormsToFill({ response, onOpen }: { response: EvaluateResponse; onOpen: (code: FormCode) => void }) {
   const recommended = formsForDocTypes((response.missing_documents ?? []).map((d) => d.doc_type));
   return (

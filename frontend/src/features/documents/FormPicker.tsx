@@ -1,6 +1,6 @@
 "use client";
 
-// Kafelki pism (FE1-09): ten sam komponent na ścieżce „Szybkie pisma” i na podsumowaniu wyniku.
+// Kafelki pism (FE1-11): ten sam komponent na ścieżce „Szybkie pisma” i na podsumowaniu wyniku.
 // Klik → onOpen(kod) — ekran pisma (etap 3: wypełnianie formularzem, osobne zadanie).
 import { FORM_GROUPS, FORMS, type FormCode } from "./forms";
 

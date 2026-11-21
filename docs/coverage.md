@@ -19,7 +19,7 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 | Podgląd e-ZLA (symulacja) | adapter | Dane | ui-verifier | 🟨 mock FE `features/simulations/` (FE2-02), typy z kontraktu; podpięcie `/api/sim/*` po INT-03 |
 | PUE/eZUS (symulacja) | adapter | Dane | ui-verifier | 🟨 mock FE `features/simulations/` (FE2-02), typy z kontraktu; podpięcie `/api/sim/*` po INT-03: pytanie → numer zgłoszenia |
 | Wnioski o urlopy i świadczenia (symulacja, projekt wniosków urlopowych) | APP-*, ROZP_WN | Dokumenty | ui-verifier | ⬜ |
-| Szybkie pisma: wybór ZAM, Z-3, Z-3a, ZAS-12, ZAS-53 ze startu i z wyniku (FE1-09, `docs/FORMS_FLOW.md`) | APP-DOC-002/003, SICK-DOC-001 | Start, Pisma, Wynik | e2e 14 | 🟨 wybór i opis pism; wypełnianie — etap 3 |
+| Szybkie pisma: wybór ZAM, Z-3, Z-3a, ZAS-12, ZAS-53 ze startu i z wyniku (FE1-11, `docs/FORMS_FLOW.md`) | APP-DOC-002/003, SICK-DOC-001 | Start, Pisma, Wynik | e2e 14 | 🟨 wybór i opis pism; wypełnianie — etap 3 |
 | Wniosek o odpis aktu urodzenia (symulacja) | — | Dokumenty | ui-verifier | ⬜ |
 | Linki zus.pl / gov.pl / PIP | treść | Dokumenty | — | ⬜ |
 | Panel admina parametrów | `core/params.py` (OverrideStore), `modules/admin/router.py` | Admin | `test_admin.py` (zmiana 0.815 → wynik bez restartu) | 🟨 API `GET/PUT /api/admin/parameters` (BE2-05): wersje, `valid_from`, 401/409/422, zapis JSON; ekran FE `/admin` (FE1-03): lista, edycja z `valid_from`, podgląd skutku na przykładzie |

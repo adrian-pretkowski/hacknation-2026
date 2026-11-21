@@ -1,4 +1,4 @@
-// Katalog pism do szybkiego złożenia (FE1-09, docs/FORMS_FLOW.md): ZAM, Z-3, Z-3a, ZAS-12, ZAS-53.
+// Katalog pism do szybkiego złożenia (FE1-11, docs/FORMS_FLOW.md): ZAM, Z-3, Z-3a, ZAS-12, ZAS-53.
 // Symbole formularzy pochodzą z treści zadania i informacji ZUS, nie z rozporządzenia (CONF-007, APP-DOC-003) —
 // w UI z dopiskiem „wg informacji ZUS”. Terminy liczbowe tylko z PARAMS (bez liczb z przepisów w kodzie).
 import { PARAMS } from "@/features/main-flow/preview/params";

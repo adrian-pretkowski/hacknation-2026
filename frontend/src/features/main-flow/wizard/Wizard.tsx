@@ -12,7 +12,7 @@ const btn = "rounded-full px-5 py-2.5 text-sm font-semibold focus-visible:outlin
 
 // Widok kreatora: ekran startowy → kroki → wynik. Każde przejście trafia do historii przeglądarki,
 // więc przycisk „Wstecz” w przeglądarce (i gest wstecz na telefonie) cofa o jeden krok.
-// FE1-09: „forms” = ścieżka szybkich pism, „form” = ekran jednego pisma (z listy pism albo z wyniku).
+// FE1-11: „forms” = ścieżka szybkich pism, „form” = ekran jednego pisma (z listy pism albo z wyniku).
 type View = { kind: "intro" } | { kind: "step"; index: number } | { kind: "result" }
   | { kind: "forms" } | { kind: "form"; code: FormCode; from: "forms" | "result" };
 

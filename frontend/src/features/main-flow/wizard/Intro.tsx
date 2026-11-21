@@ -88,7 +88,7 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
         <div className="hidden justify-center md:flex"><Illustration /></div>
       </section>
 
-      {/* FE1-09: wybór drogi — kreator (pełny plan) albo szybkie pisma (docs/FORMS_FLOW.md) */}
+      {/* FE1-11: wybór drogi — kreator (pełny plan) albo szybkie pisma (docs/FORMS_FLOW.md) */}
       <section aria-labelledby="start-h" className="-mt-4">
         <h2 id="start-h" className="text-xl font-semibold text-zus-navy">Od czego chcesz zacząć?</h2>
         <p className="mt-1 text-sm text-zinc-600">Możesz w każdej chwili przejść na drugą drogę — z planu do pism i z powrotem.</p>

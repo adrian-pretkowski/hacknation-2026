@@ -1,6 +1,6 @@
-# Wymaganie: „Od czego chcesz zacząć?” — kreator albo szybkie pisma (FE1-09)
+# Wymaganie: „Od czego chcesz zacząć?” — kreator albo szybkie pisma (FE1-11)
 
-Zgłoszone przez lidera 2026-11-21. Zadanie: `docs/TASKS.md` FE1-09. Wymaganie zadania, którego dotyczy: **g) dokumenty, terminy, sposób złożenia wniosków** (`docs/EVALUATION_CRITERIA.md` § 2: ZAM, Z-3/Z-3a, ZAS-53, ZAS-12, e-ZLA).
+Zgłoszone przez lidera 2026-11-21. Zadanie: `docs/TASKS.md` FE1-11. Wymaganie zadania, którego dotyczy: **g) dokumenty, terminy, sposób złożenia wniosków** (`docs/EVALUATION_CRITERIA.md` § 2: ZAM, Z-3/Z-3a, ZAS-53, ZAS-12, e-ZLA).
 
 ## Cel
 Nie każdy użytkownik chce przejść cały kreator. Część osób wie, jakiego pisma potrzebuje, i chce je od razu wypełnić. Ekran startowy daje więc wybór jednej z dwóch dróg, a pisma są dostępne z obu.
@@ -9,8 +9,8 @@ Nie każdy użytkownik chce przejść cały kreator. Część osób wie, jakiego
 
 | Etap | Zakres | Status |
 |---|---|---|
-| 1 | Ekran startowy: sekcja **„Od czego chcesz zacząć?”** z dwiema kartami wyboru: **„Sprawdź, co Ci przysługuje”** (kreator → plan, przycisk „Zaczynamy →”) i **„Złóż pisma szybko”** (przycisk „Wybierz pismo →”). Droga „pisma” to ekran **„Które pismo chcesz złożyć?”** z kafelkami pism (ikona z symbolem, nazwa, do czego służy, **kiedy złożyć**, **kto wypełnia**) | zrobione (FE1-09) |
-| 2 | Te same kafelki na podsumowaniu wyniku kreatora (sekcja **„Pisma do wypełnienia”** pod „Co i gdzie złożyć”). Pisma pasujące do wyniku (`missing_documents.doc_type`) są wyróżnione etykietą „Pasuje do Twojego planu”; pozostałe też można otworzyć | zrobione (FE1-09) |
+| 1 | Ekran startowy: sekcja **„Od czego chcesz zacząć?”** z dwiema kartami wyboru: **„Sprawdź, co Ci przysługuje”** (kreator → plan, przycisk „Zaczynamy →”) i **„Złóż pisma szybko”** (przycisk „Wybierz pismo →”). Droga „pisma” to ekran **„Które pismo chcesz złożyć?”** z kafelkami pism (ikona z symbolem, nazwa, do czego służy, **kiedy złożyć**, **kto wypełnia**) | zrobione (FE1-11) |
+| 2 | Te same kafelki na podsumowaniu wyniku kreatora (sekcja **„Pisma do wypełnienia”** pod „Co i gdzie złożyć”). Pisma pasujące do wyniku (`missing_documents.doc_type`) są wyróżnione etykietą „Pasuje do Twojego planu”; pozostałe też można otworzyć | zrobione (FE1-11) |
 | 3 | Wypełnianie pisma formularzem (prefill z odpowiedzi kreatora, wysyłka jako SYMULACJA przez `/api/sim/applications`) | **osobne zadanie — do zdefiniowania**; teraz kafelek otwiera ekran pisma z opisem i informacją „w przygotowaniu” |
 
 ## Pisma (kolejność i grupy)
