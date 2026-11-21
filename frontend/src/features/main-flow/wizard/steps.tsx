@@ -9,6 +9,7 @@ import { addDays, daysBetween } from "../preview/exact";
 import type { Answers } from "./answers";
 import { Check, Choice, Field, NumberSelect, Slider, TRI_OPTIONS, inputCls } from "./fields";
 import { Optimizer, optimizerVisible } from "./Optimizer";
+import { todayIso } from "./request";
 import { ZusFetch } from "./ZusFetch";
 
 const plYears = (n: number) => `${n} ${n === 1 ? "rok" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "lata" : "lat"}`;
@@ -57,13 +58,20 @@ const suppCapWeeks = (a: Answers): { cap: number; known: boolean } => {
   return { cap: PARAMS.SUPP_CAP_WEEK_EARLY, known: false };
 };
 /** FE1-09: spójność kroku „Co już wykorzystano” — komunikaty przy polach (pusta lista = można przejść dalej). */
+/** Pełne tygodnie od porodu do dziś (null, gdy brak daty). */
+export const weeksSinceBirth = (a: Answers): number | null =>
+  a.eventDate ? Math.floor(daysBetween(a.eventDate, todayIso()) / PARAMS.WEEK_AS_DAYS) : null;
 export const usedErrors = (a: Answers): { maternity?: string; parental?: string; parts?: string } => {
   const m = Number(a.usedParentalMotherWeeks || 0);
   const f = Number(a.usedParentalFatherWeeks || 0);
   const pool = parentalPool(a);
+  const since = weeksSinceBirth(a);
   const out: { maternity?: string; parental?: string; parts?: string } = {};
-  if (a.usedMaternityFully !== "YES" && m + f > 0) {
-    out.maternity = "Urlop rodzicielski zaczyna się dopiero po całym urlopie macierzyńskim. Zaznacz „Tak” albo ustaw wykorzystany rodzicielski na 0.";
+  // macierzyński biegnie bez przerw od porodu — nie da się wykorzystać więcej tygodni, niż minęło
+  if (a.usedMaternityFully === "NO" && a.usedMaternityWeeks !== "" && since !== null && Number(a.usedMaternityWeeks) > since + 1) {
+    out.maternity = `Od porodu minęło ${since} tyg., więc nie można było wykorzystać ${a.usedMaternityWeeks} tyg. urlopu macierzyńskiego.`;
+  } else if (a.usedMaternityFully === "NO" && m + f > 0) {
+    out.maternity = "Urlop rodzicielski zaczyna się dopiero po całym urlopie macierzyńskim (lub po jego przejęciu przez tatę). Zaznacz „Tak” albo ustaw wykorzystany rodzicielski na 0.";
   }
   if (m + f > pool) out.parental = `Razem wykorzystano ${m + f} tyg. rodzicielskiego, a cała pula to ${pool} tyg. Popraw liczby tygodni mamy i taty.`;
   if (m + f > 0 && Number(a.usedParts || 0) === 0) out.parts = "Wykorzystano już tygodnie rodzicielskiego — podaj, na ile części (wniosków) go podzielono (co najmniej 1).";
@@ -320,6 +328,13 @@ export const STEPS: Step[] = [
             onChange={(usedMaternityWeeks) => set({ usedMaternityWeeks })} />
         )}
         <FieldError id="used-maternity-err" text={usedErrors(a).maternity} />
+        {a.usedMaternityFully === "NO" && a.usedMaternityWeeks !== "" && !usedErrors(a).maternity
+          && (weeksSinceBirth(a) ?? 0) > Number(a.usedMaternityWeeks) && Number(a.usedMaternityWeeks) < PARAMS.MOTHER_MIN_WEEKS_BEFORE_TRANSFER && (
+          <p role="note" className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+            Urlop macierzyński przerwany przed upływem {PARAMS.MOTHER_MIN_WEEKS_BEFORE_TRANSFER} tyg. to sytuacja szczególna
+            (np. pobyt w szpitalu, orzeczenie o niezdolności do samodzielnej egzystencji) — wynik pokażemy, ale sprawdź ją w ZUS.
+          </p>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Slider label="Rodzicielski wykorzystany przez mamę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalMotherWeeks}
             emptyLabel="0 tyg." onChange={(usedParentalMotherWeeks) => set({ usedParentalMotherWeeks })} />

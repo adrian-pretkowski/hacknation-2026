@@ -5,7 +5,7 @@
 import type { EvaluateResponse } from "@/lib/api";
 import type { WizardRequest } from "../wizard/request";
 import {
-  type Ratio, addDays, addMonths, cmp, div, endOfYear, maxDate, minDate, mul, periodDays, ratio, sub, sum,
+  type Ratio, addDays, addMonths, cmp, daysBetween, div, endOfYear, maxDate, minDate, mul, periodDays, ratio, sub, sum,
   toDecimalString, yearOf,
 } from "./exact";
 import { PARAMS as P, PREVIEW_ONLY as PO } from "./params";
@@ -322,9 +322,12 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
         segments.push(mkSeg("MOTHER", matLeave, ev, usedMat * W, P.MAT_RATE_FULL, false, { history: true }));
       }
       const maternityLeft = usedMat !== null ? matWeeks - usedMat : null;
+      // urlop biegnie bez przerw od porodu: gdy od porodu minęło więcej tygodni, niż wykorzystano, mama przerwała urlop
+      const sinceWeeks = Math.floor(daysBetween(ev, today) / W);
       if (maternityLeft !== null && maternityLeft > 0) {
-        warn("MATERNITY_PARTLY_USED", "INFO", "MAT-DUR-001",
-          `Z urlopu macierzyńskiego zostało ${maternityLeft} tyg. Urlop trwa bez przerw od porodu — jeśli mama zrezygnowała z reszty po wykorzystaniu co najmniej ${P.MOTHER_MIN_WEEKS_BEFORE_TRANSFER} tyg., pozostałą część może przejąć tata.`);
+        warn("MATERNITY_PARTLY_USED", "INFO", "MAT-SHARE-001", usedMat! < sinceWeeks
+          ? `Mama zakończyła urlop macierzyński po ${usedMat} tyg. Pozostałe ${maternityLeft} tyg. może wykorzystać tylko tata (przejęcie po rezygnacji mamy, która wykorzystała co najmniej ${P.MOTHER_MIN_WEEKS_BEFORE_TRANSFER} tyg.).`
+          : `Urlop macierzyński trwa — zostało ${maternityLeft} tyg., bez przerw od dziś do końca wymiaru.`);
       }
       let cursor = addDays(ev, matDays);
       if (usedM > 0) {
