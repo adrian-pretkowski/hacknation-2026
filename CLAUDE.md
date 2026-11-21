@@ -45,6 +45,12 @@ RWD · demo www z wyborem/uploadem przykładowych wniosków i weryfikacją ubezp
 ## DONE = zweryfikowane
 Zadanie jest DONE tylko gdy: kryteria akceptacji z `docs/TASKS.md` spełnione, komenda weryfikacji uruchomiona i przeszła (wynik wklejony do PROGRESS), audyt reguł 0 błędów, brak regresji smoke. Nie deklaruj sukcesu bez uruchomienia.
 
+## Każda praca ma zadanie w TASKS.md (obowiązkowe)
+Przed rozpoczęciem pracy znajdź pasujące zadanie w `docs/TASKS.md` § Zadania:
+- **istnieje** → zaktualizuj jego status i opis (zakres/pliki, kryteria akceptacji), jeśli praca je zmienia (tylko własne wiersze; cudze → zgłoś właścicielowi);
+- **nie istnieje** → dopisz nowy wiersz w formacie tabeli: kolejne ID z prefiksem roli (najwyższe istniejące ID roli + 1, np. `INT-08`, `BE2-07`, `FE2-06`), Owner, Prio, Zakres / pliki, Zależności, Kryteria akceptacji, Weryfikacja, Status `IN_PROGRESS (rola)`.
+ID zadania trafia do nazwy gałęzi, commitów i wpisu w PROGRESS.
+
 ## Aktualizacja PROGRESS.md (obowiązkowa, każdy użytkownik i każda sesja)
 Po zakończeniu, zablokowaniu lub przekazaniu zadania z `docs/TASKS.md` — **w tym samym commicie co zmiana kodu**:
 1. `docs/TASKS.md`: zmień status swojego wiersza (`IN_PROGRESS (rola)` → `DONE` / `BLOCKED (powód)`).
