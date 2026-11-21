@@ -76,27 +76,36 @@ function FamilyIllustration() {
   );
 }
 
-/** Karta wyboru drogi na ekranie startowym - cała klikalna (after:inset-0 na przycisku). */
+/** Ikona karty wyboru drogi - rysowana dużym, cienkim konturem jako ozdobne tło karty. */
+function PathIcon({ icon, className }: { icon: "plan" | "forms"; className: string }) {
+  return icon === "plan" ? (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" /><path d="M14 3v5h5M8 13h8M8 17h5" />
+    </svg>
+  );
+}
+
+/** Karta wyboru drogi na ekranie startowym - cała klikalna (after:inset-0 na przycisku).
+ *  FE1-35: ikona jako duże ozdobne tło w rogu karty (z poświatą i delikatnym gradientem), lekko obraca się przy najechaniu. */
 function PathCard({ tag, title, text, points, cta, onClick, icon, primary }: {
   tag: string; title: string; text: string; points: string[]; cta: string; onClick: () => void; icon: "plan" | "forms"; primary?: boolean;
 }) {
   return (
-    <li className={`relative flex flex-col rounded-2xl border-2 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md sm:p-6 ${
-      primary ? "border-zus-green-dark" : "border-zinc-200 hover:border-zus-navy"}`}>
-      <span aria-hidden="true" className={`flex h-12 w-12 items-center justify-center rounded-xl ${primary ? "bg-zus-green-50 text-zus-green-dark" : "bg-zus-blue-50 text-zus-navy"}`}>
-        {icon === "plan" ? (
-          <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" /><path d="M14 3v5h5M8 13h8M8 17h5" />
-          </svg>
-        )}
-      </span>
-      <p className="mt-4 text-xs font-semibold tracking-wider text-zinc-600 uppercase">{tag}</p>
-      <h3 className="mt-1 text-lg font-semibold text-zus-navy">{title}</h3>
-      <p className="mt-1 text-sm text-zinc-700">{text}</p>
+    <li className={`group relative isolate flex flex-col rounded-2xl border-2 bg-linear-to-br via-white to-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6 ${
+      primary ? "border-zus-green-dark from-zus-green-50" : "border-zinc-200 from-zus-blue-50 hover:border-zus-navy"}`}>
+      {/* overflow-hidden tylko na tle - nie ucina obwódki fokusu przycisku (after:inset-0 + outline-offset) */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[14px]">
+        <div className={`absolute -right-12 -bottom-12 h-56 w-56 rounded-full blur-2xl ${primary ? "bg-zus-green-50" : "bg-zus-blue-50"}`} />
+        <PathIcon icon={icon} className={`absolute -right-6 -bottom-8 h-44 w-44 -rotate-12 transition duration-500 group-hover:-rotate-6 group-hover:scale-105 sm:h-52 sm:w-52 ${
+          primary ? "text-zus-green-dark/15" : "text-zus-navy/10"}`} />
+      </div>
+      <p className={`self-start rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wider uppercase ${primary ? "bg-zus-green-dark text-white" : "bg-zus-blue-50 text-zus-navy"}`}>{tag}</p>
+      <h3 className="mt-3 text-xl font-semibold text-zus-navy">{title}</h3>
+      <p className="mt-1 max-w-sm text-sm text-zinc-700">{text}</p>
       <ul className="mt-3 space-y-1 text-sm text-zinc-700">
         {points.map((p) => <li key={p} className="flex gap-2"><span aria-hidden="true" className="text-zus-green-dark">✓</span>{p}</li>)}
       </ul>
