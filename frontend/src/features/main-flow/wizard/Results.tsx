@@ -39,7 +39,8 @@ export function Results({ answers, onEdit }: { answers: Answers; onEdit: (stepId
           <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />
         </details>
       ) : <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />}
-      {current.summary.combinedEligible && current.summary.ownTotal && cmp && (
+      {/* zasiłek nie przysługuje → nie ma czego porównywać (jak kwota w StatusHeader) */}
+      {r.overall_status !== "NOT_ELIGIBLE" && current.summary.combinedEligible && current.summary.ownTotal && cmp && (
         <VariantComparison pA={pA} pB={pB} variant={variant} recommended={recommended} onChoose={setChosen} />
       )}
       <Deadlines response={r} />
