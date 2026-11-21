@@ -1,7 +1,7 @@
-# Tryb spokojny po stracie dziecka
+# Ścieżka po stracie dziecka
 
 1. Otwórz stronę główną.
-2. Kliknij „Przejdź do trybu spokojnego”.
+2. Kliknij „Przejdź do ścieżki po stracie”.
 3. Sprawdź, że nagłówek to „Data i dzieci”.
 4. W polu „Data porodu” wpisz „2 tygodnie temu”.
 5. Przejdź dalej.

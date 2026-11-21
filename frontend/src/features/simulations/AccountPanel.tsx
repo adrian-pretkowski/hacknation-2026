@@ -80,7 +80,7 @@ function DebtTab({ u }: { u: TestUser }) {
       <div className="flex flex-wrap items-end gap-3">
         <label className="font-medium">Na dzień
           <input type="date" value={asOf} onChange={(e) => { setAsOf(e.target.value); setCert(null); }}
-            className="mt-1 block rounded-md border border-zinc-300 px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-zinc-900" />
+            className="mt-1 block rounded-md border border-zinc-500 px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-zinc-900" />
         </label>
         <button type="button" onClick={get} disabled={busy || !asOf} className={simBtnPrimary}>{busy ? "Generowanie…" : "Wygeneruj zaświadczenie"}</button>
       </div>
@@ -134,13 +134,13 @@ function PueTab({ u }: { u: TestUser }) {
     <form onSubmit={send} className="space-y-3 text-sm">
       <label className="block font-medium">Temat
         <select value={topic} onChange={(e) => setTopic(e.target.value as SimPueTopic)}
-          className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-zinc-900">
+          className="mt-1 block w-full rounded-md border border-zinc-500 bg-white px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-zinc-900">
           {TOPICS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
       </label>
       <label className="block font-medium">Pytanie
         <textarea value={q} onChange={(e) => setQ(e.target.value)} rows={4} maxLength={2000} placeholder="np. Czy muszę dostarczyć akt urodzenia dziecka?"
-          className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-zinc-900" />
+          className="mt-1 block w-full rounded-md border border-zinc-500 px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-zinc-900" />
         <span className="mt-1 block text-xs font-normal text-zinc-600">Nie wpisuj prawdziwych danych osobowych - to symulacja.</span>
       </label>
       <button type="submit" disabled={busy || q.trim().length < 3} className={simBtnPrimary}>{busy ? "Wysyłanie…" : "Wyślij (symulacja)"}</button>

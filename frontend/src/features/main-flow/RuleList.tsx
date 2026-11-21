@@ -6,7 +6,7 @@ export function RuleText({ entry, className = "" }: { entry: string; className?:
   return (
     <span className={className} title={p.id}>
       <span className="font-medium">{p.head}</span>
-      {p.description && <span className="block font-normal opacity-80">{p.description}</span>}
+      {p.description && <span className="block font-normal">{p.description}</span>}
     </span>
   );
 }

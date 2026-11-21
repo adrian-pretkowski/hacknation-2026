@@ -168,7 +168,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
             ))}
           </ul>
           {data.explanation && <p className="mt-3 text-sm text-zinc-700" aria-live="polite">{data.explanation}</p>}
-          <div className="mt-1 text-xs text-zinc-500">Przepisy:<RuleList ids={data.step.rule_ids} /></div>
+          <div className="mt-1 text-xs text-zinc-600">Przepisy:<RuleList ids={data.step.rule_ids} /></div>
         </fieldset>
       )}
 
@@ -187,7 +187,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
                 <li key={n} className="py-2">
                   <p className="flex gap-2"><span className="min-w-0 flex-1">{i.label}</span><span className="tabular-nums">{formatMoney(i.amount_exact)}</span></p>
                   <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` · ${formatRate(i.rate)}` : ""}</p>
-                  <RuleList ids={i.rule_ids} className="text-xs text-zinc-500" />
+                  <RuleList ids={i.rule_ids} className="text-xs text-zinc-600" />
                 </li>
               ))}
             </ul>

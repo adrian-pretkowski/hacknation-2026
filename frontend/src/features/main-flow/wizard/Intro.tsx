@@ -114,7 +114,7 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
           </div>
           <button type="button" onClick={onSensitive}
             className="shrink-0 self-start rounded-full bg-zus-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-zus-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy sm:self-center">
-            Przejdź do trybu spokojnego
+            Przejdź do ścieżki po stracie
           </button>
         </section>
       </section>

@@ -10,7 +10,7 @@ const TITLE_OPTIONS = [
   { value: "SELF_EMPLOYED|VOLUNTARY", label: "Działalność gospodarcza (dobrowolne chorobowe)" },
 ];
 
-const field = "mt-1 w-full rounded border border-zinc-300 px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-600";
+const field = "mt-1 w-full rounded border border-zinc-500 px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-600";
 
 export function CalculatorForm() {
   const [birthDate, setBirthDate] = useState("2027-03-15");

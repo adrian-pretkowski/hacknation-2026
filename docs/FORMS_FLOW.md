@@ -41,7 +41,7 @@ Kolor ikony: zielony - wypełniasz Ty, granatowy - wypełnia płatnik składek.
 
 ## Opieka nad rodzicami (FE1-16, zgłoszone 2026-11-21)
 Wsparcie psychiczne i informacja o pomocy to pokazanie, że rodzice są dla nas ważni - mają pierwszeństwo przed kwotami:
-- **Ekran startowy:** sekcja „Gdy ciąża nie zakończyła się szczęśliwie” jest zaraz pod wyborem drogi (a nie na dole strony), jako wyraźna karta z ikoną serca, ciepłym tekstem i przyciskiem „Przejdź do trybu spokojnego”.
+- **Ekran startowy:** sekcja „Gdy ciąża nie zakończyła się szczęśliwie” jest zaraz pod wyborem drogi (a nie na dole strony), jako wyraźna karta z ikoną serca, ciepłym tekstem i przyciskiem „Przejdź do ścieżki po stracie” (FE1-28: dawniej „tryb spokojny”).
 - **Wynik:** panele wsparcia (strata dziecka, wcześniak, „Za życiem”) są **na samej górze**, przed nagłówkiem z wynikiem; większa czcionka, ikona serca, klikalny numer telefonu.
 - Wszystkie przyciski mają kursor „rączki” (`globals.css`, Tailwind 4 domyślnie go nie ustawia).
 
