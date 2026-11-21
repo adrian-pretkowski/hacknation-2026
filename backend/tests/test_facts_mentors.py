@@ -84,16 +84,31 @@ def _rate_100(demo_payload, base):
 
 
 def test_m10_rate_mat_007_raises_low_amount_to_floor(demo_payload):
-    """Typowy: podstawa 800 zł × 100% = 800 zł/mies. < 1000 zł → 1000/30 za dzień, 140 dni."""
+    """Typowy: podstawa 800 zł × 100% = 800 zł/mies. < 1000 zł → podwyższenie (T-RATE-008).
+
+    M10c: pełne miesiące po 1000 zł, niepełne proporcjonalnie do dni miesiąca — 15.03–1.08.2027:
+    4 × 1000 + 1000 × 17/31 (marzec) + 1000 × 1/31 (sierpień).
+    """
     body = pipeline.evaluate(_rate_100(demo_payload, "800.00"))
     benefit = body["benefits"][0]
     floor = param("PARENTAL_BENEFIT_FLOOR_MONTHLY")
     assert floor == Decimal("1000.00") and param_status("PARENTAL_BENEFIT_FLOOR_MONTHLY") == "CONFIRMED"
     assert benefit["status"] == "ELIGIBLE" and "RATE-MAT-007" in benefit["applied_rules"]
-    assert Decimal(benefit["daily_amount_exact"]) == floor / param("MONTH_AS_DAYS")
-    assert Decimal(benefit["total_amount_exact"]) == floor / param("MONTH_AS_DAYS") * benefit["days"]
+    total = Decimal(benefit["total_amount_exact"])
+    assert abs(total - (4 * floor + floor * 18 / 31)) < Decimal("1e-20")
+    assert abs(Decimal(benefit["daily_amount_exact"]) * benefit["days"] - total) < Decimal("1e-20")
     assert "RAISED_TO_PARENTAL_BENEFIT_FLOOR" in [r["code"] for r in benefit["reasons"]]
     assert "RATE-MAT-007" not in body["not_evaluated_rules"]
+
+
+def test_m10c_full_month_is_exactly_floor():
+    """M10c graniczny: segment = pełny miesiąc (luty 2027, 28 dni) → dokładnie 1000 zł; połowa kwietnia → 500 zł."""
+    from app.engine.facts import Context
+    def raised(start, end):
+        ctx = Context(input={}, segment={"from": start, "to": end})
+        return ctx.fact("f_raise_to_parental_benefit_floor")["total"]
+    assert raised("2027-02-01", "2027-02-28") == Decimal("1000")
+    assert raised("2027-04-01", "2027-04-15") == Decimal("500")
 
 
 def test_m10_rate_mat_007_raises_after_815_rate(demo_payload):

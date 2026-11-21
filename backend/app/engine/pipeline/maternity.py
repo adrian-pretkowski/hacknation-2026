@@ -182,7 +182,7 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                 reason("RAISED_TO_PARENTAL_BENEFIT_FLOOR", "RATE-MAT-007",
                        f"Miesięczna kwota zasiłku ({dec_str(monthly)} zł) jest niższa niż kwota świadczenia "
                        f"rodzicielskiego — zasiłek podwyższony do {dec_str(raised['monthly'])} zł miesięcznie "
-                       f"({dec_str(daily)} zł za dzień; sposób liczenia za niepełny miesiąc do potwierdzenia w ZUS).",
+                       f"(za niepełny miesiąc proporcjonalnie do liczby dni miesiąca).",
                        "art. 31 ust. 3a-3c")
 
     # wynik: obiekt base (kontrakt Benefit.base) — tylko gdy podstawa jest znana i jej źródło rozstrzygnięte
