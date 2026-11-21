@@ -46,7 +46,7 @@ export const STEPS: Step[] = [
     title: "Kim jesteś?",
     visible: (a) => !a.sensitive,
     complete: (a) => a.role !== null,
-    summary: (a) => (a.role === "MOTHER" ? "Mama" : a.role === "FATHER" ? "Tata" : a.role === "GUARDIAN" ? "Opiekun" : null),
+    summary: (a) => (a.role === "MOTHER" ? "Jestem mamą" : a.role === "FATHER" ? "Jestem tatą" : a.role === "GUARDIAN" ? "Przyjmuję dziecko jako opiekun" : null),
     render: ({ a, set }) => (
       <Choice legend="Kim jesteś?" value={a.role} columns={3} onChange={(role) => set({ role })} options={[
         { value: "MOTHER", label: "Mamą", description: "jestem w ciąży lub urodziłam" },
@@ -61,7 +61,7 @@ export const STEPS: Step[] = [
     visible: (a) => a.role !== null && !a.sensitive,
     complete: (a) => (a.role === "GUARDIAN" ? a.guardianKind !== null : a.stage !== null),
     summary: (a) => (a.role === "GUARDIAN" ? (a.guardianKind ? GUARDIAN_TEXT[a.guardianKind] : null)
-      : a.stage === "PREGNANT" ? "W ciąży" : a.stage === "BORN" ? "Dziecko już jest na świecie" : null),
+      : a.stage === "PREGNANT" ? (a.role === "FATHER" ? "Partnerka jest w ciąży" : "Jestem w ciąży") : a.stage === "BORN" ? "Dziecko już jest na świecie" : null),
     render: ({ a, set }) =>
       a.role === "GUARDIAN" ? (
         <Choice legend="Jaka to forma przyjęcia dziecka?" value={a.guardianKind} columns={1} onChange={(guardianKind) => set({ guardianKind })} options={[
@@ -81,7 +81,9 @@ export const STEPS: Step[] = [
     title: "Data i dzieci",
     visible: (a) => a.role !== null,
     complete: (a) => !!a.eventDate && a.children >= 1 && (a.role !== "GUARDIAN" || a.childAgeYears !== ""),
-    summary: (a) => join([a.eventDate && formatDate(a.eventDate), a.children > 1 && `${a.children} dzieci`,
+    summary: (a) => join([
+      a.eventDate && `${a.role === "GUARDIAN" ? "Przyjęcie dziecka" : a.stage === "BORN" ? "Poród" : "Poród planowany"} ${formatDate(a.eventDate)}`,
+      a.children > 1 && `${a.children} dzieci`,
       a.role === "GUARDIAN" && a.childAgeYears !== "" && `wiek ${plYears(Number(a.childAgeYears))}`]),
     render: ({ a, set }) => (
       <div className="space-y-4">
