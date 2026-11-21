@@ -3,8 +3,10 @@
 Każdy test w nazwie ma ID pytania mentora i reguły; przypadek typowy, graniczny i brak danych tam, gdzie dotyczy.
 """
 import copy
+from datetime import date
 from decimal import Decimal
 
+from app.core.dates import age_years_on
 from app.core.params import param, param_status
 from app.engine import pipeline
 from app.engine.pipeline import ruleset
@@ -197,3 +199,18 @@ def test_m13_missing_pregnancy_start_asks_for_doctor_date(demo_payload):
     body = pipeline.evaluate(_fixed_term(demo_payload, "2026-12-31", start=None))
     assert body["benefits"][0]["status"] != "NOT_ELIGIBLE"
     assert "pregnancy.pregnancy_start_date" in [m["field"] for m in body["missing_data"]]
+
+
+# ------------------------------------------------------------ M14: limit wieku przy przyjęciu dziecka (MAT-DUR-007/008)
+def test_m14_c_age_limit_until_birthday():
+    """„Do dnia urodzin”: dzień przed 14. urodzinami dziecko ma 13 lat, w dniu urodzin — 14 (C7, GAP-005)."""
+    assert age_years_on(date(2013, 1, 31), date(2027, 1, 30)) == 13
+    assert age_years_on(date(2013, 1, 31), date(2027, 1, 31)) == 14
+
+
+def test_m14_a_nine_weeks_not_a_minimum():
+    """MAT-DUR-008 nie podwyższa urlopu do 9 tyg. ponad limit wieku (tylko informacja), MAT-DUR-007 bez wyjątku."""
+    rule = ruleset().rule("MAT-DUR-008")
+    assert rule["evaluation"] == "INFORMATIONAL" and rule["overrides"] == []
+    assert "set" not in rule["result"]
+    assert "MAT-DUR-008" not in ruleset().rule("MAT-DUR-007")["exceptions"]

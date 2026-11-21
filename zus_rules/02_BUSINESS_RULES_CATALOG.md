@@ -50,7 +50,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [REHAB-RATE-001](#rehab-rate-001) | Wysokość świadczenia rehabilitacyjnego (90% / 75% / 100% w ciąży) | RATE | P1 | ACTIVE | HIGH | DIRECT | 0 |
 | [REHAB-DOC-001](#rehab-doc-001) | Dokumenty — świadczenie rehabilitacyjne | DOCUMENT_REQUIREMENT | P2 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [MAT-ELIG-001](#mat-elig-001) | Zasiłek macierzyński — urodzenie dziecka w czasie ubezpieczenia lub urlopu wychowawczego | ELIGIBILITY | P0 | ACTIVE | HIGH | DIRECT | 6 |
-| [MAT-ELIG-002](#mat-elig-002) | Zasiłek macierzyński — przyjęcie dziecka do 14 lat i wniosek o przysposobienie | ELIGIBILITY | P0 | ACTIVE | MEDIUM | DERIVED | 2 |
+| [MAT-ELIG-002](#mat-elig-002) | Zasiłek macierzyński — przyjęcie dziecka do 14 lat i wniosek o przysposobienie | ELIGIBILITY | P0 | ACTIVE | MEDIUM | DERIVED | 3 |
 | [MAT-ELIG-003](#mat-elig-003) | Zasiłek macierzyński — rodzina zastępcza niezawodowa (dziecko do 7/10 lat) | ELIGIBILITY | P0 | ACTIVE | MEDIUM | DERIVED | 1 |
 | [MAT-EXCL-001](#mat-excl-001) | Rodzina zastępcza zawodowa — brak prawa | EXCLUSION | P0 | ACTIVE | HIGH | DIRECT | 1 |
 | [MAT-ELIG-004](#mat-elig-004) | Zasiłek macierzyński po ustaniu ubezpieczenia — śmierć, upadłość, likwidacja pracodawcy | ELIGIBILITY | P1 | ACTIVE | HIGH | DIRECT | 1 |
@@ -65,8 +65,8 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [MAT-DUR-004](#mat-dur-004) | Zgon dziecka po 8. tygodniu życia — 7 dni | DURATION | P1 | ACTIVE | HIGH | DIRECT | 0 |
 | [MAT-DUR-005](#mat-dur-005) | Wieloraczki — zgon części dzieci | DURATION | P2 | BLOCKED | MEDIUM | AMBIGUOUS | 0 |
 | [MAT-DUR-006](#mat-dur-006) | Porzucenie dziecka / umieszczenie w pieczy — utrata dalszej części, minimum 8 tygodni | DURATION | P2 | ACTIVE | HIGH | DIRECT | 0 |
-| [MAT-DUR-007](#mat-dur-007) | Urlop na warunkach urlopu macierzyńskiego — wymiar i limit wieku dziecka | DURATION | P0 | ACTIVE | HIGH | DIRECT | 1 |
-| [MAT-DUR-008](#mat-dur-008) | Gwarantowane 9 tygodni urlopu na warunkach urlopu macierzyńskiego | DURATION | P1 | BLOCKED | MEDIUM | AMBIGUOUS | 0 |
+| [MAT-DUR-007](#mat-dur-007) | Urlop na warunkach urlopu macierzyńskiego — wymiar i limit wieku dziecka | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
+| [MAT-DUR-008](#mat-dur-008) | 9 tygodni urlopu na warunkach urlopu macierzyńskiego (KP 183 § 3) — bez minimum ponad limit wieku | DURATION | P1 | INFORMATIONAL | MEDIUM | DERIVED | 1 |
 | [MAT-DUR-009](#mat-dur-009) | Tydzień urlopu = 7 dni kalendarzowych; dzień porodu jako pierwszy dzień | CALCULATION | P0 | ACTIVE | HIGH | DIRECT | 1 |
 | [MAT-SHARE-001](#mat-share-001) | Ojciec przejmuje zasiłek macierzyński po ≥14 tygodniach matki | ELIGIBILITY | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [MAT-SHARE-002](#mat-share-002) | Przejęcie po ≥8 tygodniach — matka niezdolna do samodzielnej egzystencji | ELIGIBILITY | P1 | ACTIVE | HIGH | DIRECT | 0 |
@@ -1005,7 +1005,7 @@ Przysługuje ubezpieczonej/ubezpieczonemu, który w okresie ubezpieczenia (lub u
 - **Wyjątki:** GEN-EXCL-001 · **Zależy od:** — · **Ma pierwszeństwo przed:** —
 - **Dane:** `event.type`, `event.date`, `event.court_adoption_application_date`, `children.birth_dates`, `insurance.titles` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DERIVED
-- **Testy:** T-MAT-015, T-MAT-016
+- **Testy:** T-MAT-015, T-MAT-016, T-MAT-022
 - **Uwagi:** 'w wieku do 14 roku życia' interpretujemy jako: przed ukończeniem 14 lat (lt 14) — GAP-005. event.date = data przyjęcia dziecka; oba warunki (przyjęcie + wniosek do sądu) muszą zajść — data powstania prawa = późniejsza z nich (DERIVED).
 
 ### MAT-ELIG-003
@@ -1316,15 +1316,15 @@ Przy przyjęciu dziecka (rodzina zastępcza niezawodowa / przysposobienie) — 2
   - WSZYSTKIE:
     - `event.type` **in** ['ADOPTION', 'FOSTER']
 - **Rezultat:** `{"compute": "f_maternity_like_leave_period", "output": "duration.maternity_like"}`
-- **Wyjątki:** MAT-DUR-008 · **Zależy od:** MAT-ELIG-002, MAT-ELIG-003 · **Ma pierwszeństwo przed:** —
+- **Wyjątki:** — · **Zależy od:** MAT-ELIG-002, MAT-ELIG-003 · **Ma pierwszeństwo przed:** —
 - **Dane:** `children.count_at_event`, `children.birth_dates`, `children.school_obligation_deferred`, `event.date` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
-- **Testy:** T-MAT-015
-- **Uwagi:** Koniec = min(start + wymiar, dzień przed urodzinami granicznymi) — 'ukończenie' 7/14 lat = dzień urodzin (DERIVED, GAP-005).
+- **Testy:** T-MAT-015, T-MAT-022
+- **Uwagi:** Koniec = min(start + wymiar, dzień przed urodzinami granicznymi) — 'ukończenie' 7/14 lat = dzień urodzin; urlop trwa do dnia urodzin, niewykorzystana część przepada, bez minimum 9 tyg. (M14 a, c — mentor fachowy 2026-11-21; GAP-005, CONF-003 zamknięte).
 
 ### MAT-DUR-008
 
-**Gwarantowane 9 tygodni urlopu na warunkach urlopu macierzyńskiego** — `DURATION` · P1 · PARTIALLY_AUTOMATABLE · eval: **BLOCKED**
+**9 tygodni urlopu na warunkach urlopu macierzyńskiego (KP 183 § 3) — bez minimum ponad limit wieku** — `DURATION` · P1 · AUTOMATABLE · eval: **INFORMATIONAL**
 
 Pracownik, który przyjął dziecko do 7 (10) lat jako rodzina zastępcza lub do 14 lat przy przysposobieniu, ma prawo do 9 tygodni urlopu na warunkach urlopu macierzyńskiego.
 
@@ -1335,12 +1335,12 @@ Pracownik, który przyjął dziecko do 7 (10) lat jako rodzina zastępcza lub do
   - WSZYSTKIE:
     - `event.type` **in** ['ADOPTION', 'FOSTER']
     - `f_maternity_like_weeks_after_age_cap` **lt** MATERNITY_LIKE_GUARANTEED_WEEKS (=9)
-- **Rezultat:** `{"set": {"duration.maternity_like_weeks": {"param": "MATERNITY_LIKE_GUARANTEED_WEEKS"}}}`
-- **Wyjątki:** — · **Zależy od:** MAT-DUR-007 · **Ma pierwszeństwo przed:** MAT-DUR-007
+- **Rezultat:** `{"status": "INFO", "reason_code": "AGE_LIMIT_SHORTENS_LEAVE"}`
+- **Wyjątki:** — · **Zależy od:** MAT-DUR-007 · **Ma pierwszeństwo przed:** —
 - **Dane:** `children.birth_dates`, `event.date` · brak danych → `NEEDS_DATA`
-- **Jakość:** pewność MEDIUM, interpretacja AMBIGUOUS
-- **Testy:** —
-- **Uwagi:** Załącznik: 'nie może trwać krócej niż 9 tygodni'. KP § 3 nie mówi wprost, że 9 tyg. jest minimum ponad limit wieku — interpretacja Załącznika (CONF-003). BLOKOWANA → NEEDS_REVIEW, gdy limit wieku skraca urlop poniżej 9 tyg.
+- **Jakość:** pewność MEDIUM, interpretacja DERIVED
+- **Testy:** T-MAT-022
+- **Uwagi:** M14 a (2026-11-21, mentor fachowy): 9 tygodni NIE jest minimum — gdy dziecko osiąga graniczny wiek, urlop się skraca, a niewykorzystana część przepada (CONF-003 rozstrzygnięty; Załącznik 'nie krócej niż 9 tygodni' nie obowiązuje). Reguła tylko informuje o skróceniu (wymiar liczy MAT-DUR-007). Dokładna przesłanka przypadku z § 3 (9 tyg.) — tekst KP poza wyciągami w materiałach (M14b).
 
 ### MAT-DUR-009
 
@@ -1927,7 +1927,7 @@ Dla dziecka z zaświadczeniem „Za życiem” — 65 tygodni (1 dziecko) lub 67
 - **Dane:** `children.count_at_event`, `children.za_zyciem_certificate`, `children.birth_dates`, `event.date` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** —
-- **Uwagi:** Wariant 38/62 zależy od MAT-DUR-008 (BLOKOWANA) → gdy zachodzi § 3, wynik NEEDS_REVIEW. Załącznik pomija 38/62 tygodni (CONF-003).
+- **Uwagi:** Wariant 38/62 tyg. — 'w przypadku, o którym mowa w § 3' (KP 183 § 4 pkt 3, § 4(2), § 4(5); parametry PARENTAL_WEEKS_ADOPT_GUARANTEED*). M14 b: mentor polecił ustalić samodzielnie — materiały zawierają tylko te odesłania, nie pełną treść § 3, więc przesłanka wariantu 38/62 wymaga potwierdzenia (M14b) → gdy zachodzi § 3, NEEDS_REVIEW. Przy przysposobieniu nie dłużej niż do 14. urodzin (M14 c). Załącznik pomija 38/62 tygodni (CONF-003).
 
 ### PAR-SHARE-001
 

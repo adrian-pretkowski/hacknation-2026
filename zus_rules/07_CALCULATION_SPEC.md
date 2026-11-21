@@ -12,7 +12,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | C4 | Tydzień urlopu = 7 dni kalendarzowych. Wprost dla urlopu macierzyńskiego i na warunkach macierzyńskiego; dla rodzicielskiego, ojcowskiego, uzupełniającego — przyjęte analogicznie. | KP 183(1) § 1; GAP-003 |
 | C5 | Okres `N tygodni` od dnia `d`: koniec = `d + 7N − 1`. | DERIVED z C3–C4 |
 | C6 | Miesiąc przy zasiłku chorobowym = 30 dni (gdy okres oznaczony w miesiącach). Podstawa dzienna = podstawa / 30 — także dla zasiłku macierzyńskiego (art. 47 → art. 36 ust. 3; potwierdzone M09). | USTAWA art. 11 ust. 5, art. 36 ust. 3; M09 |
-| C7 | „Ukończenie N lat/miesięcy” = dzień urodzin/miesięcznicy. „Do N roku życia” = **przed** ukończeniem N lat (`age < N`). | DERIVED; GAP-005 |
+| C7 | „Ukończenie N lat/miesięcy” = dzień urodzin/miesięcznicy. „Do N roku życia” = **przed** ukończeniem N lat (`age < N`) — „do dnia urodzin” (M14 c). | DERIVED; GAP-005; M14 |
 | C8 | „Przerwa nie przekroczyła X dni” = liczba dni kalendarzowych **pomiędzy** dniem końca poprzedniego a dniem początku następnego okresu (bez obu końców) ≤ X. | DERIVED; GAP-004 |
 | C9 | Logika trójwartościowa Kleene: `all` = FALSE jeśli któryś FALSE, inaczej UNKNOWN jeśli któryś UNKNOWN; `any` = TRUE jeśli któryś TRUE, inaczej UNKNOWN jeśli któryś UNKNOWN; `not UNKNOWN = UNKNOWN`. Funkcja zwracająca `None` = UNKNOWN. | Wymóg projektu |
 | C10 | `operator: in` na polu-liście = część wspólna niepusta. `exists` = wartość ≠ null (pusta lista = istnieje). | 03_rules.yaml meta.dsl |
@@ -114,7 +114,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_mother_maternity_weeks_used_after_birth` | – | Decimal | Dni segmentów MATERNITY_LEAVE matki od dnia porodu / 7 | None | – |
 | `f_total_maternity_weeks_planned` | – | Decimal | Suma dni wszystkich segmentów MATERNITY_* / 7 | None | – |
 | `f_maternity_like_leave_period` | – | object | `{weeks: tabela wg count_at_event, end: min(start + 7w − 1, dzień przed urodzinami granicznymi)}`; granica 7 (10 przy odroczeniu) dla FOSTER, 14 dla ADOPTION | None | C7 |
-| `f_maternity_like_weeks_after_age_cap` | – | Decimal | Tygodnie wynikające z `f_maternity_like_leave_period` po przycięciu | None | – |
+| `f_maternity_like_weeks_after_age_cap` | – | Decimal | Tygodnie wynikające z `f_maternity_like_leave_period` po przycięciu — bez podwyższenia do 9 tyg. (M14 a) | None | – |
 | `f_child_age_years_on` | date | int | Pełne lata od daty urodzenia dziecka (najstarszego z przyjętych) | None | C7 |
 | `f_child_alive_on` | date | bool | Dziecko (którekolwiek) żyje w `date` | None | – |
 | `f_parental_leave_weeks` | – | int | BIRTH: 41/43, „Za życiem” 65/67; ADOPTION/FOSTER: 41/43, w przypadku KP 183 § 3 — 38 (Za życiem 62) | None | `za_zyciem` null → None |

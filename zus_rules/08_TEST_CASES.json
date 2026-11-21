@@ -1753,7 +1753,8 @@
     "KP art. 183 § 1(1)"
    ],
    "assumptions": [
-    "C7: ukończenie 14 lat = 2027-04-01; MAT-DUR-008 (9 tyg.) zablokowana — 11 tyg. > 9, więc brak konfliktu"
+    "C7: ukończenie 14 lat = 2027-04-01; urlop do dnia przed 14. urodzinami (M14 c)",
+    "M14 a: 9 tyg. nie jest minimum — limit wieku skraca urlop, niewykorzystana część przepada"
    ]
   },
   {
@@ -2010,6 +2011,49 @@
     "KP art. 180 § 14"
    ],
    "assumptions": []
+  },
+  {
+   "test_id": "T-MAT-022",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "MAT-ELIG-002",
+    "MAT-DUR-007",
+    "MAT-DUR-008"
+   ],
+   "description": "Przysposobienie dziecka 3 tyg. przed 14. urodzinami → urlop tylko do dnia przed urodzinami (< 9 tyg.), bez podwyższenia do 9 tyg. (M14 a)",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "ADOPTION",
+     "date": "2027-01-10",
+     "court_adoption_application_date": "2027-01-05"
+    },
+    "children": {
+     "count_at_event": 1,
+     "items": [
+      {
+       "birth_date": "2013-01-31"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LIKE_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "period.to": "2027-01-30"
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1 pkt 2",
+    "KP art. 183 § 1(1)"
+   ],
+   "assumptions": [
+    "M14 a (2026-11-21, mentor fachowy): 9 tyg. nie jest minimum, niewykorzystana część przepada",
+    "C7: 14. urodziny 2027-01-31 → ostatni dzień urlopu 2027-01-30 (M14 c: do dnia urodzin)"
+   ]
   },
   {
    "test_id": "T-SUPP-001",
