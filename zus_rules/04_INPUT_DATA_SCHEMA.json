@@ -195,7 +195,8 @@
     "birth": {
       "type": "object",
       "properties": {
-        "completed_gestation_weeks": {"type": ["integer", "null"], "minimum": 0, "maximum": 45, "x-legal-basis": "KP art. 180(2) § 1"}
+        "completed_gestation_weeks": {"type": ["integer", "null"], "minimum": 0, "maximum": 45, "x-legal-basis": "KP art. 180(2) § 1"},
+        "weight_at_most_threshold": {"$ref": "#/$defs/TriBool", "description": "Masa urodzeniowa (wieloraczki: najlżejszego dziecka) ≤ SUPP_WEIGHT_THRESHOLD_G. Odpowiedź zamiast dokładnej masy; null → wyliczenie z children.items[].birth_weight_g.", "x-legal-basis": "KP art. 180(2) § 1 pkt 1, § 2"}
       }
     },
     "children": {

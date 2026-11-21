@@ -30,7 +30,8 @@ export type Answers = {
   children: number;
   preterm: boolean;
   gestationWeeks: string;
-  birthWeightG: string;
+  /** Masa urodzeniowa (przy kilkorgu dzieci: najlżejszego) ≤ SUPP_WEIGHT_THRESHOLD_G — FE1-05, zamiast dokładnej masy. */
+  lowBirthWeight: Tri;
   hospitalWeeks: string;
   lateHospitalQualifies: Tri;
   zaZyciem: boolean;
@@ -80,7 +81,7 @@ export const EMPTY_ANSWERS: Answers = {
   children: 1,
   preterm: false,
   gestationWeeks: "",
-  birthWeightG: "",
+  lowBirthWeight: "UNKNOWN",
   hospitalWeeks: "",
   lateHospitalQualifies: "UNKNOWN",
   zaZyciem: false,

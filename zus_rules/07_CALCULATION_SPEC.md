@@ -131,6 +131,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_paternity_window` | – | object | `{max_days: 14, deadline: birth + 12 mies. − 1 dzień}`; adopcja: `min(adoption_final + 12 mies. − 1, dzień przed 14. urodzinami)` | None | – |
 | `f_paternity_within_deadline` | – | bool | Wszystkie segmenty PATERNITY ≤ deadline, ≤2 części, każda ≥7 dni, Σ ≤14 dni | None | – |
 | `f_min_birth_weight_g` | – | int | min(birth_weight_g) dzieci z porodu | None | – |
+| `f_weight_at_most_threshold` | – | bool | `birth.weight_at_most_threshold`, gdy podane (odpowiedź z kreatora, FE1-05); inaczej `f_min_birth_weight_g ≤ SUPP_WEIGHT_THRESHOLD_G` | None | Wybiera wariant SUPP-ELIG-001 (true) / -002 (false); brak obu → NEEDS_DATA `birth.weight_at_most_threshold` |
 | `f_has_qualifying_late_hospital_stay` | – | bool | Istnieje pobyt ≥2 kolejne dni, którego pierwszy dzień ∈ [dzień 5, dzień 28] po porodzie (dzień porodu = dzień 1 → [poród + 4, poród + 27]) | None | M15 a; ASSUMPTION-SUPP-DAY1, GAP-010 zamknięty |
 | `f_supplementary_leave_weeks` | cap_week, window_start_day | int | Dla dziecka najdłużej hospitalizowanego: suma dni pobytu w oknie `[birth + window_start_day − 1, birth + 7·cap_week − 1]` — `window_start_day` = numer dnia, dzień porodu = 1 (M15 a; SUPP-ELIG-001/002: 1, SUPP-ELIG-003: 5); `ceil(dni / 7)` | None | Wieloraczki: masa najlżejszego wybiera wariant, pobyt najdłuższy wyznacza dni (KP 180(2) § 2) |
 | `f_maternity_benefit_eligible_any_parent` | – | bool | Którykolwiek rodzic ELIGIBLE w MAT-ELIG-* | Kleene | – |

@@ -11,7 +11,7 @@
 9. Przejdź dalej.
 10. Zaznacz „Wcześniak lub pobyt dziecka w szpitalu”.
 11. Z listy „Ukończony tydzień ciąży przy porodzie” wybierz „30. tydzień”.
-12. Ustaw suwak „Masa urodzeniowa” na „1400”.
+12. Wybierz „Powyżej 1000 g”.
 13. Z listy „Łącznie tygodni w szpitalu (dziecko najdłużej w szpitalu)” wybierz „6 tyg.”.
 14. Sprawdź, że widać „które było w szpitalu najdłużej”.
 15. Przejdź dalej.

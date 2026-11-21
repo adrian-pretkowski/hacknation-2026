@@ -2032,19 +2032,19 @@ rules:
   conditions:
     any:
       - {field: birth.completed_gestation_weeks, operator: lt, value: {param: SUPP_GESTATION_EARLY_WEEK}}
-      - {fact: f_min_birth_weight_g, operator: lte, value: {param: SUPP_WEIGHT_THRESHOLD_G}}
+      - {fact: f_weight_at_most_threshold, operator: eq, value: true}
   result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_EARLY}, window_start_day: 1}, output: duration.supplementary_weeks}
   exceptions: []
   dependencies: [SUPP-COND-001]
   overrides: []
-  required_inputs: [birth.completed_gestation_weeks, children.items, children.hospital_stays]
+  required_inputs: [birth.completed_gestation_weeks, birth.weight_at_most_threshold, children.items, children.hospital_stays]
   missing_data_behavior: NEEDS_DATA
   evaluation: ACTIVE
   confidence: HIGH
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=1, dzień porodu = dzień 1, M15 a)."
+  notes: "'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=1, dzień porodu = dzień 1, M15 a). Masa: odpowiedź `birth.weight_at_most_threshold` (kreator, FE1-05) albo wyliczenie z `birth_weight_g` (f_weight_at_most_threshold)."
 
 - id: SUPP-ELIG-002
   name: "Uzupełniający urlop — poród 28–37 tydz. i masa >1000 g"
@@ -2061,12 +2061,12 @@ rules:
     all:
       - {field: birth.completed_gestation_weeks, operator: gte, value: {param: SUPP_GESTATION_EARLY_WEEK}}
       - {field: birth.completed_gestation_weeks, operator: lt, value: {param: SUPP_GESTATION_TERM_WEEK}}
-      - {fact: f_min_birth_weight_g, operator: gt, value: {param: SUPP_WEIGHT_THRESHOLD_G}}
+      - {fact: f_weight_at_most_threshold, operator: eq, value: false}
   result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_PRETERM}, window_start_day: 1}, output: duration.supplementary_weeks}
   exceptions: []
   dependencies: [SUPP-COND-001]
   overrides: []
-  required_inputs: [birth.completed_gestation_weeks, children.items, children.hospital_stays]
+  required_inputs: [birth.completed_gestation_weeks, birth.weight_at_most_threshold, children.items, children.hospital_stays]
   missing_data_behavior: NEEDS_DATA
   evaluation: ACTIVE
   confidence: HIGH

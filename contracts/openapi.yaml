@@ -843,6 +843,11 @@ components:
               minimum: 0
               maximum: 45
               x-legal-basis: KP art. 180(2) § 1
+            weight_at_most_threshold:
+              $ref: '#/components/schemas/InTriBool'
+              description: Masa urodzeniowa (przy wieloraczkach najlżejszego dziecka) nie większa niż próg SUPP_WEIGHT_THRESHOLD_G.
+                Odpowiedź z kreatora zamiast dokładnej masy; gdy null, silnik wylicza ją z children.items[].birth_weight_g.
+              x-legal-basis: KP art. 180(2) § 1 pkt 1, § 2
         children:
           type: object
           properties:

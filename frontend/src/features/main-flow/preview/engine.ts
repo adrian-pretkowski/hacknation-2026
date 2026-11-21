@@ -391,13 +391,21 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       // uzupełniający (wcześniak / hospitalizacja)
       let cursor = addDays(matEnd, 1);
       const gw = req.birth?.completed_gestation_weeks ?? null;
-      const weight = items.find((c) => !c.stillborn)?.birth_weight_g ?? null;
+      // FE1-05: odpowiedź „do progu / powyżej” ma pierwszeństwo; bez niej — z dokładnych mas (jak f_weight_at_most_threshold)
+      const weights = items.filter((c) => !c.stillborn).map((c) => c.birth_weight_g ?? null);
+      const lowWeight = req.birth?.weight_at_most_threshold
+        ?? (weights.length > 0 && weights.every((w) => w != null)
+          ? Math.min(...(weights as number[])) <= P.SUPP_WEIGHT_THRESHOLD_G : null);
       if (eventType === "BIRTH" && (req.birth || wp.hospital_weeks != null)) {
-        const early = (gw != null && gw < P.SUPP_GESTATION_EARLY_WEEK) || (weight != null && weight <= P.SUPP_WEIGHT_THRESHOLD_G);
+        const early = (gw != null && gw < P.SUPP_GESTATION_EARLY_WEEK) || lowWeight === true;
         const preterm = gw != null && gw < P.SUPP_GESTATION_TERM_WEEK;
         const cap = early ? P.SUPP_CAP_WEEK_EARLY : preterm ? P.SUPP_CAP_WEEK_PRETERM
           : wp.late_hospital_qualifies ? P.SUPP_CAP_WEEK_PRETERM : 0;
-        if (gw == null && weight == null) need("birth.completed_gestation_weeks", "SUPP-ELIG-001");
+        if (gw == null && lowWeight == null) need("birth.completed_gestation_weeks", "SUPP-ELIG-001");
+        // jak backend: bez odpowiedzi o masie SUPP-ELIG-001 jest UNKNOWN przy każdym tygodniu ≥ 28 — pytamy,
+        // chyba że wynik daje już SUPP-ELIG-003 (≥ 37 tydz. i kwalifikujący pobyt)
+        else if (!early && lowWeight == null && !(!preterm && wp.late_hospital_qualifies))
+          need("birth.weight_at_most_threshold", preterm ? "SUPP-ELIG-002" : "SUPP-ELIG-001");
         else if (wp.hospital_weeks == null) need("children.hospital_stays", "SUPP-CALC-001");
         else if (cap > 0 && wp.hospital_weeks > 0) {
           const weeks = Math.min(wp.hospital_weeks, cap);

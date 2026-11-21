@@ -1781,13 +1781,13 @@ Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 15. tygo
 - **Warunki:**
   - KTÓRYKOLWIEK:
     - `birth.completed_gestation_weeks` **lt** SUPP_GESTATION_EARLY_WEEK (=28)
-    - `f_min_birth_weight_g` **lte** SUPP_WEIGHT_THRESHOLD_G (=1000)
+    - `f_weight_at_most_threshold` **eq** True
 - **Rezultat:** `{"compute": "f_supplementary_leave_weeks", "args": {"cap_week": {"param": "SUPP_CAP_WEEK_EARLY"}, "window_start_day": 1}, "output": "duration.supplementary_weeks"}`
 - **Wyjątki:** — · **Zależy od:** SUPP-COND-001 · **Ma pierwszeństwo przed:** —
-- **Dane:** `birth.completed_gestation_weeks`, `children.items`, `children.hospital_stays` · brak danych → `NEEDS_DATA`
+- **Dane:** `birth.completed_gestation_weeks`, `birth.weight_at_most_threshold`, `children.items`, `children.hospital_stays` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-SUPP-001, T-SUPP-002
-- **Uwagi:** 'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=1, dzień porodu = dzień 1, M15 a).
+- **Uwagi:** 'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=1, dzień porodu = dzień 1, M15 a). Masa: odpowiedź `birth.weight_at_most_threshold` (kreator, FE1-05) albo wyliczenie z `birth_weight_g` (f_weight_at_most_threshold).
 
 ### SUPP-ELIG-002
 
@@ -1802,10 +1802,10 @@ Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 8. tygod
   - WSZYSTKIE:
     - `birth.completed_gestation_weeks` **gte** SUPP_GESTATION_EARLY_WEEK (=28)
     - `birth.completed_gestation_weeks` **lt** SUPP_GESTATION_TERM_WEEK (=37)
-    - `f_min_birth_weight_g` **gt** SUPP_WEIGHT_THRESHOLD_G (=1000)
+    - `f_weight_at_most_threshold` **eq** False
 - **Rezultat:** `{"compute": "f_supplementary_leave_weeks", "args": {"cap_week": {"param": "SUPP_CAP_WEEK_PRETERM"}, "window_start_day": 1}, "output": "duration.supplementary_weeks"}`
 - **Wyjątki:** — · **Zależy od:** SUPP-COND-001 · **Ma pierwszeństwo przed:** —
-- **Dane:** `birth.completed_gestation_weeks`, `children.items`, `children.hospital_stays` · brak danych → `NEEDS_DATA`
+- **Dane:** `birth.completed_gestation_weeks`, `birth.weight_at_most_threshold`, `children.items`, `children.hospital_stays` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-SUPP-003, T-INT-003
 
