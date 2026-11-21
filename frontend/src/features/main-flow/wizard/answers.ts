@@ -1,4 +1,11 @@
 import type { PlannerChoice } from "@/lib/api";
+import { addDays } from "../preview/exact";
+
+/** FE1-10: przykłady z porodem w przyszłości liczone od dziś — walidacja dat nie zablokuje ich po terminie. */
+const inDays = (n: number) => {
+  const d = new Date(); // data lokalna, jak todayIso() w request.ts
+  return addDays(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`, n);
+};
 
 // Odpowiedzi kreatora (stan UI). Zamieniane na EvaluateRequest w request.ts — tylko tam powstaje model kontraktu.
 
@@ -117,15 +124,15 @@ export const EMPTY_ANSWERS: Answers = {
 export const PRESETS: { id: string; label: string; answers: Partial<Answers> }[] = [
   {
     id: "s1",
-    label: "Mama na etacie, poród 1 grudnia",
+    label: "Mama na etacie, poród za 10 dni",
     answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", payerSize: "GT20",
-      insuredFrom: "2021-03-01", eventDate: "2026-12-01", children: 1, salaryGross: "8000" },
+      insuredFrom: "2021-03-01", eventDate: inDays(10), children: 1, salaryGross: "8000" },
   },
   {
     id: "s2",
-    label: "Bliźnięta, poród 1 grudnia",
+    label: "Bliźnięta, poród za 10 dni",
     answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", payerSize: "GT20",
-      insuredFrom: "2021-03-01", eventDate: "2026-12-01", children: 2, salaryGross: "8000" },
+      insuredFrom: "2021-03-01", eventDate: inDays(10), children: 2, salaryGross: "8000" },
   },
   {
     id: "s3",
@@ -138,13 +145,13 @@ export const PRESETS: { id: string; label: string; answers: Partial<Answers> }[]
     id: "s5",
     label: "Tata: ojcowski i podział rodzicielskiego",
     answers: { role: "FATHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", payerSize: "GT20",
-      insuredFrom: "2020-05-01", eventDate: "2026-12-01", children: 1, partnerInsured: "YES", fatherParentalWeeks: 9,
+      insuredFrom: "2020-05-01", eventDate: inDays(10), children: 1, partnerInsured: "YES", fatherParentalWeeks: 9,
       salaryGross: "8000" },
   },
   {
     id: "s9",
     label: "JDG w ciąży, zaległość w składkach",
     answers: { role: "MOTHER", stage: "PREGNANT", title: "SELF_EMPLOYED", voluntarySickness: "YES", insuredFrom: "2025-01-01",
-      debt: "120.00", eventDate: "2027-02-10", children: 1, salaryGross: "5000" },
+      debt: "120.00", eventDate: inDays(81), children: 1, salaryGross: "5000" },
   },
 ];
