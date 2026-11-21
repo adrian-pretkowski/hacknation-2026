@@ -124,6 +124,17 @@ meta:
     PAYMENT_DEADLINE_DAYS: {value: 30, unit: days, source: "USTAWA art. 64 ust. 1"}
     PAYMENT_DEADLINE_AFTER_DEBT_DAYS: {value: 60, unit: days, source: "USTAWA art. 64 ust. 3"}
     PAYER_FORWARD_DAYS: {value: 7, unit: days, source: "USTAWA art. 61b ust. 5"}
+    # --- terminy wniosków urlopowych pracownika (APP-DL-002, f_leave_application_deadlines; BE2-04)
+    LEAVE_APP_PARENTAL_DAYS_BEFORE: {value: 21, unit: days_before_start, source: "KP art. 182(1d) § 1; art. 182(1e) § 2 (łączenie z pracą)"}
+    LEAVE_APP_MATERNITY_FOR_FATHER_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "KP art. 180 § 9"}
+    LEAVE_APP_PATERNITY_DAYS_BEFORE: {value: 7, unit: days_before_start, source: "KP art. 182(3) § 2"}
+    LEAVE_APP_SUPPLEMENTARY_DAYS_BEFORE_MATERNITY_END: {value: 21, unit: days_before_maternity_end, source: "KP art. 180(2) § 4"}
+    LEAVE_APP_RESIGNATION_DAYS_BEFORE_RETURN: {value: 7, unit: days_before_return, source: "KP art. 180 § 8"}
+    LEAVE_APP_MATERNITY_LIKE_DAYS_AFTER_ACCEPTANCE: {value: 7, unit: days_after_acceptance, source: "KP art. 183 § 6"}
+    # --- progi ostrzeżeń o ryzyku (RISK-001/002) — parametry PROJEKTOWE zespołu, NIE prawne (M17, 2026-11-21)
+    RISK_WINDOW_DAYS: {value: 90, unit: days_before_pregnancy_start, source: "Parametr projektowy zespołu (07 §3 f_title_started_during_or_shortly_before_pregnancy; M17) — nie wynika z przepisów", status: UNCONFIRMED}
+    RISK_INCREASE_FACTOR: {value: "1.5", unit: ratio, source: "Parametr projektowy zespołu (07 §3 f_contribution_base_increase_during_pregnancy; M17) — nie wynika z przepisów", status: UNCONFIRMED}
+    RISK_BASE_MONTHS_BEFORE_PREGNANCY: {value: 3, unit: months, source: "Parametr projektowy zespołu (07 §3 f_contribution_base_increase_during_pregnancy — średnia z 3 mies. przed ciążą)", status: UNCONFIRMED}
     ROUNDING_POLICY: {value: null, unit: none, source: "BRAK w materiałach — zaokrąglenia kwot nieokreślone", status: MISSING}
 
 rules:

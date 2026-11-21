@@ -81,9 +81,10 @@ def _maternity(benefits: list[dict]) -> list[dict]:
 
 def _comparable(body: dict) -> dict:
     body = copy.deepcopy(body)
-    # plan_errors, return_to_work (BE2-02), warnings RISK-* (BE2-01) — zwraca tylko pipeline
+    # plan_errors, return_to_work (BE2-02), warnings RISK-* (BE2-01), missing_documents, deadlines (BE2-04)
+    # — zwraca tylko pipeline
     for key in ("evaluation_id", "engine", "applied_rules", "future_changes", "not_evaluated_rules", "plan_errors",
-                "return_to_work", "warnings"):
+                "return_to_work", "warnings", "missing_documents", "deadlines"):
         body.pop(key, None)
     body["missing_data"] = [{**item, "rule_ids": [r for r in item["rule_ids"] if not _beyond_slice(r)]}
                             for item in body["missing_data"] if not all(_beyond_slice(r) for r in item["rule_ids"])]

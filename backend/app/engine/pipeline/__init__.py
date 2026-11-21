@@ -5,6 +5,7 @@ overrides, DT-9, ślad ``applied_rules``, ``future_changes``), niezdolność do 
 chorobowego i wynagrodzenia chorobowego (``sickness.py``, BE1-04). Kroki ogólne GEN-* — ``general.py``.
 Urlop rodzicielski, ojcowski, przejęcie macierzyńskiego, walidacje planu (``plan_errors``) i powrót do pracy
 (``return_to_work``) — ``parental.py`` (BE2-02). Uzupełniający i na warunkach macierzyńskiego — BE2-01.
+Dokumenty, terminy i ryzyka (``missing_documents``, ``deadlines``, RISK-* w ``warnings``) — ``guidance.py`` (BE2-04).
 Każde świadczenie dostaje ``explanation`` i ``legal_basis`` z renderera ``app.engine.explain`` (BE1-06).
 """
 from __future__ import annotations
@@ -21,6 +22,7 @@ from app.engine.explain import explain_benefit
 from app.engine.facts import Context
 from app.engine.facts.insurance import INCAPACITY_EVENTS
 from app.engine.pipeline.engine import STATUS_ORDER, Engine
+from app.engine.pipeline.guidance import guidance
 from app.engine.pipeline.maternity import (
     evaluate_equivalent_allowance,
     evaluate_maternity,
@@ -95,6 +97,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
                                             "PREGNANCY_INCAPACITY, SICKNESS."}], "OUT_OF_SCOPE")
     if plan:
         reserved_weeks_review(eng, benefits, plan["plan_errors"])  # GAP-016
+    guide = guidance(eng, benefits)  # BE2-04: missing_documents, deadlines, RISK-001/002/003 → warnings
     for benefit in benefits:
         benefit.update(explain_benefit(eng, benefit))  # BE1-06: explanation + legal_basis (kontrakt Benefit)
     assumptions = [ROUNDING] + [PARAM_ASSUMPTIONS[p] for p in eng.unconfirmed_params() if p in PARAM_ASSUMPTIONS]
@@ -102,7 +105,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     overall = next((s for s in STATUS_ORDER if any(b["status"] == s for b in benefits)), "NEEDS_DATA")
     if not benefits:
         overall = "OUT_OF_SCOPE"
-    return {**_response(eng, benefits, assumptions, overall), **plan}
+    return {**_response(eng, benefits, assumptions, overall), **plan, **guide}
 
 
 def _response(eng: Engine, benefits: list[dict[str, Any]], assumptions: list[dict[str, Any]],
@@ -119,5 +122,7 @@ def _response(eng: Engine, benefits: list[dict[str, Any]], assumptions: list[dic
         "not_evaluated_rules": eng.not_evaluated,
         "applied_rules": eng.applied_trace(),
         "future_changes": eng.future,
-        "warnings": eng.warnings,  # BE2-01: RISK-003, MAT-DUR-008
+        "warnings": eng.warnings,  # BE2-01: RISK-003, MAT-DUR-008; BE2-04: RISK-001/002
+        "missing_documents": [],  # BE2-04 (guidance.py) — nadpisywane, gdy są świadczenia
+        "deadlines": [],
     }
