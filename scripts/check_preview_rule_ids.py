@@ -36,7 +36,7 @@ def main() -> int:
         print(f"ID spoza {RULES.relative_to(ROOT).as_posix()} ({len(bad)}):")
         print("\n".join(bad))
         return 1
-    print(f"OK — wszystkie ID reguł w kreatorze istnieją w 03 ({len(ids)} reguł w katalogu)")
+    print(f"OK - wszystkie ID reguł w kreatorze istnieją w 03 ({len(ids)} reguł w katalogu)")
     return 0
 
 

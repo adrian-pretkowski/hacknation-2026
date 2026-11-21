@@ -1,4 +1,4 @@
-"""BA-02: treści przewodnika (frontend/src/content/*.json) — schemat ContentBlock z kontraktu, unikalne id,
+"""BA-02: treści przewodnika (frontend/src/content/*.json) - schemat ContentBlock z kontraktu, unikalne id,
 istniejące ``rule_ids`` w zus_rules/03, linki https, bloki trybu wrażliwego oznaczone ``sensitive``."""
 import json
 from pathlib import Path

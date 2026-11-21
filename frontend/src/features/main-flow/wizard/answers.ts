@@ -1,13 +1,13 @@
 import type { PlannerChoice } from "@/lib/api";
 import { addDays } from "../preview/exact";
 
-/** FE1-10: przykłady z porodem w przyszłości liczone od dziś — walidacja dat nie zablokuje ich po terminie. */
+/** FE1-10: przykłady z porodem w przyszłości liczone od dziś - walidacja dat nie zablokuje ich po terminie. */
 const inDays = (n: number) => {
   const d = new Date(); // data lokalna, jak todayIso() w request.ts
   return addDays(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`, n);
 };
 
-// Odpowiedzi kreatora (stan UI). Zamieniane na EvaluateRequest w request.ts — tylko tam powstaje model kontraktu.
+// Odpowiedzi kreatora (stan UI). Zamieniane na EvaluateRequest w request.ts - tylko tam powstaje model kontraktu.
 
 export type Role = "MOTHER" | "FATHER" | "GUARDIAN";
 export type Stage = "PREGNANT" | "BORN";
@@ -27,21 +27,21 @@ export type Answers = {
   stage: Stage | null;
   guardianKind: "ADOPTION" | "FOSTER_NON_PROFESSIONAL" | "FOSTER_PROFESSIONAL" | null;
   childAgeYears: string;
-  /** FE1-26: data urodzenia przyjmowanego dziecka — koniec urlopu przed 14. / 7. / 10. urodzinami (MAT-DUR-007). */
+  /** FE1-26: data urodzenia przyjmowanego dziecka - koniec urlopu przed 14. / 7. / 10. urodzinami (MAT-DUR-007). */
   childBirthDate: string;
-  /** FE1-26: data uprawomocnienia postanowienia o przysposobieniu — od niej 12 mies. na ojcowski (PAT-DUR-001). */
+  /** FE1-26: data uprawomocnienia postanowienia o przysposobieniu - od niej 12 mies. na ojcowski (PAT-DUR-001). */
   adoptionFinalDate: string;
   schoolDeferred: Tri;
   title: Title | null;
   voluntarySickness: Tri;
-  /** FE1-22: JDG na uldze na start — bez ubezpieczeń społecznych, także chorobowego. */
+  /** FE1-22: JDG na uldze na start - bez ubezpieczeń społecznych, także chorobowego. */
   startRelief: Tri;
-  /** FE1-22: zleceniobiorca — uczeń / student przed 26. urodzinami: bez ubezpieczeń społecznych. */
+  /** FE1-22: zleceniobiorca - uczeń / student przed 26. urodzinami: bez ubezpieczeń społecznych. */
   studentUnder26: Tri;
   insuredFrom: string;
   /** FE1-24: rodzaj umowy jak `employment.contract_type` w kontrakcie (MAT-CLS-002: przedłużenie tylko terminowej i próbnej > 1 mies.). */
   contractType: ContractType | null;
-  /** FE1-20: pełny etat — minimalna podstawa (BASE-EMP-008) tylko przy pełnym wymiarze czasu pracy. */
+  /** FE1-20: pełny etat - minimalna podstawa (BASE-EMP-008) tylko przy pełnym wymiarze czasu pracy. */
   fullTime: Tri;
   contractEnd: string;
   contractEndsAfter3rdMonth: Tri;
@@ -54,10 +54,10 @@ export type Answers = {
   children: number;
   preterm: boolean;
   gestationWeeks: string;
-  /** Masa urodzeniowa (przy kilkorgu dzieci: najlżejszego) ≤ SUPP_WEIGHT_THRESHOLD_G — FE1-05, zamiast dokładnej masy. */
+  /** Masa urodzeniowa (przy kilkorgu dzieci: najlżejszego) ≤ SUPP_WEIGHT_THRESHOLD_G - FE1-05, zamiast dokładnej masy. */
   lowBirthWeight: Tri;
   hospitalWeeks: string;
-  /** FE1-08: liczba dni pobytu z zaświadczenia ze szpitala; hospitalWeeks = ceil(dni / WEEK_AS_DAYS) — wartość wysyłana do API. */
+  /** FE1-08: liczba dni pobytu z zaświadczenia ze szpitala; hospitalWeeks = ceil(dni / WEEK_AS_DAYS) - wartość wysyłana do API. */
   hospitalDays: string;
   lateHospitalQualifies: Tri;
   zaZyciem: boolean;
@@ -68,7 +68,7 @@ export type Answers = {
   partnerInsured: Tri;
   maternityStart: string;
   usedMaternityFully: Tri;
-  usedMaternityWeeks: string; // FE1-09: przy „Nie” — ile tygodni macierzyńskiego wykorzystano
+  usedMaternityWeeks: string; // FE1-09: przy „Nie” - ile tygodni macierzyńskiego wykorzystano
   usedParentalMotherWeeks: string;
   usedParentalFatherWeeks: string;
   usedParts: string;

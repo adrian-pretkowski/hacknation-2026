@@ -1,6 +1,6 @@
 "use client";
 
-// Przycisk „Pobierz dane z ZUS” — SYMULACJA. Własny, neutralny wygląd (bez kolorów i znaków ZUS), stały opis symulacji.
+// Przycisk „Pobierz dane z ZUS” - SYMULACJA. Własny, neutralny wygląd (bez kolorów i znaków ZUS), stały opis symulacji.
 import { useState } from "react";
 import type { Answers } from "./answers";
 import { SimBadge } from "./fields";
@@ -41,12 +41,12 @@ export function ZusFetch({ source, what, a, set }: {
         </button>
       </div>
       <p className="mt-1 text-xs text-zinc-600">
-        SYMULACJA — w wersji produkcyjnej: integracja z systemami ZUS po zalogowaniu przez mObywatel. Tu dane pochodzą z fikcyjnego konta testowego{user ? ` (${fullName(user)})` : ""}.
+        SYMULACJA - w wersji produkcyjnej: integracja z systemami ZUS po zalogowaniu przez mObywatel. Tu dane pochodzą z fikcyjnego konta testowego{user ? ` (${fullName(user)})` : ""}.
       </p>
       <div aria-live="polite">
         {state === "done" && (
           <div className="mt-2 rounded-md bg-white p-2 text-xs text-zinc-800">
-            <p className="font-medium">Uzupełniono przykładowymi danymi (symulacja) — sprawdź i popraw, jeśli trzeba:</p>
+            <p className="font-medium">Uzupełniono przykładowymi danymi (symulacja) - sprawdź i popraw, jeśli trzeba:</p>
             <ul className="mt-1 list-disc pl-5">{summary.map((s) => <li key={s}>{s}</li>)}</ul>
           </div>
         )}

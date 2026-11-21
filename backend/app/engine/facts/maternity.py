@@ -1,4 +1,4 @@
-"""Fakty — zasiłek macierzyński: wymiar, termin 81,5%, podstawa, kwota (zus_rules/07 §5, §7).
+"""Fakty - zasiłek macierzyński: wymiar, termin 81,5%, podstawa, kwota (zus_rules/07 §5, §7).
 
 BE1-01: minimalny zestaw potrzebny ścieżce macierzyńskiej (parytet ze slice_v0).
 Właściciel dalszych faktów macierzyńskich/rodzicielskich i podstawy: BE2-01..03.
@@ -82,7 +82,7 @@ def combined_application_within_deadline(ctx: Context) -> bool | None:
 def segment_belongs_to_applicant_of_combined(ctx: Context) -> bool | None:
     """07 §5: segment należy do rodzica, który złożył wniosek 81,5% (matka przy BIRTH). USTAWA art. 30a, 31 ust. 3.
 
-    Inne zdarzenia (wnioskodawca ADOPTION/FOSTER) — BE2-02.
+    Inne zdarzenia (wnioskodawca ADOPTION/FOSTER) - BE2-02.
     """
     parent = ctx.field("segment.parent")
     if parent is None or ctx.field("event.type") != "BIRTH":
@@ -113,7 +113,7 @@ def gap_shorter_than_calendar_month(ctx: Context) -> bool | None:
 
 
 def _base_title(ctx: Context) -> dict[str, Any] | None:
-    """BE2-12: tytuł, z którego ustala się podstawę — aktywny w dniu zdarzenia, priorytet jak f_primary_title_type.
+    """BE2-12: tytuł, z którego ustala się podstawę - aktywny w dniu zdarzenia, priorytet jak f_primary_title_type.
 
     Bez zgłaszania braków (granice podstawy to doprecyzowanie kwoty, nie warunek prawa): brak danych → None.
     """
@@ -155,7 +155,7 @@ def _voluntary_cap(ctx: Context) -> Decimal:
 
 @fact("f_apply_minimum_base")
 def apply_minimum_base(ctx: Context) -> Decimal | None:
-    """07 §2, BASE-EMP-008: max(podstawa, f_minimum_base) — pełny etat, tytuł pracowniczy. USTAWA art. 45 ust. 1."""
+    """07 §2, BASE-EMP-008: max(podstawa, f_minimum_base) - pełny etat, tytuł pracowniczy. USTAWA art. 45 ust. 1."""
     base = _new_base(ctx)
     minimum = ctx.fact("f_minimum_base")
     return None if base is None or minimum is None else max(base, minimum)
@@ -163,25 +163,25 @@ def apply_minimum_base(ctx: Context) -> Decimal | None:
 
 @fact("f_apply_voluntary_base_cap")
 def apply_voluntary_base_cap(ctx: Context) -> Decimal | None:
-    """07 §2, BASE-NEMP-005 (BE2-12): min(podstawa, VOLUNTARY_MAX_CONTRIB_BASE_2026 × (1 − 13,71%)) — dobrowolne
-    chorobowe (ustawa systemowa art. 20 ust. 2 — limit podstawy składek; Załącznik, M08)."""
+    """07 §2, BASE-NEMP-005 (BE2-12): min(podstawa, VOLUNTARY_MAX_CONTRIB_BASE_2026 × (1 − 13,71%)) - dobrowolne
+    chorobowe (ustawa systemowa art. 20 ust. 2 - limit podstawy składek; Załącznik, M08)."""
     base = _new_base(ctx)
     return None if base is None else min(base, _voluntary_cap(ctx))
 
 
 def _new_base(ctx: Context) -> Decimal | None:
-    """Nowo ustalona podstawa (dziś: ręczna — `manual_base_override`; metody BASE-EMP/NEMP — BE2-03)."""
+    """Nowo ustalona podstawa (dziś: ręczna - `manual_base_override`; metody BASE-EMP/NEMP - BE2-03)."""
     return to_decimal(ctx.field("income_history.manual_base_override"))
 
 
 @fact("f_benefit_base")
 def benefit_base(ctx: Context) -> Decimal | None:
     """07 §6: manual_base_override, jeśli podano; inaczej BASE-GEN-001 (podstawa poprzedniego zasiłku, art. 43);
-    metody BASE-* — BE2-03. USTAWA art. 36, 43, 47.
+    metody BASE-* - BE2-03. USTAWA art. 36, 43, 47.
 
-    BE2-12: nowa podstawa z granicami — pełny etat na umowie o pracę: nie mniej niż minimalna (BASE-EMP-008);
-    dobrowolne chorobowe: nie więcej niż limit (BASE-NEMP-005). Podstawa przejęta z art. 43 — bez zmian.
-    Bez historii zasiłków (brak ``previous_benefit_end_date``) art. 43 nie dotyczy — potrzebna nowa podstawa.
+    BE2-12: nowa podstawa z granicami - pełny etat na umowie o pracę: nie mniej niż minimalna (BASE-EMP-008);
+    dobrowolne chorobowe: nie więcej niż limit (BASE-NEMP-005). Podstawa przejęta z art. 43 - bez zmian.
+    Bez historii zasiłków (brak ``previous_benefit_end_date``) art. 43 nie dotyczy - potrzebna nowa podstawa.
     """
     base = _new_base(ctx)
     if base is not None:
@@ -193,7 +193,7 @@ def benefit_base(ctx: Context) -> Decimal | None:
     if ctx.field("benefit_history.previous_benefit_end_date") is not None:
         reuse = ctx.fact("f_gap_shorter_than_calendar_month")
         if reuse is None:
-            return None  # brak daty początku zasiłku — braki zgłosił fakt; nie żądamy nowej podstawy na zapas
+            return None  # brak daty początku zasiłku - braki zgłosił fakt; nie żądamy nowej podstawy na zapas
         if reuse:
             previous = to_decimal(ctx.field("benefit_history.previous_base_amount"))
             return previous if previous is not None else ctx.need("benefit_history.previous_base_amount")
@@ -231,7 +231,7 @@ def benefit_amount(ctx: Context) -> dict[str, Any] | None:
 def contract_end_after_third_month_of_pregnancy(ctx: Context) -> bool | None:
     """07 §3, MAT-CLS-002: umowa rozwiązałaby się po upływie trzeciego miesiąca ciąży (KP art. 177 § 3).
 
-    Początek ciąży — data stwierdzona przez lekarza (zaświadczenie lekarskie, M13). Trzeci miesiąc ciąży =
+    Początek ciąży - data stwierdzona przez lekarza (zaświadczenie lekarskie, M13). Trzeci miesiąc ciąży =
     [początek + 2 mies., początek + 3 mies. − 1 dzień]; „po upływie” ⇔ koniec umowy ≥ początek + 3 mies. (C3, DERIVED).
     """
     start = to_date(ctx.field("pregnancy.pregnancy_start_date"))
@@ -263,7 +263,7 @@ def monthly_maternity_amount(ctx: Context) -> Decimal | None:
 def raise_to_parental_benefit_floor(ctx: Context) -> dict[str, Any] | None:
     """07 §6, RATE-MAT-007: kwota podwyższona do PARENTAL_BENEFIT_FLOOR_MONTHLY (M10: 1000 zł).
 
-    Za każdy miesiąc kalendarzowy segmentu: floor × (dni segmentu w miesiącu / dni miesiąca) — pełny miesiąc
+    Za każdy miesiąc kalendarzowy segmentu: floor × (dni segmentu w miesiącu / dni miesiąca) - pełny miesiąc
     = floor, niepełny proporcjonalnie do liczby dni danego miesiąca (M10c, mentor fachowy). total = suma,
     daily = total / dni(segment) (średnia, informacyjnie). USTAWA art. 31 ust. 3a-3c.
     """
@@ -272,7 +272,7 @@ def raise_to_parental_benefit_floor(ctx: Context) -> dict[str, Any] | None:
     if floor is None or start is None or end is None:
         return None
     if (to_decimal(ctx.field("segment.work_fraction")) or Decimal(0)) > 0:
-        return None  # łączenie z pracą: sposób podwyższenia nieustalony (M10c) — bez podwyższenia na zapas
+        return None  # łączenie z pracą: sposób podwyższenia nieustalony (M10c) - bez podwyższenia na zapas
     total = Decimal(0)
     day = start
     while day <= end:
@@ -372,13 +372,13 @@ def child_death_maternity_end_date(ctx: Context) -> date | None:
     return min(end_after_weeks(birth, weeks), end_after_days(death, int(ctx.param("CHILD_DEATH_MIN_DAYS"))))
 
 
-# ------------------------------------------------------------ art. 30 — zasiłek po ustaniu tytułu (BE2-01)
+# ------------------------------------------------------------ art. 30 - zasiłek po ustaniu tytułu (BE2-01)
 ART30_EMPLOYER_CEASED = ("EMPLOYER_DEATH", "EMPLOYER_BANKRUPTCY", "EMPLOYER_LIQUIDATION")
 ART30_UNLAWFUL = "UNLAWFUL_TERMINATION_COURT_CONFIRMED"
 
 
 def _tri_all(*values: bool | None) -> bool | None:
-    """Kleene AND (C9) — lokalnie, bez importu DSL (moduł faktów ładuje się przed ewaluatorem)."""
+    """Kleene AND (C9) - lokalnie, bez importu DSL (moduł faktów ładuje się przed ewaluatorem)."""
     if any(v is False for v in values):
         return False
     return None if any(v is None for v in values) else True
@@ -498,7 +498,7 @@ def planned_title_end_before_due_date(ctx: Context) -> bool | None:
 
 
 # ------------------------------------------------------------ pomocnicze
-# (fakty planu f_weeks_before_due_date, f_*_maternity_weeks_*, f_child_age_years_on — parental.py, BE2-02)
+# (fakty planu f_weeks_before_due_date, f_*_maternity_weeks_*, f_child_age_years_on - parental.py, BE2-02)
 def _week_days(ctx: Context) -> int:
     return int(ctx.param("WEEK_AS_DAYS"))
 
@@ -532,7 +532,7 @@ def maternity_like_leave_period(ctx: Context) -> dict[str, Any] | None:
     urodzinami granicznymi), days}. KP art. 183 § 1, § 1(1); C7.
 
     Start = dzień przyjęcia dziecka (event.date). Granica liczona dla najstarszego dziecka (jak
-    f_child_age_years_on, DERIVED). M14 a: 9 tyg. nie jest minimum — limit wieku skraca urlop.
+    f_child_age_years_on, DERIVED). M14 a: 9 tyg. nie jest minimum - limit wieku skraca urlop.
     """
     start = to_date(ctx.field("event.date"))
     weeks = ctx.fact("f_maternity_leave_weeks")
@@ -557,7 +557,7 @@ def maternity_like_weeks_after_age_cap(ctx: Context) -> Decimal | None:
     return div(Decimal(period["days"]), _week_days(ctx))
 
 
-# ------------------------------------------------------------ urlop uzupełniający — wcześniak (SUPP-*)
+# ------------------------------------------------------------ urlop uzupełniający - wcześniak (SUPP-*)
 @fact("f_min_birth_weight_g")
 def min_birth_weight_g(ctx: Context) -> int | None:
     """07 §5: min(birth_weight_g) dzieci z porodu (wieloraczki: masa najlżejszego). KP art. 180(2) § 2."""
@@ -574,7 +574,7 @@ def min_birth_weight_g(ctx: Context) -> int | None:
 def weight_at_most_threshold(ctx: Context) -> bool | None:
     """07 §5, SUPP-ELIG-001/002: masa urodzeniowa (wieloraczki: najlżejszego) ≤ SUPP_WEIGHT_THRESHOLD_G.
 
-    Odpowiedź ``birth.weight_at_most_threshold`` (kreator, FE1-05) ma pierwszeństwo; bez niej — z dokładnych mas
+    Odpowiedź ``birth.weight_at_most_threshold`` (kreator, FE1-05) ma pierwszeństwo; bez niej - z dokładnych mas
     ``children.items[].birth_weight_g``. Brak obu → NEEDS_DATA o odpowiedź. KP art. 180(2) § 1 pkt 1, § 2.
     """
     answer = ctx.field("birth.weight_at_most_threshold")
@@ -601,7 +601,7 @@ def _birth_day(ctx: Context) -> date | None:
 @fact("f_has_qualifying_late_hospital_stay")
 def has_qualifying_late_hospital_stay(ctx: Context) -> bool | None:
     """07 §5, SUPP-ELIG-003: pobyt ≥ SUPP_TERM_MIN_CONSECUTIVE_DAYS kolejnych dni, którego pierwszy dzień
-    ∈ [dzień SUPP_TERM_WINDOW_FIRST_DAY, dzień SUPP_TERM_WINDOW_LAST_DAY] — dzień porodu = dzień 1 (M15 a,
+    ∈ [dzień SUPP_TERM_WINDOW_FIRST_DAY, dzień SUPP_TERM_WINDOW_LAST_DAY] - dzień porodu = dzień 1 (M15 a,
     ASSUMPTION-SUPP-DAY1). KP art. 180(2) § 1 pkt 3.
     """
     stays, birth = _hospital_stays(ctx), _birth_day(ctx)

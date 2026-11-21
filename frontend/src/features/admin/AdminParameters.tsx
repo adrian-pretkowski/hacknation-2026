@@ -1,8 +1,8 @@
 "use client";
 
-// FE1-03: panel admina parametrów prawnych — lista (wartość, jednostka, źródło, status, wersja, valid_from),
+// FE1-03: panel admina parametrów prawnych - lista (wartość, jednostka, źródło, status, wersja, valid_from),
 // edycja z datą obowiązywania i powodem (PUT /api/admin/parameters, konflikt wersji → 409) oraz podgląd skutku
-// na przykładowej sprawie (POST /api/evaluate) — zmiana jest widoczna w kolejnym wyliczeniu bez restartu (BE2-05).
+// na przykładowej sprawie (POST /api/evaluate) - zmiana jest widoczna w kolejnym wyliczeniu bez restartu (BE2-05).
 import { useEffect, useMemo, useState } from "react";
 import {
   API_MODE, ApiError, type EvaluateResponse, type Parameter, type ParameterList, evaluate, listParameters,
@@ -22,12 +22,12 @@ const TOKEN_KEY = "pr-admin-token"; // tylko sessionStorage (zamknięcie karty =
 const STATUS_LABEL: Record<string, string> = { CONFIRMED: "potwierdzony", UNCONFIRMED: "niepotwierdzony", MISSING: "brak wartości" };
 
 /** Wartość parametru do wyświetlenia / edycji: tabela jako JSON, liczba jako tekst. */
-const show = (v: unknown) => v === null || v === undefined ? "—" : typeof v === "object" ? JSON.stringify(v) : String(v);
+const show = (v: unknown) => v === null || v === undefined ? "-" : typeof v === "object" ? JSON.stringify(v) : String(v);
 const isTable = (p: Parameter) => p.value !== null && typeof p.value === "object" && !Array.isArray(p.value);
-const editable = (p: Parameter) => !Array.isArray(p.value); // lista z pliku (PUBLIC_HOLIDAYS) — edycja pliku, nie panelu
+const editable = (p: Parameter) => !Array.isArray(p.value); // lista z pliku (PUBLIC_HOLIDAYS) - edycja pliku, nie panelu
 
 export function AdminParameters() {
-  // token z tej karty (sessionStorage); na serwerze pusty — pole ma suppressHydrationWarning
+  // token z tej karty (sessionStorage); na serwerze pusty - pole ma suppressHydrationWarning
   const [token, setToken] = useState(() => typeof window === "undefined" ? "" : sessionStorage.getItem(TOKEN_KEY) ?? "");
   const [data, setData] = useState<ParameterList | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +61,7 @@ export function AdminParameters() {
         <p className="text-xs font-medium uppercase tracking-wide text-zus-green-dark">Panel administratora</p>
         <h1 className="text-2xl font-semibold text-zus-navy">Parametry prawne</h1>
         <p className="mt-1 text-sm text-zinc-600">Stawki, wymiary i progi, z których liczy silnik reguł. Zmiana zaczyna obowiązywać od wskazanej daty
-          (data oceny sprawy) i jest widoczna w kolejnym wyliczeniu — bez restartu.</p>
+          (data oceny sprawy) i jest widoczna w kolejnym wyliczeniu - bez restartu.</p>
       </header>
 
       <form className={`${card} flex flex-col gap-3 sm:flex-row sm:items-end`} onSubmit={(e) => { e.preventDefault(); void load(); }}>
@@ -72,7 +72,7 @@ export function AdminParameters() {
         </label>
         <button type="submit" className={btn} disabled={busy || !token || API_MODE === "mock"}>{busy ? "Wczytuję…" : "Wczytaj parametry"}</button>
       </form>
-      {API_MODE === "mock" && <p className="text-sm text-zinc-700">Tryb demo bez backendu — panel admina jest niedostępny.</p>}
+      {API_MODE === "mock" && <p className="text-sm text-zinc-700">Tryb demo bez backendu - panel admina jest niedostępny.</p>}
       {error && <p role="alert" className="rounded-md border border-zus-red bg-red-50 px-3 py-2 text-sm text-zus-red">{error}</p>}
 
       {data && (
@@ -124,7 +124,7 @@ export function AdminParameters() {
                       });
                       setData(next);
                       setEditing(null);
-                      setSaved(`Zapisano ${p.name} — wersja parametrów ${next.parameters_version}${validFrom ? `, obowiązuje od ${formatDate(validFrom)}` : ""}.`);
+                      setSaved(`Zapisano ${p.name} - wersja parametrów ${next.parameters_version}${validFrom ? `, obowiązuje od ${formatDate(validFrom)}` : ""}.`);
                     }} />
                   )}
                 </li>
@@ -209,7 +209,7 @@ function DemoCheck({ version }: { version: number }) {
       {b && (
         <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-4">
           <div><dt className="text-zinc-600">Status</dt><dd className="font-medium">{STATUS_HEADLINE[b.status] ?? b.status}</dd></div>
-          <div><dt className="text-zinc-600">Stawka</dt><dd className="font-medium">{b.rate ? `${(Number(b.rate) * 100).toLocaleString("pl-PL")}%` : "—"}</dd></div>
+          <div><dt className="text-zinc-600">Stawka</dt><dd className="font-medium">{b.rate ? `${(Number(b.rate) * 100).toLocaleString("pl-PL")}%` : "-"}</dd></div>
           <div><dt className="text-zinc-600">Dziennie</dt><dd className="font-medium">{formatMoney(b.daily_amount_exact)}</dd></div>
           <div><dt className="text-zinc-600">Łącznie ({b.days ?? 0} dni)</dt><dd className="font-medium">{formatMoney(b.total_amount_exact)}</dd></div>
         </dl>
@@ -218,10 +218,10 @@ function DemoCheck({ version }: { version: number }) {
         <details className="mt-3 text-sm">
           <summary className="cursor-pointer font-medium text-zus-navy">Pokaż, jak to policzyliśmy</summary>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Podstawa {formatMoney(b.base?.amount_exact ?? null)} × stawka {b.rate ? `${(Number(b.rate) * 100).toLocaleString("pl-PL")}%` : "—"} / {PARAMS.MONTH_AS_DAYS}
+            <li>Podstawa {formatMoney(b.base?.amount_exact ?? null)} × stawka {b.rate ? `${(Number(b.rate) * 100).toLocaleString("pl-PL")}%` : "-"} / {PARAMS.MONTH_AS_DAYS}
               = {formatMoney(b.daily_amount_exact)} dziennie; × {b.days ?? 0} dni = {formatMoney(b.total_amount_exact)}.</li>
             {b.explanation && <li className="whitespace-pre-line">{b.explanation}</li>}
-            <li>Przepisy:{b.applied_rules.length > 0 ? <RuleList ids={b.applied_rules} /> : " —"}</li>
+            <li>Przepisy:{b.applied_rules.length > 0 ? <RuleList ids={b.applied_rules} /> : " -"}</li>
             {(result?.assumptions ?? []).map((a) => <li key={a.code}>Założenie: {a.text}</li>)}
             {(result?.not_evaluated_rules ?? []).length > 0 && <li>Nieoceniane w tej wersji:<RuleList ids={result!.not_evaluated_rules!} /></li>}
           </ul>

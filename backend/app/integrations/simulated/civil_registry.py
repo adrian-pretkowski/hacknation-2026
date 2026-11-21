@@ -10,7 +10,7 @@ class CivilRegistryService:
 
     def request_copy(self, birth_date: dt.date, copy_type: str, delivery: str) -> dict[str, Any]:
         note = ("Odpis skrócony wystarcza do wniosku do pracodawcy." if copy_type == "SHORT"
-                else "Odpis zupełny — zwykle nie jest wymagany do zasiłku.")
+                else "Odpis zupełny - zwykle nie jest wymagany do zasiłku.")
         if delivery == "REGISTRY_OFFICE_PICKUP":
             note += " Odbiór osobisty w urzędzie stanu cywilnego."
         return {"simulated": True, "request_id": sim_id("USC", birth_date, copy_type, delivery),

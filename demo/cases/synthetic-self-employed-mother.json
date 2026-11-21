@@ -2,7 +2,7 @@
   "case_id": "synthetic-self-employed-mother",
   "title": "Przedsiębiorczyni (dobrowolne chorobowe), 1 dziecko, 100%",
   "source": "SYNTHETIC",
-  "note": "Dane syntetyczne (fixture 08 self_employed_mother). Kwota w „decyzji” zaokrąglona do groszy — porównanie z tolerancją ±0,01 zł/dzień (GAP-001).",
+  "note": "Dane syntetyczne (fixture 08 self_employed_mother). Kwota w „decyzji” zaokrąglona do groszy - porównanie z tolerancją ±0,01 zł/dzień (GAP-001).",
   "input": {
     "evaluation": {
       "as_of_date": "2026-11-21",

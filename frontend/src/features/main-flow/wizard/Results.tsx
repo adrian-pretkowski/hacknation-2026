@@ -16,7 +16,7 @@ import {
 import { todayIso, toEvaluateRequest } from "./request";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
-/** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania — test tekstu kwoty). */
+/** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania - test tekstu kwoty). */
 const hasPayout = (p: PreviewResult) => p.response.overall_status !== "NOT_ELIGIBLE"
   && !!p.summary.ownTotal && !/^0+(\.0*)?$/.test(p.summary.ownTotal);
 const pct = (rate: string, work = "0") => `${(Number(rate) * 100).toLocaleString("pl-PL")}%${work !== "0" ? ` × ${(1 - Number(work)).toLocaleString("pl-PL")}` : ""}`;
@@ -41,7 +41,7 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
 
   return (
     <div className="space-y-5" aria-live="polite">
-      {/* FE1-16: wsparcie zawsze na samej górze wyniku — najpierw człowiek, potem kwoty */}
+      {/* FE1-16: wsparcie zawsze na samej górze wyniku - najpierw człowiek, potem kwoty */}
       {sensitive && <SupportBlock kind="loss" />}
       {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
       <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} />
@@ -115,7 +115,7 @@ function StatusHeader({ result, onEdit, canEdit }: {
 function Remaining({ p }: { p: PreviewResult }) {
   const rem = p.summary.remaining!;
   const rows: [string, string][] = [
-    ...(rem.maternityWeeks !== null ? [["Urlop macierzyński — zostało",
+    ...(rem.maternityWeeks !== null ? [["Urlop macierzyński - zostało",
       `${rem.maternityWeeks} tyg.${rem.maternityEnd ? `, do ${formatDate(rem.maternityEnd)} (licząc od dnia porodu)` : " (do przejęcia przez tatę)"}`] as [string, string]] : []),
     ["Pula urlopu rodzicielskiego", `${p.summary.parentalPoolWeeks} tyg.`],
     ["Pozostało łącznie", `${rem.totalWeeks} tyg.`],
@@ -143,14 +143,14 @@ type PlanErrors = NonNullable<EvaluateResponse["plan_errors"]>;
 type ReturnToWork = NonNullable<EvaluateResponse["return_to_work"]>;
 
 /** FE1-02: błąd planu → rodzaj urlopu, przy którym go pokazujemy (PAR-* → rodzicielski, PAT-* → ojcowski,
- * MAT-DUR-* → macierzyński); inne (np. MAT-SHARE-007) — lista pod osią czasu. */
+ * MAT-DUR-* → macierzyński); inne (np. MAT-SHARE-007) - lista pod osią czasu. */
 const errorLeave = (ruleId: string): string | null => ruleId.startsWith("PAR-") ? "PARENTAL_LEAVE"
   : ruleId.startsWith("PAT-") ? "PATERNITY_LEAVE" : ruleId.startsWith("MAT-DUR-") ? "MATERNITY_LEAVE" : null;
 const fractionText = (f: string) => f === "0.5" ? "½" : f === "0.25" ? "¼" : f.replace(".", ",");
 const workText = (s: Seg) => s.work_fraction !== "0" ? ` + praca ${fractionText(s.work_fraction)} etatu` : "";
 const segLabel = (s: Seg) => `${PARENT_LABEL[s.parent]}: ${LEAVE_LABEL[s.leave_type]}${s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}`
-  + `${s.history ? " — wykorzystany" : ""}${workText(s)}`;
-const amountText = (s: Seg) => s.history ? "—" : s.own ? formatMoney(s.amount) : "zależy od zarobków drugiego rodzica";
+  + `${s.history ? " - wykorzystany" : ""}${workText(s)}`;
+const amountText = (s: Seg) => s.history ? "-" : s.own ? formatMoney(s.amount) : "zależy od zarobków drugiego rodzica";
 
 function Timeline({ segments, planErrors, returnToWork = [] }: {
   segments: Seg[]; planErrors: PlanErrors; returnToWork?: ReturnToWork;
@@ -219,7 +219,7 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
         {todayPos !== null && <li className="flex items-center gap-1"><span className="inline-block h-3 w-0.5 bg-zinc-900" />dziś</li>}
         {returnToWork.length > 0 && <li className="flex items-center gap-1"><span className="inline-block h-3 w-0.5 bg-zus-red" />powrót do pracy</li>}
       </ul>
-      {/* telefon i wąski tablet: karty zamiast tabeli — bez przewijania w poziomie */}
+      {/* telefon i wąski tablet: karty zamiast tabeli - bez przewijania w poziomie */}
       <ul className="mt-4 space-y-2 md:hidden">
         {segments.map((s, i) => (
           <li key={i} className={`rounded border px-3 py-2 text-sm ${errorsOf(s).length ? "border-zus-red" : "border-zinc-200"} ${s.history ? "text-zinc-500" : ""} ${active === i ? "bg-zinc-50" : ""}`}>
@@ -239,7 +239,7 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
           {segments.map((s, i) => (
             <tr key={i} className={`border-t border-zinc-100 ${s.history ? "text-zinc-500" : ""} ${active === i ? "bg-zinc-50" : ""}`}>
               <td className="py-1.5 pr-2">{PARENT_LABEL[s.parent]}</td>
-              <td className="pr-2">{LEAVE_LABEL[s.leave_type]}{s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}{s.history ? " — wykorzystany" : ""}{workText(s)}
+              <td className="pr-2">{LEAVE_LABEL[s.leave_type]}{s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}{s.history ? " - wykorzystany" : ""}{workText(s)}
                 {errorsOf(s).map((e, k) => <span key={k} className="block text-zus-red">{errorLine(e)}</span>)}</td>
               <td className="whitespace-nowrap pr-2">{formatDate(s.from)} – {formatDate(s.to)} <span className="text-zinc-500">({s.days} dni)</span></td>
               <td className="whitespace-nowrap pr-2">{pct(s.rate, s.work_fraction)}{s.needs_review ? " ?" : ""}</td>
@@ -262,8 +262,8 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
 }
 
 const PLAN_ERROR: Record<string, string> = {
-  PRE_BIRTH_TOO_EARLY: "urlop przed porodem może zacząć się najwcześniej 6 tygodni przed porodem — przyjęto dzień porodu.",
-  MATERNITY_START_AFTER_BIRTH: "urlop macierzyński nie może zacząć się po porodzie — przyjęto dzień porodu.",
+  PRE_BIRTH_TOO_EARLY: "urlop przed porodem może zacząć się najwcześniej 6 tygodni przed porodem - przyjęto dzień porodu.",
+  MATERNITY_START_AFTER_BIRTH: "urlop macierzyński nie może zacząć się po porodzie - przyjęto dzień porodu.",
   WORK_WEEKS_EXCEED_POOL: "za dużo tygodni pracy w stosunku do puli urlopu.",
   WORK_FRACTION_TOO_HIGH: "praca w czasie rodzicielskiego najwyżej na ½ etatu.",
   PARENTAL_EXT_CAP_EXCEEDED: "łączny wymiar rodzicielskiego z pracą przekracza limit.",
@@ -287,7 +287,7 @@ function VariantComparison({ pA, pB, variant, recommended, onChoose }: {
       <h3 id="var-h" className="text-lg font-semibold">Porównanie wariantów wypłaty</h3>
       <p className="mt-1 text-sm text-zinc-700">
         {small ? <>Suma jest praktycznie taka sama (różnica {formatMoney(c.diff)}). Różni się rozkład w czasie.</>
-          : <>Korzystniejszy jest wariant <strong>{c.better}</strong> — o <strong>{formatMoney(c.diff)}</strong> więcej.</>}
+          : <>Korzystniejszy jest wariant <strong>{c.better}</strong> - o <strong>{formatMoney(c.diff)}</strong> więcej.</>}
         {" "}Rekomendacja zależy od sytuacji (np. przy bliźniętach więcej tygodni płatnych 100%).
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Wybierz wariant do planu">
@@ -404,7 +404,7 @@ function SupportBlock({ kind }: { kind: "loss" | "preterm" | "zazyciem" }) {
   const text = {
     loss: { h: "Nie jesteś sama(-sam)", p: "Pokazujemy tylko najważniejsze informacje. Szczegóły wyliczeń są niżej, rozwinięte na żądanie. Możesz skorzystać z pomocy psychologa w szpitalu, grup wsparcia dla rodziców po stracie dziecka oraz fundacji pomagających w żałobie okołoporodowej." },
     preterm: { h: "Wsparcie dla rodziców wcześniaków", p: "Fundacje i stowarzyszenia rodziców wcześniaków pomagają w opiece po wyjściu ze szpitala, rehabilitacji i kontaktach z innymi rodzicami." },
-    zazyciem: { h: "Program „Za życiem”", p: "Asystent rodziny i koordynowana opieka — informacje w gminie lub ośrodku pomocy społecznej." },
+    zazyciem: { h: "Program „Za życiem”", p: "Asystent rodziny i koordynowana opieka - informacje w gminie lub ośrodku pomocy społecznej." },
   }[kind];
   return (
     <section className="flex gap-4 rounded-2xl border border-zus-blue/30 bg-zus-blue-50 p-5 text-zus-navy sm:p-6" aria-labelledby={`sup-${kind}`}>
@@ -412,7 +412,7 @@ function SupportBlock({ kind }: { kind: "loss" | "preterm" | "zazyciem" }) {
       <div className="min-w-0">
         <h3 id={`sup-${kind}`} className="text-lg font-semibold">{text.h}</h3>
         <p className="mt-1 text-base">{text.p}</p>
-        <p className="mt-3 text-sm">Lista organizacji i przydatne linki: <a href={kind === "loss" ? "/wsparcie/spokojny" : "/wsparcie"} target="_blank" rel="noopener" className="font-semibold underline underline-offset-2">przewodnik<span className="sr-only"> (otwiera się w nowej karcie — wynik zostaje)</span></a>. Rzecznik Praw Pacjenta: <a href="tel:800190590" className="font-semibold underline underline-offset-2">800 190 590</a>.</p>
+        <p className="mt-3 text-sm">Lista organizacji i przydatne linki: <a href={kind === "loss" ? "/wsparcie/spokojny" : "/wsparcie"} target="_blank" rel="noopener" className="font-semibold underline underline-offset-2">przewodnik<span className="sr-only"> (otwiera się w nowej karcie - wynik zostaje)</span></a>. Rzecznik Praw Pacjenta: <a href="tel:800190590" className="font-semibold underline underline-offset-2">800 190 590</a>.</p>
       </div>
     </section>
   );
@@ -453,7 +453,7 @@ function EngineCrossCheck({ answers, variant, preview }: { answers: Answers; var
     return () => { alive = false; };
   }, [key, request]);
   if (!state || state.key !== key) return <p className="text-xs text-zinc-500">Sprawdzam wynik w silniku API…</p>;
-  if (state.error) return <p className="text-xs text-zinc-500">Silnik API niedostępny ({state.error}) — pokazujemy sam podgląd.</p>;
+  if (state.error) return <p className="text-xs text-zinc-500">Silnik API niedostępny ({state.error}) - pokazujemy sam podgląd.</p>;
   const engine = state.r!;
   const mat = engine.benefits.find((b) => b.leave_type === "MATERNITY_LEAVE");
   const mine = preview.response.benefits.find((b) => b.leave_type === "MATERNITY_LEAVE" && b.total_amount_exact);
@@ -463,10 +463,10 @@ function EngineCrossCheck({ answers, variant, preview }: { answers: Answers; var
     <section className="rounded-lg border border-dashed border-zinc-300 p-4 text-xs text-zinc-700">
       <p className="font-medium">Kontrola krzyżowa z silnikiem API ({engine.engine}{API_MODE === "mock" ? ", tryb demo" : ""})</p>
       {mat ? (
-        <p className="mt-1">Urlop macierzyński: status {mat.status}, {mat.days ?? "—"} dni, {formatMoney(mat.total_amount_exact)}
-          {mine ? (same ? " — zgodne z podglądem ✓" : ` — podgląd: ${formatMoney(mine.total_amount_exact)} (różnica do wyjaśnienia)`) : ""}.</p>
+        <p className="mt-1">Urlop macierzyński: status {mat.status}, {mat.days ?? "-"} dni, {formatMoney(mat.total_amount_exact)}
+          {mine ? (same ? " - zgodne z podglądem ✓" : ` - podgląd: ${formatMoney(mine.total_amount_exact)} (różnica do wyjaśnienia)`) : ""}.</p>
       ) : <p className="mt-1">Silnik nie zwrócił urlopu macierzyńskiego dla tych danych (status {engine.overall_status}).</p>}
-      <p className="mt-1 text-zinc-500">Rodzicielski, ojcowski, uzupełniający, terminy, ryzyka i dokumenty liczy tymczasowo podgląd w przeglądarce — docelowo silnik reguł (BE2).</p>
+      <p className="mt-1 text-zinc-500">Rodzicielski, ojcowski, uzupełniający, terminy, ryzyka i dokumenty liczy tymczasowo podgląd w przeglądarce - docelowo silnik reguł (BE2).</p>
     </section>
   );
 }

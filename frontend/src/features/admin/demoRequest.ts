@@ -1,4 +1,4 @@
-// FE1-03: przykładowa sprawa do podglądu skutku zmiany parametrów — DANE SYNTETYCZNE, ta sama co
+// FE1-03: przykładowa sprawa do podglądu skutku zmiany parametrów - DANE SYNTETYCZNE, ta sama co
 // demo/scenario_employee_mother.json (pracownica, 1 dziecko, poród 2027-03-15, podstawa 6000 zł, wniosek 81,5%).
 import type { EvaluateRequest } from "@/lib/api";
 

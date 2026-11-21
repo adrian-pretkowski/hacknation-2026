@@ -1,13 +1,13 @@
 """BE1-03: runner testów ze specyfikacji ``zus_rules/08_TEST_CASES.json`` (kontrakt testowy 08).
 
 Kontrakt 08 (``contract.description``):
-- wejście = deep-merge(``fixtures[fixture]``, ``patch``) — listy z ``patch`` ZASTĘPUJĄ listy z fixture,
-- ``expected`` — porównanie częściowe: sprawdzane są tylko podane klucze,
+- wejście = deep-merge(``fixtures[fixture]``, ``patch``) - listy z ``patch`` ZASTĘPUJĄ listy z fixture,
+- ``expected`` - porównanie częściowe: sprawdzane są tylko podane klucze,
 - ``benefit_selector`` wybiera element ``result.benefits`` (``benefit_type`` [+ ``leave_type``]),
-- kwoty i stawki jako ``Decimal`` dokładnie; wartości z dzieleniem nieskończonym — do 10 miejsc po przecinku.
+- kwoty i stawki jako ``Decimal`` dokładnie; wartości z dzieleniem nieskończonym - do 10 miejsc po przecinku.
 
 Zapadka (baseline): ``cases_08_baseline.txt`` = ID testów, które już przechodzą. Test z baseline musi przejść
-(regresja = błąd); pozostałe są ``xfail`` (niezaimplementowane świadczenia/fakty) — gdy zaczną przechodzić,
+(regresja = błąd); pozostałe są ``xfail`` (niezaimplementowane świadczenia/fakty) - gdy zaczną przechodzić,
 pytest pokaże XPASS, a raport wypisze je jako „nowe zielone” do dopisania do baseline.
 
 Raport X/Y: podsumowanie po testach (pytest) albo pełna tabela z przyczynami:
@@ -34,7 +34,7 @@ from app.engine.facts.registry import Context, get_fact
 REPO = Path(__file__).resolve().parents[2]
 SPEC_PATH = REPO / "zus_rules" / "08_TEST_CASES.json"
 BASELINE_PATH = Path(__file__).with_name("cases_08_baseline.txt")
-INFINITE_DIVISION_PLACES = 10  # kontrakt 08: wartości z dzieleniem nieskończonym — do 10 miejsc
+INFINITE_DIVISION_PLACES = 10  # kontrakt 08: wartości z dzieleniem nieskończonym - do 10 miejsc
 
 DECIMAL_KEYS = {"rate", "base.amount_exact", "daily_amount_exact", "total_amount_exact"}
 BENEFIT_KEYS = {"status", "payer_of_benefit", "suspended_until_debt_repaid",
@@ -42,9 +42,9 @@ BENEFIT_KEYS = {"status", "payer_of_benefit", "suspended_until_debt_repaid",
 
 # Argumenty faktów z sygnaturą w 07 (fakt liczony dla zdarzenia z wejścia). Brak wpisu = fakt bez argumentów.
 FACT_ARGS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
-    # 07: f_continuous_sickness_insurance_days(as_of) — dni ubezpieczenia do dnia poprzedzającego niezdolność
+    # 07: f_continuous_sickness_insurance_days(as_of) - dni ubezpieczenia do dnia poprzedzającego niezdolność
     "f_continuous_sickness_insurance_days": lambda p: {"as_of": _incapacity_start(p)},
-    # 07: f_sick_pay_day_limit(year) — rok niezdolności (KP art. 92 § 5)
+    # 07: f_sick_pay_day_limit(year) - rok niezdolności (KP art. 92 § 5)
     "f_sick_pay_day_limit": lambda p: {"year": d.year if (d := _incapacity_start(p)) else None},
 }
 
@@ -112,7 +112,7 @@ def _decimal(value: Any) -> Decimal | None:
 
 
 def decimals_equal(expected: Any, actual: Any) -> bool:
-    """Dokładnie jako Decimal (``"1.00" == "1"``); przy oczekiwanej wartości z 10 miejscami — do 10 miejsc."""
+    """Dokładnie jako Decimal (``"1.00" == "1"``); przy oczekiwanej wartości z 10 miejscami - do 10 miejsc."""
     if expected is None or actual is None:
         return expected is None and actual is None
     exp, act = _decimal(expected), _decimal(actual)
@@ -185,7 +185,7 @@ def compare(case: dict[str, Any], payload: dict[str, Any], result: dict[str, Any
     benefit = select_benefit(result, case.get("benefit_selector"))
     # Wybrane świadczenie jest wymagane także dla kluczy z poziomu wyniku (plan_errors, warnings, missing_data,
     # applied_rules): bez niego np. ``plan_errors: []`` przechodziłoby pusto, gdy silnik w ogóle nie ocenia
-    # tego świadczenia (T-PAR-005/011). Wyjątek: ``fact`` — fakt liczony jest niezależnie od pipeline.
+    # tego świadczenia (T-PAR-005/011). Wyjątek: ``fact`` - fakt liczony jest niezależnie od pipeline.
     needs_benefit = any(key != "fact" for key in expected)
     if needs_benefit and benefit is None:
         got = [(b.get("benefit_type"), b.get("leave_type")) for b in result.get("benefits") or []]
@@ -221,7 +221,7 @@ def compare(case: dict[str, Any], payload: dict[str, Any], result: dict[str, Any
         elif key == "fact":
             errors.extend(_check_facts(payload, value))
         else:
-            error = f"{key}: klucz spoza contract.expected_keys — runner go nie obsługuje"
+            error = f"{key}: klucz spoza contract.expected_keys - runner go nie obsługuje"
         if error:
             errors.append(error)
     return errors
@@ -261,7 +261,7 @@ def run_case(case: dict[str, Any]) -> CaseResult:
     payload = build_input(case)
     try:
         result = pipeline.evaluate(copy.deepcopy(payload))
-    except Exception as exc:  # noqa: BLE001 — wyjątek silnika to rozbieżność, raportowana z typem
+    except Exception as exc:  # noqa: BLE001 - wyjątek silnika to rozbieżność, raportowana z typem
         res.errors.append(f"wyjątek silnika: {type(exc).__name__}: {exc}")
         return res
     res.errors = compare(case, payload, result)
@@ -286,7 +286,7 @@ def summary_lines(all_results: dict[str, CaseResult], verbose: bool = False) -> 
     if regressions:
         lines.append(f"  REGRESJE (w baseline, nie przechodzą): {', '.join(regressions)}")
     if new_green:
-        lines.append(f"  nowe zielone — dopisz do {BASELINE_PATH.name}: {', '.join(new_green)}")
+        lines.append(f"  nowe zielone - dopisz do {BASELINE_PATH.name}: {', '.join(new_green)}")
     if verbose:
         lines.append("")
         for r in all_results.values():
@@ -302,7 +302,7 @@ def summary_lines(all_results: dict[str, CaseResult], verbose: bool = False) -> 
 def _params() -> list[Any]:
     base = baseline()
     return [pytest.param(test_id, id=test_id, marks=() if test_id in base else pytest.mark.xfail(
-        strict=False, reason="poza baseline — świadczenie/fakt jeszcze niezaimplementowane"))
+        strict=False, reason="poza baseline - świadczenie/fakt jeszcze niezaimplementowane"))
         for test_id in test_cases_by_id()]
 
 

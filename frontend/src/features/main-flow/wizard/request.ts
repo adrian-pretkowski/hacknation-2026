@@ -74,7 +74,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
   if (a.employerEnded === "OWN_NOTICE") terminationReason = "NOTICE_BY_EMPLOYEE";
   if (a.employerEnded !== "NO" && !titleTo && eventDate) titleTo = addDays(today, -1);
 
-  // FE1-22: przy uldze na start / studencie do 26 lat tytuł bez chorobowego — data ubezpieczenia niepotrzebna
+  // FE1-22: przy uldze na start / studencie do 26 lat tytuł bez chorobowego - data ubezpieczenia niepotrzebna
   const titles = titleType && mode && (a.insuredFrom || excluded)
     ? [{ title_type: titleType, sickness_insurance_mode: mode, from: a.insuredFrom || null, to: titleTo, termination_reason: terminationReason }]
     : a.title === "NONE" ? [] : undefined;
@@ -87,7 +87,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
         stillborn: a.lossKind === "STILLBORN" && (a.allStillborn || i === 0),
         death_date: a.lossKind === "DIED" && (a.allStillborn || i === 0) ? a.deathDate || null : null,
       }))
-    // FE1-26: przy przyjęciu dziecka — data urodzenia (koniec urlopu przed granicą wieku)
+    // FE1-26: przy przyjęciu dziecka - data urodzenia (koniec urlopu przed granicą wieku)
     : isGuardian && a.childBirthDate ? [{ birth_date: a.childBirthDate }]
     : undefined;
 
@@ -127,7 +127,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       school_obligation_deferred: isGuardian ? tri(a.schoolDeferred) : null,
       items,
     },
-    // FE1-20: do API podstawa bez granic — minimum i limit nakłada silnik (BE2-12: BASE-EMP-008, BASE-NEMP-005);
+    // FE1-20: do API podstawa bez granic - minimum i limit nakłada silnik (BE2-12: BASE-EMP-008, BASE-NEMP-005);
     // podgląd (mock) liczy granice z `wizard_plan.gross_salary` w baseFromGrossDetailed
     income_history: { manual_base_override: gross ? baseFromGross(gross) : null },
     applications: { combined_815_planned: variant === "COMBINED_815" },

@@ -44,17 +44,17 @@ export const PARAMS = {
   DEBT_THRESHOLD_MIN_WAGE_RATIO: "0.01",
   WAITING_DAYS_VOLUNTARY: 90,
   PARENTAL_BENEFIT_FLOOR_MONTHLY: "1000.00", // RATE-MAT-007, M10 (FE1-21)
-  // FE1-25: terminy wniosków urlopowych (APP-DL-002) — nazwy i wartości jak w 03 (meta.parameters)
+  // FE1-25: terminy wniosków urlopowych (APP-DL-002) - nazwy i wartości jak w 03 (meta.parameters)
   LEAVE_APP_PARENTAL_DAYS_BEFORE: 21, // KP art. 182(1d) § 1; art. 182(1e) § 2 (łączenie z pracą)
-  LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE: 14, // Poradnik ZUS 2026 — UNCONFIRMED (GAP-025, M19)
+  LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE: 14, // Poradnik ZUS 2026 - UNCONFIRMED (GAP-025, M19)
   LEAVE_APP_MATERNITY_FOR_FATHER_DAYS_BEFORE: 14, // KP art. 180 § 9
   LEAVE_APP_PATERNITY_DAYS_BEFORE: 7, // KP art. 182(3) § 2
   LEAVE_APP_SUPPLEMENTARY_DAYS_BEFORE_MATERNITY_END: 21, // KP art. 180(2) § 4
   LEAVE_APP_RESIGNATION_DAYS_BEFORE_RETURN: 7, // KP art. 180 § 8
   LEAVE_APP_MATERNITY_LIKE_DAYS_AFTER_ACCEPTANCE: 7, // KP art. 183 § 6
-  // FE1-22, BA-06: wyłączenia z ubezpieczeń społecznych — w 03 jako UNCONFIRMED (źródła spoza materiałów, M20)
+  // FE1-22, BA-06: wyłączenia z ubezpieczeń społecznych - w 03 jako UNCONFIRMED (źródła spoza materiałów, M20)
   STUDENT_AGE_LIMIT_YEARS: 26, // ustawa o systemie ubezpieczeń społecznych art. 6 ust. 4
   START_RELIEF_MONTHS: 6, // Prawo przedsiębiorców art. 18
 } as const;
 
-// FE1-25, BA-06: wszystkie wartości podglądu są już w 03 — PREVIEW_ONLY usunięte.
+// FE1-25, BA-06: wszystkie wartości podglądu są już w 03 - PREVIEW_ONLY usunięte.

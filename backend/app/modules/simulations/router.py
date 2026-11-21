@@ -1,4 +1,4 @@
-"""Endpointy `/api/sim/*` (INT-03) — cienka warstwa HTTP nad serwisami symulacji. Wszystko SYMULACJA."""
+"""Endpointy `/api/sim/*` (INT-03) - cienka warstwa HTTP nad serwisami symulacji. Wszystko SYMULACJA."""
 import datetime as dt
 from typing import Any, Literal
 

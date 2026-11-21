@@ -23,7 +23,7 @@
         {
           "code": "RATE_COMBINED_815",
           "rule_id": "RATE-MAT-003",
-          "message": "Wniosek o łączny zasiłek złożony w 21 dni od porodu — 81,5% podstawy.",
+          "message": "Wniosek o łączny zasiłek złożony w 21 dni od porodu - 81,5% podstawy.",
           "legal_basis": [
             {
               "document": "USTAWA",
@@ -46,7 +46,7 @@
   "assumptions": [
     {
       "code": "ROUNDING_UNCONFIRMED",
-      "text": "Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."
+      "text": "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."
     }
   ],
   "not_evaluated_rules": [

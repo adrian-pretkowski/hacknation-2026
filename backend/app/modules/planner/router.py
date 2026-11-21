@@ -11,22 +11,22 @@ router = APIRouter(prefix="/api/planner", tags=["planner"])
 
 ASSUMPTIONS = [
     {"code": "ROUNDING_UNCONFIRMED",
-     "text": "Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."},
+     "text": "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."},
     {"code": "PLANNER_TRANSFERRED_MATERNITY_RATE",
      "text": "Macierzyński przejęty przez ojca liczony 100% podstawy ojca (RATE-MAT-001; RATE-MAT-003 dotyczy "
              "urlopu macierzyńskiego wnioskodawczyni)."},
     {"code": "PLANNER_FATHER_RATE_UNDER_815",
      "text": "Stawka ojca na wspólnej części rodzicielskiego przy wniosku 81,5% matki nie wynika jednoznacznie z "
-             "przepisów (RATE-MAT-008) — liczona 70%, plan oznaczony do weryfikacji."},
+             "przepisów (RATE-MAT-008) - liczona 70%, plan oznaczony do weryfikacji."},
     {"code": "PLANNER_NO_PRE_BIRTH_PART",
      "text": "Macierzyński liczony od dnia porodu (bez części przedporodowej, MAT-DUR-002); rodzicielski zaraz po "
              "macierzyńskim, w 1. roku życia dziecka (RATE-MAT-005 nie zachodzi)."},
     {"code": "PLANNER_FLOOR_NOT_APPLIED",
-     "text": "Podwyższenie do kwoty świadczenia rodzicielskiego (RATE-MAT-007) pominięte — brak kwoty w "
+     "text": "Podwyższenie do kwoty świadczenia rodzicielskiego (RATE-MAT-007) pominięte - brak kwoty w "
              "materiałach."},
     {"code": "PLANNER_WORK_INCOME",
      "text": "Przy pracy na rodzicielskim do kwoty planu doliczane jest wynagrodzenie (brutto, proporcjonalnie do "
-             "wymiaru); bez podanego wynagrodzenia — szacunek: podstawa / (1 − 13,71%)."},
+             "wymiaru); bez podanego wynagrodzenia - szacunek: podstawa / (1 − 13,71%)."},
 ]
 
 

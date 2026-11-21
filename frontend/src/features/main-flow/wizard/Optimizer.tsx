@@ -1,7 +1,7 @@
 "use client";
 
 // Krok kreatora „Optymalizacja” (BE2-07): planer urlopów obojga rodziców na API /api/planner/suggest.
-// Graf decyzji i kwoty liczy backend (zus_rules/03_rules.yaml) — tu tylko wyświetlanie i zapis wyborów w odpowiedziach.
+// Graf decyzji i kwoty liczy backend (zus_rules/03_rules.yaml) - tu tylko wyświetlanie i zapis wyborów w odpowiedziach.
 import { useEffect, useState } from "react";
 import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResponse, plannerSuggest } from "@/lib/api";
 import { formatMoney, formatRate } from "@/lib/format";
@@ -42,7 +42,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
   const fatherInsured = isMother ? a.partnerInsured !== "NO" : true;
   const motherGross = isMother ? ownGross : partnerGross;
   const fatherGross = isMother ? partnerGross : ownGross;
-  // planer (API) dostaje podstawę bez granic — minimum i limit nakłada silnik, nie przeglądarka (review FE1-20)
+  // planer (API) dostaje podstawę bez granic - minimum i limit nakłada silnik, nie przeglądarka (review FE1-20)
   const motherBase = motherGross ? baseFromGross(motherGross) : null;
   const fatherBase = fatherGross ? baseFromGross(fatherGross) : null;
   const choices = a.plannerChoices;
@@ -101,7 +101,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           onChange={(partnerSalaryGross) => set({ partnerSalaryGross, plannerChoices: [] })} />
       )}
       <Choice legend="Jak chcecie ułożyć ten czas?" value={a.plannerObjective} columns={2}
-        hint="Każdy wybór jest dobry — to tylko podpowiedź dla planera. Możesz go zmienić w dowolnej chwili."
+        hint="Każdy wybór jest dobry - to tylko podpowiedź dla planera. Możesz go zmienić w dowolnej chwili."
         onChange={(plannerObjective) => set({ plannerObjective, plannerChoices: [] })}
         options={[
           { value: "MAX_TIME", label: "Więcej wspólnego czasu", description: "Podział, w którym urlop z dzieckiem trwa najdłużej." },

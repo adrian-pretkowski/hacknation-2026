@@ -8,12 +8,12 @@ Fakt = nazwana, deterministyczna funkcja z zus_rules/07_CALCULATION_SPEC.md:
 Zasady:
 - Zwraca ``None`` = UNKNOWN (C9). Brak danych NIGDY nie jest FALSE.
 - Przy braku danych wejściowych zgłoś ścieżkę pola: ``return ctx.need("debt.amount_on_right_date")``
-  — trafi do ``missing_data`` reguły, która użyła faktu.
+  - trafi do ``missing_data`` reguły, która użyła faktu.
 - Wartości prawne tylko z ``ctx.param(...)`` (→ app.core.params.param), nigdy literały z przepisów.
 - Kwoty Decimal (app.core.money), daty date (app.core.dates).
-- Wywołanie innego faktu: ``ctx.fact("f_x", date=...)`` — memoizowane w obrębie jednej ewaluacji.
+- Wywołanie innego faktu: ``ctx.fact("f_x", date=...)`` - memoizowane w obrębie jednej ewaluacji.
 
-Moduły z faktami rejestrują się przy imporcie — dopisz nowy moduł do ``_FACT_MODULES`` poniżej.
+Moduły z faktami rejestrują się przy imporcie - dopisz nowy moduł do ``_FACT_MODULES`` poniżej.
 Import w modułach faktów: ``from app.engine.facts.registry import Context, fact``.
 """
 from __future__ import annotations
@@ -76,7 +76,7 @@ def _lookup(data: Any, path: str) -> Any:
 class Context:
     """Kontekst jednej ewaluacji: wejście (04), parametry, data oceny, bieżący segment planu, stan wyniku.
 
-    ``state`` — wartości ustawione przez reguły (``result.set`` / ``compute``), np. ``benefit``, ``rate``;
+    ``state`` - wartości ustawione przez reguły (``result.set`` / ``compute``), np. ``benefit``, ``rate``;
     pola DSL szukane są kolejno: ``segment.*`` → state → input.
     """
 
@@ -87,7 +87,7 @@ class Context:
     params: Callable[[str], Any] = _param
     missing: list[str] = field(default_factory=list)
     used_params: set[str] = field(default_factory=set)
-    # lenient: fakt spoza rejestru = UNKNOWN (zapis w ``unregistered``) zamiast KeyError — częściowa ocena reguły
+    # lenient: fakt spoza rejestru = UNKNOWN (zapis w ``unregistered``) zamiast KeyError - częściowa ocena reguły
     lenient: bool = False
     unregistered: list[str] = field(default_factory=list)
     _cache: dict[tuple[Any, ...], Any] = field(default_factory=dict, repr=False)

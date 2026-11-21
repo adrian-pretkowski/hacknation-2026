@@ -1,4 +1,4 @@
-"""Niezdolność do pracy (event.type PREGNANCY_INCAPACITY / SICKNESS) — zasiłek i wynagrodzenie chorobowe.
+"""Niezdolność do pracy (event.type PREGNANCY_INCAPACITY / SICKNESS) - zasiłek i wynagrodzenie chorobowe.
 
 Kroki 07 §1 (BE1-04: prawo, płatnik, stawka; BE1-05: po ustaniu tytułu, okres zasiłkowy, podział dni, kwoty):
 - 2 płatnik: GEN-CLS-001/002 (``general.payer_of_benefit``),
@@ -15,7 +15,7 @@ Kroki 07 §1 (BE1-04: prawo, płatnik, stawka; BE1-05: po ustaniu tytułu, okres
 - 8 kwota: SICK-CALC-001 / ``f_benefit_amount`` per ciągły segment dni (podstawa/30 × stawka × dni).
 
 SICKNESS_BENEFIT jest zawsze w wyniku (status = prawo do zasiłku; ``days`` = dni płatne zasiłkiem, może być 0, gdy
-całą niezdolność pokrywa wynagrodzenie chorobowe); EMPLOYER_SICK_PAY — tylko pracownik z niewyczerpanym limitem.
+całą niezdolność pokrywa wynagrodzenie chorobowe); EMPLOYER_SICK_PAY - tylko pracownik z niewyczerpanym limitem.
 Poza zakresem (``not_evaluated_rules``): dokumenty i terminy (BE2-04), metody podstawy BASE-* (BE2-03).
 """
 from __future__ import annotations
@@ -38,10 +38,10 @@ SICKPAY_RATE_RULES = ["SICKPAY-RATE-001", "SICKPAY-RATE-002"]
 NOT_RUN = ["SICK-DOC-001", "SICK-DOC-002", "SICK-DL-001", "BASE-EMP-001", "BASE-NEMP-001"]
 HUMAN_REVIEW_ASSUMPTIONS = {
     "SICK-EXCL-005": {"code": "NO_INFO_INTENTIONAL_OFFENCE",
-                      "text": "Brak informacji o prawomocnym wyroku za umyślne przestępstwo — przyjęto, że "
+                      "text": "Brak informacji o prawomocnym wyroku za umyślne przestępstwo - przyjęto, że "
                               "przesłanka wyłączenia z art. 15 nie zachodzi."},
     "SICK-EXCL-007": {"code": "NO_INFO_ART17",
-                      "text": "Brak informacji o pracy zarobkowej w czasie zwolnienia lub sfałszowaniu zaświadczenia — "
+                      "text": "Brak informacji o pracy zarobkowej w czasie zwolnienia lub sfałszowaniu zaświadczenia - "
                               "przyjęto, że przesłanka utraty prawa z art. 17 nie zachodzi."},
 }
 
@@ -83,7 +83,7 @@ def _sickness_right(eng: Engine) -> _Right:
             right.applied.append("SICK-ELIG-006")
             right.reasons.append(make_reason(
                 eng, "AFTER_TITLE_END", "SICK-ELIG-006",
-                f"Niezdolność powstała po ustaniu ubezpieczenia — zasiłek przysługuje, bo trwa co najmniej "
+                f"Niezdolność powstała po ustaniu ubezpieczenia - zasiłek przysługuje, bo trwa co najmniej "
                 f"{ctx.param('AFTER_TITLE_MIN_INCAPACITY_DAYS')} dni i powstała do "
                 f"{ctx.param('AFTER_TITLE_ONSET_MAX_DAYS')} dni od ustania tytułu. Wypłaca ZUS.", "art. 7 pkt 1"))
             _after_title_exclusions(eng, right)
@@ -92,7 +92,7 @@ def _sickness_right(eng: Engine) -> _Right:
             right.reasons.append(make_reason(
                 eng, "AFTER_TITLE_END_NOT_EVALUATED", "SICK-ELIG-006",
                 "Niezdolność do pracy nie powstała w czasie ubezpieczenia chorobowego, a warunków zasiłku po "
-                "ustaniu tytułu (art. 7) nie da się rozstrzygnąć — wymaga weryfikacji.", "art. 6 ust. 1; art. 7"))
+                "ustaniu tytułu (art. 7) nie da się rozstrzygnąć - wymaga weryfikacji.", "art. 6 ust. 1; art. 7"))
         elif after_title.unknown:
             eng.need_from(after_title)
             right.needs_data = True
@@ -159,7 +159,7 @@ def _waiting_period(eng: Engine, right: _Right) -> None:
         right.applied.append("SICK-ELIG-005")
         right.reasons.append(make_reason(
             eng, "WAITING_PERIOD_EXEMPTION", "SICK-ELIG-005",
-            "Zasiłek od pierwszego dnia ubezpieczenia — bez okresu wyczekiwania.", "art. 4 ust. 3"))
+            "Zasiłek od pierwszego dnia ubezpieczenia - bez okresu wyczekiwania.", "art. 4 ust. 3"))
         return
     unknown = [o for o in [*waiting, exemption] if o.unknown]
     if unknown:
@@ -187,7 +187,7 @@ def _human_review(eng: Engine, right: _Right, assumptions: list[dict[str, str]])
             right.review = True
             right.applied.append(rule_id)
             right.reasons.append(make_reason(eng, eng.rules.rule(rule_id)["result"]["reason_code"], rule_id,
-                                             eng.rules.rule(rule_id)["name"] + " — wymaga oceny ZUS.",
+                                             eng.rules.rule(rule_id)["name"] + " - wymaga oceny ZUS.",
                                              eng.rules.rule(rule_id)["source_location"]))
         elif outcome.unknown:
             assumptions.append(assumption)
@@ -229,14 +229,14 @@ def _benefit_period(eng: Engine) -> _Period:
     if used_rule.fired and period.used is not None:
         period.applied.append("SICK-DUR-003")
     # SICK-DUR-004: pomijane są dni z art. 12 ust. 2 (w f_benefit_period_days_used); dni okresu wyczekiwania
-    # w historii nie są znane z wejścia — reguła oceniana, ale nie wpisywana jako zastosowana
+    # w historii nie są znane z wejścia - reguła oceniana, ale nie wpisywana jako zastosowana
     eng.eval("SICK-DUR-004")
     eng.eval("SICK-DUR-005")  # FUTURE (od 2027-01-01) → future_changes
     return period
 
 
 def _fact(eng: Engine, rule_id: str, name: str, **args: Any) -> Any:
-    """Fakt z ``result.compute`` — jego braki danych przypisane do ``rule_id``."""
+    """Fakt z ``result.compute`` - jego braki danych przypisane do ``rule_id``."""
     local = eng.ctx.child()
     value = local.fact(name, **args)
     if value is None:
@@ -278,7 +278,7 @@ def _day_plan(eng: Engine, start: date | None, end: date | None, employee: bool 
         plan.applied.append("SICK-EXCL-006")
         plan.reasons.append(make_reason(
             eng, "ALCOHOL_FIRST_DAYS", "SICK-EXCL-006",
-            f"Kod C na zaświadczeniu — za pierwsze {alcohol_days} dni niezdolności świadczenie nie przysługuje.",
+            f"Kod C na zaświadczeniu - za pierwsze {alcohol_days} dni niezdolności świadczenie nie przysługuje.",
             "art. 16"))
     counted = [d for d in days if d not in leave_days]
     prior = (period.used - len(counted)) if period.used is not None else 0
@@ -311,7 +311,7 @@ def _day_plan(eng: Engine, start: date | None, end: date | None, employee: bool 
     if available is not None and position > available:
         plan.reasons.append(make_reason(
             eng, "BENEFIT_PERIOD_EXHAUSTED", "SICK-DUR-001",
-            f"Okres zasiłkowy ({period.limit} dni) kończy się w trakcie tej niezdolności — za dalsze dni zasiłek "
+            f"Okres zasiłkowy ({period.limit} dni) kończy się w trakcie tej niezdolności - za dalsze dni zasiłek "
             f"chorobowy nie przysługuje (można wystąpić o świadczenie rehabilitacyjne).", "art. 8; art. 18"))
     return plan
 
@@ -361,7 +361,7 @@ def _rate(eng: Engine, rule_ids: list[str], benefit: dict[str, Any]) -> Decimal 
     benefit["applied_rules"].append(winner.rule_id)
     rule = eng.rules.rule(winner.rule_id)
     benefit["reasons"].append(make_reason(eng, "RATE_" + winner.rule_id.replace("-", "_"), winner.rule_id,
-                                          f"{rule['name']} — {pct(rate)}.", rule["source_location"]))
+                                          f"{rule['name']} - {pct(rate)}.", rule["source_location"]))
     return rate
 
 
@@ -397,7 +397,7 @@ def _set_amounts(eng: Engine, benefit: dict[str, Any], rate: Decimal | None, seg
 
 def _history_assumption(eng: Engine) -> dict[str, str]:
     return {"code": "SICKNESS_HISTORY_UNKNOWN",
-            "text": f"Brak historii wcześniejszych zwolnień — dni i kwoty policzono przy założeniu, że w ostatnich "
+            "text": f"Brak historii wcześniejszych zwolnień - dni i kwoty policzono przy założeniu, że w ostatnich "
                     f"{eng.ctx.param('BENEFIT_PERIOD_BREAK_DAYS')} dniach nie było innych niezdolności do pracy "
                     f"(art. 9 ust. 2); wykorzystana część okresu zasiłkowego może być większa."}
 
@@ -410,7 +410,7 @@ def _mixed_period_review(eng: Engine, right: _Right, start: date | None, end: da
     right.review = True
     right.reasons.append(make_reason(
         eng, "MIXED_BENEFIT_PERIOD_GAP_006", "SICK-DUR-001",
-        f"Niezdolność zaczęła się przed ciążą i trwa w ciąży — długość okresu zasiłkowego "
+        f"Niezdolność zaczęła się przed ciążą i trwa w ciąży - długość okresu zasiłkowego "
         f"({eng.ctx.param('BENEFIT_PERIOD_STD_DAYS')} czy {eng.ctx.param('BENEFIT_PERIOD_PREGNANCY_TB_DAYS')} dni) "
         f"wymaga oceny ZUS.", "art. 8 ust. 1"))
 
@@ -468,7 +468,7 @@ def _sickness_benefit(eng: Engine, right: _Right, payer: str | None, period: _Pe
 
 
 def _sick_pay(eng: Engine, right: _Right, period: _Period, plan: _Plan) -> tuple[dict[str, Any], int | None]:
-    """Wynagrodzenie chorobowe (KP art. 92) — wypłaca pracodawca (płatnik składek)."""
+    """Wynagrodzenie chorobowe (KP art. 92) - wypłaca pracodawca (płatnik składek)."""
     ctx = eng.ctx
     ctx.state["benefit"] = SICK_PAY
     benefit = _benefit(SICK_PAY, right, None, period, plan, SICK_PAY)
@@ -491,7 +491,7 @@ def _sick_pay(eng: Engine, right: _Right, period: _Period, plan: _Plan) -> tuple
             benefit["payer_of_benefit"] = "CONTRIBUTION_PAYER"
             rate = _rate(eng, SICKPAY_RATE_RULES, benefit)
             segments = _segments(plan, SICK_PAY)
-            # SICK-EXCL-001: dni wynagrodzenia chorobowego — bez zasiłku, wliczane do okresu zasiłkowego
+            # SICK-EXCL-001: dni wynagrodzenia chorobowego - bez zasiłku, wliczane do okresu zasiłkowego
             ctx.segment = {"from": segments[0][0].isoformat()} if segments else None
             if segments and eng.eval("SICK-EXCL-001").fired:
                 benefit["applied_rules"].append("SICK-EXCL-001")

@@ -1,6 +1,6 @@
 // Każdy plik e2e/scenariusze/*.md to jeden scenariusz użytkownika:
 //   # Tytuł scenariusza
-//   Widok: telefon            (opcjonalnie: telefon | komputer — domyślnie oba)
+//   Widok: telefon            (opcjonalnie: telefon | komputer - domyślnie oba)
 //   > komentarz (pomijany)
 //   1. Otwórz stronę główną.
 //   2. Kliknij „Zaczynamy”.

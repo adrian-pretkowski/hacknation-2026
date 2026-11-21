@@ -53,7 +53,7 @@ def test_not_insured_is_review_not_refusal(client, demo_payload):
     payload = copy.deepcopy(demo_payload)
     payload["insurance"]["titles"][0]["to"] = "2027-02-28"
     _, benefit = _benefit(client, payload)
-    # BE2-01: art. 30 oceniany — brak daty początku ciąży / przyczyny ustania tytułu → pytamy (D17), nie odmawiamy
+    # BE2-01: art. 30 oceniany - brak daty początku ciąży / przyczyny ustania tytułu → pytamy (D17), nie odmawiamy
     assert benefit["status"] == "NEEDS_DATA"
 
 

@@ -1,4 +1,4 @@
-# Zasiłkowy Przewodnik Przyszłego Rodzica — zebrane kryteria oceny
+# Zasiłkowy Przewodnik Przyszłego Rodzica - zebrane kryteria oceny
 
 > Źródła: `ZUS - Pełna treść zadania konkursowego.pdf` (PZ), `ZUS - Regulamin zadania konkursowego.pdf` (REG), `Materiały dla uczestników/*` (załącznik .docx z parametrami, wyciągi z przepisów, Poradnik ZUS 2026).
 > Oznaczenia: **[OFICJALNE]** to kryterium podane wprost, **[WYMÓG]** to wymaganie z treści zadania, które jury sprawdzi, **[POŚREDNIE]** to wniosek z kontekstu zadania (nie jest punktowane wprost, ale wpływa na ocenę w ramach kryteriów oficjalnych).
@@ -26,7 +26,7 @@
 
 ---
 
-## 2. Wymagania formalne — warunek wejścia do oceny [WYMÓG] (PZ, pkt 4)
+## 2. Wymagania formalne - warunek wejścia do oceny [WYMÓG] (PZ, pkt 4)
 
 ### Obowiązkowe
 - [ ] Szczegółowy **opis i tytuł** projektu
@@ -48,7 +48,7 @@
 
 ---
 
-## 3. Wymagania funkcjonalne — zakres merytoryczny [WYMÓG] (PZ, pkt 3)
+## 3. Wymagania funkcjonalne - zakres merytoryczny [WYMÓG] (PZ, pkt 3)
 
 Narzędzie ma ustalać uprawnienia **w sposób skonkretyzowany**, czyli dla indywidualnej sytuacji osoby. Dane pochodzą z (symulowanych) systemów ZUS lub są wprowadzane przez użytkownika (np. planowana data porodu, data ustania stosunku pracy).
 

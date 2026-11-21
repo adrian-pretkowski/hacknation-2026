@@ -1,7 +1,7 @@
 # Na podsumowaniu widać tylko pisma dopasowane do planu, pozostałe po kliknięciu (FE1-16)
 
 Widok: komputer
-> Na telefonie kroki kreatora są schowane pod „Pokaż historię” — ścieżka zmiany odpowiedzi jest ta sama.
+> Na telefonie kroki kreatora są schowane pod „Pokaż historię” - ścieżka zmiany odpowiedzi jest ta sama.
 
 1. Otwórz stronę główną.
 2. Kliknij „Mama na etacie, poród za 10 dni”.

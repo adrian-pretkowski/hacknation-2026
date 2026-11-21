@@ -1,4 +1,4 @@
-"""BE2-01: fakty macierzyńskie i uzupełniające (zus_rules/07 §3, §5) — przypadek typowy, graniczny, brak danych.
+"""BE2-01: fakty macierzyńskie i uzupełniające (zus_rules/07 §3, §5) - przypadek typowy, graniczny, brak danych.
 
 Przebiegi end-to-end: T-MAT-004..022 i T-SUPP-001..011 w ``test_cases.py`` (runner 08, baseline).
 """
@@ -31,11 +31,11 @@ def _ins(*titles) -> dict:
 def test_f_title_ended_during_pregnancy_typical_boundary_open():
     data = {"event": BIRTH, "pregnancy": PREGNANCY, "insurance": _ins(_title("2026-12-31", "EMPLOYER_LIQUIDATION"))}
     assert _ctx(data).fact("f_title_ended_during_pregnancy") is True
-    data["insurance"] = _ins(_title("2027-03-15"))  # ustanie w dniu porodu — nie „przed porodem” (to < event.date)
+    data["insurance"] = _ins(_title("2027-03-15"))  # ustanie w dniu porodu - nie „przed porodem” (to < event.date)
     assert _ctx(data).fact("f_title_ended_during_pregnancy") is False
     data["insurance"] = _ins(_title("2026-06-07"))  # dzień przed początkiem ciąży
     assert _ctx(data).fact("f_title_ended_during_pregnancy") is False
-    data["insurance"] = _ins(_title(None))  # tytuł otwarty — nie ustał
+    data["insurance"] = _ins(_title(None))  # tytuł otwarty - nie ustał
     assert _ctx(data).fact("f_title_ended_during_pregnancy") is False
 
 
@@ -73,7 +73,7 @@ def test_f_any_art30_basis_kleene(title, employment, expected):
 def test_f_planned_title_end_before_due_date():
     data = {"pregnancy": PREGNANCY, "insurance": _ins(_title("2027-03-14"))}
     assert _ctx(data).fact("f_planned_title_end_before_due_date") is True
-    data["insurance"] = _ins(_title("2027-03-15"))  # koniec w dniu terminu porodu — brak ryzyka
+    data["insurance"] = _ins(_title("2027-03-15"))  # koniec w dniu terminu porodu - brak ryzyka
     assert _ctx(data).fact("f_planned_title_end_before_due_date") is False
     data["insurance"] = _ins(_title(None))
     assert _ctx(data).fact("f_planned_title_end_before_due_date") is False
@@ -132,7 +132,7 @@ def test_f_maternity_like_leave_period_full_and_capped():
 
 
 def test_f_maternity_like_leave_period_foster_limits():
-    # rodzina zastępcza: do 7 lat; odroczony obowiązek szkolny — do 10 lat
+    # rodzina zastępcza: do 7 lat; odroczony obowiązek szkolny - do 10 lat
     assert _ctx(_adoption("2020-02-01", "FOSTER")).fact("f_maternity_like_leave_period")["to"] == date(2027, 1, 31)
     deferred = _ctx(_adoption("2018-06-01", "FOSTER", deferred=True)).fact("f_maternity_like_leave_period")
     assert deferred["to"] == date(2027, 5, 29)
@@ -219,7 +219,7 @@ def test_child_death_after_as_of_counts_in_forecast_only():
             "children": {"count_at_birth": 1, "items": [{"birth_date": "2027-02-01", "death_date": "2027-03-23"}]}}
     assert _ctx(data).fact("f_children_alive_count") == 0
     data["evaluation"]["mode"] = "RETRO"
-    assert _ctx(data).fact("f_children_alive_count") == 1  # zgon po dniu oceny — dziecko żyje w dniu oceny
+    assert _ctx(data).fact("f_children_alive_count") == 1  # zgon po dniu oceny - dziecko żyje w dniu oceny
 
 
 # ------------------------------------------------------------ pipeline (integracja kroków BE2-01)

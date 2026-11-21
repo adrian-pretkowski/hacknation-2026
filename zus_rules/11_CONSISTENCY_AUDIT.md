@@ -1,4 +1,4 @@
-# 11 — CONSISTENCY AUDIT (generowany)
+# 11 - CONSISTENCY AUDIT (generowany)
 
 Wygenerowano przez `tools/build_catalog.py` z `03_rules.yaml` v0.1.0. **Błędy: 0 · Ostrzeżenia: 0**
 
@@ -20,16 +20,16 @@ Brak błędów i ostrzeżeń.
 |---|---|
 | 1. Każda reguła ma podstawę źródłową | ✅ |
 | 2. Wejście i rezultat zdefiniowane | ✅ |
-| 3. Wyjątki zidentyfikowane | częściowo — patrz 09 (GAP-*) — wyciągi niekompletne |
+| 3. Wyjątki zidentyfikowane | częściowo - patrz 09 (GAP-*) - wyciągi niekompletne |
 | 4. Zależności wskazują istniejące reguły | ✅ |
 | 5. Okres obowiązywania uwzględniony | ✅ |
-| 6. Brak danych nie prowadzi do fałszywej odmowy | TAK — logika Kleene (C9), missing_data_behavior, testy MISSING_DATA |
+| 6. Brak danych nie prowadzi do fałszywej odmowy | TAK - logika Kleene (C9), missing_data_behavior, testy MISSING_DATA |
 | 7. Ocena człowieka nie zamieniona na bool | ✅ |
 | 8. Dokumenty oddzielone od uprawnień | ✅ |
-| 9. Obliczenia mają jednostki/granice/zaokrąglenia | jednostki i granice TAK; zaokrąglenia — BRAK w źródłach (GAP-001), jawnie oznaczone |
+| 9. Obliczenia mają jednostki/granice/zaokrąglenia | jednostki i granice TAK; zaokrąglenia - BRAK w źródłach (GAP-001), jawnie oznaczone |
 | 10. Wszystkie reguły P0 mają testy | ✅ |
 | 11. Schemat zawiera pola używane przez reguły | ✅ |
-| 12. YAML interpretowalny bez LLM | TAK — zamknięty zestaw operatorów, fakty jako nazwane funkcje (07) |
+| 12. YAML interpretowalny bez LLM | TAK - zamknięty zestaw operatorów, fakty jako nazwane funkcje (07) |
 
 ## Macierz pokrycia: przepis → reguła biznesowa → reguła wykonywalna → test
 
@@ -37,10 +37,10 @@ Brak błędów i ostrzeżeń.
 |---|---|---|---|
 | KP KP art. 180 § 1; USTAWA art. 29a ust. 1 | MAT-DUR-001 | ACTIVE | T-MAT-001, T-MAT-002, T-MAT-003, T-INT-003 |
 | KP KP art. 180 § 2-3; art. 183(1) § 2 | MAT-DUR-002 | ACTIVE | T-MAT-011, T-MAT-012 |
-| KP KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6 | APP-DL-002 | INFORMATIONAL | — |
+| KP KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6 | APP-DL-002 | INFORMATIONAL | - |
 | KP KP art. 180(1) § 1 | MAT-DUR-003 | ACTIVE | T-MAT-013, T-MAT-014, T-INT-004 |
-| KP KP art. 180(1) § 1 zd. 2, § 2 zd. 2 | MAT-DUR-005 | BLOCKED | — |
-| KP KP art. 180(1) § 2 | MAT-DUR-004 | ACTIVE | — |
+| KP KP art. 180(1) § 1 zd. 2, § 2 zd. 2 | MAT-DUR-005 | BLOCKED | - |
+| KP KP art. 180(1) § 2 | MAT-DUR-004 | ACTIVE | - |
 | KP KP art. 180(2) § 1 pkt 1 | SUPP-ELIG-001 | ACTIVE | T-SUPP-001, T-SUPP-002 |
 | KP KP art. 180(2) § 1 pkt 2 | SUPP-ELIG-002 | ACTIVE | T-SUPP-003, T-INT-003 |
 | KP KP art. 180(2) § 1 pkt 3 | SUPP-ELIG-003 | ACTIVE | T-SUPP-004, T-SUPP-005, T-SUPP-008, T-SUPP-009, T-SUPP-010, T-SUPP-011 |
@@ -53,10 +53,10 @@ Brak błędów i ostrzeżeń.
 | KP KP art. 182(1e) § 1-2 | PAR-WORK-001 | ACTIVE | T-PAR-007 |
 | KP KP art. 182(1f) § 1, § 1(1), § 2-7 | PAR-WORK-002 | ACTIVE | T-PAR-006 |
 | KP KP art. 182(3) § 1, § 1(1) | PAT-DUR-001 | ACTIVE | T-PAT-001, T-PAT-002, T-PAT-003 |
-| KP KP art. 182; ROZP_DOK § 19 | MAT-DUR-006 | ACTIVE | — |
+| KP KP art. 182; ROZP_DOK § 19 | MAT-DUR-006 | ACTIVE | - |
 | KP KP art. 183 § 1, § 1(1) | MAT-DUR-007 | ACTIVE | T-MAT-015, T-MAT-022 |
 | KP KP art. 183 § 3 | MAT-DUR-008 | INFORMATIONAL | T-MAT-022 |
-| KP KP art. 183 § 4, § 4(1), § 4(2), § 4(3), § 4(4), § 4(5) | PAR-DUR-003 | ACTIVE | — |
+| KP KP art. 183 § 4, § 4(1), § 4(2), § 4(3), § 4(4), § 4(5) | PAR-DUR-003 | ACTIVE | - |
 | KP KP art. 183(1) § 1-2 | MAT-DUR-009 | ACTIVE | T-MAT-001 |
 | KP KP art. 92 § 4; USTAWA art. 12 ust. 1 | SICKPAY-TRN-001 | ACTIVE | T-SP-005, T-INT-001 |
 | KP art. 177 § 3, § 3(1) | MAT-CLS-002 | ACTIVE | T-MAT-009 |
@@ -64,22 +64,22 @@ Brak błędów i ostrzeżeń.
 | KP art. 92 § 1 pkt 1, § 5 | SICKPAY-ELIG-001 | ACTIVE | T-SP-001, T-SP-003, T-SP-004, T-INT-001 |
 | KP art. 92 § 1 pkt 2-3 | SICKPAY-RATE-002 | ACTIVE | T-SP-001 |
 | KP art. 92 § 3 pkt 2 | SICKPAY-EXCL-001 | ACTIVE | T-SP-006 |
-| ROZP_DOK ROZP_DOK § 12, § 3 ust. 2, zał. 6; USTAWA art. 61b ust. 4a | APP-DOC-003 | INFORMATIONAL | — |
-| ROZP_DOK ROZP_DOK § 13 ust. 1 pkt 1; USTAWA art. 53 ust. 2; ROZP_WN § 2 | APP-DOC-001 | INFORMATIONAL | — |
-| ROZP_DOK ROZP_DOK § 13 ust. 1 pkt 2, ust. 2-4 | APP-DOC-002 | INFORMATIONAL | — |
-| ROZP_DOK ROZP_DOK § 15 ust. 1-3, § 17 | APP-DOC-004 | INFORMATIONAL | — |
-| ROZP_DOK ROZP_DOK § 16 ust. 1-2; ROZP_WN § 18 | APP-DOC-005 | INFORMATIONAL | — |
-| ROZP_DOK ROZP_DOK § 20, § 26-27, § 29-30, § 32-33; ROZP_WN § 5, § 14, § 15, § 17 | APP-DOC-006 | INFORMATIONAL | — |
-| ROZP_DOK § 11 ust. 1-3 | REHAB-DOC-001 | INFORMATIONAL | — |
-| ROZP_DOK § 2, § 3 ust. 1, zał. 1-3; USTAWA art. 53, 61b ust. 2 | SICK-DOC-001 | INFORMATIONAL | — |
-| ROZP_DOK § 4, zał. 4 | SICK-DOC-002 | INFORMATIONAL | — |
+| ROZP_DOK ROZP_DOK § 12, § 3 ust. 2, zał. 6; USTAWA art. 61b ust. 4a | APP-DOC-003 | INFORMATIONAL | - |
+| ROZP_DOK ROZP_DOK § 13 ust. 1 pkt 1; USTAWA art. 53 ust. 2; ROZP_WN § 2 | APP-DOC-001 | INFORMATIONAL | - |
+| ROZP_DOK ROZP_DOK § 13 ust. 1 pkt 2, ust. 2-4 | APP-DOC-002 | INFORMATIONAL | - |
+| ROZP_DOK ROZP_DOK § 15 ust. 1-3, § 17 | APP-DOC-004 | INFORMATIONAL | - |
+| ROZP_DOK ROZP_DOK § 16 ust. 1-2; ROZP_WN § 18 | APP-DOC-005 | INFORMATIONAL | - |
+| ROZP_DOK ROZP_DOK § 20, § 26-27, § 29-30, § 32-33; ROZP_WN § 5, § 14, § 15, § 17 | APP-DOC-006 | INFORMATIONAL | - |
+| ROZP_DOK § 11 ust. 1-3 | REHAB-DOC-001 | INFORMATIONAL | - |
+| ROZP_DOK § 2, § 3 ust. 1, zał. 1-3; USTAWA art. 53, 61b ust. 2 | SICK-DOC-001 | INFORMATIONAL | - |
+| ROZP_DOK § 4, zał. 4 | SICK-DOC-002 | INFORMATIONAL | - |
 | USTAWA USTAWA art. 29 ust. 1, art. 30; treść zadania pkt H.3 | RISK-003 | INFORMATIONAL | T-MAT-004 |
-| USTAWA USTAWA art. 29 ust. 10; KP art. 180 § 17 | MAT-SHARE-006 | BLOCKED | — |
+| USTAWA USTAWA art. 29 ust. 10; KP art. 180 § 17 | MAT-SHARE-006 | BLOCKED | - |
 | USTAWA USTAWA art. 29 ust. 3; KP art. 180 § 4-5 | MAT-SHARE-001 | ACTIVE | T-MAT-019, T-MAT-020 |
-| USTAWA USTAWA art. 29 ust. 5; KP art. 180 § 6-7 | MAT-SHARE-002 | ACTIVE | — |
-| USTAWA USTAWA art. 29 ust. 6; KP art. 180 § 10-11; ROZP_DOK § 23-24 | MAT-SHARE-003 | ACTIVE | — |
-| USTAWA USTAWA art. 29 ust. 7; KP art. 180 § 12-13 | MAT-SHARE-004 | ACTIVE | — |
-| USTAWA USTAWA art. 29 ust. 9; KP art. 180 § 15 | MAT-SHARE-005 | ACTIVE | — |
+| USTAWA USTAWA art. 29 ust. 5; KP art. 180 § 6-7 | MAT-SHARE-002 | ACTIVE | - |
+| USTAWA USTAWA art. 29 ust. 6; KP art. 180 § 10-11; ROZP_DOK § 23-24 | MAT-SHARE-003 | ACTIVE | - |
+| USTAWA USTAWA art. 29 ust. 7; KP art. 180 § 12-13 | MAT-SHARE-004 | ACTIVE | - |
+| USTAWA USTAWA art. 29 ust. 9; KP art. 180 § 15 | MAT-SHARE-005 | ACTIVE | - |
 | USTAWA USTAWA art. 29a ust. 1, 3; KP art. 184 | PAR-ELIG-001 | ACTIVE | T-RATE-003, T-INT-004 |
 | USTAWA USTAWA art. 29a ust. 1, art. 31 ust. 1; KP art. 182(3), art. 184; ROZP_DOK § 33 | PAT-ELIG-001 | ACTIVE | T-PAT-001 |
 | USTAWA USTAWA art. 29a ust. 2; KP art. 180 § 14 | MAT-SHARE-007 | ACTIVE | T-MAT-019, T-MAT-021 |
@@ -94,45 +94,45 @@ Brak błędów i ostrzeżeń.
 | USTAWA USTAWA art. 31 ust. 3a-3c; art. 62 ust. 4-6; ROZP_DOK § 28 | RATE-MAT-007 | ACTIVE | T-RATE-008 |
 | USTAWA USTAWA art. 31 ust. 3f; art. 30a ust. 1 (wyłączenie okresu z KP 182(1a) § 4) | RATE-MAT-004 | ACTIVE | T-RATE-004, T-INT-001 |
 | USTAWA USTAWA art. 31 ust. 3g | RATE-MAT-005 | ACTIVE | T-RATE-005 |
-| USTAWA USTAWA art. 31 ust. 3h; treść zadania pkt B | PAR-SHARE-003 | ACTIVE | — |
-| USTAWA USTAWA art. 31 ust. 4 | RATE-MAT-006 | ACTIVE | — |
+| USTAWA USTAWA art. 31 ust. 3h; treść zadania pkt B | PAR-SHARE-003 | ACTIVE | - |
+| USTAWA USTAWA art. 31 ust. 4 | RATE-MAT-006 | ACTIVE | - |
 | USTAWA USTAWA art. 31 ust. 4a | PAR-WORK-003 | ACTIVE | T-PAR-006 |
 | USTAWA USTAWA art. 36 ust. 1, 4; art. 38 ust. 1; art. 47 | BASE-EMP-001 | ACTIVE | T-BASE-001 |
 | USTAWA USTAWA art. 36 ust. 2 | BASE-EMP-002 | ACTIVE | T-BASE-008 |
-| USTAWA USTAWA art. 37 ust. 1-2 | BASE-EMP-003 | ACTIVE | — |
+| USTAWA USTAWA art. 37 ust. 1-2 | BASE-EMP-003 | ACTIVE | - |
 | USTAWA USTAWA art. 38 ust. 2-3 | BASE-EMP-004 | ACTIVE | T-BASE-002 |
-| USTAWA USTAWA art. 40 | BASE-EMP-005 | BLOCKED | — |
-| USTAWA USTAWA art. 41 ust. 1-3 | BASE-EMP-007 | ACTIVE | — |
-| USTAWA USTAWA art. 42 ust. 1-5 | BASE-EMP-006 | ACTIVE | — |
+| USTAWA USTAWA art. 40 | BASE-EMP-005 | BLOCKED | - |
+| USTAWA USTAWA art. 41 ust. 1-3 | BASE-EMP-007 | ACTIVE | - |
+| USTAWA USTAWA art. 42 ust. 1-5 | BASE-EMP-006 | ACTIVE | - |
 | USTAWA USTAWA art. 43; art. 48 ust. 2; art. 52 | BASE-GEN-001 | ACTIVE | T-BASE-006, T-BASE-007, T-BASE-010, T-BASE-011, T-BASE-012, T-INT-001 |
 | USTAWA USTAWA art. 45 ust. 1-2; art. 47 | BASE-EMP-008 | ACTIVE | T-BASE-003 |
-| USTAWA USTAWA art. 46 | BASE-GEN-002 | BLOCKED | — |
+| USTAWA USTAWA art. 46 | BASE-GEN-002 | BLOCKED | - |
 | USTAWA USTAWA art. 48 ust. 1-2; art. 3 pkt 4; art. 52 | BASE-NEMP-001 | ACTIVE | T-BASE-004, T-INT-005, T-BASE-009 |
 | USTAWA USTAWA art. 48a ust. 1-5 | BASE-NEMP-002 | ACTIVE | T-BASE-005 |
-| USTAWA USTAWA art. 49 ust. 1-3 | BASE-NEMP-003 | ACTIVE | — |
+| USTAWA USTAWA art. 49 ust. 1-3 | BASE-NEMP-003 | ACTIVE | - |
 | USTAWA USTAWA art. 50 ust. 1-2 | BASE-NEMP-004 | ACTIVE | T-BASE-009 |
 | USTAWA art. 11 ust. 1 | SICK-RATE-001 | ACTIVE | T-SICK-006, T-SICK-014 |
 | USTAWA art. 11 ust. 2 pkt 1-3 | SICK-RATE-002 | ACTIVE | T-SP-005, T-SICK-006, T-INT-001 |
 | USTAWA art. 12 ust. 1 | SICK-EXCL-001 | ACTIVE | T-SP-005 |
-| USTAWA art. 12 ust. 2, 2a, 3 | SICK-EXCL-002 | ACTIVE | — |
-| USTAWA art. 13 ust. 1, 1a | SICK-EXCL-003 | ACTIVE | — |
-| USTAWA art. 13 ust. 2 | SICK-EXCL-004 | ACTIVE | — |
-| USTAWA art. 15 | SICK-EXCL-005 | HUMAN_REVIEW | — |
-| USTAWA art. 16; art. 57 ust. 1 pkt 3 | SICK-EXCL-006 | ACTIVE | — |
-| USTAWA art. 17 ust. 1, 1a, 1b, 2, 4 | SICK-EXCL-007 | HUMAN_REVIEW | — |
-| USTAWA art. 18 ust. 1, 3, 6 | REHAB-ELIG-001 | HUMAN_REVIEW | — |
-| USTAWA art. 18 ust. 2 | REHAB-DUR-001 | ACTIVE | — |
-| USTAWA art. 18 ust. 7-8 | REHAB-EXCL-001 | ACTIVE | — |
-| USTAWA art. 19 ust. 1 | REHAB-RATE-001 | ACTIVE | — |
+| USTAWA art. 12 ust. 2, 2a, 3 | SICK-EXCL-002 | ACTIVE | - |
+| USTAWA art. 13 ust. 1, 1a | SICK-EXCL-003 | ACTIVE | - |
+| USTAWA art. 13 ust. 2 | SICK-EXCL-004 | ACTIVE | - |
+| USTAWA art. 15 | SICK-EXCL-005 | HUMAN_REVIEW | - |
+| USTAWA art. 16; art. 57 ust. 1 pkt 3 | SICK-EXCL-006 | ACTIVE | - |
+| USTAWA art. 17 ust. 1, 1a, 1b, 2, 4 | SICK-EXCL-007 | HUMAN_REVIEW | - |
+| USTAWA art. 18 ust. 1, 3, 6 | REHAB-ELIG-001 | HUMAN_REVIEW | - |
+| USTAWA art. 18 ust. 2 | REHAB-DUR-001 | ACTIVE | - |
+| USTAWA art. 18 ust. 7-8 | REHAB-EXCL-001 | ACTIVE | - |
+| USTAWA art. 19 ust. 1 | REHAB-RATE-001 | ACTIVE | - |
 | USTAWA art. 29 ust. 1 a contrario; art. 30 | MAT-NEG-001 | ACTIVE | T-MAT-004 |
 | USTAWA art. 29 ust. 1 pkt 1 | MAT-ELIG-001 | ACTIVE | T-MAT-001, T-MAT-010, T-INT-001, T-INT-002, T-INT-004, T-INT-005 |
 | USTAWA art. 29 ust. 1 pkt 2, ust. 2 | MAT-ELIG-002 | ACTIVE | T-MAT-015, T-MAT-016, T-MAT-022 |
 | USTAWA art. 29 ust. 1 pkt 3, ust. 2 | MAT-ELIG-003 | ACTIVE | T-MAT-018 |
 | USTAWA art. 29 ust. 1 pkt 3; KP art. 183 § 1 | MAT-EXCL-001 | ACTIVE | T-MAT-017 |
 | USTAWA art. 2a ust. 1 | GEN-EXCL-001 | ACTIVE | T-GEN-006, T-GEN-007, T-GEN-008, T-GEN-009, T-INT-002, T-INT-005 |
-| USTAWA art. 2a ust. 2 | GEN-EXCL-002 | ACTIVE | — |
+| USTAWA art. 2a ust. 2 | GEN-EXCL-002 | ACTIVE | - |
 | USTAWA art. 30 ust. 1 pkt 1 | MAT-ELIG-004 | ACTIVE | T-MAT-005 |
-| USTAWA art. 30 ust. 1 pkt 2 | MAT-ELIG-005 | ACTIVE | — |
+| USTAWA art. 30 ust. 1 pkt 2 | MAT-ELIG-005 | ACTIVE | - |
 | USTAWA art. 30 ust. 3; KP art. 177 § 4; treść zadania (CONF-001, M16 a) | MAT-ELIG-007 | ACTIVE | T-MAT-006, T-MAT-007 |
 | USTAWA art. 36 ust. 3; art. 11 ust. 4 | SICK-CALC-001 | ACTIVE | T-SICK-014 |
 | USTAWA art. 4 ust. 1 (zasiłek chorobowy); art. 29-31 | MAT-CLS-001 | ACTIVE | T-MAT-001 |
@@ -143,34 +143,34 @@ Brak błędów i ostrzeżeń.
 | USTAWA art. 6 ust. 1 | SICK-ELIG-001 | ACTIVE | T-SP-001, T-SICK-012 |
 | USTAWA art. 61 ust. 1 pkt 1, ust. 2 | GEN-CLS-001 | ACTIVE | T-GEN-001, T-GEN-003, T-GEN-005 |
 | USTAWA art. 61 ust. 1 pkt 2 lit. a-e | GEN-CLS-002 | ACTIVE | T-GEN-002, T-GEN-004, T-GEN-005, T-INT-002 |
-| USTAWA art. 61b ust. 5 | SICK-DL-001 | INFORMATIONAL | — |
-| USTAWA art. 64 ust. 1, 3 | GEN-DL-002 | INFORMATIONAL | — |
-| USTAWA art. 67 ust. 1, 3, 4 | GEN-DL-001 | INFORMATIONAL | — |
+| USTAWA art. 61b ust. 5 | SICK-DL-001 | INFORMATIONAL | - |
+| USTAWA art. 64 ust. 1, 3 | GEN-DL-002 | INFORMATIONAL | - |
+| USTAWA art. 67 ust. 1, 3, 4 | GEN-DL-001 | INFORMATIONAL | - |
 | USTAWA art. 7 pkt 1-2 | SICK-ELIG-006 | ACTIVE | T-SICK-011, T-SICK-012, T-SICK-013 |
 | USTAWA art. 8 ust. 1 | SICK-DUR-001 | ACTIVE | T-SICK-007, T-SICK-008 |
 | USTAWA art. 8 ust. 2 | SICK-DUR-002 | ACTIVE | T-SICK-011 |
 | USTAWA art. 9 ust. 1-2 | SICK-DUR-003 | ACTIVE | T-SICK-009, T-SICK-010 |
-| USTAWA art. 9 ust. 3; art. 12 ust. 3 | SICK-DUR-004 | ACTIVE | — |
+| USTAWA art. 9 ust. 3; art. 12 ust. 3 | SICK-DUR-004 | ACTIVE | - |
 | USTAWA art. 9 ust. 4 (przypis 3: dodany ustawą z 18.12.2025, Dz.U. 2026 poz. 26, wchodzi w życie 1.01.2027) | SICK-DUR-005 | FUTURE | T-INT-006 |
-| ZALACZNIK Treść zadania, pkt H.1 (brak przepisu w wyciągach) | RISK-001 | INFORMATIONAL | — |
-| ZALACZNIK Treść zadania, pkt H.2 | RISK-002 | INFORMATIONAL | — |
-| ZALACZNIK Załącznik — limit podstawy składek przy dobrowolnym ubezpieczeniu chorobowym; USTAWA art. 48 ust. 1 (przychód = podstawa składek − 13,71%) | BASE-NEMP-005 | ACTIVE | — |
+| ZALACZNIK Treść zadania, pkt H.1 (brak przepisu w wyciągach) | RISK-001 | INFORMATIONAL | - |
+| ZALACZNIK Treść zadania, pkt H.2 | RISK-002 | INFORMATIONAL | - |
+| ZALACZNIK Załącznik - limit podstawy składek przy dobrowolnym ubezpieczeniu chorobowym; USTAWA art. 48 ust. 1 (przychód = podstawa składek − 13,71%) | BASE-NEMP-005 | ACTIVE | - |
 
 ## Przepisy zidentyfikowane, ale nieuwzględnione w regułach wykonywalnych
 
 | Przepis | Przyczyna |
 |---|---|
 | USTAWA art. 2 pkt 3, 6; rozdz. 4-5 (zasiłek wyrównawczy, opiekuńczy) | Poza zakresem produktu (nie w pkt a–j zadania); art. 32-35 nie ma w wyciągu |
-| USTAWA art. 6 ust. 2 (kwarantanna, leczenie odwykowe, dawstwo) | P2 — rzadkie; częściowo w SICK-RATE-002 (dawstwo) |
-| USTAWA art. 14, 7a, 52a, 52b | Grupy szczególne (nosicielstwo, żołnierze, służba zastępcza, małżonek Prezydenta) — OUT_OF_SCOPE |
+| USTAWA art. 6 ust. 2 (kwarantanna, leczenie odwykowe, dawstwo) | P2 - rzadkie; częściowo w SICK-RATE-002 (dawstwo) |
+| USTAWA art. 14, 7a, 52a, 52b | Grupy szczególne (nosicielstwo, żołnierze, służba zastępcza, małżonek Prezydenta) - OUT_OF_SCOPE |
 | USTAWA art. 19 ust. 2-3 (waloryzacja) | Brak wskaźników w materiałach (GAP-009) |
-| USTAWA art. 53-58a (e-ZLA — wystawianie, rejestry, błędy) | Procedura lekarska/płatnika — tylko jako źródło danych (kody A-E) |
-| USTAWA art. 61 ust. 4, 61a, 62 ust. 1-2, 4-6, 63, 65, 66, 66a | Procedura wypłaty — informacyjnie w przewodniku, nie w silniku |
-| USTAWA art. 29 ust. 2a, 8; art. 29a ust. 4; art. 30a ust. 4 | Przypadki szczególne (KAS, przepisy odrębne) — OUT_OF_SCOPE |
-| KP art. 177 § 1, § 1(1), § 4 | Ochrona przed zwolnieniem — treść informacyjna (pkt I zadania), nie wpływa na zasiłek |
+| USTAWA art. 53-58a (e-ZLA - wystawianie, rejestry, błędy) | Procedura lekarska/płatnika - tylko jako źródło danych (kody A-E) |
+| USTAWA art. 61 ust. 4, 61a, 62 ust. 1-2, 4-6, 63, 65, 66, 66a | Procedura wypłaty - informacyjnie w przewodniku, nie w silniku |
+| USTAWA art. 29 ust. 2a, 8; art. 29a ust. 4; art. 30a ust. 4 | Przypadki szczególne (KAS, przepisy odrębne) - OUT_OF_SCOPE |
+| KP art. 177 § 1, § 1(1), § 4 | Ochrona przed zwolnieniem - treść informacyjna (pkt I zadania), nie wpływa na zasiłek |
 | KP art. 181, 182(1d) § 3, 183 § 7-8, 185, 186(4), 189(1) | Uprawnienia pracownicze bez wpływu na zasiłek / P2 |
 | ROZP_DOK § 5, 7-10, 14, 18-19, 21-25, 28, 31, 34-41, zał. 5, 7 | Dokumenty dla przypadków P2 lub poza zakresem (zagranica, opiekuńczy); mapowane informacyjnie |
-| ROZP_WN § 19-21 | Urlop wychowawczy / obniżenie wymiaru — poza zakresem |
+| ROZP_WN § 19-21 | Urlop wychowawczy / obniżenie wymiaru - poza zakresem |
 
 ## Mapa pól wejścia → reguły
 

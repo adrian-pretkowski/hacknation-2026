@@ -1,4 +1,4 @@
-"""BE2-12: granice nowej podstawy wymiaru — BASE-EMP-008 (minimum przy pełnym etacie, M07, M07a)
+"""BE2-12: granice nowej podstawy wymiaru - BASE-EMP-008 (minimum przy pełnym etacie, M07, M07a)
 i BASE-NEMP-005 (limit przy dobrowolnym chorobowym, M08). Przypadek typowy, graniczny i brak danych.
 """
 import copy
@@ -61,7 +61,7 @@ def test_be2_12_base_emp_008_unknown_working_time_below_minimum_needs_data(demo_
 
 
 def test_be2_12_base_emp_008_unknown_working_time_above_minimum_no_question(demo_payload):
-    """Podstawa ≥ minimum: wymiar etatu nie zmienia kwoty — bez dopytania."""
+    """Podstawa ≥ minimum: wymiar etatu nie zmienia kwoty - bez dopytania."""
     result = pipeline.evaluate(_employee(demo_payload, "6000.00", None))
     assert all(m["field"] != "employment.working_time_fraction" for m in result["missing_data"])
     assert Decimal(_maternity(result)["base"]["amount_exact"]) == Decimal("6000.00")

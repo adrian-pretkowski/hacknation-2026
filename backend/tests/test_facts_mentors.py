@@ -1,4 +1,4 @@
-"""Ustalenia z mentorem fachowym ZUS (docs/mentors.md M07–M17) — skutki w silniku (BA-01).
+"""Ustalenia z mentorem fachowym ZUS (docs/mentors.md M07–M17) - skutki w silniku (BA-01).
 
 Każdy test w nazwie ma ID pytania mentora i reguły; przypadek typowy, graniczny i brak danych tam, gdzie dotyczy.
 """
@@ -68,7 +68,7 @@ def test_m09_calc_mat_001_daily_rate_is_base_over_30(demo_payload):
 
 
 def test_m09_daily_rate_non_terminating_division_kept_exact(demo_payload):
-    """Podstawa niepodzielna przez 30 — dzienna stawka bez zaokrąglenia pośredniego (C1)."""
+    """Podstawa niepodzielna przez 30 - dzienna stawka bez zaokrąglenia pośredniego (C1)."""
     payload = copy.deepcopy(demo_payload)
     payload["income_history"]["manual_base_override"] = "5000.00"
     benefit = pipeline.evaluate(payload)["benefits"][0]
@@ -80,7 +80,7 @@ def _rate_100(demo_payload, base):
     payload = copy.deepcopy(demo_payload)
     payload["applications"] = {"combined_815_planned": False}  # bez wniosku 81,5% → 100%
     payload["income_history"]["manual_base_override"] = base
-    # niepełny etat — bez minimalnej podstawy z art. 45 (BE2-12, D35); test dotyczy podwyższenia do 1000 zł
+    # niepełny etat - bez minimalnej podstawy z art. 45 (BE2-12, D35); test dotyczy podwyższenia do 1000 zł
     payload.setdefault("employment", {})["working_time_fraction"] = "0.25"
     return payload
 
@@ -88,7 +88,7 @@ def _rate_100(demo_payload, base):
 def test_m10_rate_mat_007_raises_low_amount_to_floor(demo_payload):
     """Typowy: podstawa 800 zł × 100% = 800 zł/mies. < 1000 zł → podwyższenie (T-RATE-008).
 
-    M10c: pełne miesiące po 1000 zł, niepełne proporcjonalnie do dni miesiąca — 15.03–1.08.2027:
+    M10c: pełne miesiące po 1000 zł, niepełne proporcjonalnie do dni miesiąca - 15.03–1.08.2027:
     4 × 1000 + 1000 × 17/31 (marzec) + 1000 × 1/31 (sierpień).
     """
     body = pipeline.evaluate(_rate_100(demo_payload, "800.00"))
@@ -221,7 +221,7 @@ def test_m13_missing_pregnancy_start_asks_for_doctor_date(demo_payload):
 
 # ------------------------------------------------------------ M14: limit wieku przy przyjęciu dziecka (MAT-DUR-007/008)
 def test_m14_c_age_limit_until_birthday():
-    """„Do dnia urodzin”: dzień przed 14. urodzinami dziecko ma 13 lat, w dniu urodzin — 14 (C7, GAP-005)."""
+    """„Do dnia urodzin”: dzień przed 14. urodzinami dziecko ma 13 lat, w dniu urodzin - 14 (C7, GAP-005)."""
     assert age_years_on(date(2013, 1, 31), date(2027, 1, 30)) == 13
     assert age_years_on(date(2013, 1, 31), date(2027, 1, 31)) == 14
 
@@ -236,7 +236,7 @@ def test_m14_a_nine_weeks_not_a_minimum():
 
 # ------------------------------------------------------------ M15 d: termin w dzień wolny → następny dzień roboczy
 def test_m15_d_next_working_day():
-    assert next_working_day(date(2027, 4, 2)) == date(2027, 4, 2)  # piątek — bez zmian
+    assert next_working_day(date(2027, 4, 2)) == date(2027, 4, 2)  # piątek - bez zmian
     assert next_working_day(date(2027, 4, 3)) == date(2027, 4, 5)  # sobota → poniedziałek
     assert next_working_day(date(2027, 4, 4)) == date(2027, 4, 5)  # niedziela → poniedziałek
     assert next_working_day(date(2027, 4, 5), {date(2027, 4, 5)}) == date(2027, 4, 6)  # święto z parametru
@@ -250,7 +250,7 @@ def _born_sunday(demo_payload, filed):
 
 
 def test_m15_d_app_dl_001_deadline_on_sunday_moves_to_monday(demo_payload):
-    """T-RATE-009: 14.03 + 21 = 4.04 (niedziela) → wniosek 5.04 w terminie (81,5%), 6.04 — po terminie (100%)."""
+    """T-RATE-009: 14.03 + 21 = 4.04 (niedziela) → wniosek 5.04 w terminie (81,5%), 6.04 - po terminie (100%)."""
     body = pipeline.evaluate(_born_sunday(demo_payload, "2027-04-05"))
     assert body["benefits"][0]["rate"] == "0.815"
     assert "PUBLIC_HOLIDAYS_UNCONFIRMED" in [a["code"] for a in body["assumptions"]]
@@ -259,7 +259,7 @@ def test_m15_d_app_dl_001_deadline_on_sunday_moves_to_monday(demo_payload):
 
 
 def test_m15_d_working_day_deadline_not_moved(demo_payload):
-    """T-RATE-001: 15.03 + 21 = 5.04 (poniedziałek) — wniosek 6.04 już po terminie."""
+    """T-RATE-001: 15.03 + 21 = 5.04 (poniedziałek) - wniosek 6.04 już po terminie."""
     payload = copy.deepcopy(demo_payload)
     payload["applications"] = {"combined_815_filed_date": "2027-04-06"}
     assert Decimal(pipeline.evaluate(payload)["benefits"][0]["rate"]) == param("MAT_RATE_FULL")
@@ -275,11 +275,11 @@ def test_m15_rules_reflect_mentor_answers():
 
 # ------------------------------------------------------------ M16: zakres produktu (MAT-ELIG-007, MAT-EXCL-001, REHAB)
 def test_m16_a_mat_elig_007_includes_court_confirmed_unlawful_termination():
-    """CONF-001: stosujemy treść zadania — naruszenie prawa stwierdzone przez sąd (T-MAT-007 → POSITIVE)."""
+    """CONF-001: stosujemy treść zadania - naruszenie prawa stwierdzone przez sąd (T-MAT-007 → POSITIVE)."""
     reasons = next(c for c in ruleset().rule("MAT-ELIG-007")["conditions"]["all"]
                    if c.get("fact") == "f_last_title_termination_reason")["value"]
     assert "UNLAWFUL_TERMINATION_COURT_CONFIRMED" in reasons
-    assert "UNLAWFUL_TERMINATION_PENDING" not in reasons  # postępowanie w toku — prawo jeszcze niestwierdzone
+    assert "UNLAWFUL_TERMINATION_PENDING" not in reasons  # postępowanie w toku - prawo jeszcze niestwierdzone
 
 
 def test_m16_b_professional_foster_family_still_excluded():

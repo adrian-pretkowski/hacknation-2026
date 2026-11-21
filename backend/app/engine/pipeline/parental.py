@@ -1,16 +1,16 @@
-"""Urlop rodzicielski, ojcowski i przejęcie macierzyńskiego — kroki 07 §1 na regułach z 03_rules.yaml (BE2-02).
+"""Urlop rodzicielski, ojcowski i przejęcie macierzyńskiego - kroki 07 §1 na regułach z 03_rules.yaml (BE2-02).
 
 Wynik: osobny element ``benefits`` na każdy urlop wnioskodawcy (``person.role``):
-- ``PARENTAL_LEAVE`` — PAR-DUR-001/002/003 (pula), PAR-ELIG-001 (+ GEN-EXCL-001, PAR-SHARE-003), stawka segmentu
+- ``PARENTAL_LEAVE`` - PAR-DUR-001/002/003 (pula), PAR-ELIG-001 (+ GEN-EXCL-001, PAR-SHARE-003), stawka segmentu
   RATE-MAT-002/003/004/005/008, łączenie z pracą PAR-WORK-002/003, kwota CALC-MAT-001 (+ RATE-MAT-007);
-- ``PATERNITY_LEAVE`` — PAT-DUR-001, PAT-ELIG-001 (+ GEN-EXCL-001), RATE-MAT-001;
-- ``MATERNITY_LEAVE_TRANSFERRED`` / ``MATERNITY_LEAVE_HOSPITALIZATION_SUBSTITUTE`` — MAT-SHARE-001..006, RATE-MAT-001.
+- ``PATERNITY_LEAVE`` - PAT-DUR-001, PAT-ELIG-001 (+ GEN-EXCL-001), RATE-MAT-001;
+- ``MATERNITY_LEAVE_TRANSFERRED`` / ``MATERNITY_LEAVE_HOSPITALIZATION_SUBSTITUTE`` - MAT-SHARE-001..006, RATE-MAT-001.
 Walidacje planu obojga rodziców (``validation_error``) → ``plan_errors`` (status prawa bez zmian):
-MAT-DUR-002, MAT-SHARE-007, PAR-SHARE-001/002, PAR-COND-001, PAR-WORK-001. ``return_to_work`` — dzień po ostatnim
+MAT-DUR-002, MAT-SHARE-007, PAR-SHARE-001/002, PAR-COND-001, PAR-WORK-001. ``return_to_work`` - dzień po ostatnim
 segmencie urlopu każdego rodzica (KP art. 186(4)).
 
 Bez segmentów w planie rodzicielski matki jest propozycją od dnia po urlopie macierzyńskim (``period.from``,
-``max_weeks`` = pula, kwota dzienna) — bez ``to`` i sumy, bo podział puli między rodziców wybiera rodzina (D25).
+``max_weeks`` = pula, kwota dzienna) - bez ``to`` i sumy, bo podział puli między rodziców wybiera rodzina (D25).
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ HOSPITALIZATION = "MATERNITY_LEAVE_HOSPITALIZATION_SUBSTITUTE"
 
 
 def _set_segment(eng: Engine, segment: dict[str, Any] | None) -> None:
-    """Ustawia bieżący segment (cache faktów kluczowany treścią segmentu — Context.fact)."""
+    """Ustawia bieżący segment (cache faktów kluczowany treścią segmentu - Context.fact)."""
     eng.ctx.segment = segment
 
 
@@ -170,7 +170,7 @@ class _Benefit:
         return self.eng.ctx.param(self.eng.rules.rule(winner.rule_id)["result"]["set"]["rate"]["param"]), winner.rule_id
 
     def build(self, period: dict[str, Any] | None, amounts: dict[str, Any]) -> dict[str, Any]:
-        # kontrakt: pola liczbowe okresu i ``days`` bez null — brak wartości = brak pola
+        # kontrakt: pola liczbowe okresu i ``days`` bez null - brak wartości = brak pola
         period = {k: v for k, v in (period or {}).items() if v is not None} or None
         amounts = {k: v for k, v in amounts.items() if not (k == "days" and v is None)}
         payer, payer_rule = payer_of_benefit(self.eng)
@@ -207,7 +207,7 @@ def evaluate_parental(eng: Engine, maternity: dict[str, Any] | None = None) -> d
     parent = applicant_parent(eng)
     own = segments(ctx, PARENTAL, parent)
     if parent != "MOTHER" and ctx.field("event.type") == "BIRTH" and not own:
-        return None  # ojciec / członek rodziny bez zaplanowanej części rodzicielskiego — brak świadczenia do oceny
+        return None  # ojciec / członek rodziny bez zaplanowanej części rodzicielskiego - brak świadczenia do oceny
     b = _Benefit(eng, PARENTAL)
     start = default_parental_start(eng, maternity)
     if start is not None:
@@ -234,9 +234,9 @@ def evaluate_parental(eng: Engine, maternity: dict[str, Any] | None = None) -> d
         if not b.excluded and pool is not None and adoption_age_capped(ctx):
             b.review = True  # PAR-DUR-003 notes, M14b: przesłanka KP 183 § 3 nieustalona → NEEDS_REVIEW
             b.reason("PARENTAL_ADOPTION_38_WEEKS_UNCONFIRMED", "PAR-DUR-003",
-                     f"Dziecko osiąga graniczny wiek przed końcem urlopu na warunkach urlopu macierzyńskiego — "
+                     f"Dziecko osiąga graniczny wiek przed końcem urlopu na warunkach urlopu macierzyńskiego - "
                      f"wymiar rodzicielskiego może wynosić {pool} tygodni (KP art. 183 § 3). Przesłanka tego "
-                     f"wariantu nie jest potwierdzona (M14b, CONF-003) — wymaga weryfikacji.", "KP art. 183 § 3-4")
+                     f"wariantu nie jest potwierdzona (M14b, CONF-003) - wymaga weryfikacji.", "KP art. 183 § 3-4")
     elif parent == "MOTHER" and maternity is not None:
         _cap_by_maternity(b, maternity)
 
@@ -255,7 +255,7 @@ def evaluate_parental(eng: Engine, maternity: dict[str, Any] | None = None) -> d
                      "art. 29 ust. 1 pkt 1")
         else:
             b.reason("CHILD_NOT_ALIVE_ON_PARENTAL_START", "PAR-ELIG-001",
-                     "Dziecko nie żyje w dniu rozpoczęcia urlopu rodzicielskiego — zasiłek za okres urlopu "
+                     "Dziecko nie żyje w dniu rozpoczęcia urlopu rodzicielskiego - zasiłek za okres urlopu "
                      "rodzicielskiego nie przysługuje (martwe urodzenie albo zgon dziecka).", "KP art. 182(1a) § 1")
     if b.eligible is True:
         b.debt()
@@ -263,12 +263,12 @@ def evaluate_parental(eng: Engine, maternity: dict[str, Any] | None = None) -> d
         if parent == "FATHER" and eng.eval("PAR-SHARE-003").fired:
             b.use("PAR-SHARE-003")
             b.reason("FUNDED_BY_STATE_BUDGET", "PAR-SHARE-003",
-                     "Matka nie podlegała ubezpieczeniu chorobowemu w dniu porodu — zasiłek ojca za okres urlopu "
+                     "Matka nie podlegała ubezpieczeniu chorobowemu w dniu porodu - zasiłek ojca za okres urlopu "
                      "rodzicielskiego finansowany z budżetu państwa.", "art. 29 ust. 9-10")
         if _child_dies_during(ctx, own):
-            b.review = True  # GAP-014: prawo po zgonie dziecka w trakcie urlopu — weryfikacja
+            b.review = True  # GAP-014: prawo po zgonie dziecka w trakcie urlopu - weryfikacja
             b.reason("CHILD_DEATH_DURING_PARENTAL", "PAR-ELIG-001",
-                     "Zgon dziecka w trakcie zaplanowanego urlopu rodzicielskiego — prawo do zasiłku po zgonie "
+                     "Zgon dziecka w trakcie zaplanowanego urlopu rodzicielskiego - prawo do zasiłku po zgonie "
                      "wymaga weryfikacji (GAP-014).", "KP art. 182(1a)")
 
     # stawka i kwota (APP-DL-001 = termin wniosku 81,5%, zależność RATE-MAT-003)
@@ -282,8 +282,8 @@ def evaluate_parental(eng: Engine, maternity: dict[str, Any] | None = None) -> d
     if older_adopted and combined is not False and "RATE-MAT-005" in b.applied:
         b.review = True  # GAP-019
         b.reason("FIRST_YEAR_RULE_UNCLEAR_FOR_OLDER_CHILD", "RATE-MAT-005",
-                 "Przyjęto dziecko, które ukończyło rok — stosowanie zasady pierwszego roku życia (stawka "
-                 "rodzicielskiego przy wniosku o łączny zasiłek, wyrównanie do 100%) jest niejasne (GAP-019) — "
+                 "Przyjęto dziecko, które ukończyło rok - stosowanie zasady pierwszego roku życia (stawka "
+                 "rodzicielskiego przy wniosku o łączny zasiłek, wyrównanie do 100%) jest niejasne (GAP-019) - "
                  "wymaga weryfikacji.", "art. 31 ust. 3g")
 
     # łączenie z pracą: wydłużenie (PAR-WORK-002)
@@ -315,12 +315,12 @@ def _cap_by_maternity(b: _Benefit, maternity: dict[str, Any]) -> None:
     if status == "NOT_ELIGIBLE":
         b.excluded = True
         b.reason("NO_MATERNITY_BENEFIT_RIGHT", "PAR-ELIG-001",
-                 "Nie ustalono prawa do zasiłku macierzyńskiego za okres urlopu macierzyńskiego — zasiłek za okres "
+                 "Nie ustalono prawa do zasiłku macierzyńskiego za okres urlopu macierzyńskiego - zasiłek za okres "
                  "urlopu rodzicielskiego z tego tytułu nie przysługuje.", "art. 29 ust. 1; art. 31")
     elif status == "NEEDS_REVIEW":
         b.review = True
         b.reason("MATERNITY_BENEFIT_RIGHT_UNDER_REVIEW", "PAR-ELIG-001",
-                 "Prawo do zasiłku macierzyńskiego wymaga weryfikacji — od niego zależy zasiłek za okres urlopu "
+                 "Prawo do zasiłku macierzyńskiego wymaga weryfikacji - od niego zależy zasiłek za okres urlopu "
                  "rodzicielskiego.", "art. 29 ust. 1; art. 31")
     elif status == "NEEDS_DATA":
         b.needs_data = True
@@ -328,20 +328,20 @@ def _cap_by_maternity(b: _Benefit, maternity: dict[str, Any]) -> None:
 
 def _adoption_base_right(b: _Benefit) -> None:
     """ADOPTION/FOSTER: prawo do urlopu na warunkach macierzyńskiego (MAT-ELIG-002/003, wykluczenie MAT-EXCL-001)
-    warunkuje rodzicielski — bez niego rodzicielski nie jest ELIGIBLE (M16b2: zawodowa rodzina zastępcza)."""
+    warunkuje rodzicielski - bez niego rodzicielski nie jest ELIGIBLE (M16b2: zawodowa rodzina zastępcza)."""
     eng, ctx = b.eng, b.eng.ctx
     excl = eng.eval("MAT-EXCL-001")
     if excl.fired:
         b.use("MAT-EXCL-001")
         b.excluded = True
         b.reason(eng.rules.rule("MAT-EXCL-001")["result"]["reason_code"], "MAT-EXCL-001",
-                 "Rodzina zastępcza zawodowa nie ma prawa do zasiłku macierzyńskiego z tytułu przyjęcia dziecka — "
+                 "Rodzina zastępcza zawodowa nie ma prawa do zasiłku macierzyńskiego z tytułu przyjęcia dziecka - "
                  "także za okres urlopu rodzicielskiego (M16b2).", "art. 29 ust. 1 pkt 3")
         return
     rule_id = "MAT-ELIG-002" if ctx.field("event.type") == "ADOPTION" else "MAT-ELIG-003"
     base = eng.eval(rule_id)
     if rule_id == "MAT-ELIG-002" and ctx.field("event.court_adoption_application_date") is None:
-        # ``exists`` na polu nie daje UNKNOWN (C10) — brak daty wniosku do sądu to brak danych, nie odmowa
+        # ``exists`` na polu nie daje UNKNOWN (C10) - brak daty wniosku do sądu to brak danych, nie odmowa
         eng.need("event.court_adoption_application_date", rule_id)
         b.needs_data = True
         return
@@ -352,21 +352,21 @@ def _adoption_base_right(b: _Benefit) -> None:
         b.excluded = True
         b.reason("NO_MATERNITY_LIKE_RIGHT", rule_id,
                  "Brak prawa do zasiłku za okres urlopu na warunkach urlopu macierzyńskiego (wiek dziecka, wniosek do "
-                 "sądu, rodzaj rodziny zastępczej albo brak ubezpieczenia w dniu przyjęcia) — zasiłek za okres urlopu "
+                 "sądu, rodzaj rodziny zastępczej albo brak ubezpieczenia w dniu przyjęcia) - zasiłek za okres urlopu "
                  "rodzicielskiego nie przysługuje.", "art. 29 ust. 1 pkt 2-3")
     elif base.fired:
         b.use(rule_id)
 
 
 def _work_by_non_employee(b: _Benefit, start: date | None) -> None:
-    """GAP-018: łączenie zasiłku z pracą u niepracownika — przepisy niezałączone → NEEDS_REVIEW (PAR-WORK-001)."""
+    """GAP-018: łączenie zasiłku z pracą u niepracownika - przepisy niezałączone → NEEDS_REVIEW (PAR-WORK-001)."""
     ctx = b.eng.ctx
     if start is None or not ctx.fact("f_has_work_in_parental"):
         return
     if ctx.fact("f_is_employee_on", date=start) is False:
         b.review = True
         b.reason("PARENTAL_WORK_NON_EMPLOYEE_UNCLEAR", "PAR-WORK-001",
-                 "Łączenie zasiłku za okres urlopu rodzicielskiego z pracą u osoby niebędącej pracownikiem — zasady "
+                 "Łączenie zasiłku za okres urlopu rodzicielskiego z pracą u osoby niebędącej pracownikiem - zasady "
                  "nie są ustalone w materiałach (GAP-018), wymaga weryfikacji.", "art. 31 ust. 4a")
 
 
@@ -379,24 +379,24 @@ def _rate_reasons(b: _Benefit, amounts: dict[str, Any]) -> None:
     ctx = b.eng.ctx
     if "RATE-MAT-008" in b.applied:
         b.reason("FATHER_RATE_815_SHARED", "RATE-MAT-008",
-                 f"Wniosek o łączny zasiłek złożony w terminie — część rodzicielskiego ojca (poza 9 tygodniami "
+                 f"Wniosek o łączny zasiłek złożony w terminie - część rodzicielskiego ojca (poza 9 tygodniami "
                  f"nieprzenoszalnymi) płatna {pct(ctx.param('MAT_RATE_COMBINED'))} podstawy (M11).", "art. 31 ust. 3")
     if "RATE-MAT-004" in b.applied:
         b.reason("RESERVED_9W_RATE_70", "RATE-MAT-004",
-                 f"9 nieprzenoszalnych tygodni drugiego rodzica przy wniosku o łączny zasiłek — "
+                 f"9 nieprzenoszalnych tygodni drugiego rodzica przy wniosku o łączny zasiłek - "
                  f"{pct(ctx.param('MAT_RATE_PARENTAL'))} podstawy.", "art. 31 ust. 3f")
     if "RATE-MAT-005" in b.applied:
         b.reason("NO_PARENTAL_IN_FIRST_YEAR_RATE_70", "RATE-MAT-005",
-                 f"W pierwszym roku życia dziecka nie wykorzystano ani dnia urlopu rodzicielskiego — zasiłek "
+                 f"W pierwszym roku życia dziecka nie wykorzystano ani dnia urlopu rodzicielskiego - zasiłek "
                  f"{pct(ctx.param('MAT_RATE_PARENTAL'))} podstawy.", "art. 31 ust. 3g")
     if "RATE-MAT-003" in b.applied:
         b.reason("RATE_COMBINED_815", "RATE-MAT-003",
-                 f"Wniosek o łączny zasiłek w {ctx.param('APP_COMBINED_DEADLINE_DAYS')} dni od porodu — "
+                 f"Wniosek o łączny zasiłek w {ctx.param('APP_COMBINED_DEADLINE_DAYS')} dni od porodu - "
                  f"{pct(ctx.param('MAT_RATE_COMBINED'))} podstawy także za okres urlopu rodzicielskiego.",
                  "art. 31 ust. 3; art. 30a ust. 1")
     if "RATE-MAT-002" in b.applied:
         b.reason("RATE_PARENTAL_70", "RATE-MAT-002",
-                 f"Zasiłek za okres urlopu rodzicielskiego — {pct(ctx.param('MAT_RATE_PARENTAL'))} podstawy.",
+                 f"Zasiłek za okres urlopu rodzicielskiego - {pct(ctx.param('MAT_RATE_PARENTAL'))} podstawy.",
                  "art. 31 ust. 2")
 
 
@@ -412,7 +412,7 @@ def _equalization(b: _Benefit, rule_id: str, parent: str | None) -> None:
         return
     b.use(rule_id)
     b.reason("ONE_OFF_EQUALIZATION_TO_100", rule_id,
-             f"W pierwszym roku życia dziecka nie wykorzystano urlopu rodzicielskiego — na wniosek przysługuje "
+             f"W pierwszym roku życia dziecka nie wykorzystano urlopu rodzicielskiego - na wniosek przysługuje "
              f"jednorazowe wyrównanie zasiłku za okres urlopu macierzyńskiego do "
              f"{pct(ctx.param('MAT_RATE_FULL'))}: {dec_str(amount)} zł.", "art. 31 ust. 3g")
 
@@ -455,7 +455,7 @@ def evaluate_paternity(eng: Engine) -> dict[str, Any]:
             b.reason("PATERNITY_OUTSIDE_LIMITS", "PAT-DUR-001",
                      f"Urlop ojcowski: najwyżej {window['max_days']} dni, w {ctx.param('PATERNITY_MAX_PARTS')} "
                      f"częściach nie krótszych niż {ctx.param('PATERNITY_MIN_PART_WEEKS')} tydzień, do "
-                     f"{window['deadline'].isoformat()} — plan przekracza te granice.", "KP art. 182(3) § 1-2")
+                     f"{window['deadline'].isoformat()} - plan przekracza te granice.", "KP art. 182(3) § 1-2")
         else:
             b.reason("NOT_INSURED_ON_PATERNITY_START", "PAT-ELIG-001",
                      "Brak ubezpieczenia chorobowego w dniu rozpoczęcia urlopu ojcowskiego.", "art. 29 ust. 1 pkt 6")
@@ -511,7 +511,7 @@ def _transfer_benefit(eng: Engine, leave_type: str, rule_ids: list[str], own: li
     elif main.unknown:
         b.ask(main)
     else:
-        # podstawy szczególne (MAT-SHARE-002/004/005) bez danych o matce — nie dotyczą (D25); podstawowa FALSE
+        # podstawy szczególne (MAT-SHARE-002/004/005) bez danych o matce - nie dotyczą (D25); podstawowa FALSE
         b.eligible = False
         b.use(main.rule_id)
         if main.rule_id == "MAT-SHARE-001":
@@ -543,7 +543,7 @@ def plan_errors(eng: Engine) -> list[dict[str, Any]]:
         if not eng.eval(rule_id).fired:
             continue
         if rule_id == "PAR-WORK-001" and start is not None and ctx.fact("f_is_employee_on", date=start) is False:
-            continue  # reguła dotyczy pracowników; niepracownik — GAP-018 (NEEDS_REVIEW w świadczeniu)
+            continue  # reguła dotyczy pracowników; niepracownik - GAP-018 (NEEDS_REVIEW w świadczeniu)
         code = eng.rules.rule(rule_id)["result"]["validation_error"]["code"]
         errors.append({"code": code, "rule_id": rule_id})
     return errors
@@ -551,8 +551,8 @@ def plan_errors(eng: Engine) -> list[dict[str, Any]]:
 
 def reserved_weeks_review(eng: Engine, benefits: list[dict[str, Any]], errors: list[dict[str, Any]]) -> None:
     """GAP-016: błąd 9 tygodni (PAR-SHARE-001), gdy matka nie ma tytułu do ubezpieczenia
-    (``mother.sickness_insured`` = false) — rezerwacja nie jest pewna → rodzicielski NEEDS_REVIEW. Dla wnioskującej
-    matki 04 nie zawiera danych drugiego rodzica — ten wariant nie jest oceniany (D25)."""
+    (``mother.sickness_insured`` = false) - rezerwacja nie jest pewna → rodzicielski NEEDS_REVIEW. Dla wnioskującej
+    matki 04 nie zawiera danych drugiego rodzica - ten wariant nie jest oceniany (D25)."""
     if not any(e["rule_id"] == "PAR-SHARE-001" for e in errors):
         return
     if eng.ctx.field("mother.sickness_insured") is not False:
@@ -562,12 +562,12 @@ def reserved_weeks_review(eng: Engine, benefits: list[dict[str, Any]], errors: l
             benefit["status"] = "NEEDS_REVIEW"
             benefit["reasons"].append(make_reason(
                 eng, "RESERVED_9W_OTHER_PARENT_NOT_INSURED", "PAR-SHARE-001",
-                "Matka nie podlega ubezpieczeniu chorobowemu — czy 9 tygodni rodzicielskiego jest dla niej "
+                "Matka nie podlega ubezpieczeniu chorobowemu - czy 9 tygodni rodzicielskiego jest dla niej "
                 "zarezerwowane, nie jest ustalone (GAP-016); błąd planu wymaga weryfikacji.", "KP art. 182(1a) § 3"))
 
 
 def return_to_work(eng: Engine) -> list[dict[str, Any]]:
-    """Dzień po ostatnim segmencie urlopu każdego rodzica; ``part_time_fraction`` — wymiar pracy w ostatnim
+    """Dzień po ostatnim segmencie urlopu każdego rodzica; ``part_time_fraction`` - wymiar pracy w ostatnim
     segmencie, gdy rodzic łączy urlop z pracą (KP art. 186(4), 182(1e))."""
     last: dict[str, dict[str, Any]] = {}
     for seg in segments(eng.ctx):

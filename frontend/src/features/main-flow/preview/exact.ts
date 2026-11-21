@@ -54,7 +54,7 @@ export function toDecimalString(value: Ratio, maxFraction = 12): string {
   return `${negative ? "-" : ""}${int}${frac ? `.${frac}` : ""}`;
 }
 
-/** Zaokrąglenie do groszy, połówki w górę (ROUND_HALF_UP) — tylko tam, gdzie zasadę potwierdził mentor (M07a). */
+/** Zaokrąglenie do groszy, połówki w górę (ROUND_HALF_UP) - tylko tam, gdzie zasadę potwierdził mentor (M07a). */
 export function roundCents(value: Ratio): Ratio {
   const hundred = BigInt(100);
   const two = BigInt(2);

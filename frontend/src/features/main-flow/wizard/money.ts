@@ -3,7 +3,7 @@
 
 const canon = (raw: string) => raw.trim().replace(/\s/g, "").replace(",", ".").replace(/\.$/, "");
 
-/** Kwota ≥ 0 jako string dziesiętny z kropką (najwyżej 2 miejsca) albo null — np. zaległość w składkach może być 0. */
+/** Kwota ≥ 0 jako string dziesiętny z kropką (najwyżej 2 miejsca) albo null - np. zaległość w składkach może być 0. */
 export function parseMoney(raw: string): string | null {
   const v = canon(raw);
   return /^\d+(\.\d{1,2})?$/.test(v) ? v : null;
@@ -20,6 +20,6 @@ export function moneyError(raw: string): string | undefined {
   if (raw.trim() === "") return undefined;
   const v = parseMoney(raw);
   if (v === null) return "Wpisz kwotę w złotych, np. 7800 albo 7800,50 (najwyżej 2 miejsca po przecinku).";
-  if (Number(v) <= 0) return "Kwota musi być większa od zera — jeśli jej nie znasz, zostaw pole puste.";
+  if (Number(v) <= 0) return "Kwota musi być większa od zera - jeśli jej nie znasz, zostaw pole puste.";
   return undefined;
 }

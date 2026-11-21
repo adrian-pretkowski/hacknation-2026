@@ -1,13 +1,13 @@
 """Sprawy przykładowe (BE2-06): lista, szczegóły, ewaluacja z porównaniem z oczekiwanym wynikiem, upload wniosku.
 
-Źródła spraw: ``demo/cases/*.json`` (SYNTHETIC — dane syntetyczne w repo). Sprawy ZUS (``cases/``) są poza gitem
+Źródła spraw: ``demo/cases/*.json`` (SYNTHETIC - dane syntetyczne w repo). Sprawy ZUS (``cases/``) są poza gitem
 i nie są tu ładowane (poufność; ZUS_SAMPLE dopiero po zgodzie M02). Format pliku sprawy:
 ``{case_id, title, source, note, input (04), expected (CaseExpected) | null, documents_sha256?: [..]}``.
 
 Porównanie (kontrakt ``CaseEvaluation``): pola z ``expected`` vs świadczenie o tym samym ``benefit_type`` i
-``leave_type``; kwoty Decimal — zgodność dokładna albo z tolerancją ±0,01 zł (podstawa) / ±0,01 zł × dni (kwota
-łączna) — GAP-001 (zaokrąglenia ZUS nieznane). Upload: plik tylko w pamięci, bez zapisu i logowania treści; bez AI
-(M16e) — znany plik (SHA-256 z ``documents_sha256``) → FIXTURE_MATCH, inny → MANUAL_REQUIRED + lista brakujących pól.
+``leave_type``; kwoty Decimal - zgodność dokładna albo z tolerancją ±0,01 zł (podstawa) / ±0,01 zł × dni (kwota
+łączna) - GAP-001 (zaokrąglenia ZUS nieznane). Upload: plik tylko w pamięci, bez zapisu i logowania treści; bez AI
+(M16e) - znany plik (SHA-256 z ``documents_sha256``) → FIXTURE_MATCH, inny → MANUAL_REQUIRED + lista brakujących pól.
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from app.core.money import to_decimal
 from app.engine import pipeline
 
 CASES_DIR = REPO_ROOT / "demo" / "cases"
-AMOUNT_TOLERANCE = Decimal("0.01")  # zł — techniczna tolerancja porównania (GAP-001), nie wartość prawna
+AMOUNT_TOLERANCE = Decimal("0.01")  # zł - techniczna tolerancja porównania (GAP-001), nie wartość prawna
 FIELDS = ["status", "benefit_type", "leave_type", "period_from", "period_to", "base_amount", "rate", "total_amount"]
 # Szkielet wejścia dla nierozpoznanego wniosku: najczęstszy przypadek (poród), do potwierdzenia w kreatorze
 UPLOAD_SKELETON: dict[str, Any] = {"evaluation": {"mode": "DECISION_SUPPORT"}, "person": {"role": "MOTHER"},
@@ -136,17 +136,17 @@ def upload(content: bytes) -> dict[str, Any]:
     else:
         extracted = copy.deepcopy(UPLOAD_SKELETON)
         method = "MANUAL_REQUIRED"
-        warnings = ["Nie rozpoznano wniosku — automatyczne odczytywanie treści PDF (AI) jest wyłączone (M16e). "
+        warnings = ["Nie rozpoznano wniosku - automatyczne odczytywanie treści PDF (AI) jest wyłączone (M16e). "
                     "Uzupełnij dane w kreatorze; plik nie został zapisany.",
                     "Przyjęto zdarzenie „poród” i wnioskodawczynię-matkę (event.type = BIRTH, person.role = MOTHER) "
-                    "— zmień, jeśli wniosek dotyczy innej sytuacji."]
+                    "- zmień, jeśli wniosek dotyczy innej sytuacji."]
     result = pipeline.evaluate(extracted)
     missing = [item["field"] for item in result.get("missing_data") or []]
     if method == "MANUAL_REQUIRED":
         for field in ("event.date",):
             if field not in missing:
                 missing.insert(0, field)
-        warnings.append(f"Status: {result.get('overall_status')} — do oceny brakuje danych ({len(missing)} pól, "
+        warnings.append(f"Status: {result.get('overall_status')} - do oceny brakuje danych ({len(missing)} pól, "
                         f"lista w missing_fields).")
     return {"upload_id": upload_id, "extracted_input": extracted, "missing_fields": missing,
             "extraction_method": method, "warnings": warnings}
