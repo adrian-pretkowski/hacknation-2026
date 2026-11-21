@@ -74,16 +74,25 @@ export function Wizard() {
         <ol className="relative mt-4 flex gap-1 overflow-x-auto pb-1 text-sm lg:flex-col lg:overflow-visible">
           {steps.map((s, i) => {
             const current = !done && i === index;
-            const complete = s.complete(a) && (done || i < index);
+            const visited = done || i < index;
+            const complete = s.complete(a) && visited;
+            const summary = s.summary(a);
             return (
               <li key={s.id} className="relative shrink-0">
                 <button type="button" onClick={() => go(i)} aria-current={current ? "step" : undefined}
-                  className={`flex w-full items-center gap-2 rounded-full px-2 py-1.5 text-left lg:rounded-lg ${current ? "bg-zus-green-50 font-semibold text-zus-navy" : "text-zinc-700 hover:bg-zinc-100"}`}>
+                  className={`flex w-full items-start gap-2 rounded-full px-2 py-1.5 text-left lg:rounded-lg ${current ? "bg-zus-green-50 font-semibold text-zus-navy" : "text-zinc-700 hover:bg-zinc-100"}`}>
                   <span aria-hidden="true" className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs ${
                     current ? "border-zus-green-dark bg-zus-green-dark text-white" : complete ? "border-zus-green-dark text-zus-green-dark" : "border-zinc-300 text-zinc-500"}`}>
                     {complete ? "✓" : i + 1}
                   </span>
-                  <span className="whitespace-nowrap lg:whitespace-normal">{s.title}</span>
+                  <span className="min-w-0">
+                    <span className="block whitespace-nowrap lg:whitespace-normal">{s.title}</span>
+                    {visited && summary && (
+                      <span className="block max-w-[14rem] truncate text-xs font-normal text-zinc-600 lg:max-w-none lg:whitespace-normal">
+                        <span className="sr-only">Wybrano: </span>{summary}
+                      </span>
+                    )}
+                  </span>
                   {complete && <span className="sr-only"> (uzupełniony)</span>}
                 </button>
               </li>
