@@ -1,3 +1,5 @@
+import type { PlannerChoice } from "@/lib/api";
+
 // Odpowiedzi kreatora (stan UI). Zamieniane na EvaluateRequest w request.ts — tylko tam powstaje model kontraktu.
 
 export type Role = "MOTHER" | "FATHER" | "GUARDIAN";
@@ -48,6 +50,12 @@ export type Answers = {
   workFraction: "0" | "0.25" | "0.5";
   workWeeks: string;
   salaryGross: string;
+  // Optymalizacja (planer BE2-07)
+  partnerSalaryGross: string;
+  plannerObjective: "MAX_MONEY" | "MAX_TIME";
+  plannerChoices: PlannerChoice[];
+  plannerVariant: Variant | null;
+  plannerApplied: boolean;
 };
 
 export const EMPTY_ANSWERS: Answers = {
@@ -92,6 +100,11 @@ export const EMPTY_ANSWERS: Answers = {
   workFraction: "0",
   workWeeks: "",
   salaryGross: "",
+  partnerSalaryGross: "",
+  plannerObjective: "MAX_MONEY",
+  plannerChoices: [],
+  plannerVariant: null,
+  plannerApplied: false,
 };
 
 /** Przykłady startowe (dane syntetyczne, bez odniesień do spraw ZUS). */

@@ -246,6 +246,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/planner/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Najlepszy następny wybór w planie urlopów obojga rodziców (+ cofanie o N kroków)
+         * @description Graf decyzji z 03_rules.yaml (kroki: wniosek 81,5%, przejęcie macierzyńskiego, ojcowski, 9 tygodni ojca, podział wspólnej części rodzicielskiego, praca na rodzicielskim). Dla bieżącego kroku (po `choices`) zwraca każdą opcję z najlepszym osiągalnym wynikiem, rekomendację, najlepszy plan oraz `backtrack` — lepsze wybory 1..`lookback` kroków wstecz. Kwoty deterministyczne (Decimal), bez LLM. Błędny wybór → status INVALID_CHOICE (HTTP 200) z regułą, która go wyklucza.
+         */
+        post: operations["plannerSuggest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/planner/graph": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Graf wszystkich opcji planu urlopów (węzły, krawędzie, opcje zablokowane regułami)
+         * @description Warstwowy DAG: węzeł = (krok, stan), krawędź = opcja z zyskiem `gain_exact`; opcje niedozwolone mają `feasible: false`, `to: null` i `blocked_by_rule`. `depth` ogranicza liczbę kroków (pełny graf: 7 — ok. 2 MB).
+         */
+        post: operations["plannerGraph"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -995,6 +1035,176 @@ export interface components {
             sensitive?: boolean;
             reviewed_by?: string | null;
         };
+        PlannerParent: {
+            /** @description Podstawa wymiaru zasiłku (miesięczna). Wymagana, gdy rodzic jest ubezpieczony. */
+            base_monthly?: components["schemas"]["Money"] | null;
+            /** @default true */
+            insured?: boolean;
+            /** @description Wynagrodzenie brutto do pracy na rodzicielskim; brak → szacunek z podstawy. */
+            gross_monthly?: components["schemas"]["Money"] | null;
+            /** @default true */
+            can_work_part_time?: boolean;
+        };
+        PlannerProfile: {
+            /** @default 1 */
+            children_count?: number;
+            /** @default false */
+            za_zyciem?: boolean;
+            mother: components["schemas"]["PlannerParent"];
+            father: components["schemas"]["PlannerParent"];
+        };
+        /** @description Wartość opcji kroku (bool — wniosek 81,5%; liczba tygodni; ułamek etatu jako string). */
+        PlannerChoice: boolean | number | string;
+        /** @enum {unknown} */
+        PlannerObjective: "MAX_MONEY" | "MAX_TIME";
+        PlannerSuggestRequest: {
+            profile: components["schemas"]["PlannerProfile"];
+            choices?: components["schemas"]["PlannerChoice"][];
+            objective?: components["schemas"]["PlannerObjective"];
+            /** @default 2 */
+            lookback?: number;
+        };
+        PlannerGraphRequest: {
+            profile: components["schemas"]["PlannerProfile"];
+            objective?: components["schemas"]["PlannerObjective"];
+            /** @default 5 */
+            depth?: number;
+        };
+        PlannerStep: {
+            index: number;
+            id: string;
+            title: string;
+            question: string;
+            rule_ids: string[];
+            hint?: string | null;
+            options?: {
+                value: components["schemas"]["PlannerChoice"];
+                label: string;
+            }[];
+        };
+        PlannerTotals: {
+            best_total_exact: components["schemas"]["Money"];
+            best_total_preview: components["schemas"]["Money"];
+            covered_days: number;
+            covered_weeks: number;
+            together_days: number;
+            needs_review: boolean;
+            mother_exact?: components["schemas"]["Money"];
+            father_exact?: components["schemas"]["Money"];
+            mother_preview?: components["schemas"]["Money"];
+            father_preview?: components["schemas"]["Money"];
+        };
+        PlannerOption: {
+            value: components["schemas"]["PlannerChoice"];
+            label: string;
+            feasible: boolean;
+            blocked_by_rule?: string | null;
+            blocked_reason?: string | null;
+            best_total_exact?: components["schemas"]["Money"];
+            best_total_preview?: components["schemas"]["Money"];
+            loss_vs_best_exact?: components["schemas"]["Money"];
+            loss_vs_best_preview?: components["schemas"]["Money"];
+            covered_days?: number;
+            covered_weeks?: number;
+            together_days?: number;
+            needs_review?: boolean;
+            recommended?: boolean;
+        };
+        PlannerPlanItem: {
+            /** @enum {unknown} */
+            parent: "MOTHER" | "FATHER";
+            /** @enum {unknown} */
+            kind: "MATERNITY_LEAVE" | "MATERNITY_LEAVE_TRANSFERRED" | "PATERNITY_LEAVE" | "PARENTAL_LEAVE" | "PARENTAL_WORK_REDUCTION" | "PARENTAL_EXTENSION" | "WORK_INCOME";
+            label: string;
+            days: number;
+            rate?: string | null;
+            work_fraction?: string | null;
+            amount_exact: components["schemas"]["Money"];
+            rule_ids: string[];
+        };
+        PlannerPlan: {
+            choices: {
+                step_id: string;
+                value: components["schemas"]["PlannerChoice"];
+                label: string;
+            }[];
+            items: components["schemas"]["PlannerPlanItem"][];
+            totals: components["schemas"]["PlannerTotals"];
+            needs_review: boolean;
+            review_rules: string[];
+        };
+        PlannerBacktrack: {
+            steps_back: number;
+            step_index: number;
+            step_id: string;
+            current_value: components["schemas"]["PlannerChoice"];
+            current_label?: string;
+            suggested_value: components["schemas"]["PlannerChoice"];
+            suggested_label?: string;
+            gain_exact: components["schemas"]["Money"];
+            gain_preview?: components["schemas"]["Money"];
+            extra_covered_days?: number;
+            message: string;
+            plan: components["schemas"]["PlannerPlan"];
+        };
+        /** @enum {unknown} */
+        PlannerStatus: "OK" | "COMPLETE" | "INVALID_CHOICE" | "NEEDS_DATA" | "OUT_OF_SCOPE";
+        PlannerSuggestResponse: {
+            engine: string;
+            ruleset_version: string;
+            objective: components["schemas"]["PlannerObjective"];
+            status: components["schemas"]["PlannerStatus"];
+            missing_data: components["schemas"]["MissingData"][];
+            assumptions: components["schemas"]["Assumption"][];
+            step_index?: number;
+            step?: components["schemas"]["PlannerStep"] | null;
+            options?: components["schemas"]["PlannerOption"][];
+            recommended?: components["schemas"]["PlannerChoice"] | null;
+            explanation?: string | null;
+            current_best_plan?: components["schemas"]["PlannerPlan"];
+            global_best_plan?: components["schemas"]["PlannerPlan"];
+            backtrack?: components["schemas"]["PlannerBacktrack"][];
+            invalid_choice?: {
+                index: number;
+                step_id: string;
+                value?: unknown;
+                blocked_by_rule?: string | null;
+                reason: string;
+            } | null;
+        };
+        PlannerGraphResponse: {
+            engine: string;
+            ruleset_version: string;
+            objective: components["schemas"]["PlannerObjective"];
+            status: components["schemas"]["PlannerStatus"];
+            missing_data: components["schemas"]["MissingData"][];
+            assumptions: components["schemas"]["Assumption"][];
+            depth?: number;
+            steps?: components["schemas"]["PlannerStep"][];
+            nodes?: {
+                id: string;
+                step_index: number;
+                step_id: string;
+                state: Record<string, never>;
+            }[];
+            edges?: {
+                from: string;
+                to: string | null;
+                step_id: string;
+                value: components["schemas"]["PlannerChoice"];
+                feasible: boolean;
+                blocked_by_rule?: string | null;
+                gain_exact?: components["schemas"]["Money"] | null;
+                covered_days?: number;
+            }[];
+            stats?: {
+                nodes: number;
+                edges: number;
+                blocked_edges: number;
+                complete_plans: number;
+            };
+            best_plan?: components["schemas"]["PlannerPlan"];
+        };
     };
     responses: never;
     parameters: never;
@@ -1561,6 +1771,85 @@ export interface operations {
                 };
             };
             /** @description Niepoprawne dane */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    plannerSuggest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlannerSuggestRequest"];
+            };
+        };
+        responses: {
+            /** @description Sugestia (także NEEDS_DATA / OUT_OF_SCOPE / INVALID_CHOICE — to nie są błędy HTTP) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlannerSuggestResponse"];
+                };
+            };
+            /** @description Niepoprawny format żądania */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    plannerGraph: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "profile": {
+                 *         "mother": {
+                 *           "base_monthly": "6000.00"
+                 *         },
+                 *         "father": {
+                 *           "base_monthly": "9000.00"
+                 *         }
+                 *       },
+                 *       "depth": 5
+                 *     }
+                 */
+                "application/json": components["schemas"]["PlannerGraphRequest"];
+            };
+        };
+        responses: {
+            /** @description Graf decyzji i najlepszy plan */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlannerGraphResponse"];
+                };
+            };
+            /** @description Niepoprawny format żądania */
             422: {
                 headers: {
                     [name: string]: unknown;

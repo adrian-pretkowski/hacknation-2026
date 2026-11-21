@@ -7,6 +7,10 @@ export type EvaluateRequest = components["schemas"]["EvaluateRequest"];
 export type EvaluateResponse = components["schemas"]["EvaluateResponse"];
 export type Benefit = components["schemas"]["Benefit"];
 export type Problem = components["schemas"]["Problem"];
+export type PlannerSuggestRequest = components["schemas"]["PlannerSuggestRequest"];
+export type PlannerSuggestResponse = components["schemas"]["PlannerSuggestResponse"];
+export type PlannerPlan = components["schemas"]["PlannerPlan"];
+export type PlannerChoice = components["schemas"]["PlannerChoice"];
 
 export const API_MODE = process.env.NEXT_PUBLIC_API_MODE === "mock" ? "mock" : "real";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -36,4 +40,26 @@ export async function evaluate(request: EvaluateRequest): Promise<EvaluateRespon
     throw new ApiError(problem, problem?.title ?? `Błąd API: HTTP ${response.status}`);
   }
   return (await response.json()) as EvaluateResponse;
+}
+
+// Planer urlopów (BE2-07): najlepszy następny wybór + cofanie. Wymaga backendu — w trybie mock zwraca błąd z opisem.
+export async function plannerSuggest(request: PlannerSuggestRequest): Promise<PlannerSuggestResponse> {
+  if (API_MODE === "mock") {
+    throw new ApiError(null, "Planer wymaga działającego API — w trybie demo (bez backendu) jest niedostępny.");
+  }
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/api/planner/suggest`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+  } catch {
+    throw new ApiError(null, `Brak połączenia z API (${API_URL}). Czy backend jest uruchomiony?`);
+  }
+  if (!response.ok) {
+    const problem = (await response.json().catch(() => null)) as Problem | null;
+    throw new ApiError(problem, problem?.title ?? `Błąd API: HTTP ${response.status}`);
+  }
+  return (await response.json()) as PlannerSuggestResponse;
 }

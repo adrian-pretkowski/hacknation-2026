@@ -15,14 +15,17 @@ import { todayIso, toEvaluateRequest } from "./request";
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 const pct = (rate: string, work = "0") => `${(Number(rate) * 100).toLocaleString("pl-PL")}%${work !== "0" ? ` × ${(1 - Number(work)).toLocaleString("pl-PL")}` : ""}`;
 
-export function Results({ answers, onEdit }: { answers: Answers; onEdit: (stepId: string) => void }) {
+export function Results({ answers, onEdit, canEdit = () => true }: {
+  answers: Answers; onEdit: (stepId: string) => void; canEdit?: (stepId: string) => boolean;
+}) {
   const reqA = useMemo(() => toEvaluateRequest(answers, "COMBINED_815"), [answers]);
   const reqB = useMemo(() => toEvaluateRequest(answers, "FULL_100_70"), [answers]);
   const pA = useMemo(() => previewEvaluate(reqA), [reqA]);
   const pB = useMemo(() => previewEvaluate(reqB), [reqB]);
   const cmp = compareTotals(pA.summary.ownTotal, pB.summary.ownTotal);
   const recommended: Variant = cmp?.better === "A" ? "COMBINED_815" : "FULL_100_70";
-  const [chosen, setChosen] = useState<Variant | null>(null);
+  // wariant z planera (krok „Optymalizacja”), jeśli użytkownik przeniósł plan do kreatora
+  const [chosen, setChosen] = useState<Variant | null>(answers.plannerApplied ? answers.plannerVariant : null);
   const variant = chosen ?? recommended;
   const current = variant === "COMBINED_815" ? pA : pB;
   const r = current.response;
@@ -31,14 +34,15 @@ export function Results({ answers, onEdit }: { answers: Answers; onEdit: (stepId
   return (
     <div className="space-y-5" aria-live="polite">
       {sensitive && <SupportBlock kind="loss" />}
-      <StatusHeader result={current} onEdit={onEdit} />
+      <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} />
       {current.summary.remaining && <Remaining p={current} />}
-      {sensitive ? (
+      {/* bez okresów i błędów planu (np. brak prawa) nie pokazujemy pustego panelu */}
+      {(current.summary.segments.length > 0 || (r.plan_errors ?? []).length > 0) && (sensitive ? (
         <details className={card}>
           <summary className="cursor-pointer text-base font-semibold">Pokaż okresy i kwoty</summary>
           <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />
         </details>
-      ) : <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />}
+      ) : <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />)}
       {current.summary.combinedEligible && current.summary.ownTotal && cmp && (
         <VariantComparison pA={pA} pB={pB} variant={variant} recommended={recommended} onChoose={setChosen} />
       )}
@@ -52,7 +56,9 @@ export function Results({ answers, onEdit }: { answers: Answers; onEdit: (stepId
   );
 }
 
-function StatusHeader({ result, onEdit }: { result: PreviewResult; onEdit: (s: string) => void }) {
+function StatusHeader({ result, onEdit, canEdit }: {
+  result: PreviewResult; onEdit: (s: string) => void; canEdit: (s: string) => boolean;
+}) {
   const r = result.response;
   const tone = r.overall_status === "ELIGIBLE" ? "border-l-zus-green"
     : r.overall_status === "NOT_ELIGIBLE" ? "border-l-zus-red" : "border-l-zus-yellow";
@@ -83,7 +89,7 @@ function StatusHeader({ result, onEdit }: { result: PreviewResult; onEdit: (s: s
             {r.missing_data.map((m) => (
               <li key={m.field} className="flex flex-wrap items-center gap-2">
                 <span>{FIELD_QUESTION[m.field] ?? m.field}</span>
-                {FIELD_STEP[m.field] && (
+                {FIELD_STEP[m.field] && canEdit(FIELD_STEP[m.field]) && (
                   <button type="button" onClick={() => onEdit(FIELD_STEP[m.field])} className="text-zus-navy underline underline-offset-2">uzupełnij</button>
                 )}
               </li>
