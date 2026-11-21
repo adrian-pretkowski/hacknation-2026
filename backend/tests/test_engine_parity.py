@@ -23,12 +23,15 @@ def _set(path: str, value):
 SELF_EMPLOYED = [{"title_type": "SELF_EMPLOYED", "sickness_insurance_mode": "VOLUNTARY", "from": "2024-01-01",
                   "to": None}]
 
+_CHILD = {"birth_date": "2027-03-15"}
+
 VARIANTS = {
     "T-RATE-001_demo_815": [],
     "T-RATE-002_day_22_gives_100": [_set("applications.combined_815_filed_date", "2027-04-06")],
     "T-RATE-001_day_21_boundary": [_set("applications.combined_815_filed_date", "2027-04-05")],
-    "T-MAT-002_twins": [_set("children.count_at_birth", 2)],
-    "MAT-DUR-001_quintuplets": [_set("children.count_at_birth", 6)],
+    # demo ma children.items (1 dziecko) — wieloraczki: lista dzieci zgodna z liczbą (inaczej MAT-DUR-005)
+    "T-MAT-002_twins": [_set("children.count_at_birth", 2), _set("children.items", [_CHILD] * 2)],
+    "MAT-DUR-001_quintuplets": [_set("children.count_at_birth", 6), _set("children.items", [_CHILD] * 6)],
     "planned_815_forecast": [_set("applications.combined_815_filed_date", None),
                              _set("applications.combined_815_planned", True)],
     "not_planned_815": [_set("applications.combined_815_filed_date", None),
@@ -64,14 +67,27 @@ def _payload(demo: dict, patches) -> dict:
 # te pola i braki danych zgłoszone wyłącznie przez te reguły są wyłączone z porównania (testy: test_facts_insurance.py)
 BEYOND_SLICE_RULES = {"GEN-CLS-001", "GEN-CLS-002", "GEN-EXCL-002"}
 BEYOND_SLICE_FIELDS = ("payer_of_benefit", "suspended_until_debt_repaid")
+# BE2-02: rodzicielski, ojcowski, przejęcie i walidacje planu — tylko w pipeline; parytet dotyczy macierzyńskiego matki
+BEYOND_SLICE_PREFIXES = ("PAR-", "PAT-", "MAT-SHARE-", "RATE-MAT-002", "RATE-MAT-004", "RATE-MAT-006", "RATE-MAT-008")
+
+
+def _beyond_slice(rule_id: str) -> bool:
+    return rule_id in BEYOND_SLICE_RULES or rule_id.startswith(BEYOND_SLICE_PREFIXES)
+
+
+def _maternity(benefits: list[dict]) -> list[dict]:
+    return [b for b in benefits if b.get("leave_type") == "MATERNITY_LEAVE"]
 
 
 def _comparable(body: dict) -> dict:
     body = copy.deepcopy(body)
-    for key in ("evaluation_id", "engine", "applied_rules", "future_changes", "not_evaluated_rules"):
+    for key in ("evaluation_id", "engine", "applied_rules", "future_changes", "not_evaluated_rules", "plan_errors",
+                "return_to_work"):
         body.pop(key, None)
-    body["missing_data"] = [{**item, "rule_ids": [r for r in item["rule_ids"] if r not in BEYOND_SLICE_RULES]}
-                            for item in body["missing_data"] if not set(item["rule_ids"]) <= BEYOND_SLICE_RULES]
+    body["missing_data"] = [{**item, "rule_ids": [r for r in item["rule_ids"] if not _beyond_slice(r)]}
+                            for item in body["missing_data"] if not all(_beyond_slice(r) for r in item["rule_ids"])]
+    body["benefits"] = _maternity(body["benefits"])
+    body["overall_status"] = body["benefits"][0]["status"] if body["benefits"] else body["overall_status"]
     for benefit in body["benefits"]:
         benefit.pop("applied_rules")
         for key in BEYOND_SLICE_FIELDS:
@@ -94,7 +110,7 @@ def test_pipeline_matches_slice_v0(name, demo_payload):
     # applied_rules w pipeline = reguły rozstrzygnięte (TRUE/FALSE); slice_v0 wpisuje też regułę, której
     # warunek był UNKNOWN — te są w missing_data, więc porównujemy bez nich
     undecided = {rule_id for item in actual["missing_data"] for rule_id in item["rule_ids"]}
-    for exp_benefit, act_benefit in zip(expected["benefits"], actual["benefits"], strict=True):
+    for exp_benefit, act_benefit in zip(expected["benefits"], _maternity(actual["benefits"]), strict=True):
         assert set(exp_benefit["applied_rules"]) - undecided <= set(act_benefit["applied_rules"])
 
 
@@ -114,5 +130,5 @@ def test_pipeline_not_insured_without_leave_data_is_review_and_asks_for_leaves(d
 
 
 def test_pipeline_out_of_scope_event():
-    body = pipeline.evaluate({"event": {"type": "ADOPTION", "date": "2027-01-01"}})
+    body = pipeline.evaluate({"event": {"type": None}})
     assert body["overall_status"] == "OUT_OF_SCOPE" and body["benefits"] == []

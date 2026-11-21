@@ -3,7 +3,8 @@
 Zakres dziś: zasiłek macierzyński matki po porodzie (``maternity.py``) na regułach z 03_rules.yaml (tryby, wyjątki,
 overrides, DT-9, ślad ``applied_rules``, ``future_changes``), niezdolność do pracy — prawo, płatnik i stawka zasiłku
 chorobowego i wynagrodzenia chorobowego (``sickness.py``, BE1-04). Kroki ogólne GEN-* — ``general.py``.
-Kolejne świadczenia (rodzicielski, ojcowski, uzupełniający) dopisują swoje moduły kroków.
+Urlop rodzicielski, ojcowski, przejęcie macierzyńskiego, walidacje planu (``plan_errors``) i powrót do pracy
+(``return_to_work``) — ``parental.py`` (BE2-02). Uzupełniający i na warunkach macierzyńskiego — BE2-01.
 Każde świadczenie dostaje ``explanation`` i ``legal_basis`` z renderera ``app.engine.explain`` (BE1-06).
 """
 from __future__ import annotations
@@ -21,6 +22,14 @@ from app.engine.facts import Context
 from app.engine.facts.insurance import INCAPACITY_EVENTS
 from app.engine.pipeline.engine import STATUS_ORDER, Engine
 from app.engine.pipeline.maternity import evaluate_maternity
+from app.engine.pipeline.parental import (
+    evaluate_parental,
+    evaluate_paternity,
+    evaluate_transferred,
+    plan_errors,
+    reserved_weeks_review,
+    return_to_work,
+)
 from app.engine.pipeline.sickness import evaluate_sickness
 
 ENGINE_NAME = "rules-engine"
@@ -48,20 +57,47 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
 
     event_type = (payload.get("event") or {}).get("type")
     extra_assumptions: list[dict[str, Any]] = []
+    role = (payload.get("person") or {}).get("role")
+    plan: dict[str, Any] = {}
     if event_type == "BIRTH":
-        benefits = [evaluate_maternity(eng)]
+        benefits = []
+        maternity = None
+        if role == "MOTHER":
+            maternity = evaluate_maternity(eng)
+            benefits.append(maternity)
+        elif role == "FATHER":
+            benefits.append(evaluate_paternity(eng))
+        if role in ("FATHER", "OTHER_FAMILY_MEMBER"):
+            benefits += evaluate_transferred(eng)
+        parental = evaluate_parental(eng, maternity)
+        if parental is not None:
+            benefits.append(parental)
+        plan = {"plan_errors": plan_errors(eng), "return_to_work": return_to_work(eng)}
+    elif event_type in ("ADOPTION", "FOSTER"):
+        # świadczenie za urlop na warunkach macierzyńskiego (okres MAT-DUR-007/008) — BE2-01; tu: prawo bazowe
+        # MAT-ELIG-002/003 + MAT-EXCL-001 jako warunek rodzicielskiego (PAR-DUR-003) i ojcowski ojca (PAT-*)
+        benefits = [evaluate_paternity(eng)] if role == "FATHER" else []
+        benefits += [b for b in [evaluate_parental(eng)] if b is not None]
+        for rule_id in ("MAT-DUR-007", "MAT-DUR-008"):
+            if rule_id not in eng.not_evaluated:
+                eng.not_evaluated.append(rule_id)
+        plan = {"plan_errors": plan_errors(eng), "return_to_work": return_to_work(eng)}
     elif event_type in INCAPACITY_EVENTS:
         benefits, extra_assumptions = evaluate_sickness(eng)
     else:
         return _response(eng, [], [{"code": "OUT_OF_SCOPE_SLICE",
-                                    "text": "Silnik reguł obsługuje na razie event.type: BIRTH, "
+                                    "text": "Silnik reguł obsługuje na razie event.type: BIRTH, ADOPTION, FOSTER, "
                                             "PREGNANCY_INCAPACITY, SICKNESS."}], "OUT_OF_SCOPE")
+    if plan:
+        reserved_weeks_review(eng, benefits, plan["plan_errors"])  # GAP-016
     for benefit in benefits:
         benefit.update(explain_benefit(eng, benefit))  # BE1-06: explanation + legal_basis (kontrakt Benefit)
     assumptions = [ROUNDING] + [PARAM_ASSUMPTIONS[p] for p in eng.unconfirmed_params() if p in PARAM_ASSUMPTIONS]
     assumptions += extra_assumptions
     overall = next((s for s in STATUS_ORDER if any(b["status"] == s for b in benefits)), "NEEDS_DATA")
-    return _response(eng, benefits, assumptions, overall)
+    if not benefits:
+        overall = "OUT_OF_SCOPE"
+    return {**_response(eng, benefits, assumptions, overall), **plan}
 
 
 def _response(eng: Engine, benefits: list[dict[str, Any]], assumptions: list[dict[str, Any]],

@@ -30,7 +30,8 @@ FactFn = Callable[..., Any]
 _REGISTRY: dict[str, FactFn] = {}
 
 # Moduły faktów (domeny). BE1-04/05: insurance, sickness; BE2-01..04: maternity, parental, base, documents.
-_FACT_MODULES = ["app.engine.facts.insurance", "app.engine.facts.sickness", "app.engine.facts.maternity"]
+_FACT_MODULES = ["app.engine.facts.insurance", "app.engine.facts.sickness", "app.engine.facts.maternity",
+                "app.engine.facts.parental"]
 
 
 def fact(name: str) -> Callable[[FactFn], FactFn]:
@@ -123,7 +124,8 @@ class Context:
             return None
         if fn is None:
             raise KeyError(f"Fakt {name} nie jest zaimplementowany (zus_rules/07)")
-        seg_key = id(self.segment) if self.segment is not None else None
+        # segment kluczowany treścią, nie id(): zwolniony obiekt może oddać swoje id kolejnemu segmentowi
+        seg_key = repr(sorted(self.segment.items())) if self.segment is not None else None
         key = (name, seg_key, tuple(sorted((k, repr(v)) for k, v in args.items())))
         if key not in self._cache:
             before = len(self.missing)
