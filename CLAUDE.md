@@ -19,6 +19,7 @@ RWD · demo www z wyborem/uploadem przykładowych wniosków i weryfikacją ubezp
 - Wartości prawne tylko z `app.core.params.param()` — nie wpisuj liczb z przepisów w kod.
 - LLM nie liczy kwot ani uprawnień. Nie dodawaj zależności, usług ani AI bez wpisu w `docs/DECISIONS.md`.
 - Systemy trzecie (mObywatel, konto ZUS/PUE, e-ZLA, zadłużenie, USC, wnioski) = **mocki** w `backend/app/integrations/simulated/` (serwis per system, fasada `SimulatedSystems`, profile w `profiles.py`) wystawione jako `/api/sim/*` z `simulated: true`. Nowy scenariusz: nadpisanie w metodzie serwisu lub nowy profil + test w `tests/test_sim_services.py`; progi z `param()`. Opis: `docs/ARCHITECTURE.md` § Symulowane systemy trzecie.
+- Wyjaśnialność wyniku to wyróżnik wskazany przez jury (D19): każda karta z kwotą ma blok „Pokaż, jak to policzyliśmy” (kroki, dni × stawka, ID reguł, założenia). Nie usuwaj go i dodawaj do nowych ekranów wyników.
 - Mock ≠ integracja: nie oznaczaj symulacji ani mocka jako działającej funkcji. `slice_v0` zwraca `not_evaluated_rules`.
 - Edytuj tylko pliki ze swojego zakresu w `docs/TASKS.md`; inne → zgłoś właścicielowi.
 - Bez sekretów w repo, bez `git push` i deployu bez polecenia lidera, bez destrukcyjnych operacji git. Wyjątek: rezerwacja zadania `/claim` (D19) sama commituje i pushuje status na `main` — za zgodą w oknie uprawnień.

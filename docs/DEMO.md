@@ -14,7 +14,7 @@
 |---|---|---|
 | 0:00–0:30 | Persona: przedsiębiorczyni w 6. miesiącu ciąży | Związek |
 | 0:30–1:15 | Logowanie mObywatel (SYMULACJA) → dane ZUS, e-ZLA (kod B), zadłużenie | Kompletność |
-| 1:15–2:15 | Karty świadczeń z przepisami; ostrzeżenia o ryzykach | Pomysł, Oryginalność |
+| 1:15–2:15 | Karty świadczeń z przepisami; ostrzeżenia o ryzykach; **rozwiń „Pokaż, jak to policzyliśmy” (kluczowe dla jury — nie pomijać, także w skróconej wersji)** | Pomysł, Oryginalność |
 | 2:15–3:15 | Planer obojga rodziców, ½ etatu, 81,5% vs 100/70, data powrotu | Pomysł (b, c, d) |
 | 3:15–4:00 | Wybór sprawy ZUS → „Zgodne z decyzją ZUS ✓” + ekran X/N | Związek, Potencjał |
 | 4:00–4:30 | Admin: zmiana parametru → przeliczenie; widok mobilny | Potencjał |
