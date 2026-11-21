@@ -253,7 +253,8 @@ def test_m15_d_app_dl_001_deadline_on_sunday_moves_to_monday(demo_payload):
     """T-RATE-009: 14.03 + 21 = 4.04 (niedziela) → wniosek 5.04 w terminie (81,5%), 6.04 - po terminie (100%)."""
     body = pipeline.evaluate(_born_sunday(demo_payload, "2027-04-05"))
     assert body["benefits"][0]["rate"] == "0.815"
-    assert "PUBLIC_HOLIDAYS_UNCONFIRMED" in [a["code"] for a in body["assumptions"]]
+    # FE1-29: lista świąt potwierdzona przez lidera (CONFIRMED) - bez założenia „do potwierdzenia”
+    assert "PUBLIC_HOLIDAYS_UNCONFIRMED" not in [a["code"] for a in body["assumptions"]]
     late = pipeline.evaluate(_born_sunday(demo_payload, "2027-04-06"))["benefits"][0]
     assert Decimal(late["rate"]) == param("MAT_RATE_FULL")
 

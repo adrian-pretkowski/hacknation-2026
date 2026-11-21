@@ -8,7 +8,7 @@ from decimal import Decimal
 
 import pytest
 
-from app.core.params import STORE, param
+from app.core.params import STORE, param, param_status
 from tests.test_contract import _validator
 
 
@@ -86,7 +86,9 @@ def test_version_conflict_409(client):
     ({"name": "MAT_RATE_COMBINED", "value": "abc", "reason": "Test"}, "changes.0.value"),
     ({"name": "PATERNITY_WEEKS", "value": "2.5", "reason": "Test"}, "changes.0.value"),
     ({"name": "MATERNITY_WEEKS_BY_CHILDREN", "value": {"1": 20}, "reason": "Test"}, "changes.0.value"),
-    ({"name": "PUBLIC_HOLIDAYS", "value": "2027-01-01", "reason": "Test"}, "changes.0.value"),
+    ({"name": "PUBLIC_HOLIDAYS", "value": "2027-01-01", "reason": "Test"}, "changes.0.value"),  # nie lista
+    ({"name": "PUBLIC_HOLIDAYS", "value": [], "reason": "Test"}, "changes.0.value"),  # pusta lista
+    ({"name": "PUBLIC_HOLIDAYS", "value": ["2027-01-01", "11.11.2027"], "reason": "Test"}, "changes.0.value.1"),
     ({"name": "MAT_RATE_COMBINED", "value": "0.9", "reason": "x"}, "changes.0.reason"),
     ({"name": "MAT_RATE_COMBINED", "value": "0.9", "valid_from": "31.12.2026", "reason": "Test"},
      "changes.0.valid_from"),
@@ -104,6 +106,30 @@ def test_batch_is_atomic(client):
                     {"name": "NIE_MA", "value": "1", "reason": "Błędna"})
     assert response.status_code == 422
     assert param("MAT_RATE_COMBINED") == Decimal("0.815")
+
+
+def test_FE1_29_public_holidays_editable_and_used_by_engine(client, demo_payload):
+    """Lista świąt z panelu: zastępuje plik, porządkowana (bez duplikatów), silnik używa jej bez restartu.
+
+    Poród 21.10.2027 + 21 = 11.11.2027 (święto z pliku) → termin 12.11; po usunięciu 11.11 z listy termin to 11.11,
+    więc wniosek 12.11 jest po terminie (100%).
+    """
+    payload = {**demo_payload, "event": {"type": "BIRTH", "date": "2027-10-21"},
+               "applications": {"combined_815_filed_date": "2027-11-12"}}
+    assert client.post("/api/evaluate", json=payload).json()["benefits"][0]["rate"] == "0.815"
+    holidays = [d for d in param("PUBLIC_HOLIDAYS") if d != "2027-11-11"]
+    response = _put(client, {"name": "PUBLIC_HOLIDAYS", "value": [*holidays, holidays[0], " 2031-12-31 "],
+                             "valid_from": None, "reason": "Test FE1-29"})
+    assert response.status_code == 200
+    item = _by_name(response.json())["PUBLIC_HOLIDAYS"]
+    assert item["overridden"] and item["value"] == sorted(set(holidays) | {"2031-12-31"})
+    assert "2027-11-11" not in param("PUBLIC_HOLIDAYS")
+    assert Decimal(client.post("/api/evaluate", json=payload).json()["benefits"][0]["rate"]) == param("MAT_RATE_FULL")
+
+
+def test_FE1_29_public_holidays_confirmed():
+    assert STORE.effective("PUBLIC_HOLIDAYS") is None and param("PUBLIC_HOLIDAYS")  # z pliku
+    assert param_status("PUBLIC_HOLIDAYS") == "CONFIRMED"
 
 
 def test_overrides_persist_in_json_file(client, tmp_path):

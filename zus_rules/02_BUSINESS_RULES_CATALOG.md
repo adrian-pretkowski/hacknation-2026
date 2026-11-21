@@ -1608,7 +1608,7 @@ Wniosek o wypłatę zasiłku za pełny wymiar macierzyńskiego i rodzicielskiego
 - **Dane:** `event.date` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** T-RATE-001, T-RATE-009
-- **Uwagi:** Ostatni dzień = event.date + 21 dni (DERIVED: liczenie od dnia następnego po porodzie); termin w sobotę, niedzielę lub święto → następny dzień roboczy (M15 d, mentor fachowy 2026-11-21; GAP-020 zamknięty). Lista świąt - parametr PUBLIC_HOLIDAYS z pliku zus_rules/public_holidays.yaml (2026–2031, lista zespołu - UNCONFIRMED, ustawa o dniach wolnych od pracy niezałączona). Wynik sprawdza f_combined_application_within_deadline.
+- **Uwagi:** Ostatni dzień = event.date + 21 dni (DERIVED: liczenie od dnia następnego po porodzie); termin w sobotę, niedzielę lub święto → następny dzień roboczy (M15 d, mentor fachowy 2026-11-21; GAP-020 zamknięty). Lista świąt - parametr PUBLIC_HOLIDAYS z pliku zus_rules/public_holidays.yaml (2026–2031, lista zespołu - CONFIRMED przez lidera 2026-11-21, ustawa o dniach wolnych od pracy niezałączona). Wynik sprawdza f_combined_application_within_deadline.
 
 ### APP-DOC-001
 

@@ -2091,7 +2091,7 @@ components:
         name:
           type: string
         value:
-          description: Liczba jako string dziesiętny, liczba całkowita, tabela (obiekt) lub null
+          description: Liczba jako string dziesiętny, liczba całkowita, tabela (obiekt), lista dat RRRR-MM-DD (PUBLIC_HOLIDAYS) lub null
         unit:
           type: string
         source:
@@ -2150,7 +2150,8 @@ components:
             properties:
               name:
                 type: string
-              value: {}
+              value:
+                description: W typie wartości parametru - liczba jako string dziesiętny, liczba całkowita, tabela z tymi samymi kluczami albo lista dat RRRR-MM-DD (PUBLIC_HOLIDAYS - zastępuje całą listę, D37)
               valid_from:
                 type:
                 - string
