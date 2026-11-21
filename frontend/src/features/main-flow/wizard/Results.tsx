@@ -82,7 +82,7 @@ function StatusHeader({ result, onEdit, canEdit }: {
       {result.summary.ownTotal && r.overall_status !== "NOT_ELIGIBLE" && (
         <OwnTotal applicant={result.summary.applicant} total={result.summary.ownTotal}
           days={ownBenefits.reduce((n, b) => n + (b.days ?? 0), 0)}
-          leaves={ownBenefits.map((b) => LEAVE_LABEL[b.leave_type ?? ""]).filter(Boolean)} />
+          leaves={[...new Set(ownBenefits.map((b) => LEAVE_LABEL[b.leave_type ?? ""]).filter(Boolean))]} />
       )}
       {reasons.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm">
