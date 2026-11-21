@@ -156,7 +156,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_base_declared_short_insurance` | – | Decimal | §2 art. 48a | `minimum_contribution_base_by_month` null → None | GAP-023 |
 | `f_periodic_components_monthly_share` | – | Decimal | §2 udział kwartalny + roczny | Brak list → 0 tylko gdy Z-3 kompletne | – |
 | `f_filter_excluded_components` | – | list | Odrzuć `retained_during_benefit = true` | null → NEEDS_REVIEW | – |
-| `f_apply_minimum_base` | – | Decimal | §2 minimum | MIN_WAGE UNCONFIRMED → wynik + assumption | – |
+| `f_apply_minimum_base` | – | Decimal | §2 minimum (MIN_WAGE potwierdzona — M07) | None | Zaokrąglenie minimum „do dziesiątek” (M07) do doprecyzowania — dziś kwota dokładna |
 | `f_base_after_working_time_change` | – | – | — | — | Reguła BLOCKED (GAP-021) |
 | `f_working_time_change_in_base_window` | – | bool | `working_time_change_date` ∈ [początek okna 12 m-cy, koniec miesiąca zdarzenia] | None | – |
 | `f_gap_shorter_than_calendar_month` | – | bool | Przerwa = dni pomiędzy `previous_benefit_end_date` a początkiem zasiłku (`base.reference_event_date` → `plan.maternity_start_date` → `event.date`); TRUE ⇔ przerwa nie obejmuje pełnego miesiąca kalendarzowego (1.–ostatni dzień); brak przerwy/nakładanie → TRUE (M05) | None | CONF-006 rozstrzygnięty (M05): 2.02–14.03 (41 dni) → TRUE; 1.02–14.03 → FALSE; macierzyński od 1.02 przed porodem po L4 do 31.01 → TRUE |
@@ -195,5 +195,5 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `ROUNDING_POLICY` | wszystkie kwoty | `amount_rounded = null` + assumption |
 | `PARENTAL_BENEFIT_FLOOR_MONTHLY` | RATE-MAT-007 | BLOCKED → NEEDS_REVIEW, gdy kwota może być niższa |
 | `AVERAGE_WAGE_CAP_AFTER_TITLE` | BASE-GEN-002 | BLOCKED |
-| `MIN_WAGE_2026_MONTHLY` (UNCONFIRMED) | BASE-EMP-008, GEN-EXCL-001 | wynik + assumption `MIN_WAGE_FROM_ATTACHMENT` |
+| ~~`MIN_WAGE_2026_MONTHLY`~~ — potwierdzona 4806,00 zł (M07, 2026-11-21), status CONFIRMED | BASE-EMP-008, GEN-EXCL-001 | bez assumption `MIN_WAGE_FROM_ATTACHMENT` |
 | najniższa podstawa składek (wejście per miesiąc) | BASE-NEMP-002/003 | NEEDS_DATA gdy brak |

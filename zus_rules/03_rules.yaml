@@ -106,8 +106,8 @@ meta:
     APP_COMBINED_DEADLINE_DAYS: {value: 21, unit: days_after_event, source: "USTAWA art. 30a ust. 1-2"}
     PARENTAL_BENEFIT_FLOOR_MONTHLY: {value: null, unit: PLN, source: "USTAWA art. 31 ust. 3a → ustawa o świadczeniach rodzinnych (NIEZAŁĄCZONA)", status: MISSING}
     # --- podstawa wymiaru
-    CONTRIBUTION_DEDUCTION_RATE: {value: "0.1371", unit: ratio, source: "USTAWA art. 3 pkt 4; art. 45 ust. 1"}
-    MIN_WAGE_2026_MONTHLY: {value: "4806.00", unit: PLN, source: "ZALACZNIK (kwota z odrębnych przepisów — do potwierdzenia)", status: UNCONFIRMED}
+    CONTRIBUTION_DEDUCTION_RATE: {value: "0.1371", unit: ratio, source: "USTAWA art. 3 pkt 3 (pracownicy — M06), pkt 4; art. 45 ust. 1"}
+    MIN_WAGE_2026_MONTHLY: {value: "4806.00", unit: PLN, source: "ZALACZNIK; potwierdzone przez mentora fachowego ZUS (M07, 2026-11-21)", status: CONFIRMED}
     VOLUNTARY_MAX_CONTRIB_BASE_2026: {value: "23550.00", unit: PLN, source: "ZALACZNIK (przepis ustawy o s.u.s. niezałączony)", status: UNCONFIRMED}
     AVERAGE_WAGE_CAP_AFTER_TITLE: {value: null, unit: PLN, source: "USTAWA art. 46 (kwota ogłaszana odrębnie — brak w materiałach)", status: MISSING}
     # --- płatnik, terminy, zadłużenie
@@ -210,7 +210,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Dotyczy świadczeń z art. 2 pkt 1, 2, 5, 6. Próg = MIN_WAGE × 1% (kwota płacy minimalnej z ZALACZNIK — UNCONFIRMED). Po spłacie: wypłata w 60 dni (GEN-DL-002). Status 'NOT_ELIGIBLE' z flagą zawieszenia — UI musi pokazać, że po spłacie prawo odżywa."
+  notes: "Dotyczy świadczeń z art. 2 pkt 1, 2, 5, 6. Próg = MIN_WAGE × 1% (płaca minimalna 4806,00 zł — potwierdzona, M07). Po spłacie: wypłata w 60 dni (GEN-DL-002). Status 'NOT_ELIGIBLE' z flagą zawieszenia — UI musi pokazać, że po spłacie prawo odżywa."
 
 - id: GEN-EXCL-002
   name: "Przedawnienie prawa przy niespłaceniu zadłużenia w 6 miesięcy"
@@ -3107,7 +3107,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Kwota płacy minimalnej (4806,00 zł) — z Załącznika, status UNCONFIRMED; wartość wynikowa (4806 × 0,8629 = 4147,0974) wymaga reguły zaokrąglenia (GAP-001). Załącznik zapowiada tabelę min. podstaw, ale tabela jest pusta (GAP-022). Część etatu → brak minimum z art. 45 (DERIVED)."
+  notes: "Kwota płacy minimalnej (4806,00 zł) — potwierdzona przez mentora (M07, 2026-11-21); wartość wynikowa 4806 × 0,8629 = 4147,0974. Zaokrąglenie: mentor — „zaokrąglać do dziesiątek” — DO DOPRECYZOWANIA (dosłownie 4150 zł; do 0,10 zł i do grosza = 4147,10 zł), do tego czasu kwota dokładna (GAP-001, GAP-022). Załącznik zapowiada tabelę min. podstaw, ale tabela jest pusta (GAP-022). Część etatu → brak minimum z art. 45 (DERIVED)."
 
 - id: BASE-NEMP-001
   name: "Podstawa niepracownika — średni przychód z 12 miesięcy"

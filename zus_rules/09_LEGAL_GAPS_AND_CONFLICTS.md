@@ -40,7 +40,7 @@ Wpływ na MVP: **H** — blokuje część demo lub poprawność kwot; **M** — 
 | GAP-019 | Art. 31 ust. 3g („pierwszy rok życia”) przy przyjęciu dziecka starszego niż 1 rok | RATE-MAT-005 | NEEDS_REVIEW dla ADOPTION/FOSTER, gdy dziecko >1 rok | L |
 | GAP-020 | Ostatni dzień terminu w dzień wolny (21 dni na wniosek 81,5%) | APP-DL-001 | Bez przesunięcia + ostrzeżenie „złóż wcześniej” | M |
 | GAP-021 | Ustalenie „wynagrodzenia dla nowego wymiaru czasu pracy” przy składnikach zmiennych | BASE-EMP-005 | BLOCKED | M |
-| GAP-022 | Tabela minimalnych podstaw 2026 w Załączniku jest pusta | BASE-EMP-008 | Wyliczenie z art. 45: 4806 × 0,8629 = 4147,0974 (UNCONFIRMED) | **H** |
+| GAP-022 | Tabela minimalnych podstaw 2026 w Załączniku jest pusta | BASE-EMP-008 | Wyliczenie z art. 45: 4806 × 0,8629 = 4147,0974. **Płaca minimalna 4806 zł potwierdzona (M07, 2026-11-21).** Zaokrąglenie: mentor „do dziesiątek” — do doprecyzowania (4150 zł dosłownie vs 4147,10 zł przy 0,10 zł / groszu); do tego czasu kwota dokładna | **H** → M (otwarte tylko zaokrąglenie) |
 | GAP-023 | Brak wartości najniższej podstawy wymiaru składek (ustawa o s.u.s.) | BASE-NEMP-002/003 | Wejście per miesiąc (z danych ZUS — symulacja) | **H** dla JDG |
 | GAP-024 | Poronienie a martwe urodzenie: KP 180(1) mówi o „urodzeniu martwego dziecka”, ROZP_DOK § 13 ust. 1 pkt 2 dopuszcza zaświadczenie o martwym urodzeniu „bez względu na czas trwania ciąży”; definicji martwego urodzenia brak w materiałach | MAT-DUR-003 | Decyduje dokument: zaświadczenie o martwym urodzeniu → `stillborn=true` → 8 tyg.; brak zaświadczenia → NEEDS_REVIEW. Pkt i zadania (poronienie) — tryb wrażliwy + organizacje wsparcia | M |
 

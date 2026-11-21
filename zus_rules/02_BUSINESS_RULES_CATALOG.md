@@ -191,7 +191,7 @@ Zasiłek chorobowy, świadczenie rehabilitacyjne, macierzyński i opiekuńczy ni
 - **Dane:** `debt.amount_on_right_date`, `debt.repaid_in_full_date`, `insurance.titles` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-GEN-006, T-GEN-007, T-GEN-008, T-GEN-009, T-INT-002, T-INT-005
-- **Uwagi:** Dotyczy świadczeń z art. 2 pkt 1, 2, 5, 6. Próg = MIN_WAGE × 1% (kwota płacy minimalnej z ZALACZNIK — UNCONFIRMED). Po spłacie: wypłata w 60 dni (GEN-DL-002). Status 'NOT_ELIGIBLE' z flagą zawieszenia — UI musi pokazać, że po spłacie prawo odżywa.
+- **Uwagi:** Dotyczy świadczeń z art. 2 pkt 1, 2, 5, 6. Próg = MIN_WAGE × 1% (płaca minimalna 4806,00 zł — potwierdzona, M07). Po spłacie: wypłata w 60 dni (GEN-DL-002). Status 'NOT_ELIGIBLE' z flagą zawieszenia — UI musi pokazać, że po spłacie prawo odżywa.
 
 ### GEN-EXCL-002
 
@@ -2365,7 +2365,7 @@ Podstawa z tytułu pracy w pełnym wymiarze nie może być niższa niż minimaln
 - **Dane:** `employment.working_time_fraction` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DIRECT
 - **Testy:** T-BASE-003
-- **Uwagi:** Kwota płacy minimalnej (4806,00 zł) — z Załącznika, status UNCONFIRMED; wartość wynikowa (4806 × 0,8629 = 4147,0974) wymaga reguły zaokrąglenia (GAP-001). Załącznik zapowiada tabelę min. podstaw, ale tabela jest pusta (GAP-022). Część etatu → brak minimum z art. 45 (DERIVED).
+- **Uwagi:** Kwota płacy minimalnej (4806,00 zł) — potwierdzona przez mentora (M07, 2026-11-21); wartość wynikowa 4806 × 0,8629 = 4147,0974. Zaokrąglenie: mentor — „zaokrąglać do dziesiątek” — DO DOPRECYZOWANIA (dosłownie 4150 zł; do 0,10 zł i do grosza = 4147,10 zł), do tego czasu kwota dokładna (GAP-001, GAP-022). Załącznik zapowiada tabelę min. podstaw, ale tabela jest pusta (GAP-022). Część etatu → brak minimum z art. 45 (DERIVED).
 
 ### BASE-NEMP-001
 

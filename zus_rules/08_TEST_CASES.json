@@ -353,7 +353,7 @@
     "USTAWA art. 2a ust. 1"
    ],
    "assumptions": [
-    "MIN_WAGE_2026_MONTHLY=4806.00 z Załącznika (UNCONFIRMED)"
+    "MIN_WAGE_2026_MONTHLY=4806.00 (potwierdzona — M07)"
    ]
   },
   {
@@ -380,7 +380,7 @@
     "USTAWA art. 2a ust. 1"
    ],
    "assumptions": [
-    "MIN_WAGE_2026_MONTHLY=4806.00 (UNCONFIRMED)"
+    "MIN_WAGE_2026_MONTHLY=4806.00 (potwierdzona — M07)"
    ]
   },
   {
@@ -3320,7 +3320,7 @@
     "USTAWA art. 45 ust. 1, art. 36 ust. 2"
    ],
    "assumptions": [
-    "MIN_WAGE 4806,00 (UNCONFIRMED); zaokrąglenie GAP-001"
+    "MIN_WAGE 4806,00 (potwierdzona — M07); zaokrąglenie „do dziesiątek” (M07) do doprecyzowania — oczekiwana kwota dokładna"
    ]
   },
   {
