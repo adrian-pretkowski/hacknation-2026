@@ -129,11 +129,11 @@ export function Slider({ label, hint, value, onChange, min, max, step = 1, unit,
       <div className="mt-2 flex items-center gap-3">
         <input id={id} type="range" min={min} max={max} step={step} value={num ?? min} disabled={disabled}
           aria-valuetext={num === null ? emptyLabel : show(normalized)} aria-describedby={described} aria-invalid={describedBy ? true : undefined}
-          className={`h-2 w-full cursor-pointer accent-zus-green-dark ${num === null ? "opacity-50" : ""}`}
+          className={`h-2 w-full cursor-pointer accent-zus-green-dark disabled:cursor-not-allowed disabled:opacity-40 ${num === null ? "opacity-50" : ""}`}
           onChange={(e) => onChange(e.target.value)} />
         <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} — wpisz wartość`} placeholder="—" disabled={disabled}
           aria-describedby={described} aria-invalid={describedBy ? true : undefined}
-          className={`${money ? "w-28" : "w-20"} shrink-0 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-right text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark`}
+          className={`${money ? "w-28" : "w-20"} shrink-0 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-right text-base disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark`}
           value={value} onChange={(e) => onChange(clean(e.target.value))} />
       </div>
       <div className="mt-1 flex items-center justify-between text-xs text-zinc-500">

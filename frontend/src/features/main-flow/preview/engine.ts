@@ -237,6 +237,7 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
   if (count == null) need(eventType === "BIRTH" ? "children.count_at_birth" : "children.count_at_event", "MAT-DUR-001");
 
   // Przyjęcie dziecka: limity wieku
+  let kp183Case = false; // FE1-12: rodzina zastępcza niezawodowa, dziecko ponad granicą wieku (KP 183 § 3)
   if (eventType === "ADOPTION" || eventType === "FOSTER") {
     combinedEligible = true;
     const age = wp.child_age_years;
@@ -254,6 +255,7 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
         reasons.push({ code: "CHILD_AGE_LIMIT", rule_id: "MAT-ELIG-005",
           message: `Wiek dziecka (${age} l.) przekracza limit ${limit} lat dla tej formy przyjęcia.`,
           legal_basis: [{ document: "KP", location: "art. 183" }, { document: "USTAWA", location: "art. 29 ust. 1 pkt 2-3" }] });
+        if (eventType === "FOSTER") kp183Case = true;
         if (eventType === "FOSTER") warn("KP183_3_REVIEW", "WARNING", "MAT-DUR-007",
           "Dla dziecka ponad limit wieku może przysługiwać krótszy wymiar (9 tyg. + 38 tyg.) — interpretacja KP art. 183 § 3 do potwierdzenia.");
       }
@@ -269,9 +271,12 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
   if (ev && count != null && status !== "NOT_ELIGIBLE") {
     const multiple = count > 1;
     const aliveCount = Math.max(count - stillbornCount, 0);
+    // PAR-DUR-003: w przypadku KP 183 § 3 pula 38 / 62 tyg. (przesłanka do potwierdzenia — M14b, NEEDS_REVIEW)
     parentalPool = allDead ? null
+      : kp183Case ? (zaZyciem ? P.PARENTAL_WEEKS_ADOPT_GUARANTEED_ZA_ZYCIEM : P.PARENTAL_WEEKS_ADOPT_GUARANTEED)
       : zaZyciem ? (multiple ? P.PARENTAL_WEEKS_ZA_ZYCIEM_MULTIPLE : P.PARENTAL_WEEKS_ZA_ZYCIEM_SINGLE)
         : multiple ? P.PARENTAL_WEEKS_MULTIPLE : P.PARENTAL_WEEKS_SINGLE;
+    if (kp183Case) assumptions.push({ code: "KP183_3_POOL", text: `Urlop rodzicielski liczony w wymiarze ${parentalPool} tyg. (KP art. 183 § 4 pkt 3 — przypadek z § 3); przesłanka do potwierdzenia w ZUS (M14b).` });
     const reserved = P.PARENTAL_NONTRANSFERABLE_WEEKS;
     const mOwn = applicant === "MOTHER";
     const fOwn = applicant === "FATHER";

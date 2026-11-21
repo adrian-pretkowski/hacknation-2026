@@ -25,9 +25,12 @@
 23. Ustaw suwak „Rodzicielski wykorzystany przez tatę” na „20”.
 24. Sprawdź, że pole „Rodzicielski wykorzystany przez tatę — wpisz wartość” ma wartość „9”.
 25. Ustaw suwak „Rodzicielski wykorzystany przez tatę” na „0”.
-26. Ustaw suwak „Rodzicielski wykorzystany przez mamę” na „0”.
-27. Z listy „Na ile części (wniosków) podzielono rodzicielski?” wybierz „Jeszcze nie korzystaliśmy”.
-28. Przejdź dalej.
-29. Przejdź dalej.
-30. Sprawdź, że nagłówek to „Twój plan”.
-31. Sprawdź, że widać „Ile zostało i do kiedy”.
+26. Ustaw suwak „Rodzicielski wykorzystany przez mamę” na „5”.
+27. Sprawdź, że widać „podaj, na ile części”.
+28. Sprawdź, że nie można przejść dalej.
+29. Ustaw suwak „Rodzicielski wykorzystany przez mamę” na „0”.
+30. Z listy „Na ile części (wniosków) podzielono rodzicielski?” wybierz „Jeszcze nie korzystaliśmy”.
+31. Przejdź dalej.
+32. Przejdź dalej.
+33. Sprawdź, że nagłówek to „Twój plan”.
+34. Sprawdź, że widać „Ile zostało i do kiedy”.

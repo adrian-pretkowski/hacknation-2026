@@ -30,7 +30,8 @@ const WEIGHT_OPTIONS = [
 ];
 /** Przy porodzie przed SUPP_GESTATION_EARLY_WEEK masa nie zmienia wyniku (SUPP-ELIG-001 i tak przysługuje). */
 const weightMatters = (a: Answers) => a.gestationWeeks === "" || Number(a.gestationWeeks) >= PARAMS.SUPP_GESTATION_EARLY_WEEK;
-/** FE1-12: przyjęcie dziecka ponad granicę wieku (KP art. 183 § 3) — rodzicielski 38 / 62 tyg. (PAR-DUR-003), jak w podglądzie. */
+/** FE1-12: przyjęcie dziecka ponad granicę wieku (KP art. 183 § 3) — rodzicielski 38 / 62 tyg. (PAR-DUR-003); ten sam warunek
+ * co `kp183Case` w preview/engine.ts. Dotyczy suwaka w kroku „Plany” (krok „Co już wykorzystano” jest tylko dla mamy po porodzie). */
 const kp183Case = (a: Answers) => a.role === "GUARDIAN" && a.guardianKind === "FOSTER_NON_PROFESSIONAL" && a.childAgeYears !== ""
   && Number(a.childAgeYears) >= (a.schoolDeferred === "YES" ? PARAMS.FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED : PARAMS.FOSTER_CHILD_AGE_MAX);
 const parentalPool = (a: Answers) => kp183Case(a)
@@ -365,7 +366,7 @@ export const STEPS: Step[] = [
         <ZusFetch source="usedLeave" a={a} set={set} what="Pobierz wykorzystane już urlopy i wypłacone zasiłki." />
         <Choice legend="Czy urlop macierzyński został wykorzystany w całości?" value={a.usedMaternityFully} columns={3}
           onChange={(usedMaternityFully) => set(usedMaternityFully === "YES" ? { usedMaternityFully }
-            : { usedMaternityFully, usedParentalMotherWeeks: "0", usedParentalFatherWeeks: "0" })} options={TRI_OPTIONS} />
+            : { usedMaternityFully, usedParentalMotherWeeks: "0", usedParentalFatherWeeks: "0", usedParts: "0" })} options={TRI_OPTIONS} />
         {a.usedMaternityFully === "NO" && (
           <Slider label="Macierzyński wykorzystany" unit="tyg." min={0} max={maternityWeeks(a.children) - 1}
             value={a.usedMaternityWeeks} emptyLabel="nie wiem"
