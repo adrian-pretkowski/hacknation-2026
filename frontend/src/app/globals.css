@@ -23,3 +23,14 @@
 body {
   color: var(--color-zus-ink);
 }
+
+/* Tailwind 4 nie daje przyciskom kursora „rączki” — przywracamy go dla wszystkich klikalnych elementów. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label[for],
+  select:not(:disabled) {
+    cursor: pointer;
+  }
+}
