@@ -1139,7 +1139,7 @@ Umowa na czas określony lub na okres próbny >1 miesiąc, która rozwiązałaby
 - **Dane:** `employment.contract_type`, `employment.contract_end_date`, `employment.is_replacement_contract`, `pregnancy.pregnancy_start_date` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** T-MAT-009
-- **Uwagi:** Odblokowana po odpowiedzi mentora M13 (2026-11-21): miesiąc ciąży stwierdza lekarz — pregnancy.pregnancy_start_date z zaświadczenia lekarskiego; przedłużenie umowy potwierdza dokument (wymagany dokument od pracodawcy). Trzeci miesiąc = [początek + 2 mies., początek + 3 mies. − 1]; 'po upływie' ⇔ koniec umowy ≥ początek + 3 mies. (DERIVED, C3). Brak daty początku ciąży lub końca umowy → NEEDS_DATA. GAP-007 zamknięty.
+- **Uwagi:** Odblokowana po odpowiedzi mentora M13 (2026-11-21): miesiąc ciąży stwierdza lekarz — pregnancy.pregnancy_start_date z zaświadczenia lekarskiego; przedłużenie umowy potwierdza dokument (wymagany dokument od pracodawcy). Trzeci miesiąc = [początek + 2 mies., początek + 3 mies. − 1]; 'po upływie' ⇔ koniec umowy ≥ początek + 3 mies. (DERIVED, C3; przy krótszym miesiącu docelowym — ostatni dzień miesiąca, np. 30.11 + 3 mies. = 28.02, jak add_years). Brak daty początku ciąży lub końca umowy → NEEDS_DATA. GAP-007 zamknięty.
 
 ### MAT-NEG-001
 

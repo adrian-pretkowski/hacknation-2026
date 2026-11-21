@@ -69,7 +69,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_days_since_title_end` | date | int | `date − to(ostatni tytuł)` w dniach | None | Dzień po ustaniu = 1 |
 | `f_months_since_title_end` | date | Decimal | Pełne miesiące kalendarzowe między ustaniem a `date` | None | GAP-011 |
 | `f_on_childcare_leave_on` | date | bool | `employment.leaves` zawiera CHILDCARE_LEAVE obejmujący `date` | leaves null → None | – |
-| `f_title_ended_during_pregnancy` | – | bool | `pregnancy_start_date ≤ to(ostatni tytuł) < event.date` | None | Data początku ciąży szacunkowa → GAP-007 |
+| `f_title_ended_during_pregnancy` | – | bool | `pregnancy_start_date ≤ to(ostatni tytuł) < event.date` | None | Data początku ciąży z zaświadczenia lekarskiego (M13; GAP-007 zamknięty) |
 | `f_last_title_termination_reason` | – | enum | `termination_reason` ostatniego tytułu | None | – |
 | `f_any_art30_basis` | – | bool | OR z warunków MAT-ELIG-004, -005, -006 | Kleene | – |
 | `f_planned_title_end_before_due_date` | – | bool | Najpóźniejsze `to` tytułów < `expected_due_date` i brak tytułu otwartego | None | – |

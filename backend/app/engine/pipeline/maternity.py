@@ -45,8 +45,9 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
     else:
         applied.append("MAT-ELIG-001")
     if elig.value is not True:
-        # alternatywne podstawy (exceptions MAT-ELIG-001: art. 30, KP 177) i przedłużenie umowy (MAT-CLS-002, BLOCKED).
-        # Ich braki danych nie trafiają do missing_data — najpierw rozstrzyga MAT-ELIG-001 (art. 29 ust. 1 pkt 1).
+        # alternatywne podstawy (exceptions MAT-ELIG-001: art. 30, KP 177) i przedłużenie umowy (MAT-CLS-002, M13).
+        # Ich braki danych nie trafiają do missing_data — najpierw rozstrzyga MAT-ELIG-001 (art. 29 ust. 1 pkt 1);
+        # wyjątek: umowa terminowa — pytamy o datę początku ciąży i koniec umowy (MAT-CLS-002).
         kp177 = eng.eval("MAT-CLS-002")
         alternatives = eng.alternatives("MAT-ELIG-001") + [kp177]
         fixed_term = ctx.field("employment.contract_type") in ("FIXED_TERM", "PROBATION_OVER_1_MONTH")
