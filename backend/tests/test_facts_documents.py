@@ -87,6 +87,20 @@ def test_APP_DL_002_supplementary_resignation_and_maternity_like_boundary():
     assert result == [{"code": "LEAVE_APP_MATERNITY_LIKE", "date": date(2027, 5, 17), "who": "ADOPTIVE_PARENT_1"}]
 
 
+def test_BE2_08_pre_birth_maternity_application_deadline():
+    def deadlines(start, event=BIRTH, pregnancy=None):
+        data = {"event": event, "plan": {"segments": [_seg("MATERNITY_LEAVE", start, "2027-07-31")]}}
+        if pregnancy:
+            data["pregnancy"] = pregnancy
+        return {d["code"]: d["date"] for d in _ctx(data).fact("f_leave_application_deadlines")}
+
+    assert deadlines("2027-02-01")["LEAVE_APP_MATERNITY_PRE_BIRTH"] == date(2027, 1, 18)  # start − 14
+    assert "LEAVE_APP_MATERNITY_PRE_BIRTH" not in deadlines("2027-03-15")  # od dnia porodu — bez wniosku przed
+    # FORECAST: przed porodem — liczy się przewidywana data porodu
+    assert deadlines("2027-03-01", {"type": "BIRTH"}, PREGNANCY)["LEAVE_APP_MATERNITY_PRE_BIRTH"] == date(2027, 2, 15)
+    assert "LEAVE_APP_MATERNITY_PRE_BIRTH" not in deadlines("2027-03-01", {"type": "BIRTH"})  # brak dat porodu
+
+
 def test_APP_DL_002_no_plan_is_unknown():
     assert _ctx({"event": BIRTH}).fact("f_leave_application_deadlines") is None
 
@@ -197,6 +211,8 @@ def test_pipeline_small_payer_zus_documents_kp_deadlines_and_risks():
     assert lookup["obtainable_by_zus"] is True and lookup["submit_to"] == "ZUS"
     assert {"code": "LEAVE_APP_PARENTAL", "date": "2027-06-28", "who": "MOTHER",
             "rule_id": "APP-DL-002"} in body["deadlines"]
+    assert {"code": "LEAVE_APP_MATERNITY_PRE_BIRTH", "date": "2027-02-15", "who": "MOTHER",
+            "rule_id": "APP-DL-002"} in body["deadlines"]  # BE2-08: urlop od 2027-03-01, poród 2027-03-15
     codes = {w["code"] for w in body["warnings"]}
     assert {"RISK_SHAM_TITLE", "RISK_BASE_INCREASE_IN_PREGNANCY"} <= codes
     # ostrzeżenia nie zmieniają statusu (M17)
