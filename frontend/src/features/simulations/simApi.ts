@@ -61,7 +61,7 @@ export type SimDebtCertificate = S["SimDebtCertificate"];
 export type SimPueTopic = S["SimPueQuestion"]["topic"];
 export type SimPueTicket = S["SimPueTicket"];
 
-function require(profileId: string): TestUser {
+function requireUser(profileId: string): TestUser {
   const u = findUser(profileId);
   if (!u) throw new Error("Nieznany profil testowy");
   return u;
@@ -69,18 +69,18 @@ function require(profileId: string): TestUser {
 
 /** POST /api/sim/mobywatel/login (SYMULACJA). */
 export function simLogin(profileId: string): Promise<SimLoginResponse> {
-  const u = require(profileId);
+  const u = requireUser(profileId);
   return wait({ simulated: true, session_token: `sym-${u.id}-${Date.now().toString(36)}`, profile_id: u.id, display_name: fullName(u), role: u.role });
 }
 
 /** GET /api/sim/ezla (SYMULACJA). */
 export function simEzla(profileId: string): Promise<SimEzlaList> {
-  return wait({ simulated: true, certificates: require(profileId).ezla });
+  return wait({ simulated: true, certificates: requireUser(profileId).ezla });
 }
 
 /** GET /api/sim/debt-certificate (SYMULACJA). Próg = minimalne wynagrodzenie × współczynnik z parametrów (reguła GEN-EXCL-001). */
 export function simDebtCertificate(profileId: string, asOf: string): Promise<SimDebtCertificate> {
-  const u = require(profileId);
+  const u = requireUser(profileId);
   const threshold = mulDecimal(PARAMS.MIN_WAGE_2026_MONTHLY, PARAMS.DEBT_THRESHOLD_MIN_WAGE_RATIO);
   return wait({
     simulated: true,
@@ -95,7 +95,7 @@ export function simDebtCertificate(profileId: string, asOf: string): Promise<Sim
 
 /** POST /api/sim/pue-question (SYMULACJA). */
 export function simPueQuestion(profileId: string, topic: SimPueTopic, question: string): Promise<SimPueTicket> {
-  require(profileId);
+  requireUser(profileId);
   const n = seq(profileId + topic + question + Date.now()) % 100000;
   return wait({ simulated: true, ticket_id: `SYM-PUE-${String(n).padStart(5, "0")}`, status: "RECEIVED", expected_response_days: 3 });
 }
