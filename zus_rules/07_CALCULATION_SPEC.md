@@ -16,7 +16,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | C8 | „Przerwa nie przekroczyła X dni” = liczba dni kalendarzowych **pomiędzy** dniem końca poprzedniego a dniem początku następnego okresu (bez obu końców) ≤ X. | DERIVED; GAP-004 |
 | C9 | Logika trójwartościowa Kleene: `all` = FALSE jeśli któryś FALSE, inaczej UNKNOWN jeśli któryś UNKNOWN; `any` = TRUE jeśli któryś TRUE, inaczej UNKNOWN jeśli któryś UNKNOWN; `not UNKNOWN = UNKNOWN`. Funkcja zwracająca `None` = UNKNOWN. | Wymóg projektu |
 | C10 | `operator: in` na polu-liście = część wspólna niepusta. `exists` = wartość ≠ null (pusta lista = istnieje). | 03_rules.yaml meta.dsl |
-| C11 | Liczenie „X dni po zdarzeniu” (termin): ostatni dzień = `zdarzenie + X`; termin w sobotę, niedzielę lub święto (`PUBLIC_HOLIDAYS`) → **następny dzień roboczy** (M15 d). | M15; GAP-020 zamknięty |
+| C11 | Liczenie „X dni po zdarzeniu” (termin): ostatni dzień = `zdarzenie + X`; termin w sobotę, niedzielę lub święto (`PUBLIC_HOLIDAYS` z `public_holidays.yaml`, 2026–2031) → **następny dzień roboczy** (M15 d). | M15; GAP-020 zamknięty |
 
 ## 1. Kolejność obliczeń (pipeline)
 

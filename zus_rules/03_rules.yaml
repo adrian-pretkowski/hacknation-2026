@@ -104,7 +104,7 @@ meta:
     MAT_RATE_PARENTAL: {value: "0.70", unit: ratio, source: "USTAWA art. 31 ust. 2"}
     MAT_RATE_COMBINED: {value: "0.815", unit: ratio, source: "USTAWA art. 31 ust. 3"}
     APP_COMBINED_DEADLINE_DAYS: {value: 21, unit: days_after_event, source: "USTAWA art. 30a ust. 1-2"}
-    PUBLIC_HOLIDAYS: {value: [], unit: dates, source: "Dni ustawowo wolne od pracy — ustawa niezałączona; lista do uzupełnienia w panelu admina (M15 d: termin w dzień wolny → następny dzień roboczy)", status: UNCONFIRMED}
+    PUBLIC_HOLIDAYS: {value: null, file: public_holidays.yaml, unit: dates, source: "Dni ustawowo wolne od pracy 2026–2031 — zus_rules/public_holidays.yaml (lista zespołu; ustawa o dniach wolnych od pracy niezałączona; M15 d: termin w dzień wolny → następny dzień roboczy)", status: UNCONFIRMED}
     PARENTAL_BENEFIT_FLOOR_MONTHLY: {value: "1000.00", unit: PLN, source: "USTAWA art. 31 ust. 3a → ustawa o świadczeniach rodzinnych (niezałączona); kwota 1000 zł — mentor fachowy ZUS (M10, 2026-11-21)", status: CONFIRMED}
     # --- podstawa wymiaru
     CONTRIBUTION_DEDUCTION_RATE: {value: "0.1371", unit: ratio, source: "USTAWA art. 3 pkt 3 (pracownicy — M06), pkt 4; art. 45 ust. 1"}
@@ -2733,7 +2733,7 @@ rules:
   interpretation_status: DERIVED
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Ostatni dzień = event.date + 21 dni (DERIVED: liczenie od dnia następnego po porodzie); termin w sobotę, niedzielę lub święto → następny dzień roboczy (M15 d, mentor fachowy 2026-11-21; GAP-020 zamknięty). Lista świąt — parametr PUBLIC_HOLIDAYS (pusty do uzupełnienia w panelu admina; brak w materiałach). Wynik sprawdza f_combined_application_within_deadline."
+  notes: "Ostatni dzień = event.date + 21 dni (DERIVED: liczenie od dnia następnego po porodzie); termin w sobotę, niedzielę lub święto → następny dzień roboczy (M15 d, mentor fachowy 2026-11-21; GAP-020 zamknięty). Lista świąt — parametr PUBLIC_HOLIDAYS z pliku zus_rules/public_holidays.yaml (2026–2031, lista zespołu — UNCONFIRMED, ustawa o dniach wolnych od pracy niezałączona). Wynik sprawdza f_combined_application_within_deadline."
 
 - id: APP-DL-002
   name: "Terminy wniosków urlopowych pracownika (KP)"

@@ -142,10 +142,10 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
         holidays = frozenset(_as_date(day) for day in param("PUBLIC_HOLIDAYS") or [])
         deadline = next_working_day(birth + timedelta(days=int(param("APP_COMBINED_DEADLINE_DAYS"))), holidays)
         if param_status("PUBLIC_HOLIDAYS") == "UNCONFIRMED":
-            assumptions.append({"code": "PUBLIC_HOLIDAYS_NOT_LOADED",
-                                "text": "Termin przypadający w sobotę lub niedzielę przesunięto na następny dzień "
-                                        "roboczy (M15); lista świąt ustawowych nie jest uzupełniona — sprawdź, czy "
-                                        "ostatni dzień nie wypada w święto."})
+            assumptions.append({"code": "PUBLIC_HOLIDAYS_UNCONFIRMED",
+                                "text": "Termin w sobotę, niedzielę lub święto przesunięto na następny dzień roboczy "
+                                        "(M15); lista świąt 2026–2031 przygotowana przez zespół "
+                                        "(public_holidays.yaml) — do potwierdzenia."})
         filed = _as_date(_get(payload, "applications.combined_815_filed_date"))
         planned = _get(payload, "applications.combined_815_planned")
         applied.append("APP-DL-001")

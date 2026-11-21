@@ -235,7 +235,7 @@ def test_m15_d_app_dl_001_deadline_on_sunday_moves_to_monday(demo_payload):
     """T-RATE-009: 14.03 + 21 = 4.04 (niedziela) → wniosek 5.04 w terminie (81,5%), 6.04 — po terminie (100%)."""
     body = pipeline.evaluate(_born_sunday(demo_payload, "2027-04-05"))
     assert body["benefits"][0]["rate"] == "0.815"
-    assert "PUBLIC_HOLIDAYS_NOT_LOADED" in [a["code"] for a in body["assumptions"]]
+    assert "PUBLIC_HOLIDAYS_UNCONFIRMED" in [a["code"] for a in body["assumptions"]]
     late = pipeline.evaluate(_born_sunday(demo_payload, "2027-04-06"))["benefits"][0]
     assert Decimal(late["rate"]) == param("MAT_RATE_FULL")
 
@@ -276,3 +276,29 @@ def test_m17_risk_rules_are_warnings_not_decisions():
         rule = ruleset().rule(rule_id)
         assert rule["evaluation"] == "INFORMATIONAL"
         assert "warning" in rule["result"] and "status" not in rule["result"]
+
+
+# ------------------------------------------------------------ PUBLIC_HOLIDAYS z zus_rules/public_holidays.yaml (M15 d)
+def test_public_holidays_loaded_from_file():
+    holidays = {date.fromisoformat(day) for day in param("PUBLIC_HOLIDAYS")}
+    assert len(holidays) == 14 * 6  # 14 dni wolnych rocznie, lata 2026–2031
+    assert {date(2027, 3, 29), date(2027, 5, 27), date(2027, 11, 11), date(2027, 12, 24)} <= holidays  # Pon. Wielk., BC
+
+
+def test_m15_d_deadline_on_holiday_moves_to_next_working_day(demo_payload):
+    """Poród 21.10.2027 + 21 = 11.11.2027 (czwartek, święto) → termin 12.11; wniosek 12.11 → 81,5%, 13.11 → 100%."""
+    def born(filed):
+        payload = copy.deepcopy(demo_payload)
+        payload["event"] = {"type": "BIRTH", "date": "2027-10-21"}
+        payload["applications"] = {"combined_815_filed_date": filed}
+        return payload
+    assert pipeline.evaluate(born("2027-11-12"))["benefits"][0]["rate"] == "0.815"
+    assert Decimal(pipeline.evaluate(born("2027-11-13"))["benefits"][0]["rate"]) == param("MAT_RATE_FULL")
+
+
+def test_m15_d_easter_monday_deadline(demo_payload):
+    """Poród 8.03.2027 + 21 = 29.03.2027 (Poniedziałek Wielkanocny) → termin 30.03."""
+    payload = copy.deepcopy(demo_payload)
+    payload["event"] = {"type": "BIRTH", "date": "2027-03-08"}
+    payload["applications"] = {"combined_815_filed_date": "2027-03-30"}
+    assert pipeline.evaluate(payload)["benefits"][0]["rate"] == "0.815"

@@ -3358,7 +3358,7 @@
    ],
    "assumptions": [
     "M15 d (2026-11-21, mentor fachowy): termin w dzień wolny → następny dzień roboczy",
-    "Lista świąt PUBLIC_HOLIDAYS pusta — przesunięcie tylko z soboty/niedzieli"
+    "Lista świąt PUBLIC_HOLIDAYS z public_holidays.yaml — 2027-04-04 to zwykła niedziela (Wielkanoc 2027: 28.03)"
    ]
   },
   {

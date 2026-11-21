@@ -24,10 +24,10 @@ ROUNDING = {"code": "ROUNDING_UNCONFIRMED",
 PARAM_ASSUMPTIONS = {
     "MIN_WAGE_2026_MONTHLY": {"code": "MIN_WAGE_FROM_ATTACHMENT",
                               "text": "Płaca minimalna 2026 wzięta z Załącznika HackNation (niepotwierdzona)."},
-    "PUBLIC_HOLIDAYS": {"code": "PUBLIC_HOLIDAYS_NOT_LOADED",
-                        "text": "Termin przypadający w sobotę lub niedzielę przesunięto na następny dzień "
-                                "roboczy (M15); lista świąt ustawowych nie jest uzupełniona — sprawdź, czy ostatni "
-                                "dzień nie wypada w święto."},
+    "PUBLIC_HOLIDAYS": {"code": "PUBLIC_HOLIDAYS_UNCONFIRMED",
+                        "text": "Termin w sobotę, niedzielę lub święto przesunięto na następny dzień roboczy "
+                                "(M15); lista świąt 2026–2031 przygotowana przez zespół "
+                                "(public_holidays.yaml) — do potwierdzenia."},
 }
 
 
