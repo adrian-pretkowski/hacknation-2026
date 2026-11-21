@@ -3271,6 +3271,9 @@
     "income_history": {
      "manual_base_override": "800.00"
     },
+    "employment": {
+     "working_time_fraction": "0.25"
+    },
     "applications": {
      "combined_815_planned": false
     },
@@ -3298,6 +3301,7 @@
     "USTAWA art. 31 ust. 3a-3c"
    ],
    "assumptions": [
+    "Praca w 1/4 etatu — bez minimalnej podstawy z art. 45 (BE2-12: BASE-EMP-008 dotyczy pełnego etatu)",
     "PARENTAL_BENEFIT_FLOOR_MONTHLY = 1000 zł (M10)",
     "M10c (mentor fachowy): niepełny miesiąc proporcjonalnie do liczby dni danego miesiąca; 4 × 1000 + 1000 × 18/31",
     "daily = total / 140 (średnia, informacyjnie)",

@@ -22,6 +22,7 @@ from app.core.dates import (
     to_date,
 )
 from app.core.money import div, mul, round_to_step, to_decimal
+from app.engine.facts.insurance import INCAPACITY_EVENTS, TITLE_PRIORITY, _active_titles
 from app.engine.facts.registry import Context, fact
 
 
@@ -111,15 +112,83 @@ def gap_shorter_than_calendar_month(ctx: Context) -> bool | None:
     return not contains_full_calendar_month(prev_end + timedelta(days=1), start - timedelta(days=1))
 
 
+def _base_title(ctx: Context) -> dict[str, Any] | None:
+    """BE2-12: tytuł, z którego ustala się podstawę — aktywny w dniu zdarzenia, priorytet jak f_primary_title_type.
+
+    Bez zgłaszania braków (granice podstawy to doprecyzowanie kwoty, nie warunek prawa): brak danych → None.
+    """
+    titles = ctx.field("insurance.titles") or []
+    path = "incapacity.start_date" if ctx.field("event.type") in INCAPACITY_EVENTS else "event.date"
+    day = to_date(ctx.field(path))
+    if day is None:
+        return None
+    active = _active_titles(titles, day)
+    if not active:
+        return None
+    return sorted(active, key=lambda t: TITLE_PRIORITY.index(t["title_type"])
+                  if t.get("title_type") in TITLE_PRIORITY else len(TITLE_PRIORITY))[0]
+
+
+@fact("f_is_employee_title_for_base")
+def is_employee_title_for_base(ctx: Context) -> bool | None:
+    """07 §2: tytuł, z którego ustala się podstawę, jest pracowniczy (umowa o pracę). Brak tytułu → None."""
+    title = _base_title(ctx)
+    return None if title is None else title.get("title_type") == "EMPLOYMENT_CONTRACT"
+
+
+@fact("f_is_voluntary_sickness_title_for_base")
+def is_voluntary_sickness_title_for_base(ctx: Context) -> bool | None:
+    """07 §2, BE2-12: tytuł podstawy ma dobrowolne ubezpieczenie chorobowe (zlecenie, JDG). Brak tytułu → None."""
+    title = _base_title(ctx)
+    return None if title is None else title.get("sickness_insurance_mode") == "VOLUNTARY"
+
+
+def _full_time(ctx: Context) -> bool:
+    fraction = to_decimal(ctx.field("employment.working_time_fraction"))
+    return fraction is not None and fraction == Decimal(1)
+
+
+def _voluntary_cap(ctx: Context) -> Decimal:
+    """Górna granica podstawy: VOLUNTARY_MAX_CONTRIB_BASE_2026 × (1 − 13,71%), bez zaokrąglenia (C1). M08."""
+    return mul(ctx.param("VOLUNTARY_MAX_CONTRIB_BASE_2026"), Decimal(1) - ctx.param("CONTRIBUTION_DEDUCTION_RATE"))
+
+
+@fact("f_apply_minimum_base")
+def apply_minimum_base(ctx: Context) -> Decimal | None:
+    """07 §2, BASE-EMP-008: max(podstawa, f_minimum_base) — pełny etat, tytuł pracowniczy. USTAWA art. 45 ust. 1."""
+    base = _new_base(ctx)
+    minimum = ctx.fact("f_minimum_base")
+    return None if base is None or minimum is None else max(base, minimum)
+
+
+@fact("f_apply_voluntary_base_cap")
+def apply_voluntary_base_cap(ctx: Context) -> Decimal | None:
+    """07 §2, BASE-NEMP-005 (BE2-12): min(podstawa, VOLUNTARY_MAX_CONTRIB_BASE_2026 × (1 − 13,71%)) — dobrowolne
+    chorobowe (ustawa systemowa art. 20 ust. 2 — limit podstawy składek; Załącznik, M08)."""
+    base = _new_base(ctx)
+    return None if base is None else min(base, _voluntary_cap(ctx))
+
+
+def _new_base(ctx: Context) -> Decimal | None:
+    """Nowo ustalona podstawa (dziś: ręczna — `manual_base_override`; metody BASE-EMP/NEMP — BE2-03)."""
+    return to_decimal(ctx.field("income_history.manual_base_override"))
+
+
 @fact("f_benefit_base")
 def benefit_base(ctx: Context) -> Decimal | None:
     """07 §6: manual_base_override, jeśli podano; inaczej BASE-GEN-001 (podstawa poprzedniego zasiłku, art. 43);
     metody BASE-* — BE2-03. USTAWA art. 36, 43, 47.
 
+    BE2-12: nowa podstawa z granicami — pełny etat na umowie o pracę: nie mniej niż minimalna (BASE-EMP-008);
+    dobrowolne chorobowe: nie więcej niż limit (BASE-NEMP-005). Podstawa przejęta z art. 43 — bez zmian.
     Bez historii zasiłków (brak ``previous_benefit_end_date``) art. 43 nie dotyczy — potrzebna nowa podstawa.
     """
-    base = to_decimal(ctx.field("income_history.manual_base_override"))
+    base = _new_base(ctx)
     if base is not None:
+        if ctx.fact("f_is_employee_title_for_base") is True and _full_time(ctx):
+            base = ctx.fact("f_apply_minimum_base")
+        if ctx.fact("f_is_voluntary_sickness_title_for_base") is True:
+            base = min(base, _voluntary_cap(ctx))
         return base
     if ctx.field("benefit_history.previous_benefit_end_date") is not None:
         reuse = ctx.fact("f_gap_shorter_than_calendar_month")

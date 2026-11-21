@@ -2,9 +2,9 @@
 // Pola nieznane zostają null (silnik: UNKNOWN → NEEDS_DATA). Preferencje planu bez odpowiednika w kontrakcie
 // trafiają do `wizard_plan` (kontrakt dopuszcza additionalProperties; do formalizacji przez INT).
 import type { EvaluateRequest } from "@/lib/api";
-import { baseFromGross } from "../preview/engine";
+import { baseFromGrossDetailed } from "../preview/engine";
 import { addDays } from "../preview/exact";
-import type { Answers, Tri, Variant } from "./answers";
+import { type Answers, type Tri, type Variant, extendableUntilBirth, hasContractEnd } from "./answers";
 import { parseMoney } from "./money";
 
 export type WizardPlan = {
@@ -26,7 +26,18 @@ export type WizardPlan = {
   child_age_years: number | null;
   employer_ended: Answers["employerEnded"];
   gross_salary: string | null;
+  full_time: boolean | null; // FE1-20: pełny etat (minimalna podstawa, BASE-EMP-008)
+  no_insurance_reason: NoInsuranceReason | null; // FE1-22: ulga na start / student do 26 lat
 };
+
+export type NoInsuranceReason = "START_RELIEF" | "STUDENT_UNDER_26";
+
+/** FE1-22: tytuł, który nie daje ubezpieczenia chorobowego (ulga na start, uczeń / student na zleceniu). */
+export function noInsuranceReason(a: Answers): NoInsuranceReason | null {
+  if (a.title === "SELF_EMPLOYED" && a.startRelief === "YES") return "START_RELIEF";
+  if (a.title === "MANDATE" && a.studentUnder26 === "YES") return "STUDENT_UNDER_26";
+  return null;
+}
 
 export type WizardRequest = EvaluateRequest & { wizard_plan: WizardPlan };
 
@@ -48,12 +59,13 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
 
   const titleType = a.title === "EMPLOYMENT" ? "EMPLOYMENT_CONTRACT" : a.title === "MANDATE" ? "CIVIL_CONTRACT_MANDATE"
     : a.title === "SELF_EMPLOYED" ? "SELF_EMPLOYED" : null;
-  const mode = a.title === "EMPLOYMENT" ? "MANDATORY"
+  const excluded = noInsuranceReason(a);
+  const mode = a.title === "EMPLOYMENT" ? "MANDATORY" : excluded ? "NONE"
     : a.voluntarySickness === "YES" ? "VOLUNTARY" : a.voluntarySickness === "NO" ? "NONE" : null;
 
   let titleTo: string | null = null;
   let terminationReason: string | null = null;
-  if (a.title === "EMPLOYMENT" && a.contractType === "FIXED_TERM" && a.contractEnd) {
+  if (a.title === "EMPLOYMENT" && hasContractEnd(a.contractType) && a.contractEnd) {
     titleTo = a.contractEnd;
     terminationReason = "CONTRACT_EXPIRY";
   }
@@ -62,8 +74,9 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
   if (a.employerEnded === "OWN_NOTICE") terminationReason = "NOTICE_BY_EMPLOYEE";
   if (a.employerEnded !== "NO" && !titleTo && eventDate) titleTo = addDays(today, -1);
 
-  const titles = titleType && mode && a.insuredFrom
-    ? [{ title_type: titleType, sickness_insurance_mode: mode, from: a.insuredFrom, to: titleTo, termination_reason: terminationReason }]
+  // FE1-22: przy uldze na start / studencie do 26 lat tytuł bez chorobowego — data ubezpieczenia niepotrzebna
+  const titles = titleType && mode && (a.insuredFrom || excluded)
+    ? [{ title_type: titleType, sickness_insurance_mode: mode, from: a.insuredFrom || null, to: titleTo, termination_reason: terminationReason }]
     : a.title === "NONE" ? [] : undefined;
 
   const gross = money(a.salaryGross);
@@ -74,6 +87,8 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
         stillborn: a.lossKind === "STILLBORN" && (a.allStillborn || i === 0),
         death_date: a.lossKind === "DIED" && (a.allStillborn || i === 0) ? a.deathDate || null : null,
       }))
+    // FE1-26: przy przyjęciu dziecka — data urodzenia (koniec urlopu przed granicą wieku)
+    : isGuardian && a.childBirthDate ? [{ birth_date: a.childBirthDate }]
     : undefined;
 
   return {
@@ -84,8 +99,12 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
     employment: a.title === "EMPLOYMENT"
       ? {
           contract_type: a.contractType,
-          contract_end_date: a.contractType === "FIXED_TERM" ? a.contractEnd || null : null,
-          extended_until_birth_kp177: a.contractType === "FIXED_TERM" ? tri(a.contractEndsAfter3rdMonth) : null,
+          contract_end_date: hasContractEnd(a.contractType) ? a.contractEnd || null : null,
+          is_replacement_contract: a.contractType === null ? null : a.contractType === "REPLACEMENT",
+          // FE1-24: umowa na zastępstwo i próbna ≤ 1 mies. nie przedłużają się do dnia porodu (MAT-CLS-002)
+          extended_until_birth_kp177: extendableUntilBirth(a.contractType) ? tri(a.contractEndsAfter3rdMonth)
+            : hasContractEnd(a.contractType) ? false : null,
+          working_time_fraction: a.fullTime === "YES" ? "1.0" : null,
         }
       : undefined,
     payer: { insured_count_on_nov30_prev_year: a.payerSize === "GT20" ? 21 : a.payerSize === "LE20" ? 1 : null },
@@ -95,6 +114,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       date: eventDate,
       foster_family_type: eventType === "FOSTER"
         ? (a.guardianKind === "FOSTER_PROFESSIONAL" ? "PROFESSIONAL" : "NON_PROFESSIONAL") : null,
+      adoption_final_date: eventType === "ADOPTION" ? a.adoptionFinalDate || null : null, // FE1-26
     },
     // FE1-05: masa jako odpowiedź względem progu (birth.weight_at_most_threshold), bez dokładnej wagi
     birth: a.preterm
@@ -107,7 +127,9 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       school_obligation_deferred: isGuardian ? tri(a.schoolDeferred) : null,
       items,
     },
-    income_history: { manual_base_override: gross ? baseFromGross(gross) : null },
+    // FE1-20: podstawa z granicami z 03 (limit dobrowolnego, minimum przy pełnym etacie) — jak w podglądzie
+    income_history: { manual_base_override: gross ? baseFromGrossDetailed(gross, {
+      voluntary: mode === "VOLUNTARY", fullTimeEmployee: a.title === "EMPLOYMENT" && a.fullTime === "YES" }).base : null },
     applications: { combined_815_planned: variant === "COMBINED_815" },
     plan: { maternity_start_date: a.maternityStart || null },
     debt: a.title === "SELF_EMPLOYED" ? { amount_on_right_date: money(a.debt) } : undefined,
@@ -130,6 +152,8 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       child_age_years: num(a.childAgeYears),
       employer_ended: a.employerEnded,
       gross_salary: gross,
+      full_time: a.title === "EMPLOYMENT" ? tri(a.fullTime) : null,
+      no_insurance_reason: excluded,
     },
   };
 }

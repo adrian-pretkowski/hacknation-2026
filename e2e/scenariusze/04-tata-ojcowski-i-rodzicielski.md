@@ -12,7 +12,7 @@
 10. Wybierz „Umowa o pracę”.
 11. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „1 maja 2020”.
 12. Wybierz „Na czas nieokreślony”.
-13. Wybierz „Nie”.
+13. W pytaniu „Czy umowa ustała” wybierz „Nie”.
 14. Wybierz „20 lub mniej”.
 15. Przejdź dalej.
 16. Sprawdź, że nagłówek to „Partnerka”.

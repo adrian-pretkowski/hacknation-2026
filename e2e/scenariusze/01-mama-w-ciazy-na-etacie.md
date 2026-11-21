@@ -18,7 +18,7 @@
 14. Wybierz „Umowa o pracę”.
 15. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „01.03.2019”.
 16. Wybierz „Na czas nieokreślony”.
-17. Wybierz „Nie”.
+17. W pytaniu „Czy umowa ustała” wybierz „Nie”.
 18. Wybierz „Więcej niż 20”.
 19. Przejdź dalej.
 20. Sprawdź, że nagłówek to „Plany”.

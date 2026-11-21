@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResponse, plannerSuggest } from "@/lib/api";
 import { formatMoney, formatRate } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
-import { baseFromGross } from "../preview/engine";
+import { baseFromGross, baseFromGrossDetailed } from "../preview/engine";
 import type { Answers } from "./answers";
 import { Choice, MoneyField, TRI_OPTIONS } from "./fields";
 import { normalizeMoney } from "./money";
@@ -42,6 +42,12 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
   const fatherInsured = isMother ? a.partnerInsured !== "NO" : true;
   const motherGross = isMother ? ownGross : partnerGross;
   const fatherGross = isMother ? partnerGross : ownGross;
+  // FE1-20: własna podstawa z granicami z 03 (limit dobrowolnego, minimum przy pełnym etacie); drugi rodzic — bez danych o tytule
+  const ownBase = ownGross ? baseFromGrossDetailed(ownGross, { voluntary: a.title !== "EMPLOYMENT" && a.voluntarySickness === "YES",
+    fullTimeEmployee: a.title === "EMPLOYMENT" && a.fullTime === "YES" }).base : null;
+  const baseOf = (gross: string | null, own: boolean) => (!gross ? null : own && ownBase ? ownBase : baseFromGross(gross));
+  const motherBase = baseOf(motherGross, isMother);
+  const fatherBase = baseOf(fatherGross, !isMother);
   const choices = a.plannerChoices;
   const setChoices = (plannerChoices: PlannerChoice[]) => set({ plannerChoices });
   const missing = !ownGross ? "Wróć do kroku „Wynagrodzenie” i podaj swoje wynagrodzenie."
@@ -55,9 +61,9 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
       plannerSuggest({
         profile: {
           children_count: Math.min(Math.max(a.children, 1), 10), za_zyciem: a.zaZyciem,
-          mother: { base_monthly: baseFromGross(motherGross), gross_monthly: motherGross, insured: true },
+          mother: { base_monthly: motherBase, gross_monthly: motherGross, insured: true },
           father: fatherInsured && fatherGross
-            ? { base_monthly: baseFromGross(fatherGross), gross_monthly: fatherGross, insured: true }
+            ? { base_monthly: fatherBase, gross_monthly: fatherGross, insured: true }
             : { base_monthly: null, insured: false },
         },
         choices, objective: a.plannerObjective, lookback: 3,
@@ -74,7 +80,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
     return () => { cancelled = true; clearTimeout(timer); };
     // set jest stabilne w obrębie kreatora; zależymy od danych wejściowych planera
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [missing, motherGross, fatherGross, fatherInsured, a.children, a.zaZyciem, a.plannerObjective, choices]);
+  }, [missing, motherGross, fatherGross, motherBase, fatherBase, fatherInsured, a.children, a.zaZyciem, a.plannerObjective, choices]);
 
   const done = data?.current_best_plan?.choices.slice(0, choices.length) ?? [];
   const plan = data?.current_best_plan;

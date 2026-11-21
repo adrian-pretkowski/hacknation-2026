@@ -115,6 +115,9 @@ meta:
     JDG_PREFERENTIAL_CONTRIB_BASE_2026: {value: "1441.80", unit: PLN, source: "Preferencyjna podstawa składek JDG 2026 (30% płacy minimalnej) — mentor fachowy ZUS (M08, 2026-11-21; bez weryfikacji w źródle zewnętrznym)", status: CONFIRMED}
     JDG_PREFERENTIAL_MONTHS: {value: 24, unit: months, source: "Okres preferencyjnych składek od założenia działalności — mentor fachowy ZUS (M08, 2026-11-21)", status: CONFIRMED}
     AVERAGE_WAGE_CAP_AFTER_TITLE: {value: null, unit: PLN, source: "USTAWA art. 46 (kwota ogłaszana odrębnie — brak w materiałach)", status: MISSING}
+    # --- wyłączenia z ubezpieczeń społecznych (FE1-22, BA-06) — źródła spoza materiałów zadania, pytanie M20
+    STUDENT_AGE_LIMIT_YEARS: {value: 26, unit: years, source: "Ustawa o systemie ubezpieczeń społecznych art. 6 ust. 4 (uczeń / student do 26 lat na umowie zlecenia nie podlega ubezpieczeniom) — poza materiałami zadania (słownik pojęć zespołu); M20 w docs/mentors.md", status: UNCONFIRMED}
+    START_RELIEF_MONTHS: {value: 6, unit: months, source: "Prawo przedsiębiorców art. 18 (ulga na start — brak ubezpieczeń społecznych, także chorobowego) — poza materiałami zadania; M20 w docs/mentors.md", status: UNCONFIRMED}
     # --- płatnik, terminy, zadłużenie
     PAYER_INSURED_THRESHOLD: {value: 20, unit: insured_persons, source: "USTAWA art. 61 ust. 1"}
     DEBT_THRESHOLD_MIN_WAGE_RATIO: {value: "0.01", unit: ratio, source: "USTAWA art. 2a ust. 1"}
@@ -3229,6 +3232,31 @@ rules:
   implementation_priority: P0
   automation_status: AUTOMATABLE
   notes: "'Połowa miesiąca' — liczona w dniach kalendarzowych (DERIVED)."
+
+- id: BASE-NEMP-005
+  name: "Górna granica podstawy — dobrowolne ubezpieczenie chorobowe"
+  description: "Przy dobrowolnym ubezpieczeniu chorobowym (zlecenie, działalność) podstawa wymiaru zasiłku nie może przekroczyć miesięcznego limitu podstawy składek po odliczeniu 13,71% (23 550,00 × 0,8629 = 20 321,295 zł w 2026 r.)."
+  category: BASE
+  rule_type: CALCULATION
+  legal_basis: {document: ZALACZNIK, article: null, paragraph: null, point: null}
+  source_document: ZALACZNIK
+  source_location: "Załącznik — limit podstawy składek przy dobrowolnym ubezpieczeniu chorobowym; USTAWA art. 48 ust. 1 (przychód = podstawa składek − 13,71%)"
+  source_excerpt: "VOLUNTARY_MAX_CONTRIB_BASE_2026 = 23 550,00 zł (Załącznik; potwierdzone przez mentora fachowego ZUS, M08)"
+  valid_from: null
+  valid_to: null
+  conditions: {all: [{fact: f_is_voluntary_sickness_title_for_base, operator: eq, value: true}]}
+  result: {compute: f_apply_voluntary_base_cap, output: base.amount}
+  exceptions: []
+  dependencies: [BASE-NEMP-001]
+  overrides: []
+  required_inputs: [insurance.titles]
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
+  implementation_priority: P1
+  automation_status: AUTOMATABLE
+  notes: "BE2-12 (raport luk słownika, A2): limit potwierdzony przez mentora (M08), wcześniej tylko w notach BASE-NEMP-001. Bez zaokrąglenia pośredniego (C1; zaokrąglenia — BE2-09/M04). Stosowany do nowo ustalanej podstawy (dziś: manual_base_override); podstawa przejęta z art. 43 (BASE-GEN-001) bez zmian."
 
 - id: BASE-GEN-001
   name: "Brak ponownego ustalania podstawy przy przerwie < miesiąca kalendarzowego"

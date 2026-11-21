@@ -33,6 +33,12 @@ export const DEADLINE_LABEL: Record<string, string> = {
   PARENTAL_FINAL_DATE: "Koniec możliwości korzystania z rodzicielskiego (31.12 roku 6. urodzin)",
   PARENTAL_LATEST_CONTINUOUS_APPLICATION: "Najpóźniejszy wniosek, aby wykorzystać całą resztę ciągiem",
   RATE_MAT_TOPUP_APPLICATION: "Wniosek o wyrównanie zasiłku macierzyńskiego do 100%",
+  // FE1-25: kody jak w backendzie (f_leave_application_deadlines)
+  LEAVE_APP_MATERNITY_PRE_BIRTH: "Wniosek o część urlopu macierzyńskiego przed porodem (14 dni przed startem; termin z Poradnika ZUS, do potwierdzenia)",
+  LEAVE_APP_MATERNITY_FOR_FATHER: "Wniosek taty o przejęcie części urlopu macierzyńskiego (14 dni przed startem)",
+  LEAVE_APP_MATERNITY_RESIGNATION: "Rezygnacja mamy z dalszej części macierzyńskiego (7 dni przed powrotem do pracy)",
+  PATERNITY_LATEST_END_ADOPTION: "Ojcowski przy adopcji trzeba wykorzystać do tego dnia (12 mies. od uprawomocnienia postanowienia, najpóźniej przed 14. urodzinami dziecka)",
+  LEAVE_APP_MATERNITY_LIKE: "Wniosek o urlop na warunkach macierzyńskiego (do 7 dni od przyjęcia dziecka)",
 };
 
 export const DOC_LABEL: Record<string, string> = {
