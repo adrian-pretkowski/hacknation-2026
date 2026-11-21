@@ -201,6 +201,21 @@ export const STEPS: Step[] = [
         <DateField label={a.role === "GUARDIAN" ? "Data przyjęcia dziecka" : a.stage === "BORN" ? "Data porodu" : "Planowana data porodu"}
           hint={a.stage === "PREGNANT" ? "Z karty ciąży; wynik będzie prognozą." : undefined}
           value={a.eventDate} error={dateErrors(a).eventDate} onChange={(eventDate) => set({ eventDate })} />
+        {/* FE1-41: świadczenia w ciąży (wymaganie a) - L4 w ciąży ocenia silnik reguł (PREGNANCY_INCAPACITY) */}
+        {a.role === "MOTHER" && a.stage === "PREGNANT" && (
+          <>
+            <Choice legend="Czy jesteś teraz (albo byłaś) na zwolnieniu lekarskim w ciąży (L4)?" value={a.sickLeave} columns={3}
+              onChange={(sickLeave) => set({ sickLeave })} options={TRI_OPTIONS} />
+            {a.sickLeave === "YES" && (
+              <>
+                <DateField label="Zwolnienie od" value={a.sickLeaveFrom} onChange={(sickLeaveFrom) => set({ sickLeaveFrom })} />
+                <DateField label="Zwolnienie do (jeśli znasz)" value={a.sickLeaveTo} onChange={(sickLeaveTo) => set({ sickLeaveTo })} />
+                <Choice legend="Czy w tym roku byłaś już wcześniej na zwolnieniu lekarskim?" value={a.sickLeaveEarlier} columns={3}
+                  onChange={(sickLeaveEarlier) => set({ sickLeaveEarlier })} options={TRI_OPTIONS} />
+              </>
+            )}
+          </>
+        )}
         <Field label={a.role === "GUARDIAN" ? "Ile dzieci przyjmujesz jednocześnie?" : "Ile dzieci przy jednym porodzie?"}>
           <select className={inputCls} value={a.children} onChange={(e) => set({ children: Number(e.target.value) })}>
             {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n === 5 ? "5 lub więcej" : n}</option>)}
@@ -215,6 +230,11 @@ export const STEPS: Step[] = [
                 : a.schoolDeferred === "YES" ? PARAMS.FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED : PARAMS.FOSTER_CHILD_AGE_MAX}. urodzinami dziecka.`}
               value={a.childBirthDate} onChange={(childBirthDate) => set(childBirthDate && a.eventDate
                 ? { childBirthDate, childAgeYears: String(fullYears(childBirthDate, a.eventDate)) } : { childBirthDate })} />
+            {a.guardianKind === "ADOPTION" && (
+              <DateField label="Kiedy złożono wniosek do sądu o przysposobienie?"
+                hint="Zasiłek przysługuje po przyjęciu dziecka i złożeniu wniosku do sądu - bez tej daty wynik będzie wymagał uzupełnienia."
+                value={a.courtApplicationDate} onChange={(courtApplicationDate) => set({ courtApplicationDate })} />
+            )}
             {a.guardianKind === "ADOPTION" && (
               <DateField label="Data uprawomocnienia postanowienia o przysposobieniu (jeśli znasz)"
                 hint={`Od tej daty liczy się ${PARAMS.PATERNITY_ADOPTION_WINDOW_MONTHS} miesięcy na urlop ojcowski.`}
