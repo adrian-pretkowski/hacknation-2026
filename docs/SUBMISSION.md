@@ -19,7 +19,7 @@ Wymagania: `docs/CHALLENGE.md` § 4. Status: ⬜ / 🟨 / ✅.
 ## Ograniczenia prototypu (do opisu zgłoszenia i slajdu)
 
 - **Podstawa wymiaru** przyjmowana jako kwota podana przez użytkownika (brutto × (1 − 13,71%) albo `manual_base_override`). Pełne metody z 12 miesięcy (BASE-EMP-001…007, BASE-NEMP-001…004) są w katalogu reguł, ale silnik raportuje je w `not_evaluated_rules`. Wynik przy zmiennym wynagrodzeniu jest przybliżony.
-- **Zaokrąglenia** kwot nie są potwierdzone przez ZUS (GAP-001). Kwoty są dokładne, a w UI skracane z oznaczeniem „…”.
+- **Zaokrąglenia** kwot nie są potwierdzone przez ZUS (GAP-001). Silnik liczy kwoty dokładnie, a UI pokazuje je do 0,01 zł (ROUND_HALF_UP tylko przy wyświetlaniu, FE1-31).
 - **Plan obojga rodziców** (rodzicielski, ojcowski, terminy) liczony jest w przeglądarce na parametrach z panelu admina. Urlop macierzyński, status i braki danych sprawdza silnik reguł (`/api/evaluate`). Przy rozbieżności rozstrzyga silnik.
 - **Integracje** z mObywatel, ZUS/PUE, e-ZLA, USC i zaświadczeniem o zadłużeniu są symulowane (baner SYMULACJA).
 - **Upload PDF** rozpoznaje tylko przykładowe wnioski (bez AI, M16e). Dla innych plików aplikacja wskazuje brakujące dane.

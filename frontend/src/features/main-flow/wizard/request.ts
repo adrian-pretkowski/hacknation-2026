@@ -51,8 +51,7 @@ export function todayIso(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
-/** `_paramsVersion` - tylko klucz odświeżenia: zmiana parametrów z API (FE1-33) daje nowe żądanie i nowy plan. */
-export function toEvaluateRequest(a: Answers, variant: Variant, _paramsVersion = 0): WizardRequest { // eslint-disable-line @typescript-eslint/no-unused-vars
+export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
   const today = todayIso();
   const eventDate = a.eventDate || null;
   const isGuardian = a.role === "GUARDIAN";

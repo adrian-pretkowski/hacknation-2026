@@ -33,7 +33,7 @@
 ## 3. W toku (jedna linia na osobę - nadpisuj swoją)
 | Rola | Zadanie | Gałąź / worktree | Od | Uwagi |
 |---|---|---|---|---|
-| INT | INT-12 IN_PROGRESS | `int/INT-12-heroku` | 2026-11-21 | Następne: INT-03. Każdy klon: raz `scripts\dev.ps1` lub `git config core.hooksPath .githooks` (włącza przypomnienie o review po commitach z terminala). INT-01 scalone (PR #1) - status w TASKS do potwierdzenia przez lidera |
+| INT | - (INT-15…17 DONE: przegląd projektu i poprawki P0/P1 na gałęzi `int/INT-15-p0p1-fixes`; zmiany poza zakresem INT (BE-1, BE-2, FE-1, FE-2, BA) na polecenie lidera w wątku - do potwierdzenia przez właścicieli) | `int/INT-15-p0p1-fixes` | 2026-11-22 | Następne: FE2-07 (symulacje przez `/api/sim/*`) - do przydziału FE-2; INT-12 bez zmian |
 | BE-1 | - (BE1-04 DONE: fakty ubezpieczenia, GEN-*, SICK-ELIG-001..005, minimalny moduł chorobowy; 08: 30/92; czeka na commit lidera i /review) | `main` (bez commitu - commit: lider) | 2026-11-21 | Następne: BE1-05 (okresy 182/270, podział wynagrodzenie/zasiłek, kwoty, SICK-EXCL-*, SICK-ELIG-006). Raport 08: `cd backend; .\.venv\Scripts\python -m tests.test_cases --all`. Nowe zielone testy 08 → dopisz ID do `tests/cases_08_baseline.txt` w tym samym commicie |
 | BE-1 (Michał) | - (BE1-05 DONE: zasiłek chorobowy w ciąży - okres zasiłkowy, po ustaniu tytułu, podział i kwoty; BE1-06 DONE) | `be1/BE1-05-sickness` | 2026-11-21 | T-SP-006 do decyzji BA (NEEDS_DATA vs NOT_ELIGIBLE przy braku daty ukończenia szkoły) |
 | BE-2 | - (BE2-12 DONE, poprawki po /review) | `fe1/FE1-19-gap-fixes` | 2026-11-21 | `ADMIN_TOKEN` nieaktualny - panel admina otwarty (D36, FE1-27); `.env.example` do poprawy (INT) |

@@ -164,13 +164,16 @@ def test_BE2_13_unhandled_error_is_problem_json(monkeypatch):
     from fastapi.testclient import TestClient
 
     import app.modules.admin.router as admin_router
+    from app.core.config import get_settings
     from app.main import app
 
     def boom(*_args, **_kwargs):
         raise RuntimeError("awaria testowa")
 
     monkeypatch.setattr(admin_router, "parameter_list", boom)
-    response = TestClient(app, raise_server_exceptions=False).get("/api/admin/parameters")
+    origin = get_settings().cors_origins[0]
+    response = TestClient(app, raise_server_exceptions=False).get("/api/admin/parameters", headers={"Origin": origin})
     assert response.status_code == 500
     assert response.headers["content-type"].startswith("application/problem+json")
+    assert response.headers.get("access-control-allow-origin") == origin  # przeglądarka zobaczy treść błędu
     assert "awaria" not in response.text

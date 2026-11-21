@@ -30,8 +30,9 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
 }) {
   // FE1-33: parametry z API (panel admina) - po ich wczytaniu plan liczy się od nowa
   const { version: paramsVersion } = useApiParams();
-  const reqA = useMemo(() => toEvaluateRequest(answers, "COMBINED_815", paramsVersion), [answers, paramsVersion]);
-  const reqB = useMemo(() => toEvaluateRequest(answers, "FULL_100_70", paramsVersion), [answers, paramsVersion]);
+  // paramsVersion jest kluczem odświeżenia: PARAMS (moduł) zmieniają się po wczytaniu z API, odpowiedzi - nie
+  const reqA = useMemo(() => ({ ...toEvaluateRequest(answers, "COMBINED_815"), params_version: paramsVersion }), [answers, paramsVersion]);
+  const reqB = useMemo(() => ({ ...toEvaluateRequest(answers, "FULL_100_70"), params_version: paramsVersion }), [answers, paramsVersion]);
   const pA = useMemo(() => previewEvaluate(reqA), [reqA]);
   const pB = useMemo(() => previewEvaluate(reqB), [reqB]);
   const cmp = compareTotals(pA.summary.ownTotal, pB.summary.ownTotal);
@@ -531,6 +532,7 @@ function SickLeaveCard({ answers }: { answers: Answers }) {
               <span className="block text-xs text-zinc-600">Przepisy:</span><RuleList ids={b.applied_rules} className="text-xs text-zinc-600" /></li>
           ))}
           {paid.length === 0 && <li>Brak kwoty - status i uzasadnienie wyżej.</li>}
+          <li className="text-xs text-zinc-600">Założenie z Twojej odpowiedzi „jestem na zwolnieniu”: niezdolność do pracy z powodu choroby, potwierdzona zaświadczeniem lekarskim (e-ZLA).</li>
           {r.assumptions.map((x) => <li key={x.code} className="text-xs text-zinc-600">{x.text}</li>)}
           {r.not_evaluated_rules.length > 0 && <li className="text-xs text-zinc-600">Jeszcze nieoceniane:<RuleList ids={r.not_evaluated_rules} /></li>}
         </ul>
