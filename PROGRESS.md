@@ -41,7 +41,7 @@
 | FE-1 | FE1-08 IN_PROGRESS | `fe1/FE1-08-hospital-days` | 2026-11-21 | FE1-01: do DONE brakuje wyniku z realnego `POST /api/evaluate` zamiast `preview/`, symulacji przez `/api/sim/*`, ui-verifier. FE1-02: e2e (scenariusz 12, telefon i komputer) zamiast ui-verifier |
 | FE-1 | — (FE1-05 DONE, scalone do `main` po `/review` READY_TO_MERGE) | `fe1/FE1-05-birth-weight-choice` | 2026-11-21 | Następne: wg TASKS. Drobne z review: podgląd liczy masę bez martwo urodzonych (07: wszystkie dzieci), `cd e2e; npm test` dla scenariusza 08 |
 | FE-1 (Michał) | — (FE1-02, FE1-03 DONE, scalone do `main`) | `fe1/FE1-03-admin-ui` | 2026-11-21 | Kreator dalej liczy podgląd na kopii `PARAMS` — zmiana z `/admin` widoczna w `/api/evaluate` (kontrola krzyżowa, podgląd w `/admin`) |
-| FE-2 | — (FE2-02 DONE: symulacje logowania i konta w `features/simulations/`) | `fe2/FE2-02-sim-login` (commit bez przełączania HEAD — współdzielony katalog) | 2026-11-21 | Następne: FE2-03/FE2-04. Po INT-03: zamienić `simulations/simApi.ts` na klienta `lib/api.ts`; FE-1: `simFetchFromZus` w `wizard/simZus.ts` nieużywany — do usunięcia |
+| FE-2 | FE2-05 IN_PROGRESS | `fe2/FE2-05-guide` | 2026-11-21 | Następne: FE2-03/FE2-04. Po INT-03: zamienić `simulations/simApi.ts` na klienta `lib/api.ts`; FE-1: `simFetchFromZus` w `wizard/simZus.ts` nieużywany — do usunięcia |
 | BA | BA-02 IN_PROGRESS | `ba/BA-02-content` | 2026-11-21 | Każdy punkt na osobnej gałęzi, merge do main po /review |
 | FE-1 (Tomasz) | — (FE1-11 DONE: „Od czego chcesz zacząć?” — kreator albo szybkie pisma; kafelki pism na podsumowaniu) | `fe1/FE1-11-forms-entry` | 2026-11-21 | Następne: etap 3 (wypełnianie pism formularzem) — osobne zadanie do zdefiniowania |
 
