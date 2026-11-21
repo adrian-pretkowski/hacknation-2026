@@ -2366,7 +2366,7 @@ Podstawa z tytułu pracy w pełnym wymiarze nie może być niższa niż minimaln
 - **Dane:** `employment.working_time_fraction` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DIRECT
 - **Testy:** T-BASE-003
-- **Uwagi:** Kwota płacy minimalnej (4806,00 zł) — potwierdzona przez mentora (M07, 2026-11-21); wartość wynikowa 4806 × 0,8629 = 4147,0974. Zaokrąglenie: mentor — „zaokrąglać do dziesiątek” — DO DOPRECYZOWANIA (dosłownie 4150 zł; do 0,10 zł i do grosza = 4147,10 zł), do tego czasu kwota dokładna (GAP-001, GAP-022). Załącznik zapowiada tabelę min. podstaw, ale tabela jest pusta (GAP-022). Część etatu → brak minimum z art. 45 (DERIVED).
+- **Uwagi:** Kwota płacy minimalnej (4806,00 zł) — potwierdzona przez mentora (M07, 2026-11-21); wartość 4806 × 0,8629 = 4147,0974 zaokrąglana do pełnych groszy (MIN_BASE_ROUNDING_STEP, ROUND_HALF_UP) = 4147,10 zł — mentor fachowy M07a (2026-11-21); f_minimum_base. Pozostałe zaokrąglenia — GAP-001 (M04). Załącznik zapowiada tabelę min. podstaw, ale tabela jest pusta (GAP-022). Część etatu → brak minimum z art. 45 (DERIVED).
 
 ### BASE-NEMP-001
 

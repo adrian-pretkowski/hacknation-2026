@@ -40,7 +40,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | Udział kwartalny | `Σ wypłat za 4 kwartały przed miesiącem zdarzenia / 12` | PLN/mies. | art. 42 ust. 2 |
 | Udział roczny | `wypłata za rok poprzedni / 12` | PLN/mies. | art. 42 ust. 3 |
 | Uzupełnienie składnika zmiennego | `kwota / days_worked × days_required` | PLN | art. 37 ust. 2 pkt 2 |
-| Minimum (pełny etat) | `max(base, MIN_WAGE × (1 − 0,1371))` | PLN | art. 45 ust. 1 |
+| Minimum (pełny etat) | `max(base, round_HALF_UP(MIN_WAGE × (1 − 0,1371), 0,01))` = 4147,10 zł w 2026 (M07a) | PLN | art. 45 ust. 1; M07a |
 | Art. 48a (zadeklarowana, <12 m-cy) | `avg(min_base_net[m]) + (avg(declared_net[m] − min_base_net[m]) / 12) × n` dla n pełnych miesięcy | PLN | art. 48a ust. 1 |
 | Dzienny zasiłek | `base × rate × (1 − work_fraction) / 30` (M09 — potwierdzone) | PLN/dzień | art. 36 ust. 3, 31 ust. 4a, 47 |
 | Kwota segmentu | `daily × dni(segment)` | PLN | art. 11 ust. 4, 31 ust. 5 |
@@ -156,7 +156,8 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_base_declared_short_insurance` | – | Decimal | §2 art. 48a | `minimum_contribution_base_by_month` null → None | GAP-023 |
 | `f_periodic_components_monthly_share` | – | Decimal | §2 udział kwartalny + roczny | Brak list → 0 tylko gdy Z-3 kompletne | – |
 | `f_filter_excluded_components` | – | list | Odrzuć `retained_during_benefit = true` | null → NEEDS_REVIEW | – |
-| `f_apply_minimum_base` | – | Decimal | §2 minimum (MIN_WAGE potwierdzona — M07) | None | Zaokrąglenie minimum „do dziesiątek” (M07) do doprecyzowania — dziś kwota dokładna |
+| `f_minimum_base` | – | Decimal | `MIN_WAGE × (1 − CONTRIBUTION_DEDUCTION_RATE)` zaokrąglone ROUND_HALF_UP do `MIN_BASE_ROUNDING_STEP` (0,01) | None | M07a: 4147,10 zł |
+| `f_apply_minimum_base` | – | Decimal | `max(base, f_minimum_base)` (§2 minimum) | None | M07, M07a |
 | `f_base_after_working_time_change` | – | – | — | — | Reguła BLOCKED (GAP-021) |
 | `f_working_time_change_in_base_window` | – | bool | `working_time_change_date` ∈ [początek okna 12 m-cy, koniec miesiąca zdarzenia] | None | – |
 | `f_gap_shorter_than_calendar_month` | – | bool | Przerwa = dni pomiędzy `previous_benefit_end_date` a początkiem zasiłku (`base.reference_event_date` → `plan.maternity_start_date` → `event.date`); TRUE ⇔ przerwa nie obejmuje pełnego miesiąca kalendarzowego (1.–ostatni dzień); brak przerwy/nakładanie → TRUE (M05) | None | CONF-006 rozstrzygnięty (M05): 2.02–14.03 (41 dni) → TRUE; 1.02–14.03 → FALSE; macierzyński od 1.02 przed porodem po L4 do 31.01 → TRUE |

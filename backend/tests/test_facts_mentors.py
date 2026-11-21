@@ -9,6 +9,7 @@ from decimal import Decimal
 from app.core.dates import age_years_on, next_working_day
 from app.core.params import param, param_status
 from app.engine import pipeline
+from app.engine.facts import Context
 from app.engine.pipeline import ruleset
 
 
@@ -302,3 +303,16 @@ def test_m15_d_easter_monday_deadline(demo_payload):
     payload["event"] = {"type": "BIRTH", "date": "2027-03-08"}
     payload["applications"] = {"combined_815_filed_date": "2027-03-30"}
     assert pipeline.evaluate(payload)["benefits"][0]["rate"] == "0.815"
+
+
+# ------------------------------------------------------------ M07a: minimalna podstawa do groszy (BASE-EMP-008)
+def test_m07a_minimum_base_rounded_to_grosz():
+    """T-BASE-003: 4806 × 0,8629 = 4147,0974 → 4147,10 zł (ROUND_HALF_UP do 0,01)."""
+    assert Context(input={}).fact("f_minimum_base") == Decimal("4147.10")
+    assert param("MIN_BASE_ROUNDING_STEP") == Decimal("0.01")
+
+
+def test_m07a_round_half_up_boundary():
+    from app.core.money import round_to_step
+    assert round_to_step(Decimal("4147.095"), Decimal("0.01")) == Decimal("4147.10")
+    assert round_to_step(Decimal("4147.0949"), Decimal("0.01")) == Decimal("4147.09")

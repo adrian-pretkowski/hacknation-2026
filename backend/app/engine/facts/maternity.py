@@ -19,7 +19,7 @@ from app.core.dates import (
     next_working_day,
     to_date,
 )
-from app.core.money import div, mul, to_decimal
+from app.core.money import div, mul, round_to_step, to_decimal
 from app.engine.facts.registry import Context, fact
 
 
@@ -124,6 +124,16 @@ def benefit_base(ctx: Context) -> Decimal | None:
             previous = to_decimal(ctx.field("benefit_history.previous_base_amount"))
             return previous if previous is not None else ctx.need("benefit_history.previous_base_amount")
     return ctx.need("income_history.manual_base_override")
+
+
+@fact("f_minimum_base")
+def minimum_base(ctx: Context) -> Decimal | None:
+    """07 §2/§6, BASE-EMP-008: płaca minimalna × (1 − CONTRIBUTION_DEDUCTION_RATE), zaokrąglona do groszy.
+
+    M07 (4806 zł) i M07a (zaokrąglenie do pełnych groszy, ROUND_HALF_UP): 4147,0974 → 4147,10 zł. USTAWA art. 45 ust. 1.
+    """
+    exact = mul(ctx.param("MIN_WAGE_2026_MONTHLY"), Decimal(1) - ctx.param("CONTRIBUTION_DEDUCTION_RATE"))
+    return round_to_step(exact, ctx.param("MIN_BASE_ROUNDING_STEP"))
 
 
 @fact("f_benefit_amount")

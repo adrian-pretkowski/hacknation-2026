@@ -3630,7 +3630,7 @@
    "rule_ids": [
     "BASE-EMP-008"
    ],
-   "description": "Pełny etat, wyliczona podstawa 3900 < minimum → 4147,0974 (dokładnie)",
+   "description": "Pełny etat, wyliczona podstawa 3900 < minimum → 4147,10 (4806 × 0,8629 = 4147,0974 zaokrąglone do groszy, M07a)",
    "fixture": "employee_mother",
    "patch": {
     "income_history": {
@@ -3661,13 +3661,14 @@
     "leave_type": "MATERNITY_LEAVE"
    },
    "expected": {
-    "base.amount_exact": "4147.0974"
+    "base.amount_exact": "4147.10"
    },
    "legal_basis": [
     "USTAWA art. 45 ust. 1, art. 36 ust. 2"
    ],
    "assumptions": [
-    "MIN_WAGE 4806,00 (potwierdzona — M07); zaokrąglenie „do dziesiątek” (M07) do doprecyzowania — oczekiwana kwota dokładna"
+    "MIN_WAGE 4806,00 (potwierdzona — M07)",
+    "M07a (2026-11-21, mentor fachowy): minimalna podstawa zaokrąglana do groszy"
    ]
   },
   {
