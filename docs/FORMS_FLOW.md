@@ -36,7 +36,7 @@ Kolor ikony: zielony — wypełniasz Ty, granatowy — wypełnia płatnik skład
 - Katalog pism: `frontend/src/features/documents/forms.ts` (`FORMS`, `FORM_GROUPS`, `formsForDocTypes`).
 - Kafelki i ekran pisma: `frontend/src/features/documents/FormPicker.tsx` (`FormPicker`, `FormIcon`, `FormDetail` — w etapie 3 tu trafi formularz).
 - Wybór drogi: `frontend/src/features/main-flow/wizard/Intro.tsx` (`PathCard`); widoki `forms` / `form`: `Wizard.tsx`; sekcja na wyniku: `Results.tsx` (`FormsToFill`).
-- E2E: `e2e/scenariusze/14-szybkie-pisma.md`, `15-pisma-dopasowane-do-planu.md` (zwijanie, widok komputera).
+- E2E: `e2e/scenariusze/14-szybkie-pisma.md`, `17-pisma-dopasowane-do-planu.md` (zwijanie, widok komputera).
 
 ## Opieka nad rodzicami (FE1-14, zgłoszone 2026-11-21)
 Wsparcie psychiczne i informacja o pomocy to pokazanie, że rodzice są dla nas ważni — mają pierwszeństwo przed kwotami:
