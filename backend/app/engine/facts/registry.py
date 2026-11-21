@@ -124,7 +124,8 @@ class Context:
             return None
         if fn is None:
             raise KeyError(f"Fakt {name} nie jest zaimplementowany (zus_rules/07)")
-        seg_key = id(self.segment) if self.segment is not None else None
+        # segment kluczowany treścią, nie id(): zwolniony obiekt może oddać swoje id kolejnemu segmentowi
+        seg_key = repr(sorted(self.segment.items())) if self.segment is not None else None
         key = (name, seg_key, tuple(sorted((k, repr(v)) for k, v in args.items())))
         if key not in self._cache:
             before = len(self.missing)

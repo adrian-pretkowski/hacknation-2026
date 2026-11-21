@@ -23,12 +23,15 @@ def _set(path: str, value):
 SELF_EMPLOYED = [{"title_type": "SELF_EMPLOYED", "sickness_insurance_mode": "VOLUNTARY", "from": "2024-01-01",
                   "to": None}]
 
+_CHILD = {"birth_date": "2027-03-15"}
+
 VARIANTS = {
     "T-RATE-001_demo_815": [],
     "T-RATE-002_day_22_gives_100": [_set("applications.combined_815_filed_date", "2027-04-06")],
     "T-RATE-001_day_21_boundary": [_set("applications.combined_815_filed_date", "2027-04-05")],
-    "T-MAT-002_twins": [_set("children.count_at_birth", 2)],
-    "MAT-DUR-001_quintuplets": [_set("children.count_at_birth", 6)],
+    # demo ma children.items (1 dziecko) — wieloraczki: lista dzieci zgodna z liczbą (inaczej MAT-DUR-005)
+    "T-MAT-002_twins": [_set("children.count_at_birth", 2), _set("children.items", [_CHILD] * 2)],
+    "MAT-DUR-001_quintuplets": [_set("children.count_at_birth", 6), _set("children.items", [_CHILD] * 6)],
     "planned_815_forecast": [_set("applications.combined_815_filed_date", None),
                              _set("applications.combined_815_planned", True)],
     "not_planned_815": [_set("applications.combined_815_filed_date", None),

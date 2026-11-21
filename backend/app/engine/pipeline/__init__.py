@@ -27,6 +27,7 @@ from app.engine.pipeline.parental import (
     evaluate_paternity,
     evaluate_transferred,
     plan_errors,
+    reserved_weeks_review,
     return_to_work,
 )
 from app.engine.pipeline.sickness import evaluate_sickness
@@ -73,9 +74,11 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
             benefits.append(parental)
         plan = {"plan_errors": plan_errors(eng), "return_to_work": return_to_work(eng)}
     elif event_type in ("ADOPTION", "FOSTER"):
-        # urlop na warunkach macierzyńskiego (MAT-ELIG-002/003) — BE2-01; tu: rodzicielski (PAR-DUR-003)
-        benefits = [b for b in [evaluate_parental(eng)] if b is not None]
-        for rule_id in ("MAT-ELIG-002", "MAT-ELIG-003"):
+        # świadczenie za urlop na warunkach macierzyńskiego (okres MAT-DUR-007/008) — BE2-01; tu: prawo bazowe
+        # MAT-ELIG-002/003 + MAT-EXCL-001 jako warunek rodzicielskiego (PAR-DUR-003) i ojcowski ojca (PAT-*)
+        benefits = [evaluate_paternity(eng)] if role == "FATHER" else []
+        benefits += [b for b in [evaluate_parental(eng)] if b is not None]
+        for rule_id in ("MAT-DUR-007", "MAT-DUR-008"):
             if rule_id not in eng.not_evaluated:
                 eng.not_evaluated.append(rule_id)
         plan = {"plan_errors": plan_errors(eng), "return_to_work": return_to_work(eng)}
@@ -85,6 +88,8 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
         return _response(eng, [], [{"code": "OUT_OF_SCOPE_SLICE",
                                     "text": "Silnik reguł obsługuje na razie event.type: BIRTH, ADOPTION, FOSTER, "
                                             "PREGNANCY_INCAPACITY, SICKNESS."}], "OUT_OF_SCOPE")
+    if plan:
+        reserved_weeks_review(eng, benefits, plan["plan_errors"])  # GAP-016
     for benefit in benefits:
         benefit.update(explain_benefit(eng, benefit))  # BE1-06: explanation + legal_basis (kontrakt Benefit)
     assumptions = [ROUNDING] + [PARAM_ASSUMPTIONS[p] for p in eng.unconfirmed_params() if p in PARAM_ASSUMPTIONS]

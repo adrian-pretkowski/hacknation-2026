@@ -77,7 +77,21 @@ def _multiple(ctx: Context) -> bool | None:
 
 
 # ------------------------------------------------------------------------------------- wymiar i prawo
-def _adoption_age_capped(ctx: Context) -> bool | None:
+@fact("f_child_age_years_on")
+def child_age_years_on(ctx: Context, date: Any = None) -> int | None:
+    """07 §5: pełne lata dziecka (najstarszego z przyjętych) w ``date``; dzień urodzin = ukończenie lat (C7).
+
+    KP art. 183 § 1; USTAWA art. 29 ust. 1 pkt 2-3.
+    """
+    day = to_date(date)
+    birth = child_birth_date(ctx)
+    if day is None or birth is None:
+        return None
+    years = day.year - birth.year
+    return years - 1 if day < add_years(birth, years) else years
+
+
+def adoption_age_capped(ctx: Context) -> bool | None:
     """KP art. 183 § 3: dziecko osiąga graniczny wiek (FOSTER 7/10, ADOPTION 14) przed końcem urlopu na warunkach
     macierzyńskiego w pełnym wymiarze → rodzicielski 38 (Za życiem 62) tygodni (C7: ostatni dzień = dzień przed
     urodzinami granicznymi)."""
@@ -112,7 +126,7 @@ def parental_leave_weeks(ctx: Context) -> int | None:
     if za_zyciem is None or multiple is None:
         return None
     if ctx.field("event.type") in ADOPTION_EVENTS:
-        capped = _adoption_age_capped(ctx)
+        capped = adoption_age_capped(ctx)
         if capped is None:
             return None
         if capped:

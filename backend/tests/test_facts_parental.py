@@ -50,11 +50,19 @@ def test_parental_leave_weeks_missing_za_zyciem_is_unknown():
     assert "children.za_zyciem_certificate" in ctx.missing
 
 
-def _adoption(child_birth: str, event_date: str = "2027-01-04") -> dict:
+def _adoption(child_birth: str, event_date: str = "2027-01-04", role: str = "ADOPTIVE_PARENT") -> dict:
     payload = _input("T-PAR-001")
-    payload["event"] = {"type": "ADOPTION", "date": event_date, "adoption_final_date": "2027-06-01"}
-    payload["person"]["role"] = "ADOPTIVE_PARENT"
+    payload["event"] = {"type": "ADOPTION", "date": event_date, "adoption_final_date": "2027-06-01",
+                        "court_adoption_application_date": "2027-01-02"}
+    payload["person"]["role"] = role
     payload["children"] = {"count_at_event": 1, "items": [{"birth_date": child_birth}], "za_zyciem_certificate": False}
+    payload["plan"] = {"parental_start_date": "2027-06-01"}
+    return payload
+
+
+def _foster(child_birth: str, family: str) -> dict:
+    payload = _adoption(child_birth, role="FOSTER_PARENT")
+    payload["event"] = {"type": "FOSTER", "date": "2027-01-04", "foster_family_type": family}
     return payload
 
 
@@ -63,7 +71,7 @@ def test_par_dur_003_adoption_regular_41_weeks():
 
 
 def test_par_dur_003_adoption_age_cap_gives_38_weeks():
-    # 14. urodziny 2027-03-01 przed końcem 20 tygodni od przyjęcia (2027-05-23) → KP 183 § 3 → 38 tygodni
+    # 14. urodziny 2027-03-01 przed końcem 20 tygodni od przyjęcia (2027-05-23) → wariant KP 183 § 3 → 38 tygodni
     assert _ctx(_adoption("2013-03-01")).fact("f_parental_leave_weeks") == 38
 
 
@@ -73,11 +81,68 @@ def test_par_dur_003_adoption_boundary_last_allowed_day_equals_regular_end():
     assert _ctx(_adoption("2013-05-23")).fact("f_parental_leave_weeks") == 38
 
 
-def test_adoption_pipeline_returns_parental_and_reports_maternity_like_not_evaluated():
+def test_adoption_age_cap_38_weeks_is_needs_review_m14b():
+    # M14b / CONF-003: przesłanka KP 183 § 3 nieustalona — 38 tygodni tylko jako informacja, status NEEDS_REVIEW
+    parental = _benefit(pipeline.evaluate(_adoption("2013-03-01")), "PARENTAL_LEAVE")
+    assert parental["status"] == "NEEDS_REVIEW" and parental["period"]["max_weeks"] == 38
+    assert "PARENTAL_ADOPTION_38_WEEKS_UNCONFIRMED" in [r["code"] for r in parental["reasons"]]
+
+
+def test_adoption_with_base_right_is_eligible_and_maternity_like_period_not_evaluated():
     body = pipeline.evaluate(_adoption("2024-01-10"))
     parental = _benefit(body, "PARENTAL_LEAVE")
-    assert parental["period"]["max_weeks"] == 41
-    assert {"MAT-ELIG-002", "MAT-ELIG-003"} <= set(body["not_evaluated_rules"])
+    assert parental["status"] == "ELIGIBLE" and parental["period"]["max_weeks"] == 41
+    assert "MAT-ELIG-002" in parental["applied_rules"]
+    assert {"MAT-DUR-007", "MAT-DUR-008"} <= set(body["not_evaluated_rules"])
+
+
+def test_adoption_child_14_years_has_no_parental_right():
+    # T-MAT-016: dziecko ukończyło 14 lat w dniu przyjęcia → brak prawa bazowego (MAT-ELIG-002) → brak ELIGIBLE
+    body = pipeline.evaluate(_adoption("2013-01-04"))
+    parental = _benefit(body, "PARENTAL_LEAVE")
+    assert parental["status"] == "NOT_ELIGIBLE"
+    assert "NO_MATERNITY_LIKE_RIGHT" in [r["code"] for r in parental["reasons"]]
+
+
+def test_professional_foster_family_has_no_parental_right_m16b2():
+    parental = _benefit(pipeline.evaluate(_foster("2024-05-01", "PROFESSIONAL")), "PARENTAL_LEAVE")
+    assert parental["status"] == "NOT_ELIGIBLE"
+    assert "PROFESSIONAL_FOSTER_FAMILY" in [r["code"] for r in parental["reasons"]]
+    assert _benefit(pipeline.evaluate(_foster("2024-05-01", "NON_PROFESSIONAL")), "PARENTAL_LEAVE")["status"] \
+        == "ELIGIBLE"
+
+
+def test_adoption_missing_court_application_is_needs_data():
+    payload = _adoption("2024-01-10")
+    payload["event"].pop("court_adoption_application_date")
+    body = pipeline.evaluate(payload)
+    # brak daty wniosku do sądu = brak danych (NEEDS_DATA), nigdy odmowa
+    assert _benefit(body, "PARENTAL_LEAVE")["status"] == "NEEDS_DATA"
+    assert {"field": "event.court_adoption_application_date", "rule_ids": ["MAT-ELIG-002"]} in body["missing_data"]
+
+
+def test_child_age_years_on():
+    ctx = _ctx(_adoption("2013-03-01"))
+    assert ctx.fact("f_child_age_years_on", date="2027-02-28") == 13
+    assert ctx.fact("f_child_age_years_on", date="2027-03-01") == 14   # graniczny: dzień urodzin (C7)
+    assert _ctx(_input("T-PAR-001", children__items=None, event__type="ADOPTION")).fact(
+        "f_child_age_years_on", date="2027-03-01") is None
+
+
+def test_gap_019_older_adopted_child_first_year_rule_is_review():
+    payload = _adoption("2024-01-10")
+    payload["applications"] = {"combined_815_planned": True}
+    parental = _benefit(pipeline.evaluate(payload), "PARENTAL_LEAVE")
+    assert parental["status"] == "NEEDS_REVIEW"
+    codes = [r["code"] for r in parental["reasons"]]
+    assert "FIRST_YEAR_RULE_UNCLEAR_FOR_OLDER_CHILD" in codes and "ONE_OFF_EQUALIZATION_TO_100" not in codes
+
+
+def test_father_at_adoption_gets_paternity():
+    payload = _adoption("2026-10-01", role="FATHER")
+    payload["plan"] = {"segments": [_seg("FATHER", "PATERNITY_LEAVE", "2027-06-02", "2027-06-15")]}
+    paternity = _benefit(pipeline.evaluate(payload), "PATERNITY_LEAVE")
+    assert paternity["status"] == "ELIGIBLE" and paternity["total_amount_exact"] == "2800"
 
 
 # ----------------------------------------------------------------------------------- f_child_alive_on
@@ -301,6 +366,69 @@ def test_return_to_work_per_parent_with_part_time():
     assert pipeline.evaluate(_input("T-PAR-006"))["return_to_work"] == [
         {"parent": "MOTHER", "date": "2027-10-11", "part_time_fraction": "0.5"}]
     assert pipeline.evaluate(_input("T-PAR-001"))["return_to_work"] == []
+
+
+def test_mother_parental_not_better_than_maternity_status():
+    # PAR-ELIG-001 zależy od MAT-ELIG-001: tytuł od 2027-05-01 → macierzyński NEEDS_REVIEW → rodzicielski też
+    payload = _input("T-PAR-001")
+    payload["insurance"]["titles"][0]["from"] = "2027-05-01"
+    body = pipeline.evaluate(payload)
+    assert _benefit(body, "MATERNITY_LEAVE")["status"] == "NEEDS_REVIEW"
+    assert _benefit(body, "PARENTAL_LEAVE")["status"] == "NEEDS_REVIEW"
+
+
+def test_mother_parental_not_eligible_when_maternity_not_eligible():
+    payload = _input("T-PAR-001")
+    payload["insurance"]["titles"] = [{"title_type": "SELF_EMPLOYED", "sickness_insurance_mode": "VOLUNTARY",
+                                       "from": "2024-01-01", "to": None}]
+    payload["debt"] = {"amount_on_right_date": "500.00"}
+    body = pipeline.evaluate(payload)
+    assert _benefit(body, "MATERNITY_LEAVE")["status"] == "NOT_ELIGIBLE"
+    assert _benefit(body, "PARENTAL_LEAVE")["status"] == "NOT_ELIGIBLE"
+
+
+def test_gap_018_work_in_parental_by_non_employee_is_review_not_plan_error():
+    payload = _input("T-PAR-007")
+    payload["insurance"]["titles"] = [{"title_type": "SELF_EMPLOYED", "sickness_insurance_mode": "VOLUNTARY",
+                                       "from": "2024-01-01", "to": None}]
+    body = pipeline.evaluate(payload)
+    assert body["plan_errors"] == []
+    parental = _benefit(body, "PARENTAL_LEAVE")
+    assert parental["status"] == "NEEDS_REVIEW"
+    assert "PARENTAL_WORK_NON_EMPLOYEE_UNCLEAR" in [r["code"] for r in parental["reasons"]]
+
+
+def test_gap_016_reserved_weeks_with_uninsured_mother_is_review():
+    payload = _input("T-RATE-004")
+    payload["mother"] = {"sickness_insured": False}
+    payload["plan"]["segments"] = [_seg("MOTHER", "PARENTAL_LEAVE", "2027-08-02", "2028-03-19"),
+                                   _seg("FATHER", "PARENTAL_LEAVE", "2028-03-20", "2028-04-02")]
+    body = pipeline.evaluate(payload)
+    assert {"code": "NON_TRANSFERABLE_9W_VIOLATED", "rule_id": "PAR-SHARE-001"} in body["plan_errors"]
+    assert _benefit(body, "PARENTAL_LEAVE")["status"] == "NEEDS_REVIEW"
+    payload["mother"] = {"sickness_insured": True}  # matka ubezpieczona → zwykły błąd planu, status bez zmian
+    assert _benefit(pipeline.evaluate(payload), "PARENTAL_LEAVE")["status"] == "ELIGIBLE"
+
+
+def test_one_off_equalization_missing_base_is_unknown():
+    ctx = _ctx(_input("T-RATE-005", income_history__manual_base_override=None))
+    assert ctx.fact("f_one_off_equalization") is None
+    assert "income_history.manual_base_override" in ctx.missing
+
+
+def test_paternity_window_adoption_missing_final_date_is_unknown():
+    payload = _adoption("2026-10-01", role="FATHER")
+    payload["event"].pop("adoption_final_date")
+    ctx = _ctx(payload)
+    assert ctx.fact("f_paternity_window") is None and "event.adoption_final_date" in ctx.missing
+
+
+def test_fact_cache_is_keyed_by_segment_content():
+    ctx = _ctx(_input("T-PAR-001"))
+    ctx.segment = {"parent": "MOTHER", "leave_type": "PARENTAL_LEAVE", "work_fraction": "0.5"}
+    assert ctx.fact("f_segment_work_fraction") == Decimal("0.5")
+    ctx.segment = {"parent": "MOTHER", "leave_type": "PARENTAL_LEAVE", "work_fraction": "0.25"}
+    assert ctx.fact("f_segment_work_fraction") == Decimal("0.25")  # nowy segment → nowa wartość, bez trafienia w cache
 
 
 def test_response_matches_contract_for_parental_scenarios(client):
