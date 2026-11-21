@@ -355,7 +355,10 @@ export const STEPS: Step[] = [
     title: "Wynagrodzenie",
     visible: (a) => a.role !== null && a.title !== "NONE",
     complete: () => true,
-    summary: (a) => (a.salaryGross ? `${formatMoney(a.salaryGross.replace(",", "."))} brutto` : "nie podano"),
+    summary: (a) => {
+      const v = a.salaryGross.replace(",", ".");
+      return /^\d+(\.\d{1,2})?$/.test(v) ? `${formatMoney(v)} brutto` : "nie podano";
+    },
     render: ({ a, set }) => (
       <div className="space-y-4">
         <ZusFetch source="salary" a={a} set={set}

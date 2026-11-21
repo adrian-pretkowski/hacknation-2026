@@ -36,7 +36,7 @@
 | INT | — (INT-06 DONE, scalone do main `2e3d3c7`) | — | 2026-11-21 | Następne: INT-03. Każdy klon: raz `scripts\dev.ps1` lub `git config core.hooksPath .githooks` (włącza przypomnienie o review po commitach z terminala). INT-01 scalone (PR #1) — status w TASKS do potwierdzenia przez lidera |
 | BE-1 | — (BE1-01, BE1-02 DONE; czeka na /review) | `be1/BE1-01-dsl` (commity bez przełączania HEAD — współdzielony katalog) | 2026-11-21 | Następne: BE1-03 (runner 08) albo BE1-04. Interfejs I2 gotowy: `from app.engine.facts.registry import Context, fact` |
 | BE-2 | — | — | — | |
-| FE-1 | FE1-01 IN_PROGRESS — kreator S1–S13 + wynik na podglądzie silnika w FE (`preview/`) | `main` (`41b65a2`, `319b754`), poprawki `fe1/FE1-01-wizard-a11y` | 2026-11-21 | Do DONE brakuje: wynik z realnego `POST /api/evaluate` zamiast `preview/` (po BE2), symulacje przez `/api/sim/*` (INT-03; dziś dane syntetyczne w `wizard/simZus.ts`), ui-verifier |
+| FE-1 | FE1-01 IN_PROGRESS — kreator S1–S13 + wynik na podglądzie silnika w FE (`preview/`) | `main` (`41b65a2`, `319b754`), poprawki `fe1/FE1-01-wizard-a11y` (scalone `451556c`), `fe1/FE1-01-wizard-history` | 2026-11-21 | Do DONE brakuje: wynik z realnego `POST /api/evaluate` zamiast `preview/` (po BE2), symulacje przez `/api/sim/*` (INT-03; dziś dane syntetyczne w `wizard/simZus.ts`), ui-verifier |
 | FE-2 | — | — | — | |
 | BA | — | — | — | |
 
