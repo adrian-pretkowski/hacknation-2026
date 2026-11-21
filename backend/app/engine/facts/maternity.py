@@ -85,12 +85,14 @@ def gap_shorter_than_calendar_month(ctx: Context) -> bool | None:
     """07 §6, BASE-GEN-001: przerwa między poprzednim zasiłkiem a obecnym nie obejmuje pełnego miesiąca kalendarzowego.
 
     Przerwa = dni POMIĘDZY ``benefit_history.previous_benefit_end_date`` a początkiem obecnego zasiłku
-    (``base.reference_event_date``, a gdy silnik go nie ustalił — ``event.date``); brak przerwy lub nakładanie → TRUE.
+    (``base.reference_event_date`` → ``plan.maternity_start_date``, gdy macierzyński zaczyna się przed porodem →
+    ``event.date``); brak przerwy lub nakładanie → TRUE.
     TRUE ⇔ przerwa nie zawiera całego miesiąca od 1. do ostatniego dnia (M05, CONF-006 rozstrzygnięty z mentorem).
     USTAWA art. 43.
     """
     prev_end = to_date(ctx.field("benefit_history.previous_benefit_end_date"))
-    start = to_date(ctx.field("base.reference_event_date")) or to_date(ctx.field("event.date"))
+    start = (to_date(ctx.field("base.reference_event_date")) or to_date(ctx.field("plan.maternity_start_date"))
+             or to_date(ctx.field("event.date")))
     if prev_end is None:
         ctx.need("benefit_history.previous_benefit_end_date")
     if start is None:
@@ -111,7 +113,10 @@ def benefit_base(ctx: Context) -> Decimal | None:
     if base is not None:
         return base
     if ctx.field("benefit_history.previous_benefit_end_date") is not None:
-        if ctx.fact("f_gap_shorter_than_calendar_month") is True:
+        reuse = ctx.fact("f_gap_shorter_than_calendar_month")
+        if reuse is None:
+            return None  # brak daty początku zasiłku — braki zgłosił fakt; nie żądamy nowej podstawy na zapas
+        if reuse:
             previous = to_decimal(ctx.field("benefit_history.previous_base_amount"))
             return previous if previous is not None else ctx.need("benefit_history.previous_base_amount")
     return ctx.need("income_history.manual_base_override")

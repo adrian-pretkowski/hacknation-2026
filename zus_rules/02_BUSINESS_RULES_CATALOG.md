@@ -122,7 +122,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [BASE-NEMP-002](#base-nemp-002) | Podstawa przy zadeklarowanej kwocie i ubezpieczeniu <12 miesięcy (art. 48a) | CALCULATION | P0 | ACTIVE | HIGH | DIRECT | 1 |
 | [BASE-NEMP-003](#base-nemp-003) | Podstawa niepracownika — niezdolność w pierwszym miesiącu | CALCULATION | P1 | ACTIVE | HIGH | DIRECT | 0 |
 | [BASE-NEMP-004](#base-nemp-004) | Niepracownik — miesiące z zasiłkiem <½ miesiąca wyłączone | CALCULATION | P0 | ACTIVE | HIGH | DIRECT | 1 |
-| [BASE-GEN-001](#base-gen-001) | Brak ponownego ustalania podstawy przy przerwie < miesiąca kalendarzowego | CALCULATION | P0 | ACTIVE | HIGH | DERIVED | 5 |
+| [BASE-GEN-001](#base-gen-001) | Brak ponownego ustalania podstawy przy przerwie < miesiąca kalendarzowego | CALCULATION | P0 | ACTIVE | HIGH | DERIVED | 6 |
 | [BASE-GEN-002](#base-gen-002) | Maksymalna podstawa zasiłku chorobowego po ustaniu tytułu | CALCULATION | P2 | BLOCKED | LOW | INCOMPLETE_SOURCE | 0 |
 | [RISK-001](#risk-001) | Ryzyko — umowa / działalność zawarta dla pozoru krótko przed ciążą lub w ciąży | VALIDATION | P1 | INFORMATIONAL | LOW | INCOMPLETE_SOURCE | 0 |
 | [RISK-002](#risk-002) | Ryzyko — podwyższenie podstawy wymiaru składek w ciąży | VALIDATION | P1 | INFORMATIONAL | LOW | INCOMPLETE_SOURCE | 0 |
@@ -2460,7 +2460,7 @@ Podstawy nie ustala się na nowo, jeżeli między okresami pobierania zasiłków
 - **Wyjątki:** — · **Zależy od:** — · **Ma pierwszeństwo przed:** BASE-EMP-001, BASE-EMP-002, BASE-NEMP-001, BASE-NEMP-002
 - **Dane:** `benefit_history.previous_benefit_end_date`, `benefit_history.previous_base_amount`, `base.reference_event_date` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DERIVED
-- **Testy:** T-BASE-006, T-BASE-007, T-BASE-010, T-BASE-011, T-INT-001
+- **Testy:** T-BASE-006, T-BASE-007, T-BASE-010, T-BASE-011, T-BASE-012, T-INT-001
 - **Uwagi:** Typowo: zasiłek chorobowy w ciąży → macierzyński bez przerwy = ta sama podstawa (ważne dla demo). 'Miesiąc kalendarzowy' = pełny miesiąc od 1. do ostatniego dnia — ustalenie z mentorem fachowym ZUS (M05, 2026-11-21; CONF-006 rozstrzygnięty). Podstawę ustala się na nowo tylko, gdy przerwa obejmuje cały miesiąc kalendarzowy; przerwa dłuższa niż 31 dni bez pełnego miesiąca (np. 2.02–14.03) → ta sama podstawa.
 
 ### BASE-GEN-002

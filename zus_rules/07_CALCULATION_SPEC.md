@@ -144,7 +144,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_segment_belongs_to_applicant_of_combined` | – | bool | Segment należy do rodzica, który złożył wniosek 81,5% (matka przy BIRTH) | None | Ojciec → RATE-MAT-008 (BLOCKED) |
 | `f_segment_is_other_parent_reserved_9w` | – | bool | `segment.is_other_parent_reserved_9w`, a jeśli null: pierwsze 9 tygodni PARENTAL rodzica ≠ wnioskodawca 81,5% | None | – |
 | `f_any_parental_day_in_first_year` | – | bool | Którykolwiek dzień PARENTAL < 1. urodziny dziecka | None | GAP-019 |
-| `f_benefit_base` | – | Decimal | `manual_base_override` jeśli podano; inaczej `BASE-GEN-001` (reuse) albo metoda BASE-* | None | Zwraca też `source` |
+| `f_benefit_base` | – | Decimal | `manual_base_override` jeśli podano; inaczej `BASE-GEN-001` (reuse) albo metoda BASE-* | None (brak daty początku zasiłku przy historii → braki z `f_gap_shorter_than_calendar_month`) | Wynik `base.source`: MANUAL / REUSED_PREVIOUS |
 | `f_benefit_base_employee` | – | Decimal | §2 „Podstawa pracownika” na miesiącach z `f_base_months_selection_employee` | None | – |
 | `f_benefit_base_non_employee` | – | Decimal | Średnia przychodów z `f_base_months_selection_non_employee` | None | – |
 | `f_base_months_selection_employee` | – | list | 12 (lub mniej — pełne) miesięcy przed miesiącem zdarzenia; wyłącz `days_worked < days_required/2` (absence justified); jeśli wszystkie by wypadły → wszystkie po uzupełnieniu (art. 38 ust. 3) | None | `days_*` null → None |
@@ -158,7 +158,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_apply_minimum_base` | – | Decimal | §2 minimum | MIN_WAGE UNCONFIRMED → wynik + assumption | – |
 | `f_base_after_working_time_change` | – | – | — | — | Reguła BLOCKED (GAP-021) |
 | `f_working_time_change_in_base_window` | – | bool | `working_time_change_date` ∈ [początek okna 12 m-cy, koniec miesiąca zdarzenia] | None | – |
-| `f_gap_shorter_than_calendar_month` | – | bool | Przerwa = dni pomiędzy `previous_benefit_end_date` a początkiem zasiłku (`base.reference_event_date`, domyślnie `event.date`); TRUE ⇔ przerwa nie obejmuje pełnego miesiąca kalendarzowego (1.–ostatni dzień); brak przerwy/nakładanie → TRUE (M05) | None | CONF-006 rozstrzygnięty (M05): 2.02–14.03 (41 dni) → TRUE; 1.02–14.03 → FALSE |
+| `f_gap_shorter_than_calendar_month` | – | bool | Przerwa = dni pomiędzy `previous_benefit_end_date` a początkiem zasiłku (`base.reference_event_date` → `plan.maternity_start_date` → `event.date`); TRUE ⇔ przerwa nie obejmuje pełnego miesiąca kalendarzowego (1.–ostatni dzień); brak przerwy/nakładanie → TRUE (M05) | None | CONF-006 rozstrzygnięty (M05): 2.02–14.03 (41 dni) → TRUE; 1.02–14.03 → FALSE; macierzyński od 1.02 przed porodem po L4 do 31.01 → TRUE |
 | `f_apply_after_title_cap` | – | – | — | — | BLOCKED (GAP-002) |
 | `f_benefit_amount` | – | object | Per segment: `daily = base × rate × (1 − wf) / 30`; `total = daily × dni` | None | C1, C2 |
 | `f_monthly_maternity_amount` | – | Decimal | `base × rate × (1 − wf)` | None | – |

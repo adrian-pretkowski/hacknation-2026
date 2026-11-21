@@ -174,6 +174,20 @@ def test_base_gen_001_f_gap_missing_data_unknown():
     assert ctx.missing == ["benefit_history.previous_benefit_end_date"]
 
 
+def test_base_gen_001_maternity_started_before_birth_no_gap():
+    # T-BASE-012: L4 do 31.01, macierzyński od 1.02 (przed porodem 15.03) → brak przerwy, ta sama podstawa
+    data = _history("2027-01-31") | {"plan": {"maternity_start_date": "2027-02-01"}}
+    ctx = _ctx(data)
+    assert ctx.fact("f_gap_shorter_than_calendar_month") is True
+    assert ctx.fact("f_benefit_base") == Decimal("5123.45")
+
+
+def test_base_gen_001_missing_start_date_reports_date_not_new_base():
+    ctx = _ctx({"benefit_history": {"previous_benefit_end_date": "2027-02-22", "previous_base_amount": "5123.45"}})
+    assert ctx.fact("f_benefit_base") is None
+    assert ctx.missing == ["event.date"]
+
+
 def test_base_gen_001_f_benefit_base_reuse_and_recompute():
     assert _ctx(_history("2027-02-01")).fact("f_benefit_base") == Decimal("5123.45")
     ctx = _ctx(_history("2027-01-31"))
@@ -198,6 +212,7 @@ def test_t_base_006_007_010_same_base_end_to_end(demo_payload, prev_end):
     benefit = pipeline.evaluate(_reuse_payload(demo_payload, prev_end))["benefits"][0]
     assert benefit["status"] == "ELIGIBLE"
     assert "BASE-GEN-001" in benefit["applied_rules"]
+    assert benefit["base"] == {"amount_exact": "5123.45", "source": "REUSED_PREVIOUS", "method_rule_id": "BASE-GEN-001"}
     # 5123,45 × 100% / 30 — dokładnie, bez zaokrągleń pośrednich
     assert Decimal(benefit["daily_amount_exact"]) == Decimal("5123.45") / 30
 
@@ -206,5 +221,17 @@ def test_t_base_011_full_month_gap_needs_new_base_not_refusal(demo_payload):
     body = pipeline.evaluate(_reuse_payload(demo_payload, "2027-01-31"))
     benefit = body["benefits"][0]
     assert benefit["status"] == "NEEDS_DATA"
-    assert "BASE-GEN-001" not in benefit["applied_rules"]
+    assert "BASE-GEN-001" not in benefit["applied_rules"] and benefit["base"] is None
     assert any(m["field"] == "income_history.manual_base_override" for m in body["missing_data"])
+
+
+def test_t_base_012_maternity_before_birth_same_base_end_to_end(demo_payload):
+    payload = _reuse_payload(demo_payload, "2027-01-31")
+    payload["plan"] = {"maternity_start_date": "2027-02-01"}
+    benefit = pipeline.evaluate(payload)["benefits"][0]
+    assert benefit["status"] == "ELIGIBLE" and benefit["base"]["source"] == "REUSED_PREVIOUS"
+
+
+def test_manual_base_reported_as_manual(demo_payload):
+    benefit = pipeline.evaluate(demo_payload)["benefits"][0]
+    assert benefit["base"] == {"amount_exact": "6000", "source": "MANUAL"}

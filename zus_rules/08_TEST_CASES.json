@@ -3603,6 +3603,41 @@
    ]
   },
   {
+   "test_id": "T-BASE-012",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "BASE-GEN-001"
+   ],
+   "description": "L4 w ciąży do 31.01, macierzyński od 1.02 (przed porodem 15.03) → brak przerwy, ta sama podstawa (M05)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-01-31",
+     "previous_base_amount": "5123.45"
+    },
+    "plan": {
+     "maternity_start_date": "2027-02-01"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "5123.45"
+   },
+   "legal_basis": [
+    "USTAWA art. 43"
+   ],
+   "assumptions": [
+    "M05: miesiąc kalendarzowy = pełny miesiąc od 1. do ostatniego dnia (CONF-006 rozstrzygnięty)"
+   ]
+  },
+  {
    "test_id": "T-INT-001",
    "kind": "INTEGRATION",
    "rule_ids": [

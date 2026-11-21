@@ -11,7 +11,7 @@
 | Działa end-to-end | Kalkulator zasiłku macierzyńskiego matki (slice_v0): UI → `POST /api/evaluate` → wynik w UI |
 | Silnik | **pipeline reguł** (`engine/pipeline/`, `engine=rules-engine`, domyślnie) — macierzyński matki na regułach z `03_rules.yaml`; `ENGINE=slice` przywraca `slice_v0`; pozostałe świadczenia — BE1-04/05, BE2-01..04 |
 | Kontrakt | `contracts/openapi.yaml` **v1.0.0** — 2 operacje `implemented`, 12 `planned` (sprawy, admin, symulacje); modele = `zus_rules/04`/`05`; czeka na akceptację BE+FE |
-| Testy | backend 218/218 (w tym 75 testów kontraktu) · audyt reguł 119 reguł / 94 testy spec / 0 błędów · frontend lint, typecheck, build OK |
+| Testy | backend 222/222 (w tym 75 testów kontraktu) · audyt reguł 119 reguł / 95 testów spec / 0 błędów · frontend lint, typecheck, build OK |
 
 ## 2. Bramki
 | Bramka | Punkt | Status | Dowód (komenda → wynik) |
@@ -35,7 +35,7 @@
 |---|---|---|---|---|
 | INT | — (INT-06 DONE, scalone do main `2e3d3c7`) | — | 2026-11-21 | Następne: INT-03. Każdy klon: raz `scripts\dev.ps1` lub `git config core.hooksPath .githooks` (włącza przypomnienie o review po commitach z terminala). INT-01 scalone (PR #1) — status w TASKS do potwierdzenia przez lidera |
 | BE-1 | — (BE1-01, BE1-02 DONE; czeka na /review) | `be1/BE1-01-dsl` (commity bez przełączania HEAD — współdzielony katalog) | 2026-11-21 | Następne: BE1-03 (runner 08) albo BE1-04. Interfejs I2 gotowy: `from app.engine.facts.registry import Context, fact` |
-| BE-2 | — | — | — | |
+| BE-2 | BE2-03 (część: BASE-GEN-001 / M05 — lider z Claude Code) | `be2/BE2-03-art43-m05` | 2026-11-21 | Po review: metody BASE-EMP/NEMP (właściciel BE-2) |
 | FE-1 | — | — | — | |
 | FE-2 | — | — | — | |
 | BA | — | — | — | |
@@ -46,7 +46,8 @@
 3. BE i FE: przejrzeć i zaakceptować kontrakt v1 (INT-01). Kontrakt już odblokowuje FE1-01..03, FE2-02..04, BE2-05/06, INT-03 — typy FE: `npm run gen:api`.
 4. BE1-01: interfejs rejestru faktów I2 jako pierwszy commit (odblokowuje BE2-01..04).
 5. Równolegle: FE2-01 (layout), FE1-01 (główny przepływ na mock).
-6. Checkpoint CP1: pełny silnik (`ENGINE=rules`) daje ten sam wynik co slice dla `demo/` + T-MAT-*, T-RATE-* zielone.
+6. **BE-1 — uwaga (z gałęzi `be2/BE2-03-art43-m05`):** nowy helper `contains_full_calendar_month` w `core/dates.py`, krok 6 (podstawa, BASE-GEN-001) i pole `base` w wyniku w `pipeline/maternity.py`; parytet ze slice pomija `base`. Runner 08 (BE1-03): `expected` `base.amount_exact` mapuje się na `benefits[0].base.amount_exact`.
+7. Checkpoint CP1: pełny silnik (`ENGINE=rules`) daje ten sam wynik co slice dla `demo/` + T-MAT-*, T-RATE-* zielone.
 
 ## 5. Blokery i otwarte pytania
 | ID | Bloker | Właściciel | Link |
@@ -69,3 +70,4 @@
 | 2026-11-21 14:55 | BE-1 (Claude Code) | BE1-02 | Pipeline (wariant okrojony): `engine/pipeline/` — tryby FUTURE/BLOCKED/HUMAN_REVIEW, częściowa ocena reguł z faktami spoza rejestru (`not_evaluated_rules`), wyjątki i `overrides` z YAML, agregacja DT-9, ślad `applied_rules` i `future_changes`; macierzyński jako moduł kroków; router `ENGINE=rules\|slice` (domyślnie rules) | `pytest` → 183 passed (także `ENGINE=slice`: test_evaluate_slice + test_contract zielone); `ruff check` → OK; audyt → rules=119 errors=0; smoke nie uruchamiany (brak serwerów) | — (commit na `be1/BE1-01-dsl`) |
 | 2026-11-21 15:25 | BE-1 (Claude Code) | BE1-01, BE1-02 | Poprawki po `/review` (CHANGES_REQUIRED, 2 poważne): testy faktów spoza slice (`test_engine_facts.py`: spłata długu, urlop wychowawczy, priorytet tytułów, granica `date = to`, `work_fraction`), martwe urodzenie i zgon dziecka (MAT-DUR-003/004, T-MAT-013 — wcześniej API zwracało 140 dni), GEN-EXCL-002 w `not_evaluated_rules`, komunikaty z parametrów, walidacja `ENGINE`, `/api/health` pokazuje aktywny silnik, `test_pipeline.py` → `test_engine_pipeline.py`, szkielet `facts/maternity.py` przekazany BE-2 (TASKS), § 1, coverage b) | `pytest` → 203 passed (także `ENGINE=slice`); `ruff` OK; audyt errors=0; `smoke.py --api :8011` → SMOKE: PASS (engine rules-engine) | — (commit na `be1/BE1-01-dsl`) |
 | 2026-11-21 16:15 | Lider (Claude Code) | BA-01 (M05), BE2-03 (część: BASE-GEN-001) | Odpowiedź mentora fachowego M05 udokumentowana (art. 43: „miesiąc kalendarzowy” = pełny miesiąc 1.–ostatni dzień; CONF-006 zamknięty, D18); silnik: `f_gap_shorter_than_calendar_month` + `contains_full_calendar_month`, `f_benefit_base` z podstawą poprzedniego zasiłku, BASE-GEN-001 w pipeline (ślad + komunikat); 08: T-BASE-007 → POSITIVE, nowe T-BASE-010/011 | `pytest` → 218 passed (także `ENGINE=slice`: slice + kontrakt zielone); `ruff` OK; audyt → rules=119 tests=94 errors=0; smoke nie uruchamiany (brak serwerów, kontrakt bez zmian) | — |
+| 2026-11-21 16:35 | Lider (Claude Code) | BE2-03 (część), BA-01 (M05) | Poprawki po `/review` (CHANGES_REQUIRED, 2 poważne): początek zasiłku uwzględnia `plan.maternity_start_date` (macierzyński przed porodem, T-BASE-012); `f_benefit_base` nie żąda nowej podstawy przy braku daty; wynik zwraca `base` (MANUAL/REUSED_PREVIOUS, pole z kontraktu) — odblokowuje sprawdzanie `base.amount_exact` w runnerze 08; statusy TASKS (BE2-03, BA-01) i § 3; informacja dla BE-1 w § 4 | `pytest -o addopts=""` → 222 passed (także `ENGINE=slice`); `ruff` OK; audyt → rules=119 tests=95 errors=0 | — |

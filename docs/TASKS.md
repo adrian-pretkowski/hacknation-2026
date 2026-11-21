@@ -45,7 +45,7 @@ Weryfikacja domyślna: BE → `backend\.venv\Scripts\python -m pytest -p no:warn
 | BE1-06 | BE-1 | P1 | Renderer wyjaśnień z `templates.pl.yaml` | BE1-02, BA-02 | każda reguła FIRED ma zdanie + przepis | pytest | TODO |
 | BE2-01 | BE-2 | P0 | Fakty macierzyńskie + `MAT-*`, `SUPP-*` (martwe urodzenie, adopcja, rodzina zastępcza, wcześniak)  — szkielet `engine/facts/maternity.py` założony przez BE-1 (fakty ścieżki macierzyńskiej + martwe urodzenie/zgon dziecka), właściciel pliku: BE-2 | BE1-01 (interfejs I2) | T-MAT-*, T-SUPP-* zielone | pytest | TODO |
 | BE2-02 | BE-2 | P0 | Fakty rodzicielskie/ojcowskie + `PAR-*`, `PAT-*`, `RATE-MAT-*`, `return_to_work` | BE1-01 | T-PAR-*, T-PAT-*, T-RATE-* zielone | pytest | TODO |
-| BE2-03 | BE-2 | P0 | Podstawa wymiaru `BASE-*`, `CALC-*` (F15) | BE1-01 | T-BASE-* zielone; M04/M05 uwzględnione po odpowiedzi | pytest | TODO |
+| BE2-03 | BE-2 | P0 | Podstawa wymiaru `BASE-*`, `CALC-*` (F15) | BE1-01 | T-BASE-* zielone; M04/M05 uwzględnione po odpowiedzi | pytest | IN_PROGRESS (BE-2/lider) — BASE-GEN-001 gotowe (M05: `f_gap_shorter_than_calendar_month`, `base` w wyniku, T-BASE-006/007/010/011/012); metody BASE-EMP/NEMP i M04 — do zrobienia |
 | BE2-04 | BE-2 | P0 | Dokumenty, terminy, ryzyka: `APP-*`, `*-DOC-*`, `RISK-*`, mapa `f_documents_for_segment` | BE1-01 | wynik zawiera `missing_documents`, `deadlines`, `warnings` | pytest | TODO |
 | BE2-05 | BE-2 | P0 | Panel admina API: nadpisania parametrów z wersją i `valid_from` (SQLite lub JSON), `GET/PUT /api/admin/parameters` | INT-01 | zmiana `MAT_RATE_COMBINED` zmienia wynik bez restartu | pytest `test_admin.py` | TODO |
 | BE2-06 | BE-2 | P0 | Sprawy: lista/wybór/upload → mapowanie do `04` → ewaluacja → porównanie z `expected`; `insurance_verification` | INT-01, BE1-02 (do tego czasu slice) | sprawa syntetyczna daje „zgodne ✓”; upload PDF zwraca NEEDS_DATA z listą pól | pytest `test_cases_module.py` | TODO |
@@ -57,7 +57,7 @@ Weryfikacja domyślna: BE → `backend\.venv\Scripts\python -m pytest -p no:warn
 | FE2-03 | FE-2 | P0 | Ekran spraw: wybór/upload wniosku, weryfikacja ubezpieczenia, „zgodne z decyzją ✓/✗”, widok X/N | INT-01 | działa na sprawie syntetycznej | j.w. | TODO |
 | FE2-04 | FE-2 | P0 | Dokumenty i terminy + formularze wniosków (urlopowe wg ROZP_WN § 2–18, ZAM) + odpis aktu urodzenia — SYMULACJA wysyłki | INT-01, BA-02 | prefill z wyniku; terminy 7/14/21 dni | j.w. | TODO |
 | FE2-05 | FE-2 | P0 | Przewodnik: ryzyka, ochrona KP 177, organizacje wsparcia, linki zus.pl/gov.pl/PIP, tryb wrażliwy | BA-02 | treści z `frontend/src/content/` | j.w. | TODO |
-| BA-01 | BA | P0 | Mentorzy: M01–M05, M11 natychmiast; odpowiedzi w `docs/mentors.md` | — | każda odpowiedź z datą i decyzją | review INT | TODO |
+| BA-01 | BA | P0 | Mentorzy: M01–M05, M11 natychmiast; odpowiedzi w `docs/mentors.md` | — | każda odpowiedź z datą i decyzją | review INT | IN_PROGRESS — M05 odpowiedziane (2026-11-21, D18); M01–M04, M11 otwarte |
 | BA-02 | BA | P0 | Treści: przewodnik, ryzyka, KP 177, organizacje wsparcia, tryb wrażliwy (`frontend/src/content/*.json`) + szablony wyjaśnień | INT-01 (schemat I4) | treści zweryfikowane z `zus_rules/` i Poradnikiem | review FE-2 | TODO |
 | BA-03 | BA | P0 | Sprawy ZUS → `cases/fixtures/*.json` (subagent `case-extractor`), lokalnie | M01, M02 | ≥5 spraw z `expected` | `/run-golden` | BLOCKED (M01) |
 | BA-04 | BA | P0 | Materiały: opis, prezentacja ≤10, scenariusz wideo, `docs/AI_USAGE.md`, `docs/THIRD_PARTY.md` (z INT) | MVP działa | `docs/SUBMISSION.md` cały ✅ | review INT | TODO |
