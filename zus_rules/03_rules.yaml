@@ -126,7 +126,7 @@ meta:
     PAYER_FORWARD_DAYS: {value: 7, unit: days, source: "USTAWA art. 61b ust. 5"}
     # --- terminy wniosków urlopowych pracownika (APP-DL-002, f_leave_application_deadlines; BE2-04)
     LEAVE_APP_PARENTAL_DAYS_BEFORE: {value: 21, unit: days_before_start, source: "KP art. 182(1d) § 1; art. 182(1e) § 2 (łączenie z pracą)"}
-    LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "Poradnik dla rodziców, ZUS 2026 — rozdz. „Zasiłek macierzyński za okres urlopu macierzyńskiego przed porodem” (wniosek najpóźniej 14 dni przed rozpoczęciem); w wyciągu KP (art. 180 § 2) brak terminu", status: UNCONFIRMED}
+    LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "Poradnik dla rodziców, ZUS 2026 — rozdz. „Zasiłek macierzyński za okres urlopu macierzyńskiego przed porodem” (wniosek najpóźniej 14 dni przed rozpoczęciem); w wyciągu KP (art. 180 § 2) brak terminu; GAP-025, pytanie M19 w docs/mentors.md", status: UNCONFIRMED}
     LEAVE_APP_MATERNITY_FOR_FATHER_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "KP art. 180 § 9"}
     LEAVE_APP_PATERNITY_DAYS_BEFORE: {value: 7, unit: days_before_start, source: "KP art. 182(3) § 2"}
     LEAVE_APP_SUPPLEMENTARY_DAYS_BEFORE_MATERNITY_END: {value: 21, unit: days_before_maternity_end, source: "KP art. 180(2) § 4"}
@@ -2750,7 +2750,7 @@ rules:
 
 - id: APP-DL-002
   name: "Terminy wniosków urlopowych pracownika (KP)"
-  description: "Rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego — w 7 dni od przyjęcia, start ≤21 dni."
+  description: "Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026, UNCONFIRMED — GAP-025, M19); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego — w 7 dni od przyjęcia, start ≤21 dni."
   category: GENERAL
   rule_type: DEADLINE
   legal_basis: {document: KP, article: "180, 180(2), 182(1d), 182(1e), 182(3), 183", paragraph: "180 § 8-9; 180(2) § 4; 182(1d) § 1; 182(1e) § 2; 182(3) § 2; 183 § 6", point: null}
