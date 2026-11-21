@@ -230,7 +230,8 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
           "Zasiłek chorobowy w ciąży (L4) z dobrowolnego ubezpieczenia przysługuje dopiero po 90 dniach ubezpieczenia; macierzyński nie wymaga okresu wyczekiwania.");
     } else if (title.sickness_insurance_mode == null) need("insurance.titles[0].sickness_insurance_mode", "MAT-ELIG-001");
   }
-  if (!base) need("income_history.manual_base_override", "CALC-MAT-001");
+  // kwoty liczymy tylko, gdy prawo nie jest już wykluczone — przy NOT_ELIGIBLE nie pytamy o wynagrodzenie
+  if (!base && !statuses.includes("NOT_ELIGIBLE")) need("income_history.manual_base_override", "CALC-MAT-001");
   if (count == null) need(eventType === "BIRTH" ? "children.count_at_birth" : "children.count_at_event", "MAT-DUR-001");
 
   // Przyjęcie dziecka: limity wieku

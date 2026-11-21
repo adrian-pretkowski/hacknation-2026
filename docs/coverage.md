@@ -6,8 +6,8 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 |---|---|---|---|---|
 | a) świadczenia w ciąży (chorobowy, rehabilitacyjne — w MVP tylko podstawa po 270 dniach (M16c), w wys. macierzyńskiego — także naruszenie prawa stwierdzone przez sąd (M16a), brak uprawnień) | SICK-*, SICKPAY-*, REHAB-*, MAT-ELIG-007 | Wynik | T-SP-*, T-SICK-*, T-MAT-006 | ⬜ |
 | b) kalkulator macierzyński obojga rodziców (dzieci, wiek, „Za życiem”) | MAT-*, PAR-DUR-*, RATE-MAT-* | Planer | T-MAT-*, T-PAR-* | 🟨 macierzyński matki na silniku reguł (`engine/pipeline/maternity.py`: MAT-ELIG-001, MAT-DUR-001/003/004/009, RATE-MAT-001/003/007 (podwyższenie do 1000 zł — M10), CALC-MAT-001; `test_engine_parity.py`, `test_engine_facts.py` T-MAT-013, `test_facts_mentors.py`); brak ojca/rodzicielskiego |
-| c) praca + rodzicielski | PAR-WORK-* | Planer | T-PAR-006/007 | ⬜ |
-| d) oboje rodzice | MAT-SHARE-*, PAR-SHARE-* | Planer | T-MAT-019..021, T-PAR-010/011 | ⬜ |
+| c) praca + rodzicielski | PAR-WORK-* | Planer | T-PAR-006/007 | 🟨 planer BE2-07 (`/api/planner/*`, `test_planner.py`): optymalizacja podziału i pracy ≤½ etatu; pełna ocena w `/api/evaluate` — BE2-02 |
+| d) oboje rodzice | MAT-SHARE-*, PAR-SHARE-* | Planer | T-MAT-019..021, T-PAR-010/011 | 🟨 planer BE2-07 (`/api/planner/*`, `test_planner.py`): optymalizacja podziału i pracy ≤½ etatu; pełna ocena w `/api/evaluate` — BE2-02 |
 | e/j) adopcja, rodzina zastępcza (j obejmuje też zawodową — wynik „brak prawa”, M16b; 9 tyg. bez minimum, M14) | MAT-ELIG-002/003, MAT-EXCL-001, MAT-DUR-007/008, PAR-DUR-003 | Planer | T-MAT-015..018, T-MAT-022 | ⬜ |
 | f) podstawa wymiaru z konkretnej sprawy | BASE-*, CALC-MAT-001, SICK-CALC-001 | Sprawy | T-BASE-*, /run-golden | ⬜ |
 | g) dokumenty, terminy, adresat (płatnik vs ZUS) | GEN-CLS-*, APP-*, SICK-DOC-* | Dokumenty | T-GEN-001..005 | ⬜ |
