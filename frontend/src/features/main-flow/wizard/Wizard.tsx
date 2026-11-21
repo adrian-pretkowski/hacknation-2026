@@ -25,8 +25,10 @@ export function Wizard() {
   useEffect(() => {
     const onPop = (e: PopStateEvent) => {
       const v = (e.state as { wizard?: View } | null)?.wizard;
-      setView(v ?? { kind: "intro" });
-      requestAnimationFrame(() => headingRef.current?.focus());
+      // Zdarzenia bez stanu kreatora (np. przejście do kotwicy na stronie startowej) nie zmieniają widoku.
+      if (!v) { setView((cur) => (cur.kind === "intro" ? cur : { kind: "intro" })); return; }
+      setView(v);
+      requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);

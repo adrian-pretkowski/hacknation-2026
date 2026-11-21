@@ -50,10 +50,10 @@ export function Intro({ headingRef, onStart, onPreset, onSensitive, presets }: {
               className="rounded-full bg-zus-green-dark px-6 py-3 text-base font-semibold text-white hover:bg-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
               Zaczynamy →
             </button>
-            <a href="#jak-to-dziala"
+            <button type="button" onClick={() => document.getElementById("jak-to-dziala")?.scrollIntoView({ behavior: "smooth", block: "start" })}
               className="rounded-full border border-zinc-300 px-6 py-3 text-base font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
               Jak to działa?
-            </a>
+            </button>
           </div>
           <p className="mt-4 text-xs text-zinc-600">Wynik ma charakter informacyjny i nie jest decyzją ZUS.</p>
         </div>
