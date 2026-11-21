@@ -199,7 +199,7 @@ function Timeline({ segments, planErrors, returnToWork = [] }: {
                     onClick={() => setActive(i)} onFocus={() => setActive(i)} onKeyDown={(e) => onKey(e, i)}
                     title={`${LEAVE_LABEL[s.leave_type]} ${formatDate(s.from)}–${formatDate(s.to)}`}
                     className={`absolute top-1 bottom-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy ${LEAVE_COLOR[s.leave_type]} ${s.history ? "opacity-35" : ""} ${s.work_fraction !== "0" ? "bg-[repeating-linear-gradient(45deg,transparent_0_4px,rgba(255,255,255,.45)_4px_8px)]" : ""} ${s.needs_review ? "outline-2 outline-dashed outline-zus-yellow" : ""} ${errorsOf(s).length ? "ring-2 ring-zus-red" : ""} ${active === i ? "ring-2 ring-zinc-900" : ""}`}
-                    style={{ left: `${pos(s.from)}%`, width: `max(${(s.days / span) * 100}%, 24px)`, zIndex: 1000 - Math.min(s.days, 999) }} />
+                    style={{ left: `min(${pos(s.from)}%, calc(100% - 24px))`, width: `max(${(s.days / span) * 100}%, 24px)`, zIndex: 1000 - Math.min(s.days, 999) }} />
                 ))}
                 {todayPos !== null && <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-zinc-900" style={{ left: `${todayPos}%` }} />}
                 {/* powrót do pracy = dzień po ostatnim okresie; przy końcu osi znacznik na prawej krawędzi */}

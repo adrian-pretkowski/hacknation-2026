@@ -1,4 +1,4 @@
-// FE1-28: konfiguracja audytu WCAG 2.2 AA (npm run wcag). Bazuje na playwright.config.ts.
+// FE1-30: konfiguracja audytu WCAG 2.2 AA (npm run wcag). Bazuje na playwright.config.ts.
 import { defineConfig } from "@playwright/test";
 import base from "./playwright.config";
 

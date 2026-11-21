@@ -1,4 +1,4 @@
-// FE1-28: automatyczny audyt WCAG 2.2 AA (axe-core) po każdym kroku scenariuszy e2e/scenariusze/*.md.
+// FE1-30: automatyczny audyt WCAG 2.2 AA (axe-core) po każdym kroku scenariuszy e2e/scenariusze/*.md.
 // Uruchomienie: cd e2e; npm run wcag  (telefon 375 px, komputer 1440 px, reflow 320 px = powiększenie 400%, WCAG 1.4.10).
 // Test nie przechodzi przy naruszeniu reguł WCAG A/AA (2.0, 2.1, 2.2) ani przy poziomym przewijaniu.
 // Zalecenia „best-practice” trafiają tylko do raportu (test-results/wcag/*.json).

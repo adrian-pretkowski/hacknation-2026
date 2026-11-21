@@ -1,4 +1,4 @@
-// FE1-28 (WCAG 2.4.1): link „Przejdź do treści” - pierwszy element strony, widoczny po fokusie z klawiatury.
+// FE1-30 (WCAG 2.4.1): link „Przejdź do treści” - pierwszy element strony, widoczny po fokusie z klawiatury.
 export const MAIN_ID = "tresc";
 
 export function SkipLink() {

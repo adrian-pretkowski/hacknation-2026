@@ -22,7 +22,7 @@ export function UserChip() {
       <span aria-hidden="true" className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-200 text-[11px] font-semibold">{initials(user)}</span>
       <span className="max-w-[9rem] truncate sm:max-w-none">{fullName(user)}</span>
       <span className="hidden rounded bg-amber-200 px-1 text-[10px] font-bold tracking-wider text-amber-950 sm:inline">TEST</span>
-      {/* FE1-28 (WCAG 2.5.3): nazwa przycisku zaczyna się od widocznego tekstu - bez aria-label, dopisek tylko dla czytników */}
+      {/* FE1-30 (WCAG 2.5.3): nazwa przycisku zaczyna się od widocznego tekstu - bez aria-label, dopisek tylko dla czytników */}
       <span className="sr-only"> - konto testowe, otwórz dane konta (symulacja)</span>
     </button>
   );

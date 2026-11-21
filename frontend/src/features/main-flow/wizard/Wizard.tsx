@@ -59,7 +59,7 @@ export function Wizard() {
   const answered = steps.filter((s, i) => (done || i < index) && s.summary(a)).length;
   const progress = done ? 100 : Math.round(((index + 1) / (steps.length + 1)) * 100);
 
-  // FE1-28 (WCAG 2.4.2): tytuł karty przeglądarki opisuje bieżący krok kreatora.
+  // FE1-30 (WCAG 2.4.2): tytuł karty przeglądarki opisuje bieżący krok kreatora.
   const pageTitle = view.kind === "intro" ? null : view.kind === "forms" ? "Które pismo chcesz złożyć?"
     : view.kind === "form" ? FORMS[view.code].name : done ? "Twój plan" : `${step.title} - krok ${index + 1} z ${steps.length}`;
   useEffect(() => {

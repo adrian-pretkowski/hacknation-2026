@@ -21,7 +21,7 @@ cd e2e; npm test
 Inne warianty:
 
 - `npm run test:telefon` / `npm run test:komputer` - tylko jeden widok.
-- `npm run wcag` - audyt WCAG 2.2 AA (axe-core) po każdym kroku wszystkich scenariuszy przy 375, 1440 i 320 px (powiększenie 400%); raport w `test-results/wcag/*.json` (FE1-28).
+- `npm run wcag` - audyt WCAG 2.2 AA (axe-core) po każdym kroku wszystkich scenariuszy przy 375, 1440 i 320 px (powiększenie 400%); raport w `test-results/wcag/*.json` (FE1-30).
 - `npx playwright test -g "tata"` - scenariusze, których nazwa zawiera „tata”.
 - `npx playwright test --headed --project=komputer -g "01-"` - z widocznym oknem przeglądarki.
 - `npm run raport` - raport HTML z krokami, zrzutami ekranu i nagraniem (trace) nieudanych prób.
