@@ -128,7 +128,8 @@ def leave_application_deadlines(ctx: Context) -> list[dict[str, Any]] | None:
 
     Rodzicielski (także łączenie z pracą) start − 21, część macierzyńskiego dla ojca start − 14, ojcowski
     start − 7, uzupełniający koniec macierzyńskiego − 21, rezygnacja matki powrót − 7, na warunkach
-    macierzyńskiego przyjęcie + 7. „Nie krócej niż N dni przed” → bez przesuwania na dzień roboczy (DERIVED).
+    macierzyńskiego przyjęcie + 7 (uzupełniający bez segmentu MATERNITY_LEAVE w planie → bez terminu).
+    „Nie krócej niż N dni przed” → bez przesuwania na dzień roboczy (DERIVED, D27).
     Brak segmentów → None. KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6.
     """
     plan = segments(ctx)
@@ -153,7 +154,9 @@ def leave_application_deadlines(ctx: Context) -> list[dict[str, Any]] | None:
                         "who": parent})
         elif leave_type == SUPPLEMENTARY:
             maternity = [to_date(s["to"]) for s in segments(ctx, MATERNITY_LEAVE, parent)]
-            maternity_end = max(maternity) if maternity else start - timedelta(days=1)
+            if not maternity:
+                continue  # koniec macierzyńskiego nieznany — terminu nie podajemy (D27)
+            maternity_end = max(maternity)
             out.append({"code": "LEAVE_APP_SUPPLEMENTARY",
                         "date": before(maternity_end, "LEAVE_APP_SUPPLEMENTARY_DAYS_BEFORE_MATERNITY_END"),
                         "who": parent})
@@ -186,9 +189,9 @@ def title_started_during_or_shortly_before_pregnancy(ctx: Context) -> bool | Non
     threshold = start - timedelta(days=int(ctx.param("RISK_WINDOW_DAYS")))
     birth = _event_or_due(ctx)
     began = [to_date(t.get("from")) for t in titles]
-    if any(b is None for b in began):
-        return None
-    return any(b >= threshold and (birth is None or b <= birth) for b in began)
+    if any(b is not None and b >= threshold and (birth is None or b <= birth) for b in began):
+        return True
+    return None if any(b is None for b in began) else False  # Kleene: nieznany początek nie przesądza FALSE
 
 
 def _month_base(month: dict[str, Any]) -> Decimal | None:

@@ -78,6 +78,9 @@ def test_APP_DL_002_supplementary_resignation_and_maternity_like_boundary():
     result = {d["code"]: d["date"] for d in _ctx({"event": BIRTH, "plan": plan}).fact("f_leave_application_deadlines")}
     assert result["LEAVE_APP_SUPPLEMENTARY"] == date(2027, 7, 10)        # koniec macierzyńskiego − 21
     assert result["LEAVE_APP_MATERNITY_RESIGNATION"] == date(2027, 7, 25)  # powrót 2027-08-01 − 7
+    plan["segments"] = plan["segments"][1:]  # bez segmentu macierzyńskiego — koniec nieznany, brak terminu
+    result = _ctx({"event": BIRTH, "plan": plan}).fact("f_leave_application_deadlines")
+    assert all(d["code"] != "LEAVE_APP_SUPPLEMENTARY" for d in result)
     data = {"event": {"type": "ADOPTION", "date": "2027-05-10"},
             "plan": {"segments": [_seg("MATERNITY_LIKE_LEAVE", "2027-05-10", "2027-09-26", "ADOPTIVE_PARENT_1")]}}
     result = _ctx(data).fact("f_leave_application_deadlines")
@@ -135,6 +138,12 @@ def test_RISK_001_title_start_window_typical_boundary_missing():
     assert risk("2026-03-10") is True    # dokładnie 90 dni przed początkiem ciąży (2026-06-08)
     assert risk("2026-03-09") is False   # 91 dni przed
     assert risk("2022-02-01") is False   # wieloletnie zatrudnienie
+    # Kleene: tytuł bez daty początku nie przesądza FALSE, ale znany tytuł w oknie → TRUE
+    unknown_start = {"title_type": "OTHER", "sickness_insurance_mode": "VOLUNTARY", "from": None}
+    data = {"event": BIRTH, "pregnancy": PREGNANCY, "insurance": {"titles": [unknown_start, _title("2026-07-01")]}}
+    assert _ctx(data).fact("f_title_started_during_or_shortly_before_pregnancy") is True
+    data["insurance"]["titles"][1] = _title("2022-02-01")
+    assert _ctx(data).fact("f_title_started_during_or_shortly_before_pregnancy") is None
     assert _ctx({"event": BIRTH, "insurance": {"titles": [_title("2026-07-01")]}}).fact(
         "f_title_started_during_or_shortly_before_pregnancy") is None
 
