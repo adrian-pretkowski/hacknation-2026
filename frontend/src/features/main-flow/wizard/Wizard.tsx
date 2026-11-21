@@ -150,8 +150,15 @@ export function Wizard() {
           </ol>
         </section>
         {!a.sensitive ? (
-          <button type="button" onClick={startSensitive} className="mt-4 text-left text-xs text-zinc-600 underline underline-offset-2">
-            Poród martwego dziecka lub strata dziecka — tryb spokojny
+          <button type="button" onClick={startSensitive}
+            className="mt-4 flex w-full items-start gap-2 rounded-xl border border-zus-blue/30 bg-zus-blue-50 p-3 text-left text-zus-navy hover:border-zus-blue/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy">
+            <span aria-hidden="true" className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-zus-blue">
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" /></svg>
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold">Gdy ciąża nie zakończyła się szczęśliwie</span>
+              <span className="mt-0.5 block text-xs underline underline-offset-2">Przejdź do trybu spokojnego</span>
+            </span>
           </button>
         ) : (
           <button type="button" onClick={start} className="mt-4 text-left text-xs text-zinc-600 underline underline-offset-2">
