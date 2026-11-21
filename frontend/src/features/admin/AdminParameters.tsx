@@ -13,6 +13,7 @@ import { RuleList } from "../main-flow/RuleList";
 import { PARAMS } from "../main-flow/preview/params";
 import { STATUS_HEADLINE } from "../main-flow/wizard/labels";
 import { DEMO_REQUEST } from "./demoRequest";
+import { formatParamValue, paramLabel, unitLabel } from "./paramLabels";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 const inputCls = "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-zus-navy focus:outline-none focus:ring-2 focus:ring-zus-navy/30";
@@ -20,8 +21,6 @@ const btn = "rounded-md bg-zus-navy px-4 py-2 text-sm font-semibold text-white h
 const btnGhost = "rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zus-navy hover:bg-zinc-50";
 const STATUS_LABEL: Record<string, string> = { CONFIRMED: "potwierdzony", UNCONFIRMED: "niepotwierdzony", MISSING: "brak wartości" };
 
-/** Wartość parametru do wyświetlenia / edycji: tabela jako JSON, liczba jako tekst. */
-const show = (v: unknown) => v === null || v === undefined ? "-" : typeof v === "object" ? JSON.stringify(v) : String(v);
 const isTable = (p: Parameter) => p.value !== null && typeof p.value === "object" && !Array.isArray(p.value);
 const editable = (p: Parameter) => !Array.isArray(p.value); // lista z pliku (PUBLIC_HOLIDAYS) - edycja pliku, nie panelu
 
@@ -59,7 +58,8 @@ export function AdminParameters() {
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return (data?.parameters ?? []).filter((p) => !q || p.name.toLowerCase().includes(q) || p.source.toLowerCase().includes(q));
+    return (data?.parameters ?? []).filter((p) => !q || p.name.toLowerCase().includes(q)
+      || paramLabel(p.name).toLowerCase().includes(q) || p.source.toLowerCase().includes(q));
   }, [data, query]);
 
   return (
@@ -96,7 +96,7 @@ export function AdminParameters() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <h2 id="list-h" className="text-lg font-semibold">Lista parametrów</h2>
               <label className="text-sm sm:w-72"><span className="sr-only">Szukaj parametru</span>
-                <input type="search" placeholder="Szukaj (nazwa lub źródło)" className={inputCls} value={query} onChange={(e) => setQuery(e.target.value)} />
+                <input type="search" placeholder="Szukaj (nazwa, kod lub przepis)" className={inputCls} value={query} onChange={(e) => setQuery(e.target.value)} />
               </label>
             </div>
             <ul className="mt-4 divide-y divide-zinc-100">
@@ -104,9 +104,10 @@ export function AdminParameters() {
                 <li key={p.name} className="py-3">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                      <p className="break-all font-mono text-sm font-semibold">{p.name}</p>
-                      <p className="break-words text-sm"><span className="font-medium">{show(p.value)}</span> <span className="text-zinc-600">{p.unit}</span></p>
-                      <p className="break-words text-xs text-zinc-600">{p.source}</p>
+                      <p className="break-words text-sm font-semibold">{paramLabel(p.name)}</p>
+                      <p className="break-words text-sm"><span className="font-medium">{formatParamValue(p.value, p.unit)}</span></p>
+                      <p className="break-words text-xs text-zinc-600">Podstawa: {p.source}</p>
+                      <p className="break-all font-mono text-xs text-zinc-500" title="Kod parametru w silniku reguł">{p.name}</p>
                       <p className="mt-1 flex flex-wrap gap-2 text-xs">
                         {p.status && <span className="rounded bg-zinc-100 px-1.5 py-0.5">{STATUS_LABEL[p.status] ?? p.status}</span>}
                         {p.overridden && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-900">nadpisany</span>}
@@ -116,7 +117,7 @@ export function AdminParameters() {
                     </div>
                     {editable(p) && editing !== p.name && (
                       <button type="button" className={`${btnGhost} self-start`} onClick={() => { setEditing(p.name); setSaved(null); }}
-                        aria-label={`Zmień ${p.name}`}>Zmień</button>
+                        aria-label={`Zmień: ${paramLabel(p.name)}`}>Zmień</button>
                     )}
                   </div>
                   {editing === p.name && (
@@ -127,7 +128,7 @@ export function AdminParameters() {
                       });
                       setData(next);
                       setEditing(null);
-                      setSaved(`Zapisano ${p.name} - wersja parametrów ${next.parameters_version}${validFrom ? `, obowiązuje od ${formatDate(validFrom)}` : ""}.`);
+                      setSaved(`Zapisano: ${paramLabel(p.name)} - wersja parametrów ${next.parameters_version}${validFrom ? `, obowiązuje od ${formatDate(validFrom)}` : ""}.`);
                     }} />
                   )}
                 </li>
@@ -169,9 +170,9 @@ function EditForm({ param, onSave, onCancel }: {
   };
 
   return (
-    <form className="mt-3 grid gap-3 rounded-md border border-zinc-200 bg-zinc-50 p-3 sm:grid-cols-2" aria-label={`Zmiana ${param.name}`}
+    <form className="mt-3 grid gap-3 rounded-md border border-zinc-200 bg-zinc-50 p-3 sm:grid-cols-2" aria-label={`Zmiana: ${paramLabel(param.name)}`}
       onSubmit={(e) => { e.preventDefault(); void submit(); }}>
-      <label className="text-sm font-medium sm:col-span-2">Nowa wartość ({param.unit})
+      <label className="text-sm font-medium sm:col-span-2">Nowa wartość ({param.unit === "ratio" ? "ułamek dziesiętny, np. 0.815 = 81,5%" : unitLabel(param.unit) || "bez jednostki"})
         {table
           ? <textarea className={`${inputCls} mt-1 font-mono`} rows={4} value={value} onChange={(e) => setValue(e.target.value)} required />
           : <input className={`${inputCls} mt-1`} inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} required autoFocus />}

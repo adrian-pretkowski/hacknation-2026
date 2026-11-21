@@ -4,5 +4,5 @@
 2. Kliknij „Panel admina”.
 3. Sprawdź, że nagłówek to „Parametry prawne”.
 4. Sprawdź, że widać „Lista parametrów”.
-5. Sprawdź, że widać „MAT_RATE_COMBINED”.
+5. Sprawdź, że widać „Stawka zasiłku macierzyńskiego - wniosek o cały okres od razu”.
 6. Sprawdź, że strona nie przewija się w poziomie.
