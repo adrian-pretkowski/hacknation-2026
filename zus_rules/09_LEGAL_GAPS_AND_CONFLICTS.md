@@ -25,7 +25,7 @@ Wpływ na MVP: **H** — blokuje część demo lub poprawność kwot; **M** — 
 | GAP-004 | Brak definicji liczenia „przerwy” i granic okresów | SICK-ELIG-004, SICK-DUR-003, MAT-DUR-003 | Konwencje C3, C5, C8 w 07 | M |
 | GAP-005 | „Do 7/10/14 roku życia” — włącznie z dniem urodzin? | MAT-ELIG-002/003, MAT-DUR-007, PAR-COND-001 | `age < N` (przed ukończeniem) | M |
 | GAP-006 | Okres zasiłkowy, gdy niezdolność zaczęła się przed ciążą i trwa w ciąży | SICK-DUR-001 | NEEDS_REVIEW, gdy `pregnancy_start_date` w trakcie niezdolności | L |
-| GAP-007 | Data początku ciąży i liczenie „trzeciego miesiąca ciąży” (KP 177 § 3) | MAT-CLS-002, f_title_ended_during_pregnancy | Wymagane potwierdzenie (świadectwo pracy) → BLOCKED | M |
+| GAP-007 | Data początku ciąży i liczenie „trzeciego miesiąca ciąży” (KP 177 § 3) | MAT-CLS-002, f_title_ended_during_pregnancy | **ROZSTRZYGNIĘTE (M13, 2026-11-21, mentor fachowy):** miesiąc ciąży stwierdza lekarz — data początku ciąży z zaświadczenia lekarskiego; przedłużenie potwierdza dokument. MAT-CLS-002 ACTIVE (koniec umowy ≥ początek + 3 mies.) | M |
 | GAP-008 | Limit 33/14 dni — łącznie u wszystkich pracodawców w roku czy u danego? | SICKPAY-ELIG-001 | Wejście `employer_sick_pay_days_in_year` wprost z Z-3 (zał. 2 pkt 9) | L |
 | GAP-009 | Wskaźnik waloryzacji podstawy świadczenia rehabilitacyjnego | REHAB-RATE-001 | Kwota rehabilitacyjnego poza MVP | L |
 | GAP-010 | Numeracja „5.–28. dnia po porodzie” — dzień porodu = 0 czy 1? | SUPP-ELIG-003 | ASSUMPTION-SUPP-DAY0 (dzień porodu = 0) | M |

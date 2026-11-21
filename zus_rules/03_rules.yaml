@@ -1460,12 +1460,12 @@ rules:
   overrides: []
   required_inputs: [employment.contract_type, employment.contract_end_date, employment.is_replacement_contract, pregnancy.pregnancy_start_date]
   missing_data_behavior: NEEDS_DATA
-  evaluation: BLOCKED
+  evaluation: ACTIVE
   confidence: MEDIUM
-  interpretation_status: AMBIGUOUS
+  interpretation_status: DERIVED
   implementation_priority: P1
-  automation_status: PARTIALLY_AUTOMATABLE
-  notes: "'Po upływie trzeciego miesiąca ciąży' — sposób liczenia miesięcy ciąży i data początku ciąży nie wynikają z materiałów (GAP-007). Dlatego reguła BLOKOWANA: jeśli użytkownik nie poda wprost employment.extended_until_birth_kp177, wynik NEEDS_REVIEW."
+  automation_status: AUTOMATABLE
+  notes: "Odblokowana po odpowiedzi mentora M13 (2026-11-21): miesiąc ciąży stwierdza lekarz — pregnancy.pregnancy_start_date z zaświadczenia lekarskiego; przedłużenie umowy potwierdza dokument (wymagany dokument od pracodawcy). Trzeci miesiąc = [początek + 2 mies., początek + 3 mies. − 1]; 'po upływie' ⇔ koniec umowy ≥ początek + 3 mies. (DERIVED, C3). Brak daty początku ciąży lub końca umowy → NEEDS_DATA. GAP-007 zamknięty."
 
 - id: MAT-ELIG-007
   name: "Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu"

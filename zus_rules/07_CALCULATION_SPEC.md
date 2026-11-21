@@ -74,7 +74,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_any_art30_basis` | – | bool | OR z warunków MAT-ELIG-004, -005, -006 | Kleene | – |
 | `f_planned_title_end_before_due_date` | – | bool | Najpóźniejsze `to` tytułów < `expected_due_date` i brak tytułu otwartego | None | – |
 | `f_title_started_during_or_shortly_before_pregnancy` | – | bool | Początek tytułu ≥ `pregnancy_start_date − RISK_WINDOW_DAYS` (parametr projektowy, domyślnie 90; NIE prawny) | None | RISK tylko informacyjnie |
-| `f_contract_end_after_third_month_of_pregnancy` | – | bool | `contract_end_date > pregnancy_start_date + 3 miesiące kalendarzowe` | None | Reguła BLOCKED (GAP-007) |
+| `f_contract_end_after_third_month_of_pregnancy` | – | bool | `contract_end_date ≥ pregnancy_start_date + 3 miesiące kalendarzowe` (trzeci miesiąc ciąży kończy się dzień wcześniej; data początku ciąży — stwierdzona przez lekarza, M13) | None | M13; GAP-007 zamknięty |
 | `f_contribution_base_is_declared` | – | bool | `contribution_base_is_declared` tytułu bieżącego | None | – |
 | `f_contribution_base_increase_during_pregnancy` | – | bool | Średnia podstawa w miesiącach ciąży > średnia z 3 mies. przed ciążą × `RISK_INCREASE_FACTOR` (projektowy, domyślnie 1,5) | None | RISK tylko informacyjnie |
 

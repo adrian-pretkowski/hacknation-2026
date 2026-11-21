@@ -158,7 +158,7 @@
         "contract_type": {"enum": [null, "INDEFINITE", "FIXED_TERM", "PROBATION_OVER_1_MONTH", "PROBATION_UP_TO_1_MONTH", "REPLACEMENT"]},
         "contract_end_date": {"$ref": "#/$defs/Date"},
         "is_replacement_contract": {"$ref": "#/$defs/TriBool", "x-legal-basis": "KP art. 177 § 3(1)"},
-        "extended_until_birth_kp177": {"$ref": "#/$defs/TriBool", "description": "Potwierdzenie przedłużenia do dnia porodu (np. ze świadectwa pracy). null → ocenia MAT-CLS-002 (BLOCKED)."},
+        "extended_until_birth_kp177": {"$ref": "#/$defs/TriBool", "description": "Potwierdzenie przedłużenia do dnia porodu (np. ze świadectwa pracy). null → ocenia MAT-CLS-002 (data początku ciąży z zaświadczenia lekarskiego, M13)."},
         "other_employment_provided": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 30 ust. 3"},
         "working_time_fraction": {"$ref": "#/$defs/Fraction", "x-legal-basis": "USTAWA art. 45 ust. 1"},
         "working_time_change_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 40"},
@@ -177,7 +177,7 @@
       "type": "object",
       "properties": {
         "expected_due_date": {"$ref": "#/$defs/Date", "x-legal-basis": "USTAWA art. 53 ust. 2; KP art. 180 § 2"},
-        "pregnancy_start_date": {"$ref": "#/$defs/Date", "description": "Szacowana data początku ciąży (z dokumentacji). Używana do ustalenia 'w okresie ciąży'.", "x-legal-basis": "USTAWA art. 30; KP art. 177 § 3"},
+        "pregnancy_start_date": {"$ref": "#/$defs/Date", "description": "Data początku ciąży stwierdzona przez lekarza (zaświadczenie lekarskie, M13). Używana do ustalenia 'w okresie ciąży' i trzeciego miesiąca ciąży (KP 177 § 3).", "x-legal-basis": "USTAWA art. 30; KP art. 177 § 3"},
         "is_pregnant_during_incapacity": {"$ref": "#/$defs/TriBool", "x-legal-basis": "USTAWA art. 11 ust. 2 pkt 1; art. 57 ust. 2"}
       }
     },

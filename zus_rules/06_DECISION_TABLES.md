@@ -53,7 +53,7 @@ Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez zn
 | 5 | F | F | – | T | – | – | ELIGIBLE | ZUS | MAT-ELIG-005 |
 | 6 | F | F | – | – | T | – | ELIGIBLE | ZUS | MAT-ELIG-006 |
 | 7 | F | F | – | – (sprawa w toku) | – | – | NEEDS_REVIEW | – | MAT-ELIG-005 |
-| 8 | F | F | – | – | ? (umowa terminowa, brak potwierdzenia) | – | NEEDS_REVIEW | – | MAT-CLS-002 (BLOCKED) |
+| 8 | F | F | – | – | ? (umowa terminowa, brak potwierdzenia) | – | ELIGIBLE, gdy koniec umowy ≥ początek ciąży (wg lekarza) + 3 mies.; brak daty → NEEDS_DATA (M13) | – | MAT-CLS-002 |
 | 9 | F | F | F | F | F | – | NOT_ELIGIBLE + ostrzeżenie | – | MAT-NEG-001, RISK-003 |
 
 **Brak okresu wyczekiwania** dla zasiłku macierzyńskiego (MAT-CLS-001, DERIVED).

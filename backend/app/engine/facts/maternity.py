@@ -10,6 +10,7 @@ from decimal import Decimal
 from typing import Any
 
 from app.core.dates import (
+    add_months,
     contains_full_calendar_month,
     days_in,
     deadline_after,
@@ -137,6 +138,24 @@ def benefit_amount(ctx: Context) -> dict[str, Any] | None:
     daily = div(mul(base, rate, Decimal(1) - work_fraction), int(ctx.param("MONTH_AS_DAYS")))
     days = days_in(start, end)
     return {"daily": daily, "total": mul(daily, Decimal(days)), "days": days}
+
+
+@fact("f_contract_end_after_third_month_of_pregnancy")
+def contract_end_after_third_month_of_pregnancy(ctx: Context) -> bool | None:
+    """07 §3, MAT-CLS-002: umowa rozwiązałaby się po upływie trzeciego miesiąca ciąży (KP art. 177 § 3).
+
+    Początek ciąży — data stwierdzona przez lekarza (zaświadczenie lekarskie, M13). Trzeci miesiąc ciąży =
+    [początek + 2 mies., początek + 3 mies. − 1 dzień]; „po upływie” ⇔ koniec umowy ≥ początek + 3 mies. (C3, DERIVED).
+    """
+    start = to_date(ctx.field("pregnancy.pregnancy_start_date"))
+    end = to_date(ctx.field("employment.contract_end_date"))
+    if start is None:
+        ctx.need("pregnancy.pregnancy_start_date")
+    if end is None:
+        ctx.need("employment.contract_end_date")
+    if start is None or end is None:
+        return None
+    return end >= add_months(start, 3)
 
 
 @fact("f_monthly_maternity_amount")

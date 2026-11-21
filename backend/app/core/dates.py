@@ -73,6 +73,13 @@ def add_years(day: date, years: int) -> date:
         return day.replace(year=day.year + years, day=28)
 
 
+def add_months(day: date, months: int) -> date:
+    """Ten sam dzień N miesięcy później; brak takiego dnia → ostatni dzień miesiąca (DERIVED, jak add_years)."""
+    month_index = day.month - 1 + months
+    year, month = day.year + month_index // 12, month_index % 12 + 1
+    return date(year, month, min(day.day, calendar.monthrange(year, month)[1]))
+
+
 def age_years_on(birth: date, on: date) -> int:
     """C7: pełne lata (urodziny = ukończenie). „Do N roku życia” ⇔ age_years_on(...) < N."""
     years = on.year - birth.year

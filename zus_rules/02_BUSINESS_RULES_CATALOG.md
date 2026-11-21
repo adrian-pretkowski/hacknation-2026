@@ -56,7 +56,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [MAT-ELIG-004](#mat-elig-004) | Zasiłek macierzyński po ustaniu ubezpieczenia — śmierć, upadłość, likwidacja pracodawcy | ELIGIBILITY | P1 | ACTIVE | HIGH | DIRECT | 1 |
 | [MAT-ELIG-005](#mat-elig-005) | Zasiłek macierzyński po ustaniu ubezpieczenia — rozwiązanie z naruszeniem prawa | ELIGIBILITY | P1 | ACTIVE | HIGH | DIRECT | 0 |
 | [MAT-ELIG-006](#mat-elig-006) | Zasiłek macierzyński po ustaniu — umowa terminowa przedłużona do dnia porodu | ELIGIBILITY | P0 | ACTIVE | HIGH | DIRECT | 1 |
-| [MAT-CLS-002](#mat-cls-002) | Przedłużenie umowy terminowej do dnia porodu (KP 177 § 3) | CLASSIFICATION | P1 | BLOCKED | MEDIUM | AMBIGUOUS | 1 |
+| [MAT-CLS-002](#mat-cls-002) | Przedłużenie umowy terminowej do dnia porodu (KP 177 § 3) | CLASSIFICATION | P1 | ACTIVE | MEDIUM | DERIVED | 1 |
 | [MAT-NEG-001](#mat-neg-001) | Brak ubezpieczenia na dzień porodu — brak prawa | EXCLUSION | P0 | ACTIVE | HIGH | DERIVED | 1 |
 | [MAT-CLS-001](#mat-cls-001) | Brak okresu wyczekiwania dla zasiłku macierzyńskiego | CLASSIFICATION | P0 | ACTIVE | HIGH | DERIVED | 1 |
 | [MAT-DUR-001](#mat-dur-001) | Wymiar urlopu macierzyńskiego wg liczby dzieci | DURATION | P0 | ACTIVE | HIGH | DIRECT | 4 |
@@ -1122,7 +1122,7 @@ Pracownicy na umowie na czas określony przedłużonej do dnia porodu (KP art. 1
 
 ### MAT-CLS-002
 
-**Przedłużenie umowy terminowej do dnia porodu (KP 177 § 3)** — `CLASSIFICATION` · P1 · PARTIALLY_AUTOMATABLE · eval: **BLOCKED**
+**Przedłużenie umowy terminowej do dnia porodu (KP 177 § 3)** — `CLASSIFICATION` · P1 · AUTOMATABLE · eval: **ACTIVE**
 
 Umowa na czas określony lub na okres próbny >1 miesiąc, która rozwiązałaby się po upływie 3. miesiąca ciąży, ulega przedłużeniu do dnia porodu — nie dotyczy umowy na zastępstwo.
 
@@ -1137,9 +1137,9 @@ Umowa na czas określony lub na okres próbny >1 miesiąc, która rozwiązałaby
 - **Rezultat:** `{"set": {"employment.extended_until_birth_kp177": true}}`
 - **Wyjątki:** — · **Zależy od:** — · **Ma pierwszeństwo przed:** —
 - **Dane:** `employment.contract_type`, `employment.contract_end_date`, `employment.is_replacement_contract`, `pregnancy.pregnancy_start_date` · brak danych → `NEEDS_DATA`
-- **Jakość:** pewność MEDIUM, interpretacja AMBIGUOUS
+- **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** T-MAT-009
-- **Uwagi:** 'Po upływie trzeciego miesiąca ciąży' — sposób liczenia miesięcy ciąży i data początku ciąży nie wynikają z materiałów (GAP-007). Dlatego reguła BLOKOWANA: jeśli użytkownik nie poda wprost employment.extended_until_birth_kp177, wynik NEEDS_REVIEW.
+- **Uwagi:** Odblokowana po odpowiedzi mentora M13 (2026-11-21): miesiąc ciąży stwierdza lekarz — pregnancy.pregnancy_start_date z zaświadczenia lekarskiego; przedłużenie umowy potwierdza dokument (wymagany dokument od pracodawcy). Trzeci miesiąc = [początek + 2 mies., początek + 3 mies. − 1]; 'po upływie' ⇔ koniec umowy ≥ początek + 3 mies. (DERIVED, C3). Brak daty początku ciąży lub końca umowy → NEEDS_DATA. GAP-007 zamknięty.
 
 ### MAT-NEG-001
 

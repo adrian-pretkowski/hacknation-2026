@@ -159,3 +159,41 @@ def test_m12_par_elig_001_father_insured_on_his_parental_start():
     conditions = ruleset().rule("PAR-ELIG-001")["conditions"]["all"]
     insured = [c for c in conditions if c.get("fact") == "f_sickness_insured_on"]
     assert insured and insured[0]["args"] == {"date": "plan.parental_start_date"}
+
+
+# ------------------------------------------------------------ M13: przedłużenie umowy do porodu (MAT-CLS-002)
+def _fixed_term(demo_payload, end, start="2026-06-08", replacement=False):
+    payload = copy.deepcopy(demo_payload)
+    payload["insurance"] = {"titles": [{"title_type": "EMPLOYMENT_CONTRACT", "sickness_insurance_mode": "MANDATORY",
+                                        "from": "2025-03-01", "to": end}], "titles_confirmed_complete": False}
+    payload["employment"] = {"contract_type": "FIXED_TERM", "contract_end_date": end,
+                             "is_replacement_contract": replacement, "extended_until_birth_kp177": None, "leaves": []}
+    payload["pregnancy"] = {"pregnancy_start_date": start} if start else {}
+    payload["debt"] = {"amount_on_right_date": "0.00"}
+    return payload
+
+
+def test_m13_t_mat_009_fixed_term_extended_until_birth(demo_payload):
+    """Typowy (T-MAT-009): umowa do 31.12, ciąża od 8.06 → przedłużenie do porodu → ELIGIBLE."""
+    benefit = pipeline.evaluate(_fixed_term(demo_payload, "2026-12-31"))["benefits"][0]
+    assert benefit["status"] == "ELIGIBLE" and "MAT-CLS-002" in benefit["applied_rules"]
+    assert "KP177_EXTENDED_UNTIL_BIRTH" in [r["code"] for r in benefit["reasons"]]
+
+
+def test_m13_third_month_boundary(demo_payload):
+    """Graniczny: ciąża od 8.06 → 3. miesiąc trwa do 7.09; umowa do 8.09 → przedłużona, do 7.09 → nie."""
+    assert pipeline.evaluate(_fixed_term(demo_payload, "2026-09-08"))["benefits"][0]["status"] == "ELIGIBLE"
+    benefit = pipeline.evaluate(_fixed_term(demo_payload, "2026-09-07"))["benefits"][0]
+    assert benefit["status"] != "ELIGIBLE" and "MAT-CLS-002" not in benefit["applied_rules"]
+
+
+def test_m13_replacement_contract_not_extended(demo_payload):
+    benefit = pipeline.evaluate(_fixed_term(demo_payload, "2026-12-31", replacement=True))["benefits"][0]
+    assert "MAT-CLS-002" not in benefit["applied_rules"]
+
+
+def test_m13_missing_pregnancy_start_asks_for_doctor_date(demo_payload):
+    """Brak danych: bez daty początku ciąży (zaświadczenie lekarskie) → pytanie o pole, nigdy odmowa."""
+    body = pipeline.evaluate(_fixed_term(demo_payload, "2026-12-31", start=None))
+    assert body["benefits"][0]["status"] != "NOT_ELIGIBLE"
+    assert "pregnancy.pregnancy_start_date" in [m["field"] for m in body["missing_data"]]

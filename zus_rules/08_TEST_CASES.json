@@ -1492,11 +1492,11 @@
   },
   {
    "test_id": "T-MAT-009",
-   "kind": "MISSING_DATA",
+   "kind": "POSITIVE",
    "rule_ids": [
     "MAT-CLS-002"
    ],
-   "description": "Umowa terminowa, przedłużenie nie potwierdzone → NEEDS_REVIEW (reguła BLOCKED)",
+   "description": "Umowa terminowa kończy się po upływie 3. miesiąca ciąży (początek ciąży z zaświadczenia lekarskiego) → przedłużenie do porodu (KP 177 § 3) → ELIGIBLE (M13)",
    "fixture": "employee_mother",
    "patch": {
     "insurance": {
@@ -1523,7 +1523,7 @@
     "leave_type": "MATERNITY_LEAVE"
    },
    "expected": {
-    "status": "NEEDS_REVIEW",
+    "status": "ELIGIBLE",
     "applied_rules_contain": [
      "MAT-CLS-002"
     ]
@@ -1532,7 +1532,8 @@
     "KP art. 177 § 3"
    ],
    "assumptions": [
-    "GAP-007"
+    "M13 (2026-11-21): miesiąc ciąży stwierdza lekarz; pregnancy_start_date 2026-06-08 (fixture) → trzeci miesiąc kończy się 2026-09-07, umowa do 2026-12-31 → przedłużona",
+    "Przedłużenie potwierdza dokument od pracodawcy"
    ]
   },
   {

@@ -47,11 +47,23 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
     if elig.value is not True:
         # alternatywne podstawy (exceptions MAT-ELIG-001: art. 30, KP 177) i przedłużenie umowy (MAT-CLS-002, BLOCKED).
         # Ich braki danych nie trafiają do missing_data — najpierw rozstrzyga MAT-ELIG-001 (art. 29 ust. 1 pkt 1).
-        alternatives = eng.alternatives("MAT-ELIG-001") + [eng.eval("MAT-CLS-002")]
+        kp177 = eng.eval("MAT-CLS-002")
+        alternatives = eng.alternatives("MAT-ELIG-001") + [kp177]
+        fixed_term = ctx.field("employment.contract_type") in ("FIXED_TERM", "PROBATION_OVER_1_MONTH")
+        if kp177.unknown and kp177.missing and fixed_term:
+            # M13: umowa terminowa — dopytać o datę początku ciąży (zaświadczenie lekarskie) i koniec umowy
+            eng.need_from(kp177)
+            needs_data = True
         possible = [a for a in alternatives if a.kind in ("NOT_EVALUATED", "BLOCKED")
                     or (a.unknown and elig.value is False)]
         if any(a.fired for a in alternatives):
             eligible = True
+            if any(a.fired and a.rule_id == "MAT-CLS-002" for a in alternatives):
+                applied.append("MAT-CLS-002")
+                reason("KP177_EXTENDED_UNTIL_BIRTH", "MAT-CLS-002",
+                       "Umowa terminowa rozwiązałaby się po upływie trzeciego miesiąca ciąży — ulega przedłużeniu do "
+                       "dnia porodu (data początku ciąży z zaświadczenia lekarskiego). Przedłużenie potwierdza "
+                       "dokument od pracodawcy (np. aneks lub świadectwo pracy).", "KP art. 177 § 3")
         elif possible:
             # DT-9 w. 3: podstawa, której silnik nie rozstrzyga, może zmienić wynik → NEEDS_REVIEW (przed NEEDS_DATA)
             review = True
@@ -169,7 +181,8 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                 reason("RAISED_TO_PARENTAL_BENEFIT_FLOOR", "RATE-MAT-007",
                        f"Miesięczna kwota zasiłku ({dec_str(monthly)} zł) jest niższa niż kwota świadczenia "
                        f"rodzicielskiego — zasiłek podwyższony do {dec_str(raised['monthly'])} zł miesięcznie "
-                       f"({dec_str(daily)} zł za dzień).", "art. 31 ust. 3a-3c")
+                       f"({dec_str(daily)} zł za dzień; sposób liczenia za niepełny miesiąc do potwierdzenia w ZUS).",
+                       "art. 31 ust. 3a-3c")
 
     # wynik: obiekt base (kontrakt Benefit.base) — tylko gdy podstawa jest znana i jej źródło rozstrzygnięte
     base_amount = ctx.fact("f_benefit_base") if base_source else None
