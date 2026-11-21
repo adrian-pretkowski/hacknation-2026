@@ -1,27 +1,39 @@
+# contracts/openapi.yaml — kontrakt BE/FE. Właściciel: INT. Zmiany przez PR (akceptacja BE + FE). Po zmianie: cd frontend; npm run gen:api
 openapi: 3.1.0
 info:
   title: Przewodnik Przyszłego Rodzica — API
-  version: 0.1.0
-  description: |
-    Kontrakt P0 (vertical slice). Właściciel: Integrator (Dev5). Zmiany tylko przez PR z akceptacją BE i FE.
-    Docelowy model danych: zus_rules/04_INPUT_DATA_SCHEMA.json i 05_OUTPUT_DATA_SCHEMA.json.
-    Ten kontrakt opisuje podzbiór zaimplementowany w slice-v0 (zasiłek macierzyński za okres urlopu macierzyńskiego);
-    kolejne pola są dodawane addytywnie zgodnie z docs/TASKS.md.
-    Kwoty: string dziesiętny (dokładna wartość Decimal, bez zaokrągleń). Daty: ISO 8601.
+  version: 1.0.0
+  description: 'Kontrakt v1. Właściciel: Integrator (INT). Zmiany tylko przez PR z akceptacją BE i FE; wyłącznie addytywne w ramach
+    v1.
+
+    Modele danych: zus_rules/04_INPUT_DATA_SCHEMA.json (In*) i 05_OUTPUT_DATA_SCHEMA.json (Out*) — przeniesione do components.
+
+    Status operacji: `x-status: implemented` (działa, sprawdzane testem kontraktu) albo `planned` (zadeklarowane, zadanie w `x-task`).
+
+    Endpointy `/api/sim/*` są WYŁĄCZNIE symulacjami (każda odpowiedź ma `simulated: true`) — wymóg zadania.
+
+    Kwoty: string dziesiętny (dokładny Decimal, bez zaokrągleń — GAP-001). Daty: ISO 8601. Błędy: application/problem+json.'
 servers:
-  - url: http://localhost:8000
+- url: http://localhost:8000
 paths:
   /api/health:
     get:
       operationId: getHealth
       summary: Stan usługi i wersja zestawu reguł
       responses:
-        "200":
+        '200':
           description: Usługa działa
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/Health"}
-              example: {status: ok, ruleset_version: 0.1.0, law_reference_date: "2026-11-21", engine: slice-v0}
+              schema:
+                $ref: '#/components/schemas/Health'
+              example:
+                status: ok
+                ruleset_version: 0.1.0
+                law_reference_date: '2026-11-21'
+                engine: slice-v0
+      x-status: implemented
+      x-owner: INT
   /api/evaluate:
     post:
       operationId: evaluate
@@ -30,187 +42,2334 @@ paths:
         required: true
         content:
           application/json:
-            schema: {$ref: "#/components/schemas/EvaluateRequest"}
+            schema:
+              $ref: '#/components/schemas/EvaluateRequest'
             examples:
               employee_mother_815:
                 summary: Pracownica, 1 dziecko, wniosek 81,5% w terminie (dane syntetyczne)
                 value:
-                  evaluation: {as_of_date: "2027-04-05"}
-                  person: {role: MOTHER}
-                  insurance: {titles: [{title_type: EMPLOYMENT_CONTRACT, sickness_insurance_mode: MANDATORY, from: "2022-02-01", to: null}]}
-                  event: {type: BIRTH, date: "2027-03-15"}
-                  children: {count_at_birth: 1}
-                  income_history: {manual_base_override: "6000.00"}
-                  applications: {combined_815_filed_date: "2027-04-05"}
+                  evaluation:
+                    as_of_date: '2027-04-05'
+                  person:
+                    role: MOTHER
+                  insurance:
+                    titles:
+                    - title_type: EMPLOYMENT_CONTRACT
+                      sickness_insurance_mode: MANDATORY
+                      from: '2022-02-01'
+                      to: null
+                  event:
+                    type: BIRTH
+                    date: '2027-03-15'
+                  children:
+                    count_at_birth: 1
+                  income_history:
+                    manual_base_override: '6000.00'
+                  applications:
+                    combined_815_filed_date: '2027-04-05'
       responses:
-        "200":
+        '200':
           description: Wynik ewaluacji (także NEEDS_DATA / NEEDS_REVIEW — to nie są błędy HTTP)
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/EvaluateResponse"}
+              schema:
+                $ref: '#/components/schemas/EvaluateResponse'
               examples:
                 eligible_815:
                   value:
                     evaluation_id: 3f1c2b9e-0000-4000-8000-000000000001
                     ruleset_version: 0.1.0
-                    law_reference_date: "2026-11-21"
+                    law_reference_date: '2026-11-21'
                     engine: slice-v0
                     overall_status: ELIGIBLE
                     benefits:
-                      - benefit_type: MATERNITY_BENEFIT
-                        leave_type: MATERNITY_LEAVE
-                        status: ELIGIBLE
-                        rate: "0.815"
-                        period: {from: "2027-03-15", to: "2027-08-01", max_weeks: 20}
-                        days: 140
-                        daily_amount_exact: "163"
-                        total_amount_exact: "22820"
-                        payer_of_benefit: null
-                        reasons: [{code: RATE_COMBINED_815, rule_id: RATE-MAT-003, message: "Wniosek o łączny zasiłek złożony w 21 dni od porodu — 81,5% podstawy.", legal_basis: [{document: USTAWA, location: "art. 31 ust. 3; art. 30a ust. 1"}]}]
-                        applied_rules: [MAT-ELIG-001, MAT-DUR-001, MAT-DUR-009, APP-DL-001, RATE-MAT-003, CALC-MAT-001]
+                    - benefit_type: MATERNITY_BENEFIT
+                      leave_type: MATERNITY_LEAVE
+                      status: ELIGIBLE
+                      rate: '0.815'
+                      period:
+                        from: '2027-03-15'
+                        to: '2027-08-01'
+                        max_weeks: 20
+                      days: 140
+                      daily_amount_exact: '163'
+                      total_amount_exact: '22820'
+                      payer_of_benefit: null
+                      reasons:
+                      - code: RATE_COMBINED_815
+                        rule_id: RATE-MAT-003
+                        message: Wniosek o łączny zasiłek złożony w 21 dni od porodu — 81,5% podstawy.
+                        legal_basis:
+                        - document: USTAWA
+                          location: art. 31 ust. 3; art. 30a ust. 1
+                      applied_rules:
+                      - MAT-ELIG-001
+                      - MAT-DUR-001
+                      - MAT-DUR-009
+                      - APP-DL-001
+                      - RATE-MAT-003
+                      - CALC-MAT-001
                     missing_data: []
-                    assumptions: [{code: ROUNDING_UNCONFIRMED, text: "Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."}]
-                    not_evaluated_rules: [MAT-ELIG-004, MAT-ELIG-005, MAT-ELIG-006, BASE-EMP-001]
-        "422":
+                    assumptions:
+                    - code: ROUNDING_UNCONFIRMED
+                      text: Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001).
+                    not_evaluated_rules:
+                    - MAT-ELIG-004
+                    - MAT-ELIG-005
+                    - MAT-ELIG-006
+                    - BASE-EMP-001
+        '422':
           description: Niepoprawny format żądania
           content:
             application/problem+json:
-              schema: {$ref: "#/components/schemas/Problem"}
+              schema:
+                $ref: '#/components/schemas/Problem'
               example:
                 type: about:blank
                 title: Niepoprawne dane wejściowe
                 status: 422
                 detail: Żądanie nie spełnia kontraktu.
-                errors: [{field: event.date, code: date_from_datetime_parsing, message: "Input should be a valid date"}]
+                errors:
+                - field: event.date
+                  code: date_from_datetime_parsing
+                  message: Input should be a valid date
+      x-status: implemented
+      x-owner: BE-1
+  /api/cases:
+    get:
+      operationId: listCases
+      x-status: planned
+      x-owner: BE-2
+      x-task: BE2-06
+      summary: Lista przykładowych spraw do wyboru (syntetyczne; ZUS_SAMPLE po zgodzie M02)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseList'
+              example:
+                items:
+                - case_id: synthetic-employee-mother
+                  title: Pracownica, 1 dziecko, wniosek 81,5%
+                  event_type: BIRTH
+                  source: SYNTHETIC
+                  has_expected: true
+  /api/cases/{case_id}:
+    get:
+      operationId: getCase
+      x-status: planned
+      x-owner: BE-2
+      x-task: BE2-06
+      summary: 'Szczegóły sprawy: dane wejściowe i oczekiwany wynik'
+      parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseDetail'
+        '404':
+          description: Brak sprawy
+          content: &id001
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /api/cases/{case_id}/evaluate:
+    post:
+      operationId: evaluateCase
+      x-status: planned
+      x-owner: BE-2
+      x-task: BE2-06
+      summary: Ewaluacja sprawy i porównanie z decyzją ZUS (weryfikacja ubezpieczenia + kalkulator — wymóg § 4 i § 6 zadania)
+      parameters:
+      - name: case_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseEvaluation'
+        '404':
+          description: Brak sprawy
+          content: *id001
+  /api/cases/upload:
+    post:
+      operationId: uploadCase
+      x-status: planned
+      x-owner: BE-2
+      x-task: BE2-06
+      summary: Upload wniosku (PDF) — rozpoznanie i mapowanie do modelu wejścia
+      description: 'Plik nie jest zapisywany trwale ani logowany (poufność). Bez zgody M16e brak ekstrakcji AI: znane formularze → FIXTURE_MATCH,
+        inne → MANUAL_REQUIRED.'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  contentMediaType: application/pdf
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseUploadResult'
+        '413':
+          description: Plik za duży
+          content: *id001
+        '415':
+          description: Nieobsługiwany typ pliku
+          content: *id001
+  /api/admin/parameters:
+    get:
+      operationId: listParameters
+      x-status: planned
+      x-owner: BE-2
+      x-task: BE2-05
+      summary: Parametry prawne (zus_rules meta.parameters + nadpisania)
+      security:
+      - AdminToken: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParameterList'
+        '401':
+          description: Brak/zły token
+          content: *id001
+    put:
+      operationId: updateParameters
+      x-status: planned
+      x-owner: BE-2
+      x-task: BE2-05
+      summary: 'Nadpisanie parametrów z wersją i datą obowiązywania (wymóg: panel administracyjny)'
+      security:
+      - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParameterUpdate'
+            example:
+              base_parameters_version: 1
+              changes:
+              - name: MAT_RATE_COMBINED
+                value: '0.815'
+                valid_from: '2027-01-01'
+                reason: Demo — zmiana stawki (docs/mentors.md M10)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParameterList'
+        '401':
+          description: Brak/zły token
+          content: *id001
+        '409':
+          description: Konflikt wersji parametrów
+          content: *id001
+        '422':
+          description: Nieznany parametr lub zła wartość
+          content: *id001
+  /api/sim/mobywatel/login:
+    post:
+      operationId: simMobywatelLogin
+      x-status: planned
+      x-owner: INT
+      x-task: INT-03
+      x-simulation: true
+      summary: SYMULACJA logowania przez mObywatel (wybór profilu demo)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimLoginRequest'
+            example:
+              profile_id: employee_mother
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimLoginResponse'
+        '404':
+          description: Nieznany profil
+          content: *id001
+  /api/sim/zus-profile:
+    get:
+      operationId: simZusProfile
+      x-status: planned
+      x-owner: INT
+      x-task: INT-03
+      x-simulation: true
+      summary: SYMULACJA pobrania danych z systemów ZUS (ubezpieczenie, podstawa, płatnik)
+      parameters:
+      - &id002
+        name: profile_id
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProfileId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimZusProfile'
+        '404':
+          description: Nieznany profil
+          content: *id001
+  /api/sim/ezla:
+    get:
+      operationId: simEzla
+      x-status: planned
+      x-owner: INT
+      x-task: INT-03
+      x-simulation: true
+      summary: SYMULACJA podglądu zaświadczeń lekarskich e-ZLA
+      parameters:
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimEzlaList'
+        '404':
+          description: Nieznany profil
+          content: *id001
+  /api/sim/debt-certificate:
+    get:
+      operationId: simDebtCertificate
+      x-status: planned
+      x-owner: INT
+      x-task: INT-03
+      x-simulation: true
+      summary: SYMULACJA zaświadczenia o stanie zadłużenia składkowego na dzień powstania prawa
+      parameters:
+      - *id002
+      - name: as_of
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimDebtCertificate'
+        '404':
+          description: Nieznany profil
+          content: *id001
+  /api/sim/pue-question:
+    post:
+      operationId: simPueQuestion
+      x-status: planned
+      x-owner: INT
+      x-task: INT-03
+      x-simulation: true
+      summary: SYMULACJA zadania pytania przez PUE/eZUS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimPueQuestion'
+            example:
+              profile_id: employee_mother
+              topic: MATERNITY
+              question: Czy muszę dostarczyć akt urodzenia?
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimPueTicket'
+        '422':
+          description: Niepoprawne dane
+          content: *id001
+  /api/sim/applications:
+    post:
+      operationId: simSubmitApplication
+      x-status: planned
+      x-owner: INT
+      x-task: INT-03
+      x-simulation: true
+      summary: SYMULACJA złożenia wniosku o urlop (do pracodawcy) lub o zasiłek (ZAM, do ZUS/płatnika)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimApplicationRequest'
+            example:
+              profile_id: employee_mother
+              application_type: LEAVE_PARENTAL
+              recipient: EMPLOYER
+              planned_start: '2027-08-02'
+              fields:
+                weeks: 32
+              attachments:
+              - BIRTH_CERTIFICATE_SHORT
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimApplicationResult'
+        '422':
+          description: Niepoprawne dane
+          content: *id001
+  /api/sim/birth-certificate:
+    post:
+      operationId: simBirthCertificate
+      x-status: planned
+      x-owner: INT
+      x-task: INT-03
+      x-simulation: true
+      summary: SYMULACJA wniosku o odpis aktu urodzenia (gov.pl — rejestr stanu cywilnego)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimBirthCertificateRequest'
+            example:
+              birth_date: '2027-03-15'
+              copy_type: SHORT
+              delivery: ELECTRONIC
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimBirthCertificateResult'
+        '422':
+          description: Niepoprawne dane
+          content: *id001
 components:
   schemas:
     Health:
       type: object
-      required: [status, ruleset_version, law_reference_date, engine]
+      required:
+      - status
+      - ruleset_version
+      - law_reference_date
+      - engine
       properties:
-        status: {const: ok}
-        ruleset_version: {type: string}
-        law_reference_date: {type: string, format: date}
-        engine: {type: string}
+        status:
+          const: ok
+        ruleset_version:
+          type: string
+        law_reference_date:
+          type: string
+          format: date
+        engine:
+          type: string
     Money:
       type: string
-      pattern: "^-?[0-9]+(\\.[0-9]+)?$"
+      pattern: ^-?[0-9]+(\.[0-9]+)?$
     Status:
-      enum: [ELIGIBLE, NOT_ELIGIBLE, NEEDS_DATA, NEEDS_REVIEW, OUT_OF_SCOPE]
+      enum:
+      - ELIGIBLE
+      - NOT_ELIGIBLE
+      - NEEDS_DATA
+      - NEEDS_REVIEW
+      - OUT_OF_SCOPE
     InsuranceTitle:
       type: object
-      required: [title_type, sickness_insurance_mode, from]
+      required:
+      - title_type
+      - sickness_insurance_mode
+      - from
       properties:
-        title_type: {enum: [EMPLOYMENT_CONTRACT, CIVIL_CONTRACT_MANDATE, AGENCY_CONTRACT, SELF_EMPLOYED, SELF_EMPLOYED_COLLABORATOR, CLERGY, CLERGY_SELF_PAYER, SEAFARER_ART6_24, FOREIGN_EMPLOYER, OTHER]}
-        sickness_insurance_mode: {enum: [MANDATORY, VOLUNTARY, NONE]}
-        from: {type: string, format: date}
-        to: {type: [string, "null"], format: date}
+        title_type:
+          enum:
+          - EMPLOYMENT_CONTRACT
+          - CIVIL_CONTRACT_MANDATE
+          - AGENCY_CONTRACT
+          - SELF_EMPLOYED
+          - SELF_EMPLOYED_COLLABORATOR
+          - CLERGY
+          - CLERGY_SELF_PAYER
+          - SEAFARER_ART6_24
+          - FOREIGN_EMPLOYER
+          - OTHER
+        sickness_insurance_mode:
+          enum:
+          - MANDATORY
+          - VOLUNTARY
+          - NONE
+        from:
+          type: string
+          format: date
+        to:
+          type:
+          - string
+          - 'null'
+          format: date
     EvaluateRequest:
       type: object
-      description: Podzbiór zus_rules/04_INPUT_DATA_SCHEMA.json. Dodatkowe pola są akceptowane i ignorowane przez slice-v0.
-      required: [event]
+      description: Model wejścia = zus_rules/04_INPUT_DATA_SCHEMA.json (pełny). Kontrakt v1 wymaga tylko `event`; brak pozostałych pól
+        silnik traktuje jako UNKNOWN → NEEDS_DATA. Docelowo 04 wymaga też `evaluation` i `person` — zaostrzenie tylko przez zmianę wersji
+        kontraktu.
+      required:
+      - event
       properties:
         evaluation:
           type: object
-          properties: {as_of_date: {type: string, format: date}}
+          properties:
+            as_of_date:
+              $ref: '#/components/schemas/InDate'
+              description: Data, wg której ocenia się obowiązywanie przepisów (domyślnie 2026-11-21).
+              x-source: system
+            mode:
+              enum:
+              - DECISION_SUPPORT
+              - FORECAST
+              description: FORECAST — zdarzenie przyszłe (planowany poród); wynik jest prognozą.
+            ruleset_version:
+              type: string
+          x-required-in-04:
+          - as_of_date
         person:
           type: object
-          properties: {role: {enum: [MOTHER, FATHER, OTHER_FAMILY_MEMBER, ADOPTIVE_PARENT, FOSTER_PARENT]}}
+          properties:
+            role:
+              enum:
+              - MOTHER
+              - FATHER
+              - OTHER_FAMILY_MEMBER
+              - ADOPTIVE_PARENT
+              - FOSTER_PARENT
+              x-source: user
+            birth_date:
+              $ref: '#/components/schemas/InDate'
+              x-source: mObywatel(sym.)/user
+              x-legal-basis: KP art. 92 § 1, § 5
+              x-required-when: employee with incapacity (limit 33/14 dni)
+            graduation_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: USTAWA art. 4 ust. 3 pkt 1
+              x-required-when: waiting period not met
+            special_status:
+              enum:
+              - null
+              - NONE
+              - MP_SENATOR_WITHIN_90_DAYS
+              - CUSTOMS_SERVICE_KAS
+            has_pension_or_disability_pension:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 13 ust. 1 pkt 1; art. 18 ust. 7
+            continues_or_started_gainful_activity:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 13 ust. 1 pkt 2
+            receives_unemployment_or_preretirement_benefit:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 13 ust. 1 pkt 4
+            mandatory_krus:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 13 ust. 1 pkt 5
+            on_health_restoration_leave:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 18 ust. 7
+          x-required-in-04:
+          - role
+        mother:
+          type: object
+          description: Dane matki, gdy oceniany jest ojciec / inny członek rodziny.
+          properties:
+            sickness_insured:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 29 ust. 9-10, 31 ust. 3h
+            incapable_of_independent_living_certificate:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 29 ust. 5
+            hospitalized_unable_to_care:
+              $ref: '#/components/schemas/InTriBool'
+            hospital_admission_date:
+              $ref: '#/components/schemas/InDate'
+            hospital_discharge_date:
+              $ref: '#/components/schemas/InDate'
+            death_date:
+              $ref: '#/components/schemas/InDate'
+            abandoned_child_date:
+              $ref: '#/components/schemas/InDate'
+            employment_start_date:
+              $ref: '#/components/schemas/InDate'
+            employment_fraction:
+              $ref: '#/components/schemas/InFraction'
         insurance:
           type: object
           properties:
-            titles: {type: array, items: {$ref: "#/components/schemas/InsuranceTitle"}}
+            titles:
+              type: array
+              items:
+                $ref: '#/components/schemas/InInsuranceTitle'
+              x-source: ZUS(sym.)/Z-3/Z-3a/poświadczenie
+              description: Wszystkie tytuły ubezpieczenia chorobowego (bieżące i historyczne). Pusta lista + titles_confirmed_complete=true
+                = brak ubezpieczenia.
+            titles_confirmed_complete:
+              type: boolean
+              default: false
+        employment:
+          type: object
+          properties:
+            contract_type:
+              enum:
+              - null
+              - INDEFINITE
+              - FIXED_TERM
+              - PROBATION_OVER_1_MONTH
+              - PROBATION_UP_TO_1_MONTH
+              - REPLACEMENT
+            contract_end_date:
+              $ref: '#/components/schemas/InDate'
+            is_replacement_contract:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: KP art. 177 § 3(1)
+            extended_until_birth_kp177:
+              $ref: '#/components/schemas/InTriBool'
+              description: Potwierdzenie przedłużenia do dnia porodu (np. ze świadectwa pracy). null → ocenia MAT-CLS-002 (BLOCKED).
+            other_employment_provided:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 30 ust. 3
+            working_time_fraction:
+              $ref: '#/components/schemas/InFraction'
+              x-legal-basis: USTAWA art. 45 ust. 1
+            working_time_change_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: USTAWA art. 40
+            contract_monthly_salary:
+              $ref: '#/components/schemas/InMoney'
+              x-legal-basis: USTAWA art. 37 ust. 2 pkt 1; art. 49 ust. 1 pkt 2
+            employer_sick_pay_rate_override:
+              $ref: '#/components/schemas/InFraction'
+              x-legal-basis: KP art. 92 § 1 pkt 1
+            leaves:
+              type: array
+              items:
+                $ref: '#/components/schemas/InLeave'
+              x-legal-basis: USTAWA art. 12 ust. 2; art. 29 ust. 1
+        payer:
+          type: object
+          properties:
+            insured_count_on_nov30_prev_year:
+              type:
+              - integer
+              - 'null'
+              minimum: 0
+              x-legal-basis: USTAWA art. 61 ust. 1-2
+              x-source: Z-3 zał. 2 pkt 11 / user
+        pregnancy:
+          type: object
+          properties:
+            expected_due_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: USTAWA art. 53 ust. 2; KP art. 180 § 2
+            pregnancy_start_date:
+              $ref: '#/components/schemas/InDate'
+              description: Szacowana data początku ciąży (z dokumentacji). Używana do ustalenia 'w okresie ciąży'.
+              x-legal-basis: USTAWA art. 30; KP art. 177 § 3
+            is_pregnant_during_incapacity:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 11 ust. 2 pkt 1; art. 57 ust. 2
         event:
           type: object
-          required: [type]
+          required:
+          - type
           properties:
-            type: {enum: [BIRTH, ADOPTION, FOSTER, PREGNANCY_INCAPACITY, SICKNESS]}
-            date: {type: [string, "null"], format: date}
+            type:
+              enum:
+              - BIRTH
+              - ADOPTION
+              - FOSTER
+              - PREGNANCY_INCAPACITY
+              - SICKNESS
+            date:
+              $ref: '#/components/schemas/InDate'
+              description: 'BIRTH: data porodu (FORECAST: przewidywana); ADOPTION/FOSTER: data przyjęcia dziecka.'
+            court_adoption_application_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: USTAWA art. 29 ust. 1 pkt 2
+            adoption_final_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: KP art. 182(3) § 1 pkt 2
+            foster_family_type:
+              enum:
+              - null
+              - NON_PROFESSIONAL
+              - PROFESSIONAL
+              x-legal-basis: USTAWA art. 29 ust. 1 pkt 3
+        birth:
+          type: object
+          properties:
+            completed_gestation_weeks:
+              type:
+              - integer
+              - 'null'
+              minimum: 0
+              maximum: 45
+              x-legal-basis: KP art. 180(2) § 1
         children:
           type: object
-          properties: {count_at_birth: {type: [integer, "null"], minimum: 1}}
+          properties:
+            count_at_birth:
+              type:
+              - integer
+              - 'null'
+              minimum: 1
+              x-legal-basis: KP art. 180 § 1
+            count_at_event:
+              type:
+              - integer
+              - 'null'
+              minimum: 1
+              x-legal-basis: KP art. 183 § 1
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InChild'
+            birth_dates:
+              type: array
+              items:
+                $ref: '#/components/schemas/InDate'
+              description: Skrót — gdy items nie podano.
+            za_zyciem_certificate:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: KP art. 182(1a) § 2; USTAWA art. 61b ust. 4a
+            school_obligation_deferred:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 29 ust. 1 pkt 3
+            hospital_stays:
+              type: array
+              items:
+                $ref: '#/components/schemas/InHospitalStay'
+              x-legal-basis: KP art. 180(2)
+            abandoned_or_placed_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: KP art. 182
+        incapacity:
+          type: object
+          description: Bieżąca niezdolność do pracy (e-ZLA) — dla zasiłku chorobowego w ciąży.
+          properties:
+            start_date:
+              $ref: '#/components/schemas/InDate'
+            end_date:
+              $ref: '#/components/schemas/InDate'
+            codes:
+              type: array
+              items:
+                enum:
+                - A
+                - B
+                - C
+                - D
+                - E
+              x-legal-basis: USTAWA art. 57
+            cause:
+              enum:
+              - null
+              - ILLNESS
+              - COMMUTE_ACCIDENT
+              - ORGAN_DONOR
+              - OTHER
+            certificate_present:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 53 ust. 1
+            gainful_work_during_leave_reported:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 17
+            certificate_forged:
+              $ref: '#/components/schemas/InTriBool'
+            caused_by_own_intentional_offence_final_judgment:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 15
+        benefit_history:
+          type: object
+          properties:
+            sickness_periods:
+              type: array
+              items:
+                allOf:
+                - $ref: '#/components/schemas/InPeriod'
+                - properties:
+                    codes:
+                      type: array
+                      items:
+                        enum:
+                        - A
+                        - B
+                        - C
+                        - D
+                        - E
+                    paid_as:
+                      enum:
+                      - EMPLOYER_SICK_PAY
+                      - SICKNESS_BENEFIT
+                      - NONE
+              x-legal-basis: USTAWA art. 9
+              x-source: e-ZLA (PUE sym.) / Z-3 zał. 2 pkt 9-10
+            sickness_periods_confirmed_complete:
+              type: boolean
+              default: false
+            employer_sick_pay_days_in_year:
+              type:
+              - integer
+              - 'null'
+              minimum: 0
+              x-legal-basis: KP art. 92 § 1
+            previous_benefit_end_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: USTAWA art. 43
+            previous_base_amount:
+              $ref: '#/components/schemas/InMoney'
+              x-legal-basis: USTAWA art. 43
         income_history:
           type: object
-          properties: {manual_base_override: {oneOf: [{$ref: "#/components/schemas/Money"}, {type: "null"}]}}
+          properties:
+            months:
+              type: array
+              items:
+                $ref: '#/components/schemas/InIncomeMonth'
+              x-source: Z-3 zał. 2 pkt 16 / Z-3a zał. 3 pkt 14 / ZUS(sym.)
+            quarterly_components:
+              type: array
+              items:
+                $ref: '#/components/schemas/InPeriodicComponent'
+              x-legal-basis: USTAWA art. 42 ust. 2
+            annual_components:
+              type: array
+              items:
+                $ref: '#/components/schemas/InPeriodicComponent'
+              x-legal-basis: USTAWA art. 42 ust. 3
+            minimum_contribution_base_by_month:
+              type: object
+              patternProperties:
+                ^[0-9]{4}-[0-9]{2}$:
+                  $ref: '#/components/schemas/InMoney'
+              x-legal-basis: USTAWA art. 48a, 49 (wartości — ustawa o s.u.s., niezałączona)
+            manual_base_override:
+              $ref: '#/components/schemas/InMoney'
+              description: Podstawa podana wprost (np. z poświadczenia ZUS). Gdy podana — f_benefit_base ją zwraca z flagą source=MANUAL.
         applications:
           type: object
           properties:
-            combined_815_filed_date: {type: [string, "null"], format: date}
-            combined_815_planned: {type: [boolean, "null"]}
+            combined_815_filed_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: USTAWA art. 30a
+            combined_815_planned:
+              $ref: '#/components/schemas/InTriBool'
+              description: 'FORECAST: czy użytkownik zamierza złożyć wniosek 81,5%.'
+        plan:
+          type: object
+          properties:
+            segments:
+              type: array
+              items:
+                $ref: '#/components/schemas/InPlanSegment'
+            maternity_start_date:
+              $ref: '#/components/schemas/InDate'
+            parental_start_date:
+              $ref: '#/components/schemas/InDate'
+            paternity_start_date:
+              $ref: '#/components/schemas/InDate'
+            transfer_start_date:
+              $ref: '#/components/schemas/InDate'
+            mother_resigns_remaining_maternity:
+              $ref: '#/components/schemas/InTriBool'
         debt:
           type: object
-          properties: {amount_on_right_date: {oneOf: [{$ref: "#/components/schemas/Money"}, {type: "null"}]}}
+          description: Zadłużenie składkowe (zaświadczenie — symulacja).
+          properties:
+            amount_on_right_date:
+              $ref: '#/components/schemas/InMoney'
+              x-legal-basis: USTAWA art. 2a ust. 1
+            repaid_in_full_date:
+              $ref: '#/components/schemas/InDate'
+              x-legal-basis: USTAWA art. 2a ust. 1-2; art. 64 ust. 3
+        rehabilitation:
+          type: object
+          properties:
+            zus_medical_opinion_positive:
+              $ref: '#/components/schemas/InTriBool'
+              x-legal-basis: USTAWA art. 18 ust. 3, 6
+        evidence:
+          type: object
+          properties:
+            documents:
+              type: array
+              items:
+                $ref: '#/components/schemas/InDocument'
+      additionalProperties: true
     LegalRef:
       type: object
-      required: [document, location]
+      required:
+      - document
+      - location
       properties:
-        document: {enum: [USTAWA, KP, ROZP_DOK, ROZP_WN, ZALACZNIK]}
-        location: {type: string}
+        document:
+          enum:
+          - USTAWA
+          - KP
+          - ROZP_DOK
+          - ROZP_WN
+          - ZALACZNIK
+        location:
+          type: string
     Reason:
       type: object
-      required: [code, rule_id, message]
+      required:
+      - code
+      - rule_id
+      - message
       properties:
-        code: {type: string}
-        rule_id: {type: string}
-        message: {type: string}
-        legal_basis: {type: array, items: {$ref: "#/components/schemas/LegalRef"}}
+        code:
+          type: string
+        rule_id:
+          type: string
+        message:
+          type: string
+        legal_basis:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalRef'
     Benefit:
       type: object
-      required: [benefit_type, leave_type, status, reasons, applied_rules]
+      required:
+      - benefit_type
+      - leave_type
+      - status
+      - reasons
+      - applied_rules
       properties:
-        benefit_type: {enum: [SICKNESS_BENEFIT, EMPLOYER_SICK_PAY, REHABILITATION_BENEFIT, MATERNITY_BENEFIT, MATERNITY_EQUIVALENT_ALLOWANCE]}
-        leave_type: {type: [string, "null"]}
-        status: {$ref: "#/components/schemas/Status"}
-        rate: {type: [string, "null"]}
+        benefit_type:
+          enum:
+          - SICKNESS_BENEFIT
+          - EMPLOYER_SICK_PAY
+          - REHABILITATION_BENEFIT
+          - MATERNITY_BENEFIT
+          - MATERNITY_EQUIVALENT_ALLOWANCE
+        leave_type:
+          type:
+          - string
+          - 'null'
+        status:
+          $ref: '#/components/schemas/Status'
+        rate:
+          type:
+          - string
+          - 'null'
         period:
-          type: [object, "null"]
+          type:
+          - object
+          - 'null'
           properties:
-            from: {type: string, format: date}
-            to: {type: string, format: date}
-            max_weeks: {type: integer}
-        days: {type: [integer, "null"]}
-        daily_amount_exact: {oneOf: [{$ref: "#/components/schemas/Money"}, {type: "null"}]}
-        total_amount_exact: {oneOf: [{$ref: "#/components/schemas/Money"}, {type: "null"}]}
-        payer_of_benefit: {enum: [CONTRIBUTION_PAYER, ZUS, null]}
-        reasons: {type: array, items: {$ref: "#/components/schemas/Reason"}}
-        applied_rules: {type: array, items: {type: string}}
+            from:
+              type: string
+              format: date
+            to:
+              type: string
+              format: date
+            max_weeks:
+              type: integer
+            max_days:
+              type:
+              - integer
+              - 'null'
+            days_used_in_benefit_period:
+              type:
+              - integer
+              - 'null'
+        days:
+          type:
+          - integer
+          - 'null'
+        daily_amount_exact:
+          oneOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        total_amount_exact:
+          oneOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        payer_of_benefit:
+          enum:
+          - CONTRIBUTION_PAYER
+          - ZUS
+          - null
+        reasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reason'
+        applied_rules:
+          type: array
+          items:
+            type: string
+        entitlement_basis:
+          type:
+          - string
+          - 'null'
+        suspended_until_debt_repaid:
+          type: boolean
+        forecast:
+          type: boolean
+          description: true gdy evaluation.mode = FORECAST
+        base:
+          type:
+          - object
+          - 'null'
+          properties:
+            amount_exact:
+              $ref: '#/components/schemas/OutMoney'
+            method_rule_id:
+              type: string
+            months_used:
+              type: array
+              items:
+                type: string
+            source:
+              enum:
+              - CALCULATED
+              - MANUAL
+              - REUSED_PREVIOUS
+              - MINIMUM_APPLIED
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutSegment'
+        totals:
+          type:
+          - object
+          - 'null'
+          properties:
+            amount_exact:
+              $ref: '#/components/schemas/OutMoney'
+            amount_rounded:
+              $ref: '#/components/schemas/OutMoney'
+            monthly_indicative:
+              $ref: '#/components/schemas/OutMoney'
+        legal_basis:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutLegalRef'
+        explanation:
+          type: string
+          description: Łączne uzasadnienie (szablony reguł, kolejność wg grafu zależności).
     MissingData:
       type: object
-      required: [field, rule_ids]
+      required:
+      - field
+      - rule_ids
       properties:
-        field: {type: string}
-        rule_ids: {type: array, items: {type: string}}
+        field:
+          type: string
+        rule_ids:
+          type: array
+          items:
+            type: string
     Assumption:
       type: object
-      required: [code, text]
-      properties: {code: {type: string}, text: {type: string}}
+      required:
+      - code
+      - text
+      properties:
+        code:
+          type: string
+        text:
+          type: string
     EvaluateResponse:
       type: object
-      required: [evaluation_id, ruleset_version, law_reference_date, engine, overall_status, benefits, missing_data, assumptions, not_evaluated_rules]
+      required:
+      - evaluation_id
+      - ruleset_version
+      - law_reference_date
+      - engine
+      - overall_status
+      - benefits
+      - missing_data
+      - assumptions
+      - not_evaluated_rules
       properties:
-        evaluation_id: {type: string, format: uuid}
-        ruleset_version: {type: string}
-        law_reference_date: {type: string, format: date}
-        engine: {type: string, description: "slice-v0 = tymczasowa implementacja podzbioru reguł; docelowo rules-engine"}
-        overall_status: {$ref: "#/components/schemas/Status"}
-        benefits: {type: array, items: {$ref: "#/components/schemas/Benefit"}}
-        missing_data: {type: array, items: {$ref: "#/components/schemas/MissingData"}}
-        assumptions: {type: array, items: {$ref: "#/components/schemas/Assumption"}}
+        evaluation_id:
+          type: string
+          format: uuid
+        ruleset_version:
+          type: string
+        law_reference_date:
+          type: string
+          format: date
+        engine:
+          type: string
+          description: slice-v0 = tymczasowa implementacja podzbioru reguł; docelowo rules-engine
+        overall_status:
+          $ref: '#/components/schemas/Status'
+        benefits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Benefit'
+        missing_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissingData'
+        assumptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assumption'
         not_evaluated_rules:
           type: array
-          items: {type: string}
+          items:
+            type: string
           description: Reguły z 03_rules.yaml istotne dla przypadku, których ten silnik jeszcze nie ocenia (jawność ograniczeń).
+        evaluated_at:
+          type: string
+          format: date-time
+        mode:
+          enum:
+          - DECISION_SUPPORT
+          - FORECAST
+        missing_documents:
+          type: array
+          items:
+            type: object
+            required:
+            - doc_type
+            - rule_id
+            properties:
+              doc_type:
+                type: string
+              rule_id:
+                type: string
+              submit_to:
+                enum:
+                - CONTRIBUTION_PAYER
+                - ZUS
+                - EMPLOYER
+              provider:
+                type: string
+              obtainable_by_zus:
+                type: boolean
+              legal_basis:
+                $ref: '#/components/schemas/OutLegalRef'
+        deadlines:
+          type: array
+          items:
+            type: object
+            required:
+            - code
+            - date
+            - rule_id
+            properties:
+              code:
+                type: string
+              date:
+                type: string
+                format: date
+              who:
+                type: string
+              rule_id:
+                type: string
+        warnings:
+          type: array
+          items:
+            type: object
+            required:
+            - code
+            - severity
+            - rule_id
+            properties:
+              code:
+                type: string
+              severity:
+                enum:
+                - INFO
+                - WARNING
+                - CRITICAL
+              rule_id:
+                type: string
+              message:
+                type: string
+        plan_errors:
+          type: array
+          description: Błędy walidacji planu (validation_error) — nie zmieniają statusu prawa.
+          items:
+            type: object
+            required:
+            - code
+            - rule_id
+            properties:
+              code:
+                type: string
+              rule_id:
+                type: string
+              segment_index:
+                type: integer
+        insurance_verification:
+          type: object
+          description: 'Wymóg § 4 zadania: demo ma pozwolić zweryfikować, czy osoba posiada ubezpieczenie (na podstawie wybranych formularzy
+            PDF).'
+          properties:
+            sickness_insured_on_event_date:
+              enum:
+              - 'TRUE'
+              - 'FALSE'
+              - UNKNOWN
+            insurance_mode:
+              enum:
+              - MANDATORY
+              - VOLUNTARY
+              - NONE
+              - null
+            continuous_insurance_days:
+              type:
+              - integer
+              - 'null'
+            waiting_period_met:
+              enum:
+              - 'TRUE'
+              - 'FALSE'
+              - UNKNOWN
+              - NOT_REQUIRED
+            source_documents:
+              type: array
+              items:
+                type: string
+            rule_ids:
+              type: array
+              items:
+                type: string
+        return_to_work:
+          type: array
+          description: 'Planowany powrót do pracy per rodzic = dzień po ostatnim segmencie urlopu (pkt 2 zadania: planowanie powrotu
+            do pracy; KP art. 186(4)).'
+          items:
+            type: object
+            required:
+            - parent
+            - date
+            properties:
+              parent:
+                type: string
+              date:
+                type: string
+                format: date
+              part_time_fraction:
+                type:
+                - string
+                - 'null'
+        applied_rules:
+          type: array
+          items:
+            type: object
+            required:
+            - rule_id
+            - outcome
+            properties:
+              rule_id:
+                type: string
+              outcome:
+                enum:
+                - FIRED
+                - NOT_FIRED
+                - UNKNOWN
+                - BLOCKED
+                - FUTURE_SKIPPED
+                - NOT_APPLICABLE
+          description: 'Ślad wszystkich ocenionych reguł (pełny silnik). Lista reguł per świadczenie: Benefit.applied_rules.'
+        future_changes:
+          type: array
+          items:
+            type: object
+            properties:
+              rule_id:
+                type: string
+              valid_from:
+                type: string
+                format: date
+      description: Model wyjścia = zus_rules/05_OUTPUT_DATA_SCHEMA.json + pola kontraktu (engine, not_evaluated_rules). Pola spoza `required`
+        są opcjonalne w v1 — wypełnia je pełny silnik (BE1-02) i kolejne zadania.
     Problem:
       type: object
-      required: [type, title, status]
+      required:
+      - type
+      - title
+      - status
       properties:
-        type: {type: string}
-        title: {type: string}
-        status: {type: integer}
-        detail: {type: string}
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
         errors:
           type: array
           items:
             type: object
-            required: [field, code, message]
-            properties: {field: {type: string}, code: {type: string}, message: {type: string}}
+            required:
+            - field
+            - code
+            - message
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+    InDate:
+      type:
+      - string
+      - 'null'
+      format: date
+    InMoney:
+      type:
+      - string
+      - 'null'
+      pattern: ^-?[0-9]+(\.[0-9]{1,2})?$
+      description: 'Kwota PLN jako string dziesiętny; implementacja: decimal.Decimal.'
+    InFraction:
+      type:
+      - string
+      - 'null'
+      pattern: ^(0(\.[0-9]+)?|1(\.0+)?)$
+    InTriBool:
+      type:
+      - boolean
+      - 'null'
+      description: true / false / null=nieznane
+    InPeriod:
+      type: object
+      required:
+      - from
+      properties:
+        from:
+          $ref: '#/components/schemas/InDate'
+        to:
+          $ref: '#/components/schemas/InDate'
+          description: Włącznie. null = trwa / nieznany koniec.
+    InInsuranceTitle:
+      type: object
+      required:
+      - title_type
+      - sickness_insurance_mode
+      - from
+      properties:
+        title_type:
+          enum:
+          - EMPLOYMENT_CONTRACT
+          - CIVIL_CONTRACT_MANDATE
+          - AGENCY_CONTRACT
+          - SELF_EMPLOYED
+          - SELF_EMPLOYED_COLLABORATOR
+          - CLERGY
+          - CLERGY_SELF_PAYER
+          - SEAFARER_ART6_24
+          - FOREIGN_EMPLOYER
+          - OTHER
+          x-legal-basis: USTAWA art. 3 pkt 1, art. 2a, art. 61
+        sickness_insurance_mode:
+          enum:
+          - MANDATORY
+          - VOLUNTARY
+          - NONE
+          x-legal-basis: USTAWA art. 4 ust. 1
+          description: Pobierane z danych ZUS/zaświadczenia — NIE wywodzone z rodzaju umowy.
+        from:
+          $ref: '#/components/schemas/InDate'
+        to:
+          $ref: '#/components/schemas/InDate'
+        termination_reason:
+          enum:
+          - null
+          - CONTRACT_EXPIRY
+          - NOTICE_BY_EMPLOYEE
+          - NOTICE_BY_EMPLOYER
+          - MUTUAL_AGREEMENT
+          - EMPLOYER_DEATH
+          - EMPLOYER_BANKRUPTCY
+          - EMPLOYER_LIQUIDATION
+          - UNLAWFUL_TERMINATION_COURT_CONFIRMED
+          - UNLAWFUL_TERMINATION_PENDING
+          - BUSINESS_CLOSED
+          - VOLUNTARY_INSURANCE_DEREGISTERED
+          - OTHER
+          x-legal-basis: USTAWA art. 30 ust. 1, 3
+        contribution_base_is_declared:
+          $ref: '#/components/schemas/InTriBool'
+          x-legal-basis: USTAWA art. 48a
+        gap_reason_before:
+          enum:
+          - null
+          - CHILDCARE_LEAVE
+          - UNPAID_LEAVE
+          - MILITARY_SERVICE_CONSCRIPT
+          - OTHER
+          x-legal-basis: USTAWA art. 4 ust. 2
+          description: Przyczyna przerwy przed tym tytułem.
+        payer_nip:
+          type:
+          - string
+          - 'null'
+          description: Opcjonalnie; nie jest potrzebne do ewaluacji.
+    InLeave:
+      type: object
+      required:
+      - type
+      - from
+      properties:
+        type:
+          enum:
+          - UNPAID_LEAVE
+          - CHILDCARE_LEAVE
+          - CARER_LEAVE
+          - DETENTION
+          - KP_63_2_P8_ABSENCE
+          - HEALTH_RESTORATION_LEAVE
+        from:
+          $ref: '#/components/schemas/InDate'
+        to:
+          $ref: '#/components/schemas/InDate'
+    InIncomeMonth:
+      type: object
+      required:
+      - month
+      properties:
+        month:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}$
+        gross_contribution_base:
+          $ref: '#/components/schemas/InMoney'
+          description: 'Niepracownik: podstawa wymiaru składki chorobowej (przed odliczeniem 13,71%).'
+        fixed_components_net:
+          $ref: '#/components/schemas/InMoney'
+          description: 'Pracownik: składniki stałe po potrąceniu składek pracownika (art. 3 pkt 3).'
+        variable_components_prorated_net:
+          $ref: '#/components/schemas/InMoney'
+          description: Składniki zmienne pomniejszane proporcjonalnie (uzupełniane).
+        variable_components_actual_net:
+          $ref: '#/components/schemas/InMoney'
+          description: Składniki zmienne w kwocie faktycznej (nieuzupełniane).
+        components_retained_during_benefit_net:
+          $ref: '#/components/schemas/InMoney'
+          x-legal-basis: USTAWA art. 41 ust. 1
+        days_worked:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        days_required:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        absence_reason:
+          enum:
+          - null
+          - SICKNESS
+          - MATERNITY
+          - CARE
+          - REHABILITATION
+          - UNPAID_LEAVE
+          - OTHER_JUSTIFIED
+          - UNJUSTIFIED
+        activity_days_non_employee:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          x-legal-basis: USTAWA art. 50
+    InPeriodicComponent:
+      type: object
+      required:
+      - period_type
+      - period_end_month
+      - amount_net
+      properties:
+        period_type:
+          enum:
+          - QUARTER
+          - YEAR
+          - OTHER
+        period_end_month:
+          type: string
+          pattern: ^[0-9]{4}-[0-9]{2}$
+        amount_net:
+          $ref: '#/components/schemas/InMoney'
+        retained_during_benefit:
+          $ref: '#/components/schemas/InTriBool'
+    InChild:
+      type: object
+      required:
+      - birth_date
+      properties:
+        birth_date:
+          $ref: '#/components/schemas/InDate'
+        stillborn:
+          type: boolean
+          default: false
+        death_date:
+          $ref: '#/components/schemas/InDate'
+        birth_weight_g:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        za_zyciem_certificate:
+          $ref: '#/components/schemas/InTriBool'
+    InHospitalStay:
+      type: object
+      required:
+      - from
+      properties:
+        child_index:
+          type: integer
+          minimum: 0
+        from:
+          $ref: '#/components/schemas/InDate'
+        to:
+          $ref: '#/components/schemas/InDate'
+    InPlanSegment:
+      type: object
+      required:
+      - parent
+      - leave_type
+      - from
+      - to
+      properties:
+        parent:
+          enum:
+          - MOTHER
+          - FATHER
+          - OTHER_FAMILY_MEMBER
+          - ADOPTIVE_PARENT_1
+          - ADOPTIVE_PARENT_2
+        leave_type:
+          enum:
+          - MATERNITY_LEAVE
+          - MATERNITY_LEAVE_TRANSFERRED
+          - MATERNITY_LEAVE_HOSPITALIZATION_SUBSTITUTE
+          - MATERNITY_LIKE_LEAVE
+          - SUPPLEMENTARY_MATERNITY_LEAVE
+          - PARENTAL_LEAVE
+          - PATERNITY_LEAVE
+        from:
+          $ref: '#/components/schemas/InDate'
+        to:
+          $ref: '#/components/schemas/InDate'
+        work_fraction:
+          $ref: '#/components/schemas/InFraction'
+          default: '0'
+          x-legal-basis: KP art. 182(1e); USTAWA art. 31 ust. 4a
+        is_other_parent_reserved_9w:
+          $ref: '#/components/schemas/InTriBool'
+          description: Segment z 9 nieprzenoszalnych tygodni drugiego rodzica (USTAWA art. 31 ust. 3f). Jeśli null — wyznacza f_segment_is_other_parent_reserved_9w.
+    InDocument:
+      type: object
+      required:
+      - doc_type
+      - status
+      properties:
+        doc_type:
+          type: string
+          description: Kod dokumentu z 07_CALCULATION_SPEC § Dokumenty (np. E_ZLA, PAYER_CERTIFICATE_Z3, BIRTH_CERTIFICATE_SHORT).
+        status:
+          enum:
+          - PROVIDED
+          - MISSING
+          - NEEDS_VERIFICATION
+          - OBTAINABLE_BY_ZUS
+        issued_date:
+          $ref: '#/components/schemas/InDate'
+    OutMoney:
+      type:
+      - string
+      - 'null'
+      pattern: ^-?[0-9]+(\.[0-9]+)?$
+      description: Dokładna wartość dziesiętna (bez zaokrąglenia, chyba że pole *_rounded).
+    OutStatus:
+      enum:
+      - ELIGIBLE
+      - NOT_ELIGIBLE
+      - NEEDS_DATA
+      - NEEDS_REVIEW
+      - OUT_OF_SCOPE
+    OutLegalRef:
+      type: object
+      required:
+      - document
+      - location
+      properties:
+        document:
+          enum:
+          - USTAWA
+          - KP
+          - ROZP_DOK
+          - ROZP_WN
+          - ZALACZNIK
+        location:
+          type: string
+    OutReason:
+      type: object
+      required:
+      - code
+      - rule_id
+      - message
+      properties:
+        code:
+          type: string
+        rule_id:
+          type: string
+        message:
+          type: string
+          description: Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły — bez LLM.
+        legal_basis:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutLegalRef'
+        truth_value:
+          enum:
+          - 'TRUE'
+          - 'FALSE'
+          - UNKNOWN
+    OutSegment:
+      type: object
+      required:
+      - parent
+      - leave_type
+      - from
+      - to
+      - days
+      - rate
+      properties:
+        parent:
+          type: string
+        leave_type:
+          type: string
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        days:
+          type: integer
+          minimum: 0
+        rate:
+          type: string
+          description: Np. '0.815'
+        work_fraction:
+          type: string
+        daily_amount_exact:
+          $ref: '#/components/schemas/OutMoney'
+        total_amount_exact:
+          $ref: '#/components/schemas/OutMoney'
+        total_amount_rounded:
+          $ref: '#/components/schemas/OutMoney'
+          description: Tylko gdy ROUNDING_POLICY ustawiony; inaczej null + assumption ROUNDING_UNCONFIRMED.
+        payer_of_benefit:
+          enum:
+          - CONTRIBUTION_PAYER
+          - ZUS
+          - null
+        funded_by:
+          enum:
+          - FUS
+          - EMPLOYER
+          - STATE_BUDGET
+          - null
+        rule_ids:
+          type: array
+          items:
+            type: string
+    OutBenefit:
+      type: object
+      required:
+      - benefit_type
+      - status
+      - reasons
+      - applied_rules
+      - legal_basis
+      properties:
+        benefit_type:
+          enum:
+          - SICKNESS_BENEFIT
+          - EMPLOYER_SICK_PAY
+          - REHABILITATION_BENEFIT
+          - MATERNITY_BENEFIT
+          - MATERNITY_EQUIVALENT_ALLOWANCE
+        leave_type:
+          type:
+          - string
+          - 'null'
+        status:
+          $ref: '#/components/schemas/OutStatus'
+        entitlement_basis:
+          type:
+          - string
+          - 'null'
+        suspended_until_debt_repaid:
+          type: boolean
+        forecast:
+          type: boolean
+          description: true gdy evaluation.mode = FORECAST
+        period:
+          type:
+          - object
+          - 'null'
+          properties:
+            from:
+              type: string
+              format: date
+            to:
+              type: string
+              format: date
+            max_days:
+              type:
+              - integer
+              - 'null'
+            max_weeks:
+              type:
+              - integer
+              - 'null'
+            days_used_in_benefit_period:
+              type:
+              - integer
+              - 'null'
+        base:
+          type:
+          - object
+          - 'null'
+          properties:
+            amount_exact:
+              $ref: '#/components/schemas/OutMoney'
+            method_rule_id:
+              type: string
+            months_used:
+              type: array
+              items:
+                type: string
+            source:
+              enum:
+              - CALCULATED
+              - MANUAL
+              - REUSED_PREVIOUS
+              - MINIMUM_APPLIED
+        rate:
+          type:
+          - string
+          - 'null'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutSegment'
+        totals:
+          type:
+          - object
+          - 'null'
+          properties:
+            amount_exact:
+              $ref: '#/components/schemas/OutMoney'
+            amount_rounded:
+              $ref: '#/components/schemas/OutMoney'
+            monthly_indicative:
+              $ref: '#/components/schemas/OutMoney'
+        payer_of_benefit:
+          enum:
+          - CONTRIBUTION_PAYER
+          - ZUS
+          - null
+        reasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutReason'
+        applied_rules:
+          type: array
+          items:
+            type: string
+        legal_basis:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutLegalRef'
+        explanation:
+          type: string
+          description: Łączne uzasadnienie (szablony reguł, kolejność wg grafu zależności).
+    ProfileId:
+      type: string
+      description: Identyfikator syntetycznego profilu demo (demo/profiles/)
+      examples:
+      - employee_mother
+      - self_employed_debt
+      - father_takeover
+    CaseSummary:
+      type: object
+      required:
+      - case_id
+      - title
+      - source
+      - has_expected
+      properties:
+        case_id:
+          type: string
+        title:
+          type: string
+        event_type:
+          type: string
+        source:
+          enum:
+          - SYNTHETIC
+          - ZUS_SAMPLE
+          description: ZUS_SAMPLE tylko po zgodzie mentora (M02)
+        has_expected:
+          type: boolean
+    CaseList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CaseSummary'
+    CaseExpected:
+      type: object
+      description: Oczekiwany wynik z decyzji ZUS (tylko wartości wprost z dokumentów)
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        benefit_type:
+          type: string
+        leave_type:
+          type:
+          - string
+          - 'null'
+        period_from:
+          type:
+          - string
+          - 'null'
+          format: date
+        period_to:
+          type:
+          - string
+          - 'null'
+          format: date
+        base_amount:
+          oneOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        rate:
+          type:
+          - string
+          - 'null'
+        total_amount:
+          oneOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+    CaseDetail:
+      type: object
+      required:
+      - summary
+      - input
+      properties:
+        summary:
+          $ref: '#/components/schemas/CaseSummary'
+        input:
+          $ref: '#/components/schemas/EvaluateRequest'
+        expected:
+          oneOf:
+          - $ref: '#/components/schemas/CaseExpected'
+          - type: 'null'
+    ComparisonItem:
+      type: object
+      required:
+      - field
+      - match
+      properties:
+        field:
+          type: string
+        expected:
+          type:
+          - string
+          - 'null'
+        actual:
+          type:
+          - string
+          - 'null'
+        match:
+          type: boolean
+        match_with_tolerance:
+          type:
+          - boolean
+          - 'null'
+          description: Kwoty z tolerancją ±0,01 zł/dzień (GAP-001)
+    CaseEvaluation:
+      type: object
+      required:
+      - case_id
+      - result
+      - comparison
+      - overall_match
+      properties:
+        case_id:
+          type: string
+        result:
+          $ref: '#/components/schemas/EvaluateResponse'
+        comparison:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComparisonItem'
+        overall_match:
+          enum:
+          - MATCH
+          - MATCH_WITH_TOLERANCE
+          - MISMATCH
+          - NO_EXPECTED
+    CaseUploadResult:
+      type: object
+      required:
+      - upload_id
+      - extracted_input
+      - missing_fields
+      - extraction_method
+      properties:
+        upload_id:
+          type: string
+        extracted_input:
+          $ref: '#/components/schemas/EvaluateRequest'
+        missing_fields:
+          type: array
+          items:
+            type: string
+        extraction_method:
+          enum:
+          - FIXTURE_MATCH
+          - MANUAL_REQUIRED
+          - AI_EXTRACTION
+          description: AI_EXTRACTION tylko po zgodzie mentora (M16e) — funkcja oznaczona jako AI
+        warnings:
+          type: array
+          items:
+            type: string
+    Parameter:
+      type: object
+      required:
+      - name
+      - value
+      - unit
+      - source
+      - version
+      properties:
+        name:
+          type: string
+        value:
+          description: Liczba jako string dziesiętny, liczba całkowita, tabela (obiekt) lub null
+        unit:
+          type: string
+        source:
+          type: string
+        status:
+          enum:
+          - CONFIRMED
+          - UNCONFIRMED
+          - MISSING
+          - null
+        valid_from:
+          type:
+          - string
+          - 'null'
+          format: date
+        overridden:
+          type: boolean
+        version:
+          type: integer
+          minimum: 1
+    ParameterList:
+      type: object
+      required:
+      - ruleset_version
+      - parameters_version
+      - parameters
+      properties:
+        ruleset_version:
+          type: string
+        parameters_version:
+          type: integer
+          minimum: 1
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parameter'
+    ParameterUpdate:
+      type: object
+      required:
+      - base_parameters_version
+      - changes
+      properties:
+        base_parameters_version:
+          type: integer
+          minimum: 1
+          description: Wersja, na której opiera się zmiana — konflikt → 409
+        changes:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required:
+            - name
+            - value
+            - reason
+            properties:
+              name:
+                type: string
+              value: {}
+              valid_from:
+                type:
+                - string
+                - 'null'
+                format: date
+              reason:
+                type: string
+                minLength: 3
+                description: np. odwołanie do wpisu w docs/mentors.md
+    SimLoginRequest:
+      type: object
+      required:
+      - profile_id
+      properties:
+        profile_id:
+          $ref: '#/components/schemas/ProfileId'
+    SimLoginResponse:
+      type: object
+      required:
+      - simulated
+      - session_token
+      - profile_id
+      - display_name
+      properties:
+        simulated: &id003
+          const: true
+          description: Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+        session_token:
+          type: string
+        profile_id:
+          $ref: '#/components/schemas/ProfileId'
+        display_name:
+          type: string
+          description: Fikcyjne imię z profilu demo
+        role:
+          type: string
+    SimZusProfile:
+      type: object
+      required:
+      - simulated
+      - profile_id
+      - data
+      properties:
+        simulated: *id003
+        profile_id:
+          $ref: '#/components/schemas/ProfileId'
+        data:
+          $ref: '#/components/schemas/EvaluateRequest'
+          description: 'Fragment wejścia silnika: insurance, payer, income_history, benefit_history'
+    SimEzla:
+      type: object
+      required:
+      - certificate_id
+      - from
+      - to
+      - codes
+      properties:
+        certificate_id:
+          type: string
+        issued_at:
+          type: string
+          format: date
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        codes:
+          type: array
+          items:
+            enum:
+            - A
+            - B
+            - C
+            - D
+            - E
+    SimEzlaList:
+      type: object
+      required:
+      - simulated
+      - certificates
+      properties:
+        simulated: *id003
+        certificates:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimEzla'
+    SimDebtCertificate:
+      type: object
+      required:
+      - simulated
+      - as_of
+      - amount
+      - threshold
+      - exceeds_threshold
+      properties:
+        simulated: *id003
+        certificate_number:
+          type: string
+        as_of:
+          type: string
+          format: date
+        amount:
+          $ref: '#/components/schemas/Money'
+        threshold:
+          $ref: '#/components/schemas/Money'
+        exceeds_threshold:
+          type: boolean
+        rule_id:
+          const: GEN-EXCL-001
+    SimPueQuestion:
+      type: object
+      required:
+      - profile_id
+      - topic
+      - question
+      properties:
+        profile_id:
+          $ref: '#/components/schemas/ProfileId'
+        topic:
+          enum:
+          - MATERNITY
+          - PARENTAL
+          - SICKNESS
+          - DOCUMENTS
+          - OTHER
+        question:
+          type: string
+          minLength: 3
+          maxLength: 2000
+    SimPueTicket:
+      type: object
+      required:
+      - simulated
+      - ticket_id
+      - status
+      properties:
+        simulated: *id003
+        ticket_id:
+          type: string
+        status:
+          const: RECEIVED
+        expected_response_days:
+          type: integer
+    SimApplicationRequest:
+      type: object
+      required:
+      - profile_id
+      - application_type
+      - recipient
+      - fields
+      properties:
+        profile_id:
+          $ref: '#/components/schemas/ProfileId'
+        application_type:
+          enum:
+          - ZAM
+          - LEAVE_MATERNITY_PRE_BIRTH
+          - LEAVE_MATERNITY_RESIGNATION
+          - LEAVE_MATERNITY_TRANSFER
+          - LEAVE_SUPPLEMENTARY_MATERNITY
+          - LEAVE_PARENTAL
+          - LEAVE_PARENTAL_PART_TIME_WORK
+          - LEAVE_PATERNITY
+          - LEAVE_MATERNITY_LIKE
+          description: Wnioski urlopowe wg rozporządzenia z 11.03.2025 (ROZP_WN § 2–18); ZAM — wniosek o zasiłek
+        recipient:
+          enum:
+          - EMPLOYER
+          - ZUS
+        planned_start:
+          type:
+          - string
+          - 'null'
+          format: date
+        fields:
+          type: object
+          additionalProperties: true
+        attachments:
+          type: array
+          items:
+            type: string
+          description: Kody dokumentów (zus_rules/07 § 7)
+    SimApplicationResult:
+      type: object
+      required:
+      - simulated
+      - application_id
+      - status
+      - recipient
+      properties:
+        simulated: *id003
+        application_id:
+          type: string
+        status:
+          const: SUBMITTED_SIMULATED
+        recipient:
+          enum:
+          - EMPLOYER
+          - ZUS
+        deadline_check:
+          type:
+          - object
+          - 'null'
+          properties:
+            ok:
+              type: boolean
+            deadline:
+              type: string
+              format: date
+            rule_id:
+              type: string
+        missing_attachments:
+          type: array
+          items:
+            type: string
+    SimBirthCertificateRequest:
+      type: object
+      required:
+      - birth_date
+      - copy_type
+      - delivery
+      properties:
+        birth_date:
+          type: string
+          format: date
+        copy_type:
+          enum:
+          - SHORT
+          - FULL
+        delivery:
+          enum:
+          - ELECTRONIC
+          - REGISTRY_OFFICE_PICKUP
+    SimBirthCertificateResult:
+      type: object
+      required:
+      - simulated
+      - request_id
+      - status
+      - info_url
+      properties:
+        simulated: *id003
+        request_id:
+          type: string
+        status:
+          const: SUBMITTED_SIMULATED
+        info_url:
+          type: string
+          format: uri
+        note:
+          type: string
+    ContentBlock:
+      type: object
+      required:
+      - id
+      - kind
+      - title
+      - body_md
+      description: Treść przewodnika (frontend/src/content/*.json — właściciel BA, interfejs I4)
+      properties:
+        id:
+          type: string
+          pattern: ^[a-z0-9-]+$
+        kind:
+          enum:
+          - GUIDE
+          - RISK
+          - SUPPORT_ORG
+          - LEGAL_PROTECTION
+          - LINK
+          - SENSITIVE
+        title:
+          type: string
+        body_md:
+          type: string
+        situations:
+          type: array
+          items:
+            type: string
+          description: np. STILLBIRTH, PREMATURE, MISCARRIAGE, SELF_EMPLOYED
+        rule_ids:
+          type: array
+          items:
+            type: string
+        legal_basis:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalRef'
+        links:
+          type: array
+          items:
+            type: object
+            required:
+            - label
+            - url
+            properties:
+              label:
+                type: string
+              url:
+                type: string
+                format: uri
+        sensitive:
+          type: boolean
+          default: false
+        reviewed_by:
+          type:
+          - string
+          - 'null'
+  securitySchemes:
+    AdminToken:
+      type: apiKey
+      in: header
+      name: X-Admin-Token
+      description: 'Prosty token panelu admina (z .env ADMIN_TOKEN). Produkcyjnie: SSO ZUS.'

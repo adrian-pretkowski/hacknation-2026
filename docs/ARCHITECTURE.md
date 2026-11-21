@@ -23,7 +23,7 @@ flowchart LR
 ## Komponenty
 | Komponent | Ścieżka | Odpowiedzialność | Stan |
 |---|---|---|---|
-| Kontrakt API | `contracts/openapi.yaml` | Jedno źródło kontraktu BE/FE (właściciel: Integrator) | P0 slice: `/api/health`, `/api/evaluate` |
+| Kontrakt API | `contracts/openapi.yaml` | Jedno źródło kontraktu BE/FE (właściciel: Integrator) | **v1**: 14 operacji — `implemented`: `/api/health`, `/api/evaluate`; `planned`: sprawy, admin, symulacje (`x-task` wskazuje zadanie). Modele = `zus_rules/04`/`05` (`In*`/`Out*`) |
 | Specyfikacja prawa | `zus_rules/` | Reguły YAML, schematy wejścia/wyjścia, obliczenia, testy, luki | gotowa (audyt 0 błędów) |
 | Silnik | `backend/app/engine/` | Deterministyczna ewaluacja reguł (logika Kleene) | **slice_v0** (podzbiór, tymczasowy) |
 | Parametry | `backend/app/core/params.py` | Wartości liczbowe wyłącznie z `meta.parameters` | odczyt; admin — BE2-05 |
