@@ -11,7 +11,7 @@ Nie każdy użytkownik chce przejść cały kreator. Część osób wie, jakiego
 |---|---|---|
 | 1 | Ekran startowy: sekcja **„Od czego chcesz zacząć?”** z dwiema kartami wyboru: **„Sprawdź, co Ci przysługuje”** (kreator → plan, przycisk „Zaczynamy →”) i **„Złóż pisma szybko”** (przycisk „Wybierz pismo →”). Droga „pisma” to ekran **„Które pismo chcesz złożyć?”** z kafelkami pism (ikona z symbolem, nazwa, do czego służy, **kiedy złożyć**, **kto wypełnia**) | zrobione (FE1-11) |
 | 2 | Te same kafelki na podsumowaniu wyniku kreatora (sekcja **„Pisma do wypełnienia”** pod „Co i gdzie złożyć”). Widać **tylko pisma pasujące do wyniku** (`missing_documents.doc_type`, etykieta „Pasuje do Twojego planu”); pozostałe są zwinięte pod przyciskiem **„Pokaż pozostałe pisma (N)”** / „Ukryj pozostałe pisma”. Gdy nic nie pasuje — komunikat „Do Twojego aktualnego planu nie pasuje żadne z tych pism…” i ten sam przycisk „Pokaż pozostałe pisma (5)” | zrobione (FE1-11, zwijanie: FE1-16) |
-| 3 | Wypełnianie pisma formularzem (prefill z odpowiedzi kreatora, wysyłka jako SYMULACJA przez `/api/sim/applications`) | **osobne zadanie — do zdefiniowania**; teraz kafelek otwiera ekran pisma z opisem i informacją „w przygotowaniu” |
+| 3 | Wypełnianie pisma formularzem: formularz generowany z metadanych pól PDF (`docs/wnioski-pdf/*_pola.json`), wszystkie pola wzoru (najważniejsze w sekcjach, reszta w „Pozostałe pola formularza” wg stron, tabele jako siatka); prefill z konta testowego (SYMULACJA) i odpowiedzi kreatora; puste pola wymagane oznaczone „Uzupełnij”; przyciski **Anuluj** / **Prześlij** → walidacja → wypełniony PDF pobierany lokalnie + potwierdzenie „Hej, Twoje pismo … zostało wysłane do ZUS!” (SYMULACJA) | zrobione (FE1-23) |
 
 ## Pisma (kolejność i grupy)
 
@@ -34,9 +34,10 @@ Kolor ikony: zielony — wypełniasz Ty, granatowy — wypełnia płatnik skład
 
 ## Implementacja
 - Katalog pism: `frontend/src/features/documents/forms.ts` (`FORMS`, `FORM_GROUPS`, `formsForDocTypes`).
-- Kafelki i ekran pisma: `frontend/src/features/documents/FormPicker.tsx` (`FormPicker`, `FormIcon`, `FormDetail` — w etapie 3 tu trafi formularz).
+- Kafelki i ekran pisma: `frontend/src/features/documents/FormPicker.tsx` (`FormPicker`, `FormIcon`, `FormDetail` z formularzem).
+- Etap 3 (FE1-23): `FormFill.tsx` (formularz, walidacja, potwierdzenie), `formSpecs.ts` (sekcje, etykiety, pola wymagane — po krótkim ID pola `p1_000`), `prefill.ts` (konto testowe + kreator; fikcyjne dane osobowe), `pdfForm.ts` (pdf-lib, D34). Szablony: `frontend/public/forms/<KOD>.pdf|.json` (kopie z `docs/wnioski-pdf/` — po zmianie wzoru skopiuj oba pliki), czcionka `public/forms/fonts/DejaVuSans.ttf` (polskie znaki).
 - Wybór drogi: `frontend/src/features/main-flow/wizard/Intro.tsx` (`PathCard`); widoki `forms` / `form`: `Wizard.tsx`; sekcja na wyniku: `Results.tsx` (`FormsToFill`).
-- E2E: `e2e/scenariusze/14-szybkie-pisma.md`, `17-pisma-dopasowane-do-planu.md` (zwijanie, widok komputera).
+- E2E: `e2e/scenariusze/14-szybkie-pisma.md`, `17-pisma-dopasowane-do-planu.md` (zwijanie, widok komputera), `19-wypelnienie-pisma.md` (walidacja, Anuluj, wysyłka z kontem testowym).
 
 ## Opieka nad rodzicami (FE1-16, zgłoszone 2026-11-21)
 Wsparcie psychiczne i informacja o pomocy to pokazanie, że rodzice są dla nas ważni — mają pierwszeństwo przed kwotami:
@@ -45,6 +46,7 @@ Wsparcie psychiczne i informacja o pomocy to pokazanie, że rodzice są dla nas 
 - Wszystkie przyciski mają kursor „rączki” (`globals.css`, Tailwind 4 domyślnie go nie ustawia).
 
 ## Otwarte
-- Etap 3: definicja pól formularzy (ROZP_DOK zał. 1, 6; Z-3 zał. 2; Z-3a zał. 3), prefill z kreatora, wysyłka SYMULACJA — osobne zadanie (powiązane z FE2-04).
+- Etap 3 (FE1-23): wysyłka jest lokalną SYMULACJĄ w przeglądarce — `POST /api/sim/applications` obsługuje tylko ZAM i wnioski urlopowe (kontrakt), więc pisma Z-3/Z-3a/ZAS-12/ZAS-53 wymagałyby zmiany kontraktu (INT). Kwoty i okresy urlopów nie są uzupełniane z podglądu — prosimy użytkownika o wpis.
+- Instrukcja Z-3 w `docs/wnioski-pdf/z3/` opisuje pkt 2 jako „umowa terminowa” — na wzorze to „umowa o pracę tymczasową” (formularz używa treści wzoru).
 - ZAS-12 — potwierdzić z mentorem zakres i czy pokazywać w ścieżce rodzica (wypełnia płatnik).
 - Silnik nie zwraca `doc_type` dla ZAS-12; podgląd FE (`preview/engine.ts`) nie zwraca Z-3a ani ZAS-53 — wyróżnienie tych pism na wyniku pojawi się, gdy wyniki przejdą na silnik API (FE1-01).

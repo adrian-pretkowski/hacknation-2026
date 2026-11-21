@@ -1,0 +1,398 @@
+[
+ {
+  "name": "p1_000_txt_nip",
+  "page": 1,
+  "type": "comb(10)",
+  "label_guess": "NIP",
+  "rect": [
+   239.2,
+   282.0,
+   417.2,
+   299.2
+  ]
+ },
+ {
+  "name": "p1_001_txt_regon",
+  "page": 1,
+  "type": "comb(14)",
+  "label_guess": "REGON",
+  "rect": [
+   239.2,
+   308.8,
+   488.8,
+   326.0
+  ]
+ },
+ {
+  "name": "p1_002_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   344.5,
+   435.0,
+   361.8
+  ]
+ },
+ {
+  "name": "p1_003_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   380.2,
+   552.2,
+   397.5
+  ]
+ },
+ {
+  "name": "p1_004_txt_nazwa_albo_imie_i_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa albo imię i nazwisko",
+  "rect": [
+   239.2,
+   416.0,
+   552.2,
+   433.2
+  ]
+ },
+ {
+  "name": "p1_005_txt_ulica",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Ulica",
+  "rect": [
+   239.2,
+   443.2,
+   552.2,
+   460.5
+  ]
+ },
+ {
+  "name": "p1_006_txt_numer_domu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer domu",
+  "rect": [
+   239.2,
+   470.0,
+   310.0,
+   487.2
+  ]
+ },
+ {
+  "name": "p1_007_txt_numer_lokalu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer lokalu",
+  "rect": [
+   400.0,
+   470.0,
+   470.8,
+   487.2
+  ]
+ },
+ {
+  "name": "p1_008_txt_kod_pocztowy",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Kod pocztowy",
+  "rect": [
+   239.2,
+   496.8,
+   310.0,
+   514.0
+  ]
+ },
+ {
+  "name": "p1_009_txt_miejscowosc",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Miejscowość",
+  "rect": [
+   400.0,
+   496.8,
+   552.2,
+   514.0
+  ]
+ },
+ {
+  "name": "p1_010_txt_nazwa_panstwa",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa państwa",
+  "rect": [
+   239.2,
+   523.8,
+   552.2,
+   541.0
+  ]
+ },
+ {
+  "name": "p1_011_txt_numer_telefonu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer telefonu",
+  "rect": [
+   239.2,
+   559.5,
+   552.2,
+   576.5
+  ]
+ },
+ {
+  "name": "p1_012_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   627.2,
+   435.0,
+   644.5
+  ]
+ },
+ {
+  "name": "p1_013_txt_data_urodzenia",
+  "page": 1,
+  "type": "comb(8)",
+  "label_guess": "Data urodzenia",
+  "rect": [
+   239.2,
+   654.0,
+   381.5,
+   671.2
+  ]
+ },
+ {
+  "name": "p1_014_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   697.2,
+   552.2,
+   714.5
+  ]
+ },
+ {
+  "name": "p1_015_txt_imie",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Imię",
+  "rect": [
+   239.2,
+   733.0,
+   552.2,
+   750.2
+  ]
+ },
+ {
+  "name": "p1_016_txt_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwisko",
+  "rect": [
+   239.2,
+   759.8,
+   552.2,
+   777.0
+  ]
+ },
+ {
+  "name": "p2_017_txt_ulica",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Ulica",
+  "rect": [
+   239.2,
+   95.5,
+   552.2,
+   112.8
+  ]
+ },
+ {
+  "name": "p2_018_txt_numer_domu",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Numer domu",
+  "rect": [
+   239.2,
+   122.2,
+   310.0,
+   139.5
+  ]
+ },
+ {
+  "name": "p2_019_txt_numer_lokalu",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Numer lokalu",
+  "rect": [
+   400.0,
+   122.2,
+   470.8,
+   139.5
+  ]
+ },
+ {
+  "name": "p2_020_txt_kod_pocztowy",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Kod pocztowy",
+  "rect": [
+   239.2,
+   149.2,
+   310.0,
+   166.2
+  ]
+ },
+ {
+  "name": "p2_021_txt_miejscowosc",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Miejscowość",
+  "rect": [
+   400.0,
+   149.2,
+   552.2,
+   166.2
+  ]
+ },
+ {
+  "name": "p2_022_txt_nazwa_panstwa",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Nazwa państwa",
+  "rect": [
+   239.2,
+   176.0,
+   552.2,
+   193.2
+  ]
+ },
+ {
+  "name": "p2_023_txt_rachunek_bankowy",
+  "page": 2,
+  "type": "comb(26)",
+  "label_guess": "Rachunek bankowy",
+  "rect": [
+   43.0,
+   257.0,
+   506.8,
+   274.0
+  ]
+ },
+ {
+  "name": "p2_024_chk_zasilek_chorobowy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek chorobowy",
+  "rect": [
+   43.0,
+   345.8,
+   60.2,
+   363.0
+  ]
+ },
+ {
+  "name": "p2_025_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   372.5,
+   552.5,
+   389.8
+  ]
+ },
+ {
+  "name": "p2_026_chk_zasilek_opiekunczy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek opiekuńczy",
+  "rect": [
+   43.0,
+   408.2,
+   60.2,
+   425.5
+  ]
+ },
+ {
+  "name": "p2_027_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   435.0,
+   552.5,
+   452.2
+  ]
+ },
+ {
+  "name": "p2_028_chk_tak",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   275.0,
+   516.0,
+   292.2,
+   533.2
+  ]
+ },
+ {
+  "name": "p2_029_chk_nie",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   346.5,
+   516.0,
+   363.8,
+   533.2
+  ]
+ },
+ {
+  "name": "p2_030_txt_zatrudnienie_tytul_ubezpieczenia_ustal_z",
+  "page": 2,
+  "type": "comb(8)",
+  "label_guess": "Zatrudnienie / tytuł ubezpieczenia ustał z dniem:",
+  "rect": [
+   275.0,
+   542.8,
+   417.2,
+   560.0
+  ]
+ },
+ {
+  "name": "p2_031_txt_tytul_ubezpieczenia_trwa_nadal_ale_ubezp",
+  "page": 2,
+  "type": "comb(8)",
+  "label_guess": "Tytuł ubezpieczenia trwa nadal, ale ubezpieczenie chorobowe ustało/ustanie z dniem:",
+  "rect": [
+   400.0,
+   578.5,
+   542.2,
+   595.8
+  ]
+ },
+ {
+  "name": "p2_032_txt_data",
+  "page": 2,
+  "type": "comb(8)",
+  "label_guess": "Data",
+  "rect": [
+   78.8,
+   711.5,
+   221.0,
+   728.8
+  ]
+ }
+]
