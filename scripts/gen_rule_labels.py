@@ -1,9 +1,12 @@
-"""Generuje frontend/src/content/rule_labels.json z zus_rules/03_rules.yaml.
+"""Generuje frontend/src/features/main-flow/rule_labels.json z zus_rules/03_rules.yaml.
 
-Dla każdej reguły: krótki opis (`name`), opis (`description`, akapit nad „Podstawa”) i podstawa (`source_document — source_location`),
-tak jak w 02_BUSINESS_RULES_CATALOG.md. UI pokazuje je zamiast ID reguły.
-Uruchom po każdej zmianie 03_rules.yaml: `backend\\.venv\\Scripts\\python scripts\\gen_rule_labels.py`
-(albo `npm run gen:rules` w frontend/).
+Dla każdej reguły: krótki opis (`name`), opis (`description`, akapit nad „Podstawa”)
+i podstawa (`source_document — source_location`), tak jak w 02_BUSINESS_RULES_CATALOG.md.
+UI pokazuje je zamiast ID reguły (FE1-17).
+Uruchom po każdej zmianie 03_rules.yaml:
+  Windows: `backend\\.venv\\Scripts\\python scripts\\gen_rule_labels.py` (albo `npm run gen:rules` w frontend/)
+  Linux/Docker: `backend/.venv/bin/python scripts/gen_rule_labels.py`
+Plik leży poza frontend/src/content/ — tam są tylko bloki ContentBlock (test_content.py).
 """
 
 from __future__ import annotations
@@ -15,7 +18,7 @@ import yaml
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "zus_rules" / "03_rules.yaml"
-OUT = REPO / "frontend" / "src" / "content" / "rule_labels.json"
+OUT = REPO / "frontend" / "src" / "features" / "main-flow" / "rule_labels.json"
 
 
 def basis(rule: dict) -> str:

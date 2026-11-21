@@ -1,6 +1,6 @@
 import type { Benefit, EvaluateResponse } from "@/lib/api";
 import { STATUS_LABEL, formatDate, formatMoney, formatRate } from "@/lib/format";
-import { ruleLabel } from "@/lib/rules";
+import { ruleLabel } from "./rules";
 import { RuleList } from "./RuleList";
 
 const STATUS_STYLE: Record<string, string> = {
@@ -27,15 +27,19 @@ function BenefitCard({ benefit }: { benefit: Benefit }) {
         <div><dt className="text-zinc-500">Łącznie za okres</dt><dd data-testid="total" className="text-base font-semibold">{formatMoney(benefit.total_amount_exact)}</dd></div>
       </dl>
       <ul className="mt-4 space-y-2 text-sm">
-        {benefit.reasons.map((reason) => (
-          <li key={reason.code} className="rounded bg-zinc-50 p-2">
-            {reason.message}
-            <span className="block text-xs text-zinc-500">
-              {ruleLabel(reason.rule_id)?.name ?? reason.rule_id} · {reason.legal_basis?.map((l) => `${l.document} ${l.location}`).join("; ") || ruleLabel(reason.rule_id)?.basis}
-              {ruleLabel(reason.rule_id) && <span className="block">{ruleLabel(reason.rule_id)!.description}</span>}
-            </span>
-          </li>
-        ))}
+        {benefit.reasons.map((reason) => {
+          const rule = ruleLabel(reason.rule_id);
+          const basis = reason.legal_basis?.map((l) => `${l.document} ${l.location}`).join("; ") || rule?.basis;
+          return (
+            <li key={reason.code} className="rounded bg-zinc-50 p-2">
+              {reason.message}
+              <span className="block text-xs text-zinc-500" title={reason.rule_id}>
+                {rule?.name ?? reason.rule_id} · {basis}
+                {rule && <span className="block">{rule.description}</span>}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </article>
   );
