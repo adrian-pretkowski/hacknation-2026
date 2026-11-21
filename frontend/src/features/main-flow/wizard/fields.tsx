@@ -41,13 +41,34 @@ export function Choice<T extends string>({ legend, hint, value, options, onChang
   );
 }
 
-export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+export function Field({ label, hint, children, error, errorId }: {
+  label: string; hint?: string; children: React.ReactNode;
+  /** FE1-10: komunikat walidacji pod polem (pole wskazuje go przez aria-describedby = errorId). */
+  error?: string; errorId?: string;
+}) {
   return (
-    <label className="block text-sm font-medium">
-      {label}
-      {children}
-      {hint && <span className="mt-1 block text-xs font-normal text-zinc-600">{hint}</span>}
-    </label>
+    <div>
+      <label className="block text-sm font-medium">
+        {label}
+        {children}
+        {hint && <span className="mt-1 block text-xs font-normal text-zinc-600">{hint}</span>}
+      </label>
+      {error && <p id={errorId} role="alert" className="mt-1 text-sm text-zus-red">{error}</p>}
+    </div>
+  );
+}
+
+/** FE1-10: pole daty z walidacją — aria-invalid i aria-describedby wskazują komunikat pod polem. */
+export function DateField({ label, hint, value, onChange, error }: {
+  label: string; hint?: string; value: string; onChange: (v: string) => void; error?: string;
+}) {
+  const errorId = useId();
+  return (
+    <Field label={label} hint={hint} error={error} errorId={errorId}>
+      <input type="date" className={`${inputCls} ${error ? "border-zus-red" : ""}`} value={value}
+        aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined}
+        onChange={(e) => onChange(e.target.value)} />
+    </Field>
   );
 }
 
@@ -72,14 +93,17 @@ export const TRI_OPTIONS = [
 ];
 
 /** Suwak z polem liczbowym obok (precyzyjna wartość). Pusta wartość = „nie podano” (UNKNOWN w silniku). */
-export function Slider({ label, hint, value, onChange, min, max, step = 1, unit, emptyLabel = "nie podano", money = false }: {
+export function Slider({ label, hint, value, onChange, min, max, step = 1, unit, emptyLabel = "nie podano", money = false, describedBy }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void;
   min: number; max: number; step?: number; unit: string; emptyLabel?: string;
+  /** FE1-10: id komunikatu walidacji (dokładany do aria-describedby). */
+  describedBy?: string;
   /** Kwota w zł: pole tekstowe przyjmuje grosze (przecinek lub kropka), wyświetlanie przez lib/format. */
   money?: boolean;
 }) {
   const id = useId();
   const hintId = `${id}-hint`;
+  const described = [hint ? hintId : null, describedBy ?? null].filter(Boolean).join(" ") || undefined;
   const normalized = value.replace(",", ".");
   const valid = money ? /^\d+(\.\d{1,2})?$/.test(normalized) : value !== "";
   const num = !valid || Number.isNaN(Number(normalized)) ? null : Number(normalized);
@@ -95,11 +119,11 @@ export function Slider({ label, hint, value, onChange, min, max, step = 1, unit,
       </div>
       <div className="mt-2 flex items-center gap-3">
         <input id={id} type="range" min={min} max={max} step={step} value={num ?? min}
-          aria-valuetext={num === null ? emptyLabel : show(normalized)} aria-describedby={hint ? hintId : undefined}
+          aria-valuetext={num === null ? emptyLabel : show(normalized)} aria-describedby={described} aria-invalid={describedBy ? true : undefined}
           className={`h-2 w-full cursor-pointer accent-zus-green-dark ${num === null ? "opacity-50" : ""}`}
           onChange={(e) => onChange(e.target.value)} />
         <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} — wpisz wartość`} placeholder="—"
-          aria-describedby={hint ? hintId : undefined}
+          aria-describedby={described} aria-invalid={describedBy ? true : undefined}
           className={`${money ? "w-28" : "w-20"} shrink-0 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-right text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark`}
           value={value} onChange={(e) => onChange(clean(e.target.value))} />
       </div>
@@ -117,14 +141,17 @@ export function Slider({ label, hint, value, onChange, min, max, step = 1, unit,
 }
 
 /** Lista rozwijana liczb z opcjonalną pozycją „Nie wiem” (pusta wartość). */
-export function NumberSelect({ label, hint, value, onChange, from, to, unit, unknownLabel = "Nie wiem / nie podam" }: {
+export function NumberSelect({ label, hint, value, onChange, from, to, unit, unknownLabel = "Nie wiem / nie podam", describedBy }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void;
   from: number; to: number; unit?: (n: number) => string; unknownLabel?: string | null;
+  /** FE1-10: id komunikatu walidacji (aria-describedby, aria-invalid). */
+  describedBy?: string;
 }) {
   const opts = Array.from({ length: to - from + 1 }, (_, i) => from + i);
   return (
     <Field label={label} hint={hint}>
-      <select className={inputCls} value={value} onChange={(e) => onChange(e.target.value)}>
+      <select className={inputCls} value={value} onChange={(e) => onChange(e.target.value)}
+        aria-describedby={describedBy} aria-invalid={describedBy ? true : undefined}>
         {unknownLabel !== null && <option value="">{unknownLabel}</option>}
         {opts.map((n) => <option key={n} value={String(n)}>{unit ? unit(n) : n}</option>)}
       </select>
