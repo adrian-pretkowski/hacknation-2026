@@ -80,7 +80,8 @@ export function Wizard() {
         ) : (
           <div className="mt-4">
             <FormDetail code={view.code} onBack={() => show(view.from === "result" ? { kind: "result" } : { kind: "forms" })}
-              backLabel={view.from === "result" ? "Wróć do planu" : "Wróć do listy pism"} />
+              backLabel={view.from === "result" ? "Wróć do planu" : "Wróć do listy pism"}
+              answers={view.from === "result" ? a : null} />
           </div>
         )}
       </div>

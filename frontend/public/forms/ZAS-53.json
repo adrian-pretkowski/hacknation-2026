@@ -1,0 +1,374 @@
+[
+ {
+  "name": "p1_000_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   304.2,
+   435.0,
+   321.5
+  ]
+ },
+ {
+  "name": "p1_001_txt_data_urodzenia",
+  "page": 1,
+  "type": "comb(8)",
+  "label_guess": "Data urodzenia",
+  "rect": [
+   239.2,
+   330.0,
+   381.5,
+   347.2
+  ]
+ },
+ {
+  "name": "p1_002_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   373.8,
+   552.2,
+   391.0
+  ]
+ },
+ {
+  "name": "p1_003_txt_imie",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Imię",
+  "rect": [
+   239.2,
+   412.2,
+   552.2,
+   429.5
+  ]
+ },
+ {
+  "name": "p1_004_txt_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwisko",
+  "rect": [
+   239.2,
+   438.0,
+   552.2,
+   455.2
+  ]
+ },
+ {
+  "name": "p1_005_txt_ulica",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Ulica",
+  "rect": [
+   239.2,
+   464.0,
+   552.2,
+   481.2
+  ]
+ },
+ {
+  "name": "p1_006_txt_numer_domu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer domu",
+  "rect": [
+   239.2,
+   489.8,
+   310.0,
+   507.0
+  ]
+ },
+ {
+  "name": "p1_007_txt_numer_lokalu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer lokalu",
+  "rect": [
+   400.0,
+   489.8,
+   470.8,
+   507.0
+  ]
+ },
+ {
+  "name": "p1_008_txt_kod_pocztowy",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Kod pocztowy",
+  "rect": [
+   239.2,
+   515.8,
+   310.0,
+   532.8
+  ]
+ },
+ {
+  "name": "p1_009_txt_miejscowosc",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Miejscowość",
+  "rect": [
+   400.0,
+   515.8,
+   552.2,
+   532.8
+  ]
+ },
+ {
+  "name": "p1_010_txt_nazwa_panstwa",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa państwa",
+  "rect": [
+   239.2,
+   541.5,
+   552.2,
+   558.8
+  ]
+ },
+ {
+  "name": "p1_011_txt_numer_telefonu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer telefonu",
+  "rect": [
+   239.2,
+   576.2,
+   552.2,
+   593.5
+  ]
+ },
+ {
+  "name": "p1_012_txt_nip",
+  "page": 1,
+  "type": "comb(10)",
+  "label_guess": "NIP",
+  "rect": [
+   239.2,
+   635.0,
+   417.2,
+   652.2
+  ]
+ },
+ {
+  "name": "p1_013_txt_regon",
+  "page": 1,
+  "type": "comb(14)",
+  "label_guess": "REGON",
+  "rect": [
+   239.2,
+   661.0,
+   488.8,
+   678.2
+  ]
+ },
+ {
+  "name": "p1_014_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   695.8,
+   435.0,
+   713.0
+  ]
+ },
+ {
+  "name": "p1_015_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   730.5,
+   552.2,
+   747.8
+  ]
+ },
+ {
+  "name": "p1_016_txt_nazwa_albo_imie_i_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa albo imię i nazwisko",
+  "rect": [
+   239.2,
+   765.2,
+   552.2,
+   782.5
+  ]
+ },
+ {
+  "name": "p2_017_txt_rachunek_bankowy",
+  "page": 2,
+  "type": "comb(26)",
+  "label_guess": "Rachunek bankowy",
+  "rect": [
+   43.0,
+   114.8,
+   506.8,
+   131.8
+  ]
+ },
+ {
+  "name": "p2_018_txt_skladam_wniosek_o_przyznanie_zasilku_cho",
+  "page": 2,
+  "type": "multiline",
+  "label_guess": "Składam wniosek o przyznanie zasiłku chorobowego",
+  "rect": [
+   43.0,
+   179.5,
+   552.5,
+   241.5
+  ]
+ },
+ {
+  "name": "p2_019_chk_w_okresie_ubezpieczenia_chorobowego_wypa",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "w okresie ubezpieczenia chorobowego/wypadkowego",
+  "rect": [
+   43.0,
+   280.8,
+   60.2,
+   298.0
+  ]
+ },
+ {
+  "name": "p2_020_chk_po_ustaniu_tytulu_ubezpieczenia_chorobow",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "po ustaniu tytułu ubezpieczenia chorobowego/wypadkowego",
+  "rect": [
+   43.0,
+   307.5,
+   60.2,
+   324.8
+  ]
+ },
+ {
+  "name": "p2_021_txt_po_ustaniu_tytulu_ubezpieczenia_chorobow",
+  "page": 2,
+  "type": "comb(8)",
+  "label_guess": "po ustaniu tytułu ubezpieczenia chorobowego/wypadkowego",
+  "rect": [
+   346.8,
+   307.5,
+   489.0,
+   324.8
+  ]
+ },
+ {
+  "name": "p2_022_chk_choroby_zawodowej",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "choroby zawodowej",
+  "rect": [
+   43.0,
+   372.5,
+   60.2,
+   389.8
+  ]
+ },
+ {
+  "name": "p2_023_chk_wypadku_przy_pracy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "wypadku przy pracy",
+  "rect": [
+   203.8,
+   372.5,
+   221.0,
+   389.8
+  ]
+ },
+ {
+  "name": "p2_024_chk_wypadku_w_drodze_do_pracy_lub_z_pracy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "wypadku w drodze do pracy lub z pracy",
+  "rect": [
+   328.8,
+   372.5,
+   346.0,
+   389.8
+  ]
+ },
+ {
+  "name": "p2_025_chk_tak",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   43.0,
+   399.0,
+   60.2,
+   416.0
+  ]
+ },
+ {
+  "name": "p2_026_chk_nie",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   96.8,
+   399.0,
+   114.0,
+   416.0
+  ]
+ },
+ {
+  "name": "p2_027_txt_nie",
+  "page": 2,
+  "type": "text",
+  "label_guess": "NIE",
+  "rect": [
+   168.0,
+   399.0,
+   552.5,
+   416.0
+  ]
+ },
+ {
+  "name": "p2_028_chk_tak",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   43.0,
+   502.8,
+   60.2,
+   520.0
+  ]
+ },
+ {
+  "name": "p2_029_chk_nie",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   96.8,
+   502.8,
+   114.0,
+   520.0
+  ]
+ },
+ {
+  "name": "p2_030_txt_data",
+  "page": 2,
+  "type": "comb(8)",
+  "label_guess": "Data",
+  "rect": [
+   78.5,
+   617.0,
+   220.8,
+   634.2
+  ]
+ }
+]

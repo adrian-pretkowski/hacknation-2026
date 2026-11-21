@@ -1,8 +1,10 @@
 "use client";
 
 // Kafelki pism (FE1-11): ten sam komponent na ścieżce „Szybkie pisma” i na podsumowaniu wyniku.
-// Klik → onOpen(kod) — ekran pisma (etap 3: wypełnianie formularzem, osobne zadanie).
+// Klik → onOpen(kod) — ekran pisma z formularzem do wypełnienia (etap 3: FE1-19).
 import { useId, useState } from "react";
+import type { Answers } from "@/features/main-flow/wizard/answers";
+import { FormFill } from "./FormFill";
 import { FORM_CODES, FORM_GROUPS, FORMS, type FormCode } from "./forms";
 
 const TONE = {
@@ -115,8 +117,8 @@ export function MatchedFormPicker({ onOpen, recommended, headingLevel = 4 }: {
   );
 }
 
-/** Ekran pojedynczego pisma. Etap 3 (wypełnianie formularzem) — osobne zadanie; teraz: opis i zaślepka. */
-export function FormDetail({ code, onBack, backLabel }: { code: FormCode; onBack: () => void; backLabel: string }) {
+/** Ekran pojedynczego pisma: opis i formularz do wypełnienia (FE1-19) — Anuluj wraca, Prześlij pobiera wypełniony PDF. */
+export function FormDetail({ code, onBack, backLabel, answers = null }: { code: FormCode; onBack: () => void; backLabel: string; answers?: Answers | null }) {
   const f = FORMS[code];
   return (
     <div className="space-y-5">
@@ -131,14 +133,7 @@ export function FormDetail({ code, onBack, backLabel }: { code: FormCode; onBack
           </dl>
         </div>
       </section>
-      <section role="status" className="rounded-2xl border border-dashed border-zus-navy/40 bg-zus-blue-50 p-5 text-sm text-zus-navy">
-        <h3 className="font-semibold">Wypełnianie {code} — w przygotowaniu</h3>
-        <p className="mt-1">Wkrótce wypełnisz tu pismo krok po kroku, z danymi z kreatora. Wysyłka będzie SYMULACJĄ — nic nie trafi do ZUS.</p>
-      </section>
-      <button type="button" onClick={onBack}
-        className="rounded-full border border-zinc-300 bg-white px-5 py-2.5 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
-        ← {backLabel}
-      </button>
+      <FormFill key={code} code={code} answers={answers} onCancel={onBack} cancelLabel={`← ${backLabel}`} />
     </div>
   );
 }

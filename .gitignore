@@ -5,6 +5,8 @@ cases/
 !demo/cases/
 *.pdf
 !docs/**/*.pdf
+# szablony pism do wypełnienia w przeglądarce (FE1-19) — wzory formularzy, nie dane spraw
+!frontend/public/forms/*.pdf
 
 # Sekrety
 .env
