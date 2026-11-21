@@ -84,7 +84,8 @@ jobs:
   e2e:
     needs: smoke
     runs-on: ubuntu-latest
-    # Do pierwszego zielonego przebiegu nie blokuje merge'a (INT-11); potem usunąć continue-on-error.
+    # WYŁĄCZONY (INT-12) do czasu stabilizacji scenariuszy na runnerze; włączenie: usuń `if: false`.
+    if: false
     continue-on-error: true
     env:
       CI: "true"

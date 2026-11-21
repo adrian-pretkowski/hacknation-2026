@@ -53,3 +53,4 @@ Kolejność źródeł: (1) treść zadania i regulamin (`docs/CHALLENGE.md`) →
 
 ## Wymagania zadania, które są nienaruszalne (sprawdzić przy każdej zmianie)
 RWD · demo www z wyborem/uploadem przykładowych wniosków i weryfikacją ubezpieczenia · kalkulatory a–j (zalecany jeden zintegrowany) · wszystkie integracje wyłącznie symulowane · panel admina parametrów · REST · wskazanie funkcji z AI · rozwiązania zewnętrzne w prezentacji · film ≤3 min w otwartym repo · prezentacja ≤10 slajdów · poufność spraw ZUS.
+| D28 | Heroku (INT-12): dwie aplikacje kontenerowe (backend, frontend) wdrażane z `deploy.yml` po tagu `vX.Y.Z`; backend słucha na `$PORT`, adres API frontendu wpisany w buildzie, CORS ustawiany przez workflow; sekret `HEROKU_API_KEY` w GitHub Secrets, nazwy aplikacji w zmiennych repo; instrukcja `docs/DEPLOY.md`. Bez nowych zależności w repo. | **przyjęte** |
