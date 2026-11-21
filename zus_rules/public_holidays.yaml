@@ -1,12 +1,13 @@
 # Dni ustawowo wolne od pracy w Polsce - lata 2026–2031 (parametr PUBLIC_HOLIDAYS, 03_rules.yaml).
 # Używane do przesunięcia terminu przypadającego w dzień wolny na następny dzień roboczy (M15 d, APP-DL-001).
 # Źródło: ustawa z 18.01.1951 o dniach wolnych od pracy (niezałączona do materiałów) - lista przygotowana przez zespół
-# (święta stałe + ruchome liczone od daty Wielkanocy), status UNCONFIRMED: do weryfikacji przed użyciem produkcyjnym.
+# (święta stałe + ruchome liczone od daty Wielkanocy), status CONFIRMED: potwierdzona przez lidera 2026-11-21
+# (docs/mentors.md). Zmiany bez edycji pliku: panel admina (nadpisanie z datą obowiązywania).
 # Wigilia (24.12) - dzień wolny od 2025 r. Niedziele (Wielkanoc, Zielone Świątki) są dniami wolnymi i tak.
 meta:
   parameter: PUBLIC_HOLIDAYS
   years: [2026, 2027, 2028, 2029, 2030, 2031]
-  status: UNCONFIRMED
+  status: CONFIRMED
 holidays:
   2026:
     - {date: 2026-01-01, name: "Nowy Rok"}  # czwartek

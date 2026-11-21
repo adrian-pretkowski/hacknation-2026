@@ -862,7 +862,7 @@ export interface components {
         };
         Parameter: {
             name: string;
-            /** @description Liczba jako string dziesiętny, liczba całkowita, tabela (obiekt) lub null */
+            /** @description Liczba jako string dziesiętny, liczba całkowita, tabela (obiekt), lista dat RRRR-MM-DD (PUBLIC_HOLIDAYS) lub null */
             value: unknown;
             unit: string;
             source: string;

@@ -13,7 +13,7 @@ import { RuleList } from "../main-flow/RuleList";
 import { PARAMS } from "../main-flow/preview/params";
 import { STATUS_HEADLINE } from "../main-flow/wizard/labels";
 import { DEMO_REQUEST } from "./demoRequest";
-import { formatParamValue, paramLabel, unitLabel } from "./paramLabels";
+import { formatIsoDate, formatParamValue, paramLabel, unitLabel } from "./paramLabels";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 const inputCls = "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-zus-navy focus:outline-none focus:ring-2 focus:ring-zus-navy/30";
@@ -22,7 +22,7 @@ const btnGhost = "rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm
 const STATUS_LABEL: Record<string, string> = { CONFIRMED: "potwierdzony", UNCONFIRMED: "niepotwierdzony", MISSING: "brak wartości" };
 
 const isTable = (p: Parameter) => p.value !== null && typeof p.value === "object" && !Array.isArray(p.value);
-const editable = (p: Parameter) => !Array.isArray(p.value); // lista z pliku (PUBLIC_HOLIDAYS) - edycja pliku, nie panelu
+const isDateList = (p: Parameter) => Array.isArray(p.value) || p.unit === "dates"; // PUBLIC_HOLIDAYS (FE1-29)
 
 export function AdminParameters() {
   // demo: bez tokenu (D36) - lista wczytywana od razu po wejściu na stronę
@@ -105,7 +105,15 @@ export function AdminParameters() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <p className="break-words text-sm font-semibold">{paramLabel(p.name)}</p>
-                      <p className="break-words text-sm"><span className="font-medium">{formatParamValue(p.value, p.unit)}</span></p>
+                      <p className="break-words text-sm"><span className="font-medium">{formatParamValue(p.value, p.unit, p.name)}</span></p>
+                      {Array.isArray(p.value) && p.value.length > 0 && (
+                        <details className="mt-1 text-sm">
+                          <summary className="cursor-pointer font-medium text-zus-navy">Pokaż wszystkie dni</summary>
+                          <ul className="mt-1 grid grid-cols-2 gap-x-4 text-xs text-zinc-700 sm:grid-cols-4">
+                            {p.value.map((d) => <li key={String(d)}>{formatIsoDate(String(d))}</li>)}
+                          </ul>
+                        </details>
+                      )}
                       <p className="break-words text-xs text-zinc-600">Podstawa: {p.source}</p>
                       <p className="break-all font-mono text-xs text-zinc-500" title="Kod parametru w silniku reguł">{p.name}</p>
                       <p className="mt-1 flex flex-wrap gap-2 text-xs">
@@ -115,7 +123,7 @@ export function AdminParameters() {
                         <span className="rounded bg-zinc-100 px-1.5 py-0.5">wersja {p.version}</span>
                       </p>
                     </div>
-                    {editable(p) && editing !== p.name && (
+                    {editing !== p.name && (
                       <button type="button" className={`${btnGhost} self-start`} onClick={() => { setEditing(p.name); setSaved(null); }}
                         aria-label={`Zmień: ${paramLabel(p.name)}`}>Zmień</button>
                     )}
@@ -147,7 +155,10 @@ function EditForm({ param, onSave, onCancel }: {
   onSave: (value: unknown, validFrom: string, reason: string) => Promise<void>;
 }) {
   const table = isTable(param);
-  const [value, setValue] = useState(param.value === null ? "" : table ? JSON.stringify(param.value, null, 2) : String(param.value));
+  const dates = isDateList(param);
+  const [value, setValue] = useState(param.value === null ? ""
+    : dates && Array.isArray(param.value) ? param.value.map(String).join("\n")
+      : table ? JSON.stringify(param.value, null, 2) : String(param.value));
   const [validFrom, setValidFrom] = useState("");
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -156,7 +167,11 @@ function EditForm({ param, onSave, onCancel }: {
   const submit = async () => {
     setError(null);
     let parsed: unknown = value.trim();
-    if (table) {
+    if (dates) {
+      // jedna data w wierszu (dopuszczalne też przecinki); walidacja formatu - backend (422 ze wskazaniem pozycji)
+      parsed = value.split(/[\n,;]+/).map((d) => d.trim()).filter(Boolean);
+      if ((parsed as string[]).length === 0) { setError("Podaj co najmniej jedną datę (RRRR-MM-DD)."); return; }
+    } else if (table) {
       try { parsed = JSON.parse(value); } catch { setError("Tabela musi być poprawnym JSON-em (te same klucze)."); return; }
     }
     setBusy(true);
@@ -172,8 +187,11 @@ function EditForm({ param, onSave, onCancel }: {
   return (
     <form className="mt-3 grid gap-3 rounded-md border border-zinc-200 bg-zinc-50 p-3 sm:grid-cols-2" aria-label={`Zmiana: ${paramLabel(param.name)}`}
       onSubmit={(e) => { e.preventDefault(); void submit(); }}>
-      <label className="text-sm font-medium sm:col-span-2">Nowa wartość ({param.unit === "ratio" ? "ułamek dziesiętny, np. 0.815 = 81,5%" : unitLabel(param.unit) || "bez jednostki"})
-        {table
+      <label className="text-sm font-medium sm:col-span-2">Nowa wartość ({dates ? "jedna data RRRR-MM-DD w wierszu - lista zastępuje dotychczasową"
+        : param.unit === "ratio" ? "ułamek dziesiętny, np. 0.815 = 81,5%" : unitLabel(param.unit) || "bez jednostki"})
+        {dates
+          ? <textarea className={`${inputCls} mt-1 font-mono`} rows={8} value={value} onChange={(e) => setValue(e.target.value)} required />
+          : table
           ? <textarea className={`${inputCls} mt-1 font-mono`} rows={4} value={value} onChange={(e) => setValue(e.target.value)} required />
           : <input className={`${inputCls} mt-1`} inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} required autoFocus />}
       </label>

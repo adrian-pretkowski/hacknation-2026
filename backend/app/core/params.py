@@ -92,11 +92,11 @@ class VersionConflict(Exception):
 
 
 def _normalize(name: str, value: Any, field: str) -> Any:
-    """Wartość nadpisania w typie wartości bazowej z YAML (string dziesiętny / liczba całkowita / tabela)."""
+    """Wartość nadpisania w typie wartości bazowej z YAML (string dziesiętny / liczba / tabela / lista dat)."""
     spec = _specs()[name]
     base = spec["value"]
     if spec.get("file"):
-        raise ParameterError(field, "not_editable", f"{name}: lista z pliku {spec['file']} - edycja pliku, nie panelu")
+        return _normalize_dates(name, value, field)
     if isinstance(base, bool) or isinstance(value, bool):
         raise ParameterError(field, "invalid_type", f"{name}: wartość logiczna nieobsługiwana")
     if isinstance(base, dict):
@@ -104,6 +104,23 @@ def _normalize(name: str, value: Any, field: str) -> Any:
             raise ParameterError(field, "invalid_table", f"{name}: tabela musi mieć klucze {sorted(base)}")
         return {k: _normalize_scalar(name, base[k], v, f"{field}.{k}") for k, v in value.items()}
     return _normalize_scalar(name, base, value, field)
+
+
+def _normalize_dates(name: str, value: Any, field: str) -> list[str]:
+    """Lista dat (parametr z pliku, np. PUBLIC_HOLIDAYS - FE1-29): niepusta, każda RRRR-MM-DD; bez duplikatów, rosnąco.
+
+    Nadpisanie zastępuje całą listę z pliku (od ``valid_from``) - jak przy pozostałych parametrach.
+    """
+    if not isinstance(value, list) or not value:
+        raise ParameterError(field, "invalid_dates", f"{name}: wymagana niepusta lista dat RRRR-MM-DD")
+    days = set()
+    for i, item in enumerate(value):
+        try:
+            days.add(date.fromisoformat(str(item).strip()))
+        except ValueError as exc:
+            raise ParameterError(f"{field}.{i}", "invalid_date", f"{name}: {item!r} - data w formacie RRRR-MM-DD") \
+                from exc
+    return [d.isoformat() for d in sorted(days)]
 
 
 def _normalize_scalar(name: str, base: Any, value: Any, field: str) -> Any:

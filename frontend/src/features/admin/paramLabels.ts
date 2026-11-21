@@ -6,7 +6,7 @@ export const PARAM_LABELS: Record<string, string> = {
   // okresy wyczekiwania i ubezpieczenia
   WAITING_DAYS_MANDATORY: "Okres wyczekiwania - ubezpieczenie obowiązkowe",
   WAITING_DAYS_VOLUNTARY: "Okres wyczekiwania - ubezpieczenie dobrowolne",
-  INSURANCE_GAP_MAX_DAYS: "Najdłuższa przerwa w ubezpieczeniu wliczana do okresu wyczekiwania",
+  INSURANCE_GAP_MAX_DAYS: "Najdłuższa przerwa między okresami ubezpieczenia, przy której poprzednie okresy wlicza się do okresu wyczekiwania",
   GRADUATE_WINDOW_DAYS: "Absolwent - czas na objęcie ubezpieczeniem od ukończenia szkoły",
   MANDATORY_HISTORY_YEARS: "Staż ubezpieczenia obowiązkowego zwalniający z okresu wyczekiwania",
   // zasiłek chorobowy
@@ -16,7 +16,7 @@ export const PARAM_LABELS: Record<string, string> = {
   BENEFIT_PERIOD_STD_DAYS: "Okres zasiłkowy - standardowy",
   BENEFIT_PERIOD_PREGNANCY_TB_DAYS: "Okres zasiłkowy - ciąża lub gruźlica",
   AFTER_TITLE_MAX_DAYS: "Najdłuższy zasiłek chorobowy po ustaniu ubezpieczenia",
-  BENEFIT_PERIOD_BREAK_DAYS: "Przerwa, po której liczy się nowy okres zasiłkowy",
+  BENEFIT_PERIOD_BREAK_DAYS: "Najdłuższa przerwa, przy której niezdolność wlicza się do tego samego okresu zasiłkowego",
   SICK_RATE_STD: "Stawka zasiłku chorobowego - standardowa",
   SICK_RATE_FULL: "Stawka zasiłku chorobowego - w ciąży",
   ALCOHOL_EXCLUDED_DAYS: "Dni bez zasiłku przy niezdolności z powodu nadużycia alkoholu",
@@ -34,7 +34,7 @@ export const PARAM_LABELS: Record<string, string> = {
   // urlop i zasiłek macierzyński
   MATERNITY_WEEKS_BY_CHILDREN: "Urlop macierzyński - wymiar wg liczby dzieci urodzonych przy jednym porodzie",
   PRE_BIRTH_MAX_WEEKS: "Urlop macierzyński - najwięcej tygodni przed porodem",
-  MOTHER_MIN_WEEKS_BEFORE_TRANSFER: "Tygodnie, które matka wykorzystuje przed przekazaniem urlopu ojcu",
+  MOTHER_MIN_WEEKS_BEFORE_TRANSFER: "Najmniej tygodni urlopu macierzyńskiego wykorzystanych przez matkę po porodzie przed rezygnacją na rzecz ojca",
   MOTHER_MIN_WEEKS_SPECIAL: "Tygodnie wykorzystane przez matkę przy przejęciu urlopu w szczególnych sytuacjach",
   STILLBIRTH_LEAVE_WEEKS: "Urlop po urodzeniu martwego dziecka",
   CHILD_DEATH_MIN_DAYS: "Najkrótszy urlop po śmierci dziecka (dni od śmierci)",
@@ -45,10 +45,10 @@ export const PARAM_LABELS: Record<string, string> = {
   MATERNITY_LIKE_GUARANTEED_WEEKS: "Urlop na warunkach macierzyńskiego - gwarantowane tygodnie",
   WEEK_AS_DAYS: "Liczba dni w tygodniu urlopu",
   // urlop uzupełniający (wcześniaki, hospitalizacja)
-  SUPP_CAP_WEEK_EARLY: "Urlop uzupełniający - najwięcej tygodni (poród przed 28. tyg. lub masa do progu)",
-  SUPP_CAP_WEEK_PRETERM: "Urlop uzupełniający - najwięcej tygodni (pozostałe wcześniaki / hospitalizacja)",
-  SUPP_TERM_WINDOW_FIRST_DAY: "Urlop uzupełniający - początek okna hospitalizacji (dzień po porodzie)",
-  SUPP_TERM_WINDOW_LAST_DAY: "Urlop uzupełniający - koniec okna hospitalizacji (dzień po porodzie)",
+  SUPP_CAP_WEEK_EARLY: "Urlop uzupełniający - pobyt w szpitalu liczony do upływu tego tygodnia po porodzie (poród przed 28. tyg. ciąży lub masa do progu)",
+  SUPP_CAP_WEEK_PRETERM: "Urlop uzupełniający - pobyt w szpitalu liczony do upływu tego tygodnia po porodzie (pozostałe wcześniaki i dzieci donoszone)",
+  SUPP_TERM_WINDOW_FIRST_DAY: "Urlop uzupełniający - początek okna hospitalizacji dziecka donoszonego",
+  SUPP_TERM_WINDOW_LAST_DAY: "Urlop uzupełniający - koniec okna hospitalizacji dziecka donoszonego",
   SUPP_TERM_MIN_CONSECUTIVE_DAYS: "Urlop uzupełniający - najkrótszy nieprzerwany pobyt w szpitalu",
   SUPP_WEIGHT_THRESHOLD_G: "Urlop uzupełniający - próg masy urodzeniowej",
   SUPP_GESTATION_EARLY_WEEK: "Urlop uzupełniający - poród przed tym tygodniem ciąży",
@@ -64,7 +64,7 @@ export const PARAM_LABELS: Record<string, string> = {
   PARENTAL_MAX_PARTS: "Urlop rodzicielski - najwięcej części",
   PARENTAL_CHILD_AGE_YEAR_LIMIT: "Urlop rodzicielski - do końca roku, w którym dziecko kończy",
   PARENTAL_WORK_MAX_FRACTION: "Urlop rodzicielski - najwyższy wymiar pracy przy łączeniu z urlopem",
-  PARENTAL_EXT_CAP: "Urlop rodzicielski łączony z pracą - najdłuższe wydłużenie",
+  PARENTAL_EXT_CAP: "Urlop rodzicielski łączony z pracą - najdłuższy łączny wymiar",
   // urlop ojcowski
   PATERNITY_WEEKS: "Urlop ojcowski - wymiar",
   PATERNITY_MAX_PARTS: "Urlop ojcowski - najwięcej części",
@@ -108,7 +108,7 @@ export const PARAM_LABELS: Record<string, string> = {
   LEAVE_APP_MATERNITY_LIKE_DAYS_AFTER_ACCEPTANCE: "Wniosek o urlop na warunkach macierzyńskiego - po przyjęciu dziecka",
   // ryzyka (parametry projektowe zespołu)
   RISK_WINDOW_DAYS: "Ryzyko: tytuł ubezpieczenia rozpoczęty krótko przed ciążą",
-  RISK_INCREASE_FACTOR: "Ryzyko: wzrost podstawy składek w czasie ciąży (krotność)",
+  RISK_INCREASE_FACTOR: "Ryzyko: podstawa składek w ciąży wyższa niż średnia sprzed ciąży razy ten mnożnik",
   RISK_BASE_MONTHS_BEFORE_PREGNANCY: "Ryzyko: okres porównania podstawy sprzed ciąży",
   ROUNDING_POLICY: "Zasady zaokrąglania kwot",
 };
@@ -138,23 +138,80 @@ export const UNIT_LABELS: Record<string, string> = {
   none: "",
 };
 
+/** Odmiana jednostki przy liczbie całkowitej: [1, 2-4, 5+] + opcjonalny dopisek (np. „przed rozpoczęciem”). */
+const UNIT_FORMS: Record<string, { forms: [string, string, string]; suffix?: string }> = {
+  days: { forms: ["dzień", "dni", "dni"] },
+  weeks: { forms: ["tydzień", "tygodnie", "tygodni"] },
+  months: { forms: ["miesiąc", "miesiące", "miesięcy"] },
+  years: { forms: ["rok", "lata", "lat"] },
+  grams: { forms: ["g", "g", "g"] },
+  days_per_calendar_year: { forms: ["dzień", "dni", "dni"], suffix: "w roku kalendarzowym" },
+  days_after_event: { forms: ["dzień", "dni", "dni"], suffix: "od porodu" },
+  days_before_start: { forms: ["dzień", "dni", "dni"], suffix: "przed rozpoczęciem" },
+  days_before_maternity_end: { forms: ["dzień", "dni", "dni"], suffix: "przed końcem urlopu macierzyńskiego" },
+  days_before_return: { forms: ["dzień", "dni", "dni"], suffix: "przed powrotem do pracy" },
+  days_after_acceptance: { forms: ["dzień", "dni", "dni"], suffix: "od przyjęcia dziecka" },
+  days_before_pregnancy_start: { forms: ["dzień", "dni", "dni"], suffix: "przed początkiem ciąży" },
+  weeks_after_birth: { forms: ["tydzień", "tygodnie", "tygodni"], suffix: "po porodzie" },
+  insured_persons: { forms: ["ubezpieczony", "ubezpieczonych", "ubezpieczonych"] },
+};
+
+/** Klucze tabel (MATERNITY_WEEKS_BY_CHILDREN, PARENTAL_EXT_CAP) po polsku. */
+const TABLE_KEYS: Record<string, string> = {
+  "1": "1 dziecko", "2": "2 dzieci", "3": "3 dzieci", "4": "4 dzieci", "5+": "5 i więcej dzieci",
+  single: "jedno dziecko", multiple: "ciąża mnoga",
+  za_zyciem_single: "„Za życiem” - jedno dziecko", za_zyciem_multiple: "„Za życiem” - ciąża mnoga",
+};
+
+/** Stawki pokazywane jako mnożnik (×), nie jako procent. */
+const FACTOR_PARAMS = new Set(["RISK_INCREASE_FACTOR"]);
+
 export const paramLabel = (name: string) => PARAM_LABELS[name] ?? name;
 export const unitLabel = (unit: string) => UNIT_LABELS[unit] ?? unit;
 
-/** Wartość do wyświetlenia (bez przeliczeń kwot): stawki jako %, tabele jako „klucz: wartość”. */
-export function formatParamValue(value: unknown, unit: string): string {
+const DECIMAL = /^-?\d+(\.\d+)?$/;
+
+function plural(n: number, [one, few, many]: [string, string, string]): string {
+  if (n === 1) return one;
+  const d = n % 10, dd = n % 100;
+  return d >= 2 && d <= 4 && (dd < 12 || dd > 14) ? few : many;
+}
+
+/** Liczba z jednostką po polsku: „15 tygodni po porodzie”, „5. dzień (dzień porodu = 1.)”, „1000 g”. */
+function withUnit(text: string, unit: string): string {
+  if (!DECIMAL.test(text)) return text;
+  const num = text.replace(".", ",");
+  if (unit === "day_number_birth_is_1") return `${num}. dzień (dzień porodu = 1.)`;
+  if (unit === "gestation_week") return `${num}. tydzień ciąży`;
+  const spec = UNIT_FORMS[unit];
+  if (spec && /^\d+$/.test(text)) return [num, plural(Number(text), spec.forms), spec.suffix].filter(Boolean).join(" ");
+  if (unit === "PLN") return `${num} zł`;
+  if (unit === "ratio_of_fte") return `${num} etatu`;
+  return num;
+}
+
+/** Wartość do wyświetlenia (bez przeliczeń kwot): stawki jako %, tabele jako „klucz: wartość”, listy dat - liczba i zakres. */
+export function formatParamValue(value: unknown, unit: string, name = ""): string {
   if (value === null || value === undefined) return "brak wartości";
-  if (Array.isArray(value)) return `${value.length} pozycji`;
+  if (Array.isArray(value)) {
+    const days = value.map(String).sort();
+    return days.length ? `${days.length} dni (${formatIsoDate(days[0])} - ${formatIsoDate(days[days.length - 1])})` : "pusta lista";
+  }
   if (typeof value === "object") {
-    const suffix = unitLabel(unit) ? ` ${unitLabel(unit)}` : "";
-    return Object.entries(value as Record<string, unknown>).map(([k, v]) => `${k}: ${String(v)}`).join(" · ") + suffix;
+    return Object.entries(value as Record<string, unknown>)
+      .map(([k, v]) => `${TABLE_KEYS[k] ?? k}: ${withUnit(String(v), unit)}`).join(" · ");
   }
   const text = String(value);
-  if (unit === "ratio" && /^-?\d+(\.\d+)?$/.test(text)) {
-    return `${shiftDecimal(text, 2)}%`;
+  if (unit === "ratio" && DECIMAL.test(text)) {
+    return FACTOR_PARAMS.has(name) ? `${text.replace(".", ",")}×` : `${shiftDecimal(text, 2)}%`;
   }
-  const num = /^-?\d+(\.\d+)?$/.test(text) ? text.replace(".", ",") : text;
-  return unitLabel(unit) && unit !== "ratio" ? `${num} ${unitLabel(unit)}` : num;
+  return withUnit(text, unit);
+}
+
+/** RRRR-MM-DD → DD.MM.RRRR (bez obiektu Date - bez przesunięć strefy czasowej). */
+export function formatIsoDate(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : iso;
 }
 
 /** Przesunięcie przecinka dziesiętnego na stringu (0.815 → 81,5) - bez arytmetyki zmiennoprzecinkowej. */
