@@ -86,6 +86,9 @@ class Context:
     params: Callable[[str], Any] = _param
     missing: list[str] = field(default_factory=list)
     used_params: set[str] = field(default_factory=set)
+    # lenient: fakt spoza rejestru = UNKNOWN (zapis w ``unregistered``) zamiast KeyError — częściowa ocena reguły
+    lenient: bool = False
+    unregistered: list[str] = field(default_factory=list)
     _cache: dict[tuple[Any, ...], Any] = field(default_factory=dict, repr=False)
 
     def child(self) -> Context:
@@ -114,6 +117,10 @@ class Context:
 
     def fact(self, name: str, **args: Any) -> Any:
         fn = get_fact(name)
+        if fn is None and self.lenient:
+            if name not in self.unregistered:
+                self.unregistered.append(name)
+            return None
         if fn is None:
             raise KeyError(f"Fakt {name} nie jest zaimplementowany (zus_rules/07)")
         seg_key = id(self.segment) if self.segment is not None else None
