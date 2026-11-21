@@ -10,4 +10,5 @@ ARG APP_VERSION=dev
 ENV APP_VERSION=$APP_VERSION
 ENV ZUS_RULES_PATH=/srv/zus_rules/03_rules.yaml
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Heroku podaje port w $PORT (INT-12); lokalnie i w Dockerze 8000.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

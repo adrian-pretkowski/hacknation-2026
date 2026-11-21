@@ -51,6 +51,46 @@ jobs:
           for i in $(seq 1 30); do curl -sf localhost:8000/api/health && break; sleep 1; done
           curl -sf localhost:8000/api/health | grep -q "\"app_version\":\"$APP_VERSION\""
 
-  # TODO (Heroku, po decyzji o układzie aplikacji i dodaniu sekretu HEROKU_API_KEY):
-  # job `deploy` z `needs: build`: push obrazów (heroku container:push/release z APP_VERSION),
-  # potem `curl https://<app>/api/health` musi zwrócić app_version == tag — inaczej job czerwony.
+  # Wymaga: sekret HEROKU_API_KEY oraz zmienne repo HEROKU_APP_BACKEND i HEROKU_APP_FRONTEND (docs/DEPLOY.md).
+  # Bez zmiennych job jest pomijany, więc tag nie kończy się błędem przed konfiguracją Heroku.
+  deploy:
+    needs: [validate, build]
+    if: ${{ vars.HEROKU_APP_BACKEND != '' && vars.HEROKU_APP_FRONTEND != '' }}
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ needs.validate.outputs.version }}
+      HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      BE_APP: ${{ vars.HEROKU_APP_BACKEND }}
+      FE_APP: ${{ vars.HEROKU_APP_FRONTEND }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Heroku CLI i logowanie do rejestru
+        run: |
+          command -v heroku >/dev/null || npm install -g heroku
+          echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+      - name: Adresy aplikacji
+        run: |
+          be_url=$(heroku apps:info -a "$BE_APP" --json | jq -r .app.web_url | sed 's:/*$::')
+          fe_url=$(heroku apps:info -a "$FE_APP" --json | jq -r .app.web_url | sed 's:/*$::')
+          echo "BE_URL=$be_url" >> "$GITHUB_ENV"
+          echo "FE_URL=$fe_url" >> "$GITHUB_ENV"
+      - name: Backend — CORS dla frontendu
+        run: heroku config:set CORS_ORIGINS="$FE_URL" -a "$BE_APP"
+      - name: Backend — build, push, release
+        run: |
+          docker build -f backend/Dockerfile --build-arg APP_VERSION="$APP_VERSION" -t registry.heroku.com/$BE_APP/web .
+          docker push registry.heroku.com/$BE_APP/web
+          heroku container:release web -a "$BE_APP"
+      - name: Frontend — build (adres API zapisany w buildzie), push, release
+        run: |
+          docker build frontend --build-arg APP_VERSION="$APP_VERSION" --build-arg NEXT_PUBLIC_API_URL="$BE_URL" -t registry.heroku.com/$FE_APP/web
+          docker push registry.heroku.com/$FE_APP/web
+          heroku container:release web -a "$FE_APP"
+      - name: Weryfikacja — /api/health zwraca wersję z tagu
+        run: |
+          for i in $(seq 1 30); do
+            v=$(curl -sf "$BE_URL/api/health" | jq -r .app_version) && [ "$v" = "$APP_VERSION" ] && echo "backend $v OK" && break
+            sleep 5
+          done
+          [ "$v" = "$APP_VERSION" ] || { echo "::error::backend zwraca '$v', oczekiwano $APP_VERSION"; exit 1; }
+          curl -sf "$FE_URL" > /dev/null && echo "frontend OK"
