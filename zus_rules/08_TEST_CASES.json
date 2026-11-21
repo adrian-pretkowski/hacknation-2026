@@ -353,7 +353,7 @@
     "USTAWA art. 2a ust. 1"
    ],
    "assumptions": [
-    "MIN_WAGE_2026_MONTHLY=4806.00 z Załącznika (UNCONFIRMED)"
+    "MIN_WAGE_2026_MONTHLY=4806.00 (potwierdzona — M07)"
    ]
   },
   {
@@ -380,7 +380,7 @@
     "USTAWA art. 2a ust. 1"
    ],
    "assumptions": [
-    "MIN_WAGE_2026_MONTHLY=4806.00 (UNCONFIRMED)"
+    "MIN_WAGE_2026_MONTHLY=4806.00 (potwierdzona — M07)"
    ]
   },
   {
@@ -1412,11 +1412,11 @@
   },
   {
    "test_id": "T-MAT-007",
-   "kind": "NEGATIVE",
+   "kind": "POSITIVE",
    "rule_ids": [
     "MAT-ELIG-007"
    ],
-   "description": "Rozwiązanie z naruszeniem prawa (sąd) — NIE daje zasiłku w wysokości macierzyńskiego przed porodem",
+   "description": "Rozwiązanie umowy w ciąży z naruszeniem prawa stwierdzonym przez sąd → zasiłek w wysokości macierzyńskiego do dnia przed porodem (M16 a — stosujemy treść zadania)",
    "fixture": "employee_mother",
    "patch": {
     "insurance": {
@@ -1440,13 +1440,16 @@
     "benefit_type": "MATERNITY_EQUIVALENT_ALLOWANCE"
    },
    "expected": {
-    "status": "NOT_ELIGIBLE"
+    "status": "ELIGIBLE",
+    "rate": "1.00",
+    "period.to": "2027-03-14"
    },
    "legal_basis": [
-    "USTAWA art. 30 ust. 3 (zamknięty katalog)"
+    "USTAWA art. 30 ust. 3 + treść zadania (CONF-001, M16 a)"
    ],
    "assumptions": [
-    "CONF-001: treść zadania szersza niż ustawa"
+    "M16 a (2026-11-21, mentor fachowy): CONF-001 — stosujemy treść zadania",
+    "'do dnia porodu' = do dnia poprzedzającego poród (M15 e)"
    ]
   },
   {
@@ -1492,11 +1495,11 @@
   },
   {
    "test_id": "T-MAT-009",
-   "kind": "MISSING_DATA",
+   "kind": "POSITIVE",
    "rule_ids": [
     "MAT-CLS-002"
    ],
-   "description": "Umowa terminowa, przedłużenie nie potwierdzone → NEEDS_REVIEW (reguła BLOCKED)",
+   "description": "Umowa terminowa kończy się po upływie 3. miesiąca ciąży (początek ciąży z zaświadczenia lekarskiego) → przedłużenie do porodu (KP 177 § 3) → ELIGIBLE (M13)",
    "fixture": "employee_mother",
    "patch": {
     "insurance": {
@@ -1523,7 +1526,7 @@
     "leave_type": "MATERNITY_LEAVE"
    },
    "expected": {
-    "status": "NEEDS_REVIEW",
+    "status": "ELIGIBLE",
     "applied_rules_contain": [
      "MAT-CLS-002"
     ]
@@ -1532,7 +1535,8 @@
     "KP art. 177 § 3"
    ],
    "assumptions": [
-    "GAP-007"
+    "M13 (2026-11-21): miesiąc ciąży stwierdza lekarz; pregnancy_start_date 2026-06-08 (fixture) → trzeci miesiąc kończy się 2026-09-07, umowa do 2026-12-31 → przedłużona",
+    "Przedłużenie potwierdza dokument od pracodawcy"
    ]
   },
   {
@@ -1752,7 +1756,8 @@
     "KP art. 183 § 1(1)"
    ],
    "assumptions": [
-    "C7: ukończenie 14 lat = 2027-04-01; MAT-DUR-008 (9 tyg.) zablokowana — 11 tyg. > 9, więc brak konfliktu"
+    "C7: ukończenie 14 lat = 2027-04-01; urlop do dnia przed 14. urodzinami (M14 c)",
+    "M14 a: 9 tyg. nie jest minimum — limit wieku skraca urlop, niewykorzystana część przepada"
    ]
   },
   {
@@ -2011,6 +2016,49 @@
    "assumptions": []
   },
   {
+   "test_id": "T-MAT-022",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "MAT-ELIG-002",
+    "MAT-DUR-007",
+    "MAT-DUR-008"
+   ],
+   "description": "Przysposobienie dziecka 3 tyg. przed 14. urodzinami → urlop tylko do dnia przed urodzinami (< 9 tyg.), bez podwyższenia do 9 tyg. (M14 a)",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "ADOPTION",
+     "date": "2027-01-10",
+     "court_adoption_application_date": "2027-01-05"
+    },
+    "children": {
+     "count_at_event": 1,
+     "items": [
+      {
+       "birth_date": "2013-01-31"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LIKE_LEAVE"
+   },
+   "expected": {
+    "status": "ELIGIBLE",
+    "period.to": "2027-01-30"
+   },
+   "legal_basis": [
+    "USTAWA art. 29 ust. 1 pkt 2",
+    "KP art. 183 § 1(1)"
+   ],
+   "assumptions": [
+    "M14 a (2026-11-21, mentor fachowy): 9 tyg. nie jest minimum, niewykorzystana część przepada",
+    "C7: 14. urodziny 2027-01-31 → ostatni dzień urlopu 2027-01-30 (M14 c: do dnia urodzin)"
+   ]
+  },
+  {
    "test_id": "T-SUPP-001",
    "kind": "POSITIVE",
    "rule_ids": [
@@ -2157,7 +2205,7 @@
    "rule_ids": [
     "SUPP-ELIG-003"
    ],
-   "description": "39. tydz., pobyt od 4. dnia → poza oknem 5–28 → brak urlopu",
+   "description": "39. tydz., pobyt 2 dni od 4. dnia (dzień porodu = 1) → poza oknem 5–28 → brak urlopu",
    "fixture": "employee_mother",
    "patch": {
     "event": {
@@ -2178,7 +2226,7 @@
      "hospital_stays": [
       {
        "child_index": 0,
-       "from": "2027-01-14",
+       "from": "2027-01-13",
        "to": "2027-01-14"
       }
      ],
@@ -2198,7 +2246,7 @@
     "KP art. 180(2) § 1 pkt 3"
    ],
    "assumptions": [
-    "ASSUMPTION-SUPP-DAY0"
+    "M15 a: dzień porodu = dzień 1 → 2027-01-13 = 4. dzień (ASSUMPTION-SUPP-DAY1)"
    ]
   },
   {
@@ -2207,7 +2255,7 @@
    "rule_ids": [
     "SUPP-ELIG-003"
    ],
-   "description": "39. tydz., pobyt 2 dni od 5. dnia → 1 tydzień",
+   "description": "39. tydz., pobyt 2 dni od 6. dnia (dzień porodu = 1) → 1 tydzień",
    "fixture": "employee_mother",
    "patch": {
     "event": {
@@ -2246,7 +2294,206 @@
     "KP art. 180(2) § 1 pkt 3"
    ],
    "assumptions": [
-    "ASSUMPTION-SUPP-DAY0"
+    "M15 a: dzień porodu = dzień 1 → 2027-01-15 = 6. dzień (ASSUMPTION-SUPP-DAY1)"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-008",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 2 dni od 5. dnia (dzień porodu = 1: 2027-01-14) → kwalifikuje się (granica okna)",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-14",
+       "to": "2027-01-15"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "fact": {
+     "f_has_qualifying_late_hospital_stay": true
+    }
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "M15 a: dzień porodu = dzień 1 → 5. dzień = 2027-01-14 (przy numeracji od 0 byłby to 4. dzień)"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-009",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 2 dni od 28. dnia (2027-02-06, dzień porodu = 1) → kwalifikuje się",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-02-06",
+       "to": "2027-02-07"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "fact": {
+     "f_has_qualifying_late_hospital_stay": true
+    }
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "M15 a: dzień porodu = dzień 1 → 28. dzień = poród + 27 = 2027-02-06"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-010",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 2 dni od 29. dnia (2027-02-07) → poza oknem 5–28 → brak urlopu",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-02-07",
+       "to": "2027-02-08"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "fact": {
+     "f_has_qualifying_late_hospital_stay": false
+    }
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "M15 a: dzień porodu = dzień 1 → 29. dzień = poród + 28 = 2027-02-07"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-011",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 8 dni od 5. dnia (2027-01-14..2027-01-21, dzień porodu = 1) → 8 dni w oknie → 2 tygodnie",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-14",
+       "to": "2027-01-21"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 2
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "M15 a: okno od 5. dnia = poród + 4 (window_start_day = 5 jako numer dnia)",
+    "ceil(8/7) = 2"
    ]
   },
   {
@@ -2819,7 +3066,7 @@
     "USTAWA art. 30a ust. 1, art. 31 ust. 3"
    ],
    "assumptions": [
-    "Termin: 2027-03-15 + 21 = 2027-04-05 (C11)"
+    "Termin: 2027-03-15 + 21 = 2027-04-05 (poniedziałek — bez przesunięcia, C11/M15 d)"
    ]
   },
   {
@@ -2971,11 +3218,11 @@
   },
   {
    "test_id": "T-RATE-006",
-   "kind": "MISSING_DATA",
+   "kind": "POSITIVE",
    "rule_ids": [
     "RATE-MAT-008"
    ],
-   "description": "Ojciec bierze część rodzicielskiego (poza 9 tyg.) przy 81,5% matki → NEEDS_REVIEW",
+   "description": "Ojciec bierze część rodzicielskiego (poza 9 tyg.) przy 81,5% matki → 81,5% (M11)",
    "fixture": "employee_mother",
    "patch": {
     "person": {
@@ -3002,16 +3249,117 @@
     "leave_type": "PARENTAL_LEAVE"
    },
    "expected": {
-    "status": "NEEDS_REVIEW",
-    "reasons_contain": [
-     "FATHER_RATE_UNDER_MOTHER_815"
-    ]
+    "rate": "0.815"
    },
    "legal_basis": [
     "USTAWA art. 30a ust. 3, art. 31 ust. 3"
    ],
    "assumptions": [
-    "CONF / Q-LEG-03"
+    "M11 (2026-11-21, mentor fachowy): ojciec przejmuje stawkę 81,5% — RATE-MAT-008 ACTIVE (wcześniej Q-LEG-03 / NEEDS_REVIEW)"
+   ]
+  },
+  {
+   "test_id": "T-RATE-008",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "RATE-MAT-007",
+    "CALC-MAT-001"
+   ],
+   "description": "Podstawa 800 zł, 100% → 800 zł/mies. < 1000 zł → podwyższenie: pełne miesiące po 1000 zł, marzec (17/31) i sierpień (1/31) proporcjonalnie (M10, M10c)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": "800.00"
+    },
+    "applications": {
+     "combined_815_planned": false
+    },
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-15",
+       "to": "2027-08-01"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "rate": "1.00",
+    "daily_amount_exact": "32.7188940092",
+    "total_amount_exact": "4580.6451612903"
+   },
+   "legal_basis": [
+    "USTAWA art. 31 ust. 3a-3c"
+   ],
+   "assumptions": [
+    "PARENTAL_BENEFIT_FLOOR_MONTHLY = 1000 zł (M10)",
+    "M10c (mentor fachowy): niepełny miesiąc proporcjonalnie do liczby dni danego miesiąca; 4 × 1000 + 1000 × 18/31",
+    "daily = total / 140 (średnia, informacyjnie)",
+    "Porównanie do 10 miejsc po przecinku"
+   ]
+  },
+  {
+   "test_id": "T-RATE-009",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "APP-DL-001",
+    "RATE-MAT-003"
+   ],
+   "description": "Poród w niedzielę 2027-03-14: 21. dzień = niedziela 2027-04-04 → termin przesunięty na poniedziałek 2027-04-05; wniosek złożony 2027-04-05 → 81,5% (M15 d)",
+   "fixture": "employee_mother",
+   "patch": {
+    "evaluation": {
+     "as_of_date": "2027-04-05",
+     "mode": "DECISION_SUPPORT"
+    },
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-03-14"
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-03-14",
+       "birth_weight_g": 3400,
+       "za_zyciem_certificate": false
+      }
+     ],
+     "za_zyciem_certificate": false
+    },
+    "applications": {
+     "combined_815_filed_date": "2027-04-05"
+    },
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-14",
+       "to": "2027-07-31"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "rate": "0.815"
+   },
+   "legal_basis": [
+    "USTAWA art. 30a ust. 1"
+   ],
+   "assumptions": [
+    "M15 d (2026-11-21, mentor fachowy): termin w dzień wolny → następny dzień roboczy",
+    "Lista świąt PUBLIC_HOLIDAYS z public_holidays.yaml — 2027-04-04 to zwykła niedziela (Wielkanoc 2027: 28.03)"
    ]
   },
   {
@@ -3283,7 +3631,7 @@
    "rule_ids": [
     "BASE-EMP-008"
    ],
-   "description": "Pełny etat, wyliczona podstawa 3900 < minimum → 4147,0974 (dokładnie)",
+   "description": "Pełny etat, wyliczona podstawa 3900 < minimum → 4147,10 (4806 × 0,8629 = 4147,0974 zaokrąglone do groszy, M07a)",
    "fixture": "employee_mother",
    "patch": {
     "income_history": {
@@ -3314,13 +3662,14 @@
     "leave_type": "MATERNITY_LEAVE"
    },
    "expected": {
-    "base.amount_exact": "4147.0974"
+    "base.amount_exact": "4147.10"
    },
    "legal_basis": [
     "USTAWA art. 45 ust. 1, art. 36 ust. 2"
    ],
    "assumptions": [
-    "MIN_WAGE 4806,00 (UNCONFIRMED); zaokrąglenie GAP-001"
+    "MIN_WAGE 4806,00 (potwierdzona — M07)",
+    "M07a (2026-11-21, mentor fachowy): minimalna podstawa zaokrąglana do groszy"
    ]
   },
   {
@@ -3472,7 +3821,7 @@
     "USTAWA art. 48a ust. 1"
    ],
    "assumptions": [
-    "Wartości najniższej podstawy są danymi testowymi, NIE prawnymi (GAP-023)",
+    "Wartości najniższej podstawy są danymi testowymi, NIE prawnymi (GAP-023; wartości 2026 z M08: 5652 / 1441,80 zł)",
     "Porównanie do 10 miejsc po przecinku; 4314.5 × 4/3 = 5752.666…"
    ]
   },
@@ -3508,11 +3857,11 @@
   },
   {
    "test_id": "T-BASE-007",
-   "kind": "MISSING_DATA",
+   "kind": "POSITIVE",
    "rule_ids": [
     "BASE-GEN-001"
    ],
-   "description": "Przerwa 20 dni → NEEDS_REVIEW (wykładnia 'miesiąca kalendarzowego')",
+   "description": "Przerwa 20 dni (23.02–14.03, bez pełnego miesiąca kalendarzowego) → ta sama podstawa (M05)",
    "fixture": "employee_mother",
    "patch": {
     "income_history": {
@@ -3529,13 +3878,112 @@
     "leave_type": "MATERNITY_LEAVE"
    },
    "expected": {
-    "status": "NEEDS_REVIEW"
+    "base.amount_exact": "5123.45"
    },
    "legal_basis": [
     "USTAWA art. 43"
    ],
    "assumptions": [
-    "CONF-006"
+    "M05: miesiąc kalendarzowy = pełny miesiąc od 1. do ostatniego dnia (CONF-006 rozstrzygnięty)"
+   ]
+  },
+  {
+   "test_id": "T-BASE-010",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "BASE-GEN-001"
+   ],
+   "description": "Przerwa 41 dni (02.02–14.03) bez pełnego miesiąca kalendarzowego → ta sama podstawa (M05; okres dłuższy niż miesiąc nie wystarcza)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-02-01",
+     "previous_base_amount": "5123.45"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "5123.45"
+   },
+   "legal_basis": [
+    "USTAWA art. 43"
+   ],
+   "assumptions": [
+    "M05: miesiąc kalendarzowy = pełny miesiąc od 1. do ostatniego dnia (CONF-006 rozstrzygnięty)"
+   ]
+  },
+  {
+   "test_id": "T-BASE-011",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "BASE-GEN-001"
+   ],
+   "description": "Przerwa 01.02–14.03 obejmuje cały luty → podstawę ustala się na nowo; bez wynagrodzeń → NEEDS_DATA, nie odmowa (M05)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-01-31",
+     "previous_base_amount": "5123.45"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NEEDS_DATA"
+   },
+   "legal_basis": [
+    "USTAWA art. 43"
+   ],
+   "assumptions": [
+    "M05: miesiąc kalendarzowy = pełny miesiąc od 1. do ostatniego dnia (CONF-006 rozstrzygnięty)"
+   ]
+  },
+  {
+   "test_id": "T-BASE-012",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "BASE-GEN-001"
+   ],
+   "description": "L4 w ciąży do 31.01, macierzyński od 1.02 (przed porodem 15.03) → brak przerwy, ta sama podstawa (M05)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-01-31",
+     "previous_base_amount": "5123.45"
+    },
+    "plan": {
+     "maternity_start_date": "2027-02-01"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "5123.45"
+   },
+   "legal_basis": [
+    "USTAWA art. 43"
+   ],
+   "assumptions": [
+    "M05: miesiąc kalendarzowy = pełny miesiąc od 1. do ostatniego dnia (CONF-006 rozstrzygnięty)"
    ]
   },
   {

@@ -76,6 +76,7 @@ def _comparable(body: dict) -> dict:
         benefit.pop("applied_rules")
         for key in BEYOND_SLICE_FIELDS:
             benefit.pop(key, None)
+        benefit.pop("base", None)  # obiekt podstawy (kontrakt Benefit.base) zwraca tylko pipeline (M05, BASE-GEN-001)
     return body
 
 

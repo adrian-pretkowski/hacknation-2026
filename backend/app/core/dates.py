@@ -1,6 +1,7 @@
 """Daty i okresy — konwencje C3–C8, C11 z zus_rules/07_CALCULATION_SPEC.md."""
 from __future__ import annotations
 
+import calendar
 from datetime import date, timedelta
 from typing import Any
 
@@ -46,9 +47,29 @@ def gap_days_between(prev_end: date, next_start: date) -> int:
     return (next_start - prev_end).days - 1
 
 
+def contains_full_calendar_month(start: date, end: date) -> bool:
+    """Czy okres [start, end] obejmuje cały miesiąc kalendarzowy (od 1. do ostatniego dnia miesiąca).
+
+    Art. 43 ustawy zasiłkowej: „przerwa krótsza niż miesiąc kalendarzowy” = przerwa, która nie obejmuje
+    pełnego miesiąca kalendarzowego (M05, ustalenie z mentorem fachowym ZUS). Pusty okres (end < start) → False.
+    """
+    if end < start:
+        return False
+    first = start if start.day == 1 else (date(start.year + start.month // 12, start.month % 12 + 1, 1))
+    last = first.replace(day=calendar.monthrange(first.year, first.month)[1])
+    return last <= end
+
+
 def deadline_after(event: date, days: int) -> date:
     """C11: termin „X dni po zdarzeniu” — ostatni dzień = zdarzenie + X (bez przesunięcia na dzień roboczy, GAP-020)."""
     return event + timedelta(days=days)
+
+
+def next_working_day(day: date, holidays: set[date] | frozenset[date] = frozenset()) -> date:
+    """Termin przypadający w sobotę, niedzielę lub święto → następny dzień roboczy (M15 d, mentor fachowy ZUS)."""
+    while day.weekday() >= 5 or day in holidays:
+        day += timedelta(days=1)
+    return day
 
 
 def add_years(day: date, years: int) -> date:
@@ -59,19 +80,14 @@ def add_years(day: date, years: int) -> date:
         return day.replace(year=day.year + years, day=28)
 
 
+def add_months(day: date, months: int) -> date:
+    """Ten sam dzień N miesięcy później; brak takiego dnia → ostatni dzień miesiąca (DERIVED, jak add_years)."""
+    month_index = day.month - 1 + months
+    year, month = day.year + month_index // 12, month_index % 12 + 1
+    return date(year, month, min(day.day, calendar.monthrange(year, month)[1]))
+
+
 def age_years_on(birth: date, on: date) -> int:
     """C7: pełne lata (urodziny = ukończenie). „Do N roku życia” ⇔ age_years_on(...) < N."""
     years = on.year - birth.year
     return years - 1 if add_years(birth, years) > on else years
-
-
-def add_months(day: date, months: int) -> date:
-    """Miesiące kalendarzowe: ten sam dzień miesiąca; brak takiego dnia → ostatni dzień miesiąca (DERIVED, GAP-011)."""
-    month_index = day.month - 1 + months
-    year, month = day.year + month_index // 12, month_index % 12 + 1
-    for last in (31, 30, 29, 28):
-        try:
-            return date(year, month, min(day.day, last))
-        except ValueError:
-            continue
-    raise ValueError(f"Niepoprawna data: {day} + {months} mies.")

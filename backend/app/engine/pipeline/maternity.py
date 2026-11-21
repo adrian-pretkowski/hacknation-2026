@@ -20,7 +20,7 @@ from app.engine.pipeline.general import debt_exclusion, payer_of_benefit, pct
 NOT_RUN = ["MAT-ELIG-004", "MAT-ELIG-005", "MAT-ELIG-006", "MAT-NEG-001", "MAT-DUR-002", "BASE-EMP-001",
            "BASE-NEMP-001", "BASE-GEN-001"]
 # Reguły BLOCKED/HUMAN_REVIEW, które mogą zmienić wynik macierzyńskiego po porodzie (DT-9 wiersz 3)
-REVIEW_RULES = ["MAT-DUR-005", "RATE-MAT-007"]
+REVIEW_RULES = ["MAT-DUR-005"]
 DURATION_RULES = ["MAT-DUR-001", "MAT-DUR-003", "MAT-DUR-004", "MAT-DUR-005"]
 RATE_RULES = ["RATE-MAT-001", "RATE-MAT-003", "RATE-MAT-004", "RATE-MAT-005"]
 
@@ -46,13 +46,26 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
     else:
         applied.append("MAT-ELIG-001")
     if elig.value is not True:
-        # alternatywne podstawy (exceptions MAT-ELIG-001: art. 30, KP 177) i przedłużenie umowy (MAT-CLS-002, BLOCKED).
-        # Ich braki danych nie trafiają do missing_data — najpierw rozstrzyga MAT-ELIG-001 (art. 29 ust. 1 pkt 1).
-        alternatives = eng.alternatives("MAT-ELIG-001") + [eng.eval("MAT-CLS-002")]
+        # alternatywne podstawy (exceptions MAT-ELIG-001: art. 30, KP 177) i przedłużenie umowy (MAT-CLS-002, M13).
+        # Ich braki danych nie trafiają do missing_data — najpierw rozstrzyga MAT-ELIG-001 (art. 29 ust. 1 pkt 1);
+        # wyjątek: umowa terminowa — pytamy o datę początku ciąży i koniec umowy (MAT-CLS-002).
+        kp177 = eng.eval("MAT-CLS-002")
+        alternatives = eng.alternatives("MAT-ELIG-001") + [kp177]
+        fixed_term = ctx.field("employment.contract_type") in ("FIXED_TERM", "PROBATION_OVER_1_MONTH")
+        if kp177.unknown and kp177.missing and fixed_term:
+            # M13: umowa terminowa — dopytać o datę początku ciąży (zaświadczenie lekarskie) i koniec umowy
+            eng.need_from(kp177)
+            needs_data = True
         possible = [a for a in alternatives if a.kind in ("NOT_EVALUATED", "BLOCKED")
                     or (a.unknown and elig.value is False)]
         if any(a.fired for a in alternatives):
             eligible = True
+            if any(a.fired and a.rule_id == "MAT-CLS-002" for a in alternatives):
+                applied.append("MAT-CLS-002")
+                reason("KP177_EXTENDED_UNTIL_BIRTH", "MAT-CLS-002",
+                       "Umowa terminowa rozwiązałaby się po upływie trzeciego miesiąca ciąży — ulega przedłużeniu do "
+                       "dnia porodu (data początku ciąży z zaświadczenia lekarskiego). Przedłużenie potwierdza "
+                       "dokument od pracodawcy (np. aneks lub świadectwo pracy).", "KP art. 177 § 3")
         elif possible:
             # DT-9 w. 3: podstawa, której silnik nie rozstrzyga, może zmienić wynik → NEEDS_REVIEW (przed NEEDS_DATA)
             review = True
@@ -134,6 +147,22 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                        f"{deadline.isoformat()}.", "art. 31 ust. 1; art. 30a ust. 1")
     ctx.state["rate"] = rate
 
+    # Krok 6: podstawa — art. 43 (BASE-GEN-001): ta sama podstawa, gdy przerwa nie obejmuje pełnego miesiąca
+    # kalendarzowego (M05); ręczna podstawa ma pierwszeństwo, bez historii zasiłków reguła nie dotyczy
+    manual = ctx.field("income_history.manual_base_override") is not None
+    base_source = "MANUAL" if manual else None
+    if not manual and ctx.field("benefit_history.previous_benefit_end_date") is not None:
+        reuse = eng.eval("BASE-GEN-001")
+        if reuse.unknown:
+            eng.need_from(reuse)
+            needs_data = True
+        elif reuse.fired:
+            applied.append("BASE-GEN-001")
+            base_source = "REUSED_PREVIOUS"
+            reason("BASE_REUSED_NO_FULL_MONTH_GAP", "BASE-GEN-001",
+                   "Między poprzednim zasiłkiem a zasiłkiem macierzyńskim nie było przerwy obejmującej pełny miesiąc "
+                   "kalendarzowy — podstawa wymiaru jest taka sama jak poprzedniego zasiłku.", "art. 43")
+
     # Krok 8: kwota
     daily = total = None
     calc = eng.eval("CALC-MAT-001")
@@ -145,6 +174,26 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
         if amount is not None:
             daily, total = amount["daily"], amount["total"]
             applied.append("CALC-MAT-001")
+            # RATE-MAT-007 (M10): podwyższenie do kwoty świadczenia rodzicielskiego (art. 31 ust. 3a)
+            floor = eng.eval("RATE-MAT-007")
+            raised = ctx.fact(eng.rules.rule("RATE-MAT-007")["result"]["compute"]) if floor.fired else None
+            if raised is not None:
+                monthly = ctx.fact("f_monthly_maternity_amount")
+                daily, total = raised["daily"], raised["total"]
+                applied.append("RATE-MAT-007")
+                reason("RAISED_TO_PARENTAL_BENEFIT_FLOOR", "RATE-MAT-007",
+                       f"Miesięczna kwota zasiłku ({dec_str(monthly)} zł) jest niższa niż kwota świadczenia "
+                       f"rodzicielskiego — zasiłek podwyższony do {dec_str(raised['monthly'])} zł miesięcznie "
+                       f"(za niepełny miesiąc proporcjonalnie do liczby dni miesiąca).",
+                       "art. 31 ust. 3a-3c")
+
+    # wynik: obiekt base (kontrakt Benefit.base) — tylko gdy podstawa jest znana i jej źródło rozstrzygnięte
+    base_amount = ctx.fact("f_benefit_base") if base_source else None
+    base = None
+    if base_amount is not None:
+        base = {"amount_exact": dec_str(base_amount), "source": base_source}
+        if base_source == "REUSED_PREVIOUS":
+            base["method_rule_id"] = "BASE-GEN-001"
 
     for rule_id in NOT_RUN:
         if rule_id not in eng.not_evaluated and rule_id not in eng.trace:
@@ -161,7 +210,7 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
         "rate": dec_str(rate) if rate is not None else None, "period": period, "days": days,
         "daily_amount_exact": dec_str(daily) if daily is not None else None,
         "total_amount_exact": dec_str(total) if total is not None else None,
-        "payer_of_benefit": payer, "reasons": reasons, "applied_rules": applied,
+        "payer_of_benefit": payer, "reasons": reasons, "applied_rules": applied, "base": base,
     }
     if suspended is not None:
         benefit["suspended_until_debt_repaid"] = suspended

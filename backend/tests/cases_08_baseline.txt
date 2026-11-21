@@ -22,10 +22,20 @@ T-MAT-003
 T-MAT-010
 T-MAT-012
 T-MAT-013
+T-MAT-009
 
 # RATE — 81,5% / 100%
 T-RATE-001
 T-RATE-002
+T-RATE-008
+T-RATE-009
+
+# BASE — art. 43, ta sama podstawa (BASE-GEN-001, M05)
+T-BASE-006
+T-BASE-007
+T-BASE-010
+T-BASE-011
+T-BASE-012
 
 # SICK — prawo, okres wyczekiwania, stawka (BE1-04)
 T-SICK-001
