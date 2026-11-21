@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FormDetail, FormPicker } from "@/features/documents/FormPicker";
+import { FORMS, type FormCode } from "@/features/documents/forms";
 import { type Answers, EMPTY_ANSWERS, PRESETS } from "./answers";
 import { Intro } from "./Intro";
 import { Results } from "./Results";
@@ -10,7 +12,9 @@ const btn = "rounded-full px-5 py-2.5 text-sm font-semibold focus-visible:outlin
 
 // Widok kreatora: ekran startowy → kroki → wynik. Każde przejście trafia do historii przeglądarki,
 // więc przycisk „Wstecz” w przeglądarce (i gest wstecz na telefonie) cofa o jeden krok.
-type View = { kind: "intro" } | { kind: "step"; index: number } | { kind: "result" };
+// FE1-11: „forms” = ścieżka szybkich pism, „form” = ekran jednego pisma (z listy pism albo z wyniku).
+type View = { kind: "intro" } | { kind: "step"; index: number } | { kind: "result" }
+  | { kind: "forms" } | { kind: "form"; code: FormCode; from: "forms" | "result" };
 
 export function Wizard() {
   const [a, setA] = useState<Answers>(EMPTY_ANSWERS);
@@ -50,11 +54,37 @@ export function Wizard() {
   const loadPreset = (answers: Partial<Answers>) => { setA({ ...EMPTY_ANSWERS, ...answers }); show({ kind: "result" }); };
   const start = () => { setA(EMPTY_ANSWERS); show({ kind: "step", index: 0 }); };
   const startSensitive = () => { setA({ ...EMPTY_ANSWERS, sensitive: true, role: "MOTHER", stage: "BORN", stillborn: true }); show({ kind: "step", index: 0 }); };
+  const openForm = (code: FormCode, from: "forms" | "result") => show({ kind: "form", code, from });
   const answered = steps.filter((s, i) => (done || i < index) && s.summary(a)).length;
   const progress = done ? 100 : Math.round(((index + 1) / (steps.length + 1)) * 100);
 
   if (view.kind === "intro") {
-    return <Intro headingRef={headingRef} onStart={start} onPreset={loadPreset} onSensitive={startSensitive} presets={PRESETS} />;
+    return <Intro headingRef={headingRef} onStart={start} onForms={() => show({ kind: "forms" })} onPreset={loadPreset} onSensitive={startSensitive} presets={PRESETS} />;
+  }
+
+  if (view.kind === "forms" || view.kind === "form") {
+    const homeBtn = "inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark";
+    return (
+      <div className="mx-auto max-w-4xl">
+        <button type="button" onClick={() => show({ kind: "intro" })} className={homeBtn}>← Strona startowa</button>
+        <p className="mt-6 text-xs font-semibold tracking-wider text-zus-green-dark uppercase">{view.kind === "forms" ? "Szybkie pisma" : `Pismo ${view.code}`}</p>
+        <h2 ref={headingRef} tabIndex={-1} className="mt-1 mb-2 scroll-mt-4 text-2xl font-semibold text-zus-navy focus:outline-none">
+          {view.kind === "forms" ? "Które pismo chcesz złożyć?" : FORMS[view.code].name}
+        </h2>
+        {view.kind === "forms" ? (
+          <>
+            <p className="mb-6 text-sm text-zinc-700">Kliknij pismo, aby je wypełnić. Nie wiesz, które wybrać?{" "}
+              <button type="button" onClick={start} className="font-semibold text-zus-navy underline underline-offset-2">Sprawdź w kreatorze, co Ci przysługuje</button> — na końcu podpowiemy pisma.</p>
+            <FormPicker onOpen={(c) => openForm(c, "forms")} />
+          </>
+        ) : (
+          <div className="mt-4">
+            <FormDetail code={view.code} onBack={() => show(view.from === "result" ? { kind: "result" } : { kind: "forms" })}
+              backLabel={view.from === "result" ? "Wróć do planu" : "Wróć do listy pism"} />
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -137,7 +167,7 @@ export function Wizard() {
         </h2>
         {done ? (
           <>
-            <Results answers={a} onEdit={editStep} canEdit={(id) => steps.some((s) => s.id === id)} />
+            <Results answers={a} onEdit={editStep} canEdit={(id) => steps.some((s) => s.id === id)} onOpenForm={(c) => openForm(c, "result")} />
             <div className="mt-6 flex flex-wrap gap-2 border-t border-zinc-200 pt-4">
               <button type="button" onClick={back} className={`${btn} border border-zinc-300 bg-white text-zus-navy hover:border-zus-navy`}>← Wstecz</button>
               <button type="button" onClick={() => go(0)} className={`${btn} text-zus-navy hover:underline`}>Zmień odpowiedzi od początku</button>
