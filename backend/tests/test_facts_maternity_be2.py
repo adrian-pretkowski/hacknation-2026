@@ -370,3 +370,27 @@ def test_pipeline_supplementary_weight_unknown_asks_for_answer():
     body = pipeline.evaluate(payload)
     assert _supp_benefit(body)["status"] == "NEEDS_DATA"
     assert "birth.weight_at_most_threshold" in {item["field"] for item in body["missing_data"]}
+
+
+# ---------------------------------------------------------------- BE1-08 / BE1-09 (INT-15): brak danych ≠ odmowa
+def test_BE1_08_MAT_ELIG_002_missing_court_date_needs_data():
+    """MAT-ELIG-002: brak daty wniosku do sądu → NEEDS_DATA z pytaniem o pole (nie NOT_ELIGIBLE)."""
+    result = pipeline.evaluate({"event": {"type": "ADOPTION"}, "person": {"role": "MOTHER"}})
+    like = next(b for b in result["benefits"] if b["leave_type"] == "MATERNITY_LIKE_LEAVE")
+    assert like["status"] == "NEEDS_DATA"
+    assert "event.court_adoption_application_date" in {m["field"] for m in result["missing_data"]}
+
+
+def test_BE1_08_MAT_ELIG_002_missing_court_date_child_too_old_not_eligible():
+    """Brak daty wniosku nie ratuje sprawy, której inne warunki rozstrzygają odmowę (dziecko po 14. urodzinach)."""
+    result = pipeline.evaluate({"event": {"type": "ADOPTION", "date": "2027-01-10"}, "person": {"role": "MOTHER"},
+                                "children": {"items": [{"birth_date": "2005-01-01"}]}})
+    like = next(b for b in result["benefits"] if b["leave_type"] == "MATERNITY_LIKE_LEAVE")
+    assert like["status"] == "NOT_ELIGIBLE"
+
+
+@pytest.mark.parametrize("payload", [{"event": {"type": "BIRTH"}}, {"event": {"type": "ADOPTION"}}])
+def test_BE1_09_missing_role_needs_data(payload):
+    result = pipeline.evaluate(payload)
+    assert result["overall_status"] == "NEEDS_DATA"
+    assert "person.role" in {m["field"] for m in result["missing_data"]}

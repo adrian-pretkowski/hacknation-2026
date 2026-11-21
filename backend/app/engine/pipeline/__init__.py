@@ -67,6 +67,10 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     extra_assumptions: list[dict[str, Any]] = []
     role = (payload.get("person") or {}).get("role")
     plan: dict[str, Any] = {}
+    if event_type in ("BIRTH", "ADOPTION", "FOSTER") and role is None:
+        # BE1-09: brak roli to brak danych (NEEDS_DATA z pytaniem o person.role), nie OUT_OF_SCOPE
+        eng.need("person.role")
+        return _response(eng, [], [], "NEEDS_DATA")
     if event_type == "BIRTH":
         benefits = []
         maternity = None

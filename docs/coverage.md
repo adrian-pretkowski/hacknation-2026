@@ -22,10 +22,10 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 | Szybkie pisma: wybór ZAM, Z-3, Z-3a, ZAS-12, ZAS-53 ze startu i z wyniku (FE1-11, `docs/FORMS_FLOW.md`) | APP-DOC-002/003, SICK-DOC-001 | Start, Pisma, Wynik | e2e 14 | 🟨 wybór i opis pism; wypełnianie - etap 3 |
 | Wniosek o odpis aktu urodzenia (symulacja) | - | Dokumenty | ui-verifier | ⬜ |
 | Linki zus.pl / gov.pl / PIP | treść | Dokumenty | - | ⬜ |
-| Panel admina parametrów | `core/params.py` (OverrideStore), `modules/admin/router.py` | Admin | `test_admin.py` (zmiana 0.815 → wynik bez restartu) | 🟨 API `GET/PUT /api/admin/parameters` (BE2-05): wersje, `valid_from`, 401/409/422, zapis JSON; ekran FE `/admin` (FE1-03): lista, edycja z `valid_from`, podgląd skutku na przykładzie |
-| Upload/wybór przykładowych wniosków, weryfikacja ubezpieczenia | cases + insurance_verification | Sprawy | `test_cases_module.py`, /run-golden | 🟨 API BE2-06: `/api/cases` (4 sprawy syntetyczne `demo/cases/`, porównanie z oczekiwanym wynikiem MATCH / MATCH_WITH_TOLERANCE / MISMATCH), upload PDF → MANUAL_REQUIRED + lista brakujących pól (bez AI, M16e; plik nie jest zapisywany), `insurance_verification` w wyniku `/api/evaluate`; ekran FE - do zrobienia |
+| Panel admina parametrów | `core/params.py` (OverrideStore), `modules/admin/router.py` | Admin | `test_admin.py` (zmiana 0.815 → wynik bez restartu; zakresy i reset - BE2-13) | 🟨 API `GET/PUT/DELETE /api/admin/parameters` (BE2-05, BE2-13): wersje, `valid_from`, 409/422, walidacja zakresów (`out_of_range`), reset do wartości z 03, zapis JSON; bez logowania (D36); ekran FE `/admin` (FE1-03): lista, edycja z `valid_from`, podgląd skutku, przycisk „Przywróć wartości z zestawu reguł”; kreator liczy na parametrach z API (FE1-33) |
+| Upload/wybór przykładowych wniosków, weryfikacja ubezpieczenia | cases + insurance_verification | Sprawy | `test_cases_module.py`, /run-golden | 🟨 API BE2-06: `/api/cases` (4 sprawy syntetyczne `demo/cases/`, porównanie z oczekiwanym wynikiem MATCH / MATCH_WITH_TOLERANCE / MISMATCH), upload PDF → MANUAL_REQUIRED + lista brakujących pól (bez AI, M16e; plik nie jest zapisywany), `insurance_verification` w wyniku `/api/evaluate`; ekran FE `/sprawy` (FE1-34): wybór wniosku, weryfikacja ubezpieczenia, porównanie z decyzją, upload PDF, „Pokaż, jak to policzyliśmy”; e2e 28 |
 | RWD | frontend | wszystkie | ui-verifier 375/1440 | ⬜ |
-| Wskazanie funkcji z AI | docs/AI_USAGE.md | - | - | ⬜ |
+| Wskazanie funkcji z AI | docs/AI_USAGE.md | - | - | 🟨 dokument gotowy (INT-17): aplikacja bez AI, AI tylko w procesie tworzenia |
 
 ## Raport luk: kod vs słownik pojęć (2026-11-21)
 

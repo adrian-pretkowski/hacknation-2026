@@ -106,10 +106,50 @@ def _normalize(name: str, value: Any, field: str) -> Any:
     return _normalize_scalar(name, base, value, field)
 
 
+# Dopuszczalne zakresy nadpisań (BE2-13): chronią silnik przed wartościami bez sensu (0 dni w miesiącu, stawka
+# ujemna, 10^9 tygodni). To ograniczenia techniczne panelu, nie wartości z przepisów: dolna granica wynika z jednostki,
+# górna to krotność wartości bazowej z 03. Parametr może je zawęzić kluczami ``min``/``max`` w ``meta.parameters``.
+_UPPER_MULTIPLIER = 10
+_PLN_UPPER_MULTIPLIER = 100
+_PLN_UPPER_WITHOUT_BASE = Decimal("10000000")
+_FRACTION_UNITS = {"ratio", "ratio_of_fte"}
+
+
+def _bounds(name: str, base: Any) -> tuple[Decimal, Decimal | None, bool]:
+    """(minimum, maksimum lub None, czy minimum wyłączone) dla wartości skalarnej parametru ``name``."""
+    spec = _specs()[name]
+    unit = str(spec.get("unit") or "")
+    base_number = Decimal(str(base)) if base is not None else None
+    if isinstance(base, int) and not isinstance(base, bool):
+        low, high, exclusive = Decimal(1), Decimal(base) * _UPPER_MULTIPLIER, False
+    elif unit in _FRACTION_UNITS:
+        cap = Decimal(1) if base_number is None or base_number <= 1 else base_number * _UPPER_MULTIPLIER
+        low, high, exclusive = Decimal(0), cap, False
+    else:  # kwoty (PLN) i pozostałe liczby dziesiętne: dodatnie
+        high = base_number * _PLN_UPPER_MULTIPLIER if base_number else _PLN_UPPER_WITHOUT_BASE
+        low, exclusive = Decimal(0), True
+    if spec.get("min") is not None:
+        low, exclusive = Decimal(str(spec["min"])), False
+    if spec.get("max") is not None:
+        high = Decimal(str(spec["max"]))
+    return low, high, exclusive
+
+
+def _check_range(name: str, base: Any, number: Decimal, field: str) -> None:
+    low, high, exclusive = _bounds(name, base)
+    too_low = number <= low if exclusive else number < low
+    if too_low or (high is not None and number > high):
+        lower = f"większa niż {low}" if exclusive else f"co najmniej {low}"
+        upper = f" i nie większa niż {high}" if high is not None else ""
+        raise ParameterError(field, "out_of_range", f"{name}: wartość musi być {lower}{upper}")
+
+
 def _normalize_scalar(name: str, base: Any, value: Any, field: str) -> Any:
     if isinstance(base, int) and not isinstance(base, bool):
         if isinstance(value, int) or (isinstance(value, str) and value.strip().lstrip("-").isdigit()):
-            return int(value)
+            number = int(value)
+            _check_range(name, base, Decimal(number), field)
+            return number
         raise ParameterError(field, "invalid_integer", f"{name}: wymagana liczba całkowita")
     # string dziesiętny (stawki, kwoty) albo parametr bez wartości (MISSING) - przyjmujemy liczbę dziesiętną
     if isinstance(value, (int, float, str)):
@@ -118,6 +158,7 @@ def _normalize_scalar(name: str, base: Any, value: Any, field: str) -> Any:
         except InvalidOperation:
             number = None
         if number is not None and number.is_finite():
+            _check_range(name, base, number, field)
             return str(number)
     raise ParameterError(field, "invalid_decimal", f"{name}: wymagana liczba dziesiętna (np. \"0.815\")")
 
@@ -204,13 +245,24 @@ class OverrideStore:
             new_state = {"version": version,
                          "overrides": state["overrides"] + [{**p, "version": version, "changed_at": stamp}
                                                             for p in prepared]}
-            path = self._file()
-            path.parent.mkdir(parents=True, exist_ok=True)
-            tmp = path.with_suffix(".tmp")
-            tmp.write_text(json.dumps(_jsonable(new_state), ensure_ascii=False, indent=2), encoding="utf-8")
-            tmp.replace(path)
-            self._data = new_state
+            self._write(new_state)
             return version
+
+    def reset(self) -> int:
+        """Usuwa wszystkie nadpisania (wartości z 03) jako nową wersję zestawu parametrów (BE2-13)."""
+        with self._lock:
+            version = int(self._state()["version"]) + 1
+            self._write({"version": version, "overrides": []})
+            return version
+
+    def _write(self, new_state: dict[str, Any]) -> None:
+        """Zapis atomowy (plik tymczasowy + zamiana); wywołuj pod blokadą."""
+        path = self._file()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(_jsonable(new_state), ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.replace(path)
+        self._data = new_state
 
 
 STORE = OverrideStore()

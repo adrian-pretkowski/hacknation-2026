@@ -124,7 +124,8 @@ export interface paths {
         /** Nadpisanie parametrów z wersją i datą obowiązywania (wymóg: panel administracyjny) */
         put: operations["updateParameters"];
         post?: never;
-        delete?: never;
+        /** Przywrócenie wartości z zus_rules (usunięcie wszystkich nadpisań; nowa wersja zestawu parametrów) */
+        delete: operations["resetParameters"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1501,13 +1502,33 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Nieznany parametr lub zła wartość */
+            /** @description Nieznany parametr lub zła wartość (także wartość poza dopuszczalnym zakresem - kod `out_of_range`) */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    resetParameters: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK - lista parametrów bez nadpisań */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParameterList"];
                 };
             };
         };

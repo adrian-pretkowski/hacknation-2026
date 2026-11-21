@@ -285,8 +285,21 @@ paths:
           description: Konflikt wersji parametrów
           content: *id001
         '422':
-          description: Nieznany parametr lub zła wartość
+          description: Nieznany parametr lub zła wartość (także wartość poza dopuszczalnym zakresem - kod `out_of_range`)
           content: *id001
+    delete:
+      operationId: resetParameters
+      x-status: implemented
+      x-owner: BE-2
+      x-task: BE2-13
+      summary: Przywrócenie wartości z zus_rules (usunięcie wszystkich nadpisań; nowa wersja zestawu parametrów)
+      responses:
+        '200':
+          description: OK - lista parametrów bez nadpisań
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParameterList'
   /api/sim/mobywatel/login:
     post:
       operationId: simMobywatelLogin

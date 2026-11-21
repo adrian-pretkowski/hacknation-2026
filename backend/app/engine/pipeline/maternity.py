@@ -24,7 +24,7 @@ from typing import Any
 
 from app.core.dates import days_in, end_after_days, end_after_weeks, to_date
 from app.core.money import dec_str, to_decimal
-from app.engine.pipeline.engine import Engine, aggregate_status
+from app.engine.pipeline.engine import UNKNOWN, Engine, Outcome, aggregate_status
 from app.engine.pipeline.general import debt_exclusion, payer_of_benefit, pct
 
 # Reguły istotne dla macierzyńskiego, których przebieg nie uruchomił - raportowane jak w slice_v0;
@@ -419,6 +419,44 @@ def evaluate_equivalent_allowance(eng: Engine) -> dict[str, Any] | None:
 
 
 # ================================================================== przysposobienie / rodzina zastępcza
+_COURT_DATE = "event.court_adoption_application_date"
+
+
+def _adoption_without_court_date(eng: Engine, rule_id: str) -> Outcome:
+    """BE1-08: ``exists`` na pustym polu daje FALSE (C10), ale brak daty wniosku do sądu to brak danych, nie odmowa.
+
+    Pozostałe warunki MAT-ELIG-002 oceniamy tak, jakby wniosek złożono: FALSE (np. dziecko po 14. urodzinach, brak
+    ubezpieczenia) → odmowa z tych przyczyn; TRUE/UNKNOWN → UNKNOWN z brakiem ``event.court_adoption_application_date``.
+    """
+    state = eng.ctx.state
+    state[_COURT_DATE] = "ASSUMED_FILED"  # pola stanu mają pierwszeństwo przed wejściem (Context.field)
+    try:
+        other = eng.eval(rule_id)
+    finally:
+        del state[_COURT_DATE]
+    if other.value is False:
+        return other
+    eng.trace[rule_id] = UNKNOWN
+    return Outcome(rule_id, UNKNOWN, None, [*other.missing, _COURT_DATE])
+_COURT_DATE = "event.court_adoption_application_date"
+
+
+def _adoption_without_court_date(eng: Engine, rule_id: str) -> Outcome:
+    """BE1-09: ``exists`` na pustym polu daje FALSE (C10), ale brak daty wniosku do sądu to brak danych, nie odmowa.
+
+    Pozostałe warunki MAT-ELIG-002 oceniamy tak, jakby wniosek złożono: FALSE (np. dziecko po 14. urodzinach, brak
+    ubezpieczenia) → odmowa z tych przyczyn; TRUE/UNKNOWN → UNKNOWN z brakiem ``event.court_adoption_application_date``.
+    """
+    state = eng.ctx.state
+    state[_COURT_DATE] = "ASSUMED_FILED"  # pola stanu mają pierwszeństwo przed wejściem (Context.field)
+    try:
+        other = eng.eval(rule_id)
+    finally:
+        del state[_COURT_DATE]
+    if other.value is False:
+        return other
+    eng.trace[rule_id] = UNKNOWN
+    return Outcome(rule_id, UNKNOWN, None, [*other.missing, _COURT_DATE])
 def evaluate_maternity_like(eng: Engine) -> dict[str, Any]:
     """Urlop na warunkach urlopu macierzyńskiego (KP art. 183) i zasiłek macierzyński: MAT-ELIG-002 (ADOPTION, dziecko
     do 14 lat), MAT-ELIG-003 (FOSTER niezawodowa, do 7 / 10 lat), MAT-EXCL-001 (rodzina zastępcza zawodowa),
@@ -445,6 +483,8 @@ def evaluate_maternity_like(eng: Engine) -> dict[str, Any]:
                    "Zawodowa rodzina zastępcza nie ma prawa do zasiłku macierzyńskiego za okres urlopu na warunkach "
                    "urlopu macierzyńskiego.", "art. 29 ust. 1 pkt 3")
     elig = eng.eval(rule_id)
+    if rule_id == "MAT-ELIG-002" and elig.value is False and ctx.field(_COURT_DATE) is None:
+        elig = _adoption_without_court_date(eng, rule_id)
     eligible = elig.value
     if elig.unknown:
         eng.need_from(elig)

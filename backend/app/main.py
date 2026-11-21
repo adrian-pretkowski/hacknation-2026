@@ -13,7 +13,7 @@ from app.modules.simulations.router import router as simulations_router
 
 settings = get_settings()
 app = FastAPI(title="Przewodnik Przyszłego Rodzica - API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["GET", "POST", "PUT"],
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["GET", "POST", "PUT", "DELETE"],
                    allow_headers=["*"])
 
 
@@ -24,6 +24,14 @@ async def validation_problem(_: Request, exc: RequestValidationError) -> JSONRes
     return JSONResponse(status_code=422, media_type="application/problem+json",
                         content={"type": "about:blank", "title": "Niepoprawne dane wejściowe", "status": 422,
                                  "detail": "Żądanie nie spełnia kontraktu.", "errors": errors})
+
+
+@app.exception_handler(Exception)
+async def internal_problem(_: Request, exc: Exception) -> JSONResponse:
+    """Nieobsłużony wyjątek → 500 jako application/problem+json (bez szczegółów i danych osobowych w treści)."""
+    return JSONResponse(status_code=500, media_type="application/problem+json",
+                        content={"type": "about:blank", "title": "Błąd wewnętrzny", "status": 500,
+                                 "detail": "Nie udało się przetworzyć żądania. Spróbuj ponownie lub zmień dane."})
 
 
 @app.get("/api/health")
