@@ -14,7 +14,10 @@ app/engine/facts/           registry.py + insurance/sickness (BE-1), maternity/p
 app/engine/pipeline/        evaluate(payload) -> wynik wg zus_rules/05 (BE1-02)
 app/engine/explain/         renderer + templates.pl.yaml (treść: BA)
 app/modules/<domena>/       router.py (+ service.py, schemas.py): evaluation, cases, admin, simulations
-app/integrations/simulated/ adaptery symulacji (INT-03)
+app/integrations/simulated/ mocki systemów trzecich (INT-03), serwis per plik: mobywatel, zus_account,
+                            ezla, debt, pue, applications, civil_registry; systems.py = fasada
+                            SimulatedSystems, common.py = pomocniki, profiles.py = profile demo
+app/modules/simulations/    router `/api/sim/*` (cienka warstwa nad serwisami)
 tests/                      test_contract.py, test_rules_catalog.py, test_evaluate_slice.py, test_cases.py (08), test_facts_*.py
 ```
 
@@ -23,4 +26,5 @@ tests/                      test_contract.py, test_rules_catalog.py, test_evalua
 - Evaluator: logika Kleene; `in` dla listy = część wspólna; FUTURE pomijane i raportowane; BLOCKED z warunkiem TRUE/UNKNOWN → NEEDS_REVIEW; `validation_error` → `plan_errors`, bez zmiany statusu.
 - Odpowiedzi muszą przechodzić `tests/test_contract.py` (schematy z `contracts/openapi.yaml`). Nowe pole w odpowiedzi = najpierw kontrakt (INT).
 - Runner `zus_rules/08`: `input = deep_merge(fixtures[fixture], patch)`, listy w patch zastępują; porównanie częściowe kluczy `expected`; Decimal dokładnie (10 miejsc dla dzieleń nieskończonych).
+- Mocki (`integrations/simulated/`): czyste klasy, bez zewnętrznych serwerów; wynik zależy od wejścia (profil + nadpisania), progi i terminy z `param()`, ID deterministyczne, zegar wstrzykiwany. Każda odpowiedź `simulated: true`. Nie wpisuj tam liczb z przepisów. Nowy scenariusz = test w `tests/test_sim_services.py`.
 - Pliki ze spraw ZUS (`cases/`) nie trafiają do testów w repo — testy tylko na danych syntetycznych (`demo/`, fixtures z 08).

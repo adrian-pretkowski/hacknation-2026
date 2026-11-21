@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import get_settings
 from app.core.params import ruleset_version
 from app.modules.evaluation.router import router as evaluation_router
+from app.modules.simulations.router import router as simulations_router
 
 settings = get_settings()
 app = FastAPI(title="Przewodnik Przyszłego Rodzica — API", version="0.1.0")
@@ -29,3 +30,4 @@ def health() -> dict[str, str]:
 
 
 app.include_router(evaluation_router)
+app.include_router(simulations_router)

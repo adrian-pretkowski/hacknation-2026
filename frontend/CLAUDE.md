@@ -16,6 +16,7 @@ src/content/          treści przewodnika (BA)
 ## Zasady
 - RWD: sprawdzaj 375, 768, 1440 px; brak poziomego scrolla.
 - Ekran symulacji: stały baner „SYMULACJA — w wersji produkcyjnej: integracja z …”; własny design, bez logotypów i kolorów ZUS/mObywatel.
+- Dane symulacji pochodzą z backendowych mocków (`/api/sim/*`; kod: `backend/app/integrations/simulated/`, opis: `docs/ARCHITECTURE.md`). Profile demo: `employee_mother`, `self_employed_debt`, `father_takeover`, `voluntary_short_waiting`, `gap_in_insurance`, `twins_employee`, `adoptive_father`. Nieznany profil → 404 problem+json.
 - Tryb mock zawsze z banerem „TRYB DEMO” (`DemoModeBanner`); E2E i demo — tryb `real`.
 - Kwoty z API jako string; nie przeliczaj w przeglądarce. Format PL przez `lib/format.ts`.
 - Każdy wynik: status, uzasadnienie i podstawa prawna z API; `NEEDS_DATA` → pytanie o pole z `missing_data`; `plan_errors` przy segmencie planera.

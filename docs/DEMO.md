@@ -7,6 +7,8 @@
 4. Odznacz 81,5% → 100%, 28 000,00 zł. Zmień tytuł na „Działalność” i wpisz dług 48,07 zł → „Nie przysługuje” (art. 2a). Wyczyść podstawę → „Potrzebne dane”.
 5. Weryfikacja automatyczna: `python scripts/smoke.py` → `SMOKE: PASS`.
 
+> Dane „z systemów zewnętrznych” (mObywatel, konto ZUS, e-ZLA, zadłużenie, PUE, USC) to **mocki**: serwisy w `backend/app/integrations/simulated/`, endpointy `/api/sim/*`, profile demo: `employee_mother`, `self_employed_debt`, `father_takeover` (+ 4 scenariuszowe). Opis: `docs/ARCHITECTURE.md` § Symulowane systemy trzecie.
+
 ## Demo finałowe (docelowe, 5 min) — szczegóły: `docs/background/01_battle_plan.md` § 10.2
 | Czas | Pokazujemy | Kryterium |
 |---|---|---|
