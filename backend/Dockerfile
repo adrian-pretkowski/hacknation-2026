@@ -4,6 +4,8 @@ WORKDIR /srv
 COPY backend/requirements.txt backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY zus_rules zus_rules
+# BE2-06: sprawy syntetyczne dla /api/cases (dane demo, bez materiałów ZUS)
+COPY demo/cases demo/cases
 COPY backend/app backend/app
 WORKDIR /srv/backend
 ARG APP_VERSION=dev

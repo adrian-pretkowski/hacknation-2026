@@ -1,5 +1,8 @@
 # Poufne materiały ZUS — zakaz kopiowania i rozpowszechniania
 cases/
+# wyjątki: moduł API spraw i sprawy syntetyczne (BE2-06) — NIE materiały ZUS
+!backend/app/modules/cases/
+!demo/cases/
 *.pdf
 !docs/**/*.pdf
 

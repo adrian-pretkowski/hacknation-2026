@@ -1,0 +1,69 @@
+{
+  "case_id": "synthetic-contract-expired",
+  "title": "Umowa zlecenia wygasła przed porodem — brak prawa",
+  "source": "SYNTHETIC",
+  "note": "Dane syntetyczne (T-MAT-004): brak ubezpieczenia w dniu porodu, brak podstawy z art. 30 → brak prawa + ostrzeżenie RISK-003.",
+  "input": {
+    "evaluation": {
+      "as_of_date": "2026-11-21",
+      "mode": "FORECAST"
+    },
+    "person": {
+      "role": "MOTHER",
+      "birth_date": "1994-04-02"
+    },
+    "insurance": {
+      "titles": [
+        {
+          "title_type": "CIVIL_CONTRACT_MANDATE",
+          "sickness_insurance_mode": "VOLUNTARY",
+          "from": "2024-01-01",
+          "to": "2027-02-28",
+          "termination_reason": "CONTRACT_EXPIRY"
+        }
+      ],
+      "titles_confirmed_complete": true
+    },
+    "employment": {
+      "contract_type": null,
+      "working_time_fraction": "1.0",
+      "leaves": []
+    },
+    "payer": {
+      "insured_count_on_nov30_prev_year": 150
+    },
+    "pregnancy": {
+      "expected_due_date": "2027-03-15",
+      "pregnancy_start_date": "2026-06-08"
+    },
+    "event": {
+      "type": "BIRTH",
+      "date": "2027-03-15"
+    },
+    "children": {
+      "count_at_birth": 1,
+      "items": [
+        {
+          "birth_date": "2027-03-15",
+          "birth_weight_g": 3400,
+          "za_zyciem_certificate": false
+        }
+      ],
+      "za_zyciem_certificate": false
+    },
+    "income_history": {
+      "manual_base_override": "6000.00"
+    },
+    "debt": {
+      "amount_on_right_date": "0.00"
+    },
+    "applications": {
+      "combined_815_planned": false
+    }
+  },
+  "expected": {
+    "status": "NOT_ELIGIBLE",
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+  }
+}

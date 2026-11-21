@@ -1,0 +1,56 @@
+{
+  "case_id": "synthetic-employee-mother",
+  "title": "Pracownica, 1 dziecko, wniosek 81,5%",
+  "source": "SYNTHETIC",
+  "note": "Dane syntetyczne (demo/scenario_employee_mother.json). Oczekiwany wynik policzony ręcznie: 6000 × 81,5% / 30 = 163 zł/dzień × 140 dni.",
+  "input": {
+    "evaluation": {
+      "as_of_date": "2027-04-05"
+    },
+    "person": {
+      "role": "MOTHER"
+    },
+    "insurance": {
+      "titles": [
+        {
+          "title_type": "EMPLOYMENT_CONTRACT",
+          "sickness_insurance_mode": "MANDATORY",
+          "from": "2022-02-01",
+          "to": null
+        }
+      ]
+    },
+    "event": {
+      "type": "BIRTH",
+      "date": "2027-03-15"
+    },
+    "children": {
+      "count_at_birth": 1,
+      "items": [
+        {
+          "birth_date": "2027-03-15"
+        }
+      ],
+      "za_zyciem_certificate": false
+    },
+    "income_history": {
+      "manual_base_override": "6000.00"
+    },
+    "applications": {
+      "combined_815_filed_date": "2027-04-05"
+    },
+    "debt": {
+      "amount_on_right_date": null
+    }
+  },
+  "expected": {
+    "status": "ELIGIBLE",
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE",
+    "period_from": "2027-03-15",
+    "period_to": "2027-08-01",
+    "base_amount": "6000.00",
+    "rate": "0.815",
+    "total_amount": "22820.00"
+  }
+}

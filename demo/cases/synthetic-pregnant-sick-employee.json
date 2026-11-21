@@ -1,0 +1,69 @@
+{
+  "case_id": "synthetic-pregnant-sick-employee",
+  "title": "Pracownica w ciąży na zwolnieniu lekarskim",
+  "source": "SYNTHETIC",
+  "note": "Dane syntetyczne (fixture 08 pregnant_sick_employee). Zasiłek chorobowy w ciąży — 100% podstawy (art. 11 ust. 2 pkt 2).",
+  "input": {
+    "evaluation": {
+      "as_of_date": "2026-11-21",
+      "mode": "DECISION_SUPPORT"
+    },
+    "person": {
+      "role": "MOTHER",
+      "birth_date": "1994-04-02"
+    },
+    "insurance": {
+      "titles": [
+        {
+          "title_type": "EMPLOYMENT_CONTRACT",
+          "sickness_insurance_mode": "MANDATORY",
+          "from": "2022-02-01",
+          "to": null
+        }
+      ],
+      "titles_confirmed_complete": true
+    },
+    "employment": {
+      "contract_type": "INDEFINITE",
+      "working_time_fraction": "1.0",
+      "leaves": []
+    },
+    "payer": {
+      "insured_count_on_nov30_prev_year": 150
+    },
+    "pregnancy": {
+      "expected_due_date": "2027-03-15",
+      "pregnancy_start_date": "2026-06-08",
+      "is_pregnant_during_incapacity": true
+    },
+    "event": {
+      "type": "PREGNANCY_INCAPACITY"
+    },
+    "incapacity": {
+      "start_date": "2026-11-02",
+      "end_date": "2026-11-30",
+      "codes": [
+        "B"
+      ],
+      "cause": "ILLNESS",
+      "certificate_present": true
+    },
+    "benefit_history": {
+      "sickness_periods": [],
+      "sickness_periods_confirmed_complete": true,
+      "employer_sick_pay_days_in_year": 0
+    },
+    "income_history": {
+      "manual_base_override": "4500.00"
+    },
+    "debt": {
+      "amount_on_right_date": "0.00"
+    }
+  },
+  "expected": {
+    "status": "ELIGIBLE",
+    "benefit_type": "SICKNESS_BENEFIT",
+    "leave_type": null,
+    "rate": "1.00"
+  }
+}
