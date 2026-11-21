@@ -5,6 +5,7 @@ import type { EvaluateRequest } from "@/lib/api";
 import { baseFromGross } from "../preview/engine";
 import { addDays } from "../preview/exact";
 import type { Answers, Tri, Variant } from "./answers";
+import { parseMoney } from "./money";
 
 export type WizardPlan = {
   father_parental_weeks: number;
@@ -31,10 +32,7 @@ export type WizardRequest = EvaluateRequest & { wizard_plan: WizardPlan };
 
 const tri = (v: Tri): boolean | null => (v === "YES" ? true : v === "NO" ? false : null);
 const num = (v: string): number | null => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
-const money = (v: string): string | null => {
-  const t = v.trim().replace(/\s/g, "").replace(",", ".");
-  return /^\d+(\.\d{1,2})?$/.test(t) ? t : null;
-};
+const money = parseMoney; // FE1-15: wspólna normalizacja kwot (money.ts); kwota ≥ 0 (np. zaległość 0)
 
 export function todayIso(): string {
   const now = new Date();

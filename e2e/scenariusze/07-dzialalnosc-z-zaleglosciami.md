@@ -16,7 +16,7 @@
 14. W polu „Zaległość w składkach na dzień porodu (zł)” wpisz „120,00”.
 15. Przejdź dalej.
 16. Przejdź dalej.
-17. Ustaw suwak „Zadeklarowana podstawa składek (zł / miesiąc)” na „5000”.
+17. W polu „Zadeklarowana podstawa składek (zł / miesiąc)” wpisz „5000”.
 18. Przejdź dalej.
 19. Sprawdź, że nagłówek to „Optymalizacja”.
 20. Przejdź dalej.

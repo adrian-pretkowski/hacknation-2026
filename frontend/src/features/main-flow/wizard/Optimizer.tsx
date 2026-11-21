@@ -7,7 +7,8 @@ import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResp
 import { formatMoney, formatRate } from "@/lib/format";
 import { baseFromGross } from "../preview/engine";
 import type { Answers } from "./answers";
-import { Choice, Slider, TRI_OPTIONS } from "./fields";
+import { Choice, MoneyField, TRI_OPTIONS } from "./fields";
+import { normalizeMoney } from "./money";
 
 const STEP_TITLE: Record<string, string> = {
   COMBINED_815: "Wniosek 81,5%",
@@ -22,10 +23,7 @@ const STEP_COUNT = Object.keys(STEP_TITLE).length;
 const PARENT = { MOTHER: "Mama", FATHER: "Tata" } as const;
 const box = "rounded-xl border border-zinc-200 p-4";
 
-const clean = (v: string) => {
-  const n = v.trim().replace(",", ".");
-  return /^\d+(\.\d{1,2})?$/.test(n) && Number(n) > 0 ? n : null;
-};
+const clean = normalizeMoney; // FE1-15: wspólna normalizacja kwot (money.ts)
 
 /** Czy krok „Optymalizacja” ma sens: rodzic biologiczny, przed porodem, mama ubezpieczona. */
 export function optimizerVisible(a: Answers): boolean {
@@ -93,7 +91,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           onChange={(partnerInsured) => set({ partnerInsured, plannerChoices: [] })} options={TRI_OPTIONS} />
       )}
       {fatherInsured && (
-        <Slider label={`Wynagrodzenie brutto ${isMother ? "taty" : "mamy"} (zł / miesiąc)`} unit="zł" money min={0} max={30000} step={100}
+        <MoneyField label={`Wynagrodzenie brutto ${isMother ? "taty" : "mamy"} (zł / miesiąc)`}
           value={a.partnerSalaryGross} emptyLabel="nie podano"
           hint="Potrzebne, żeby porównać, komu bardziej opłaca się wziąć część urlopu."
           onChange={(partnerSalaryGross) => set({ partnerSalaryGross, plannerChoices: [] })} />
