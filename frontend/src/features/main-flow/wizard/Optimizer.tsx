@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResponse, plannerSuggest } from "@/lib/api";
 import { formatMoney, formatRate } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
-import { baseFromGross, baseFromGrossDetailed } from "../preview/engine";
+import { baseFromGross } from "../preview/engine";
 import type { Answers } from "./answers";
 import { Choice, MoneyField, TRI_OPTIONS } from "./fields";
 import { normalizeMoney } from "./money";
@@ -42,12 +42,9 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
   const fatherInsured = isMother ? a.partnerInsured !== "NO" : true;
   const motherGross = isMother ? ownGross : partnerGross;
   const fatherGross = isMother ? partnerGross : ownGross;
-  // FE1-20: własna podstawa z granicami z 03 (limit dobrowolnego, minimum przy pełnym etacie); drugi rodzic — bez danych o tytule
-  const ownBase = ownGross ? baseFromGrossDetailed(ownGross, { voluntary: a.title !== "EMPLOYMENT" && a.voluntarySickness === "YES",
-    fullTimeEmployee: a.title === "EMPLOYMENT" && a.fullTime === "YES" }).base : null;
-  const baseOf = (gross: string | null, own: boolean) => (!gross ? null : own && ownBase ? ownBase : baseFromGross(gross));
-  const motherBase = baseOf(motherGross, isMother);
-  const fatherBase = baseOf(fatherGross, !isMother);
+  // planer (API) dostaje podstawę bez granic — minimum i limit nakłada silnik, nie przeglądarka (review FE1-20)
+  const motherBase = motherGross ? baseFromGross(motherGross) : null;
+  const fatherBase = fatherGross ? baseFromGross(fatherGross) : null;
   const choices = a.plannerChoices;
   const setChoices = (plannerChoices: PlannerChoice[]) => set({ plannerChoices });
   const missing = !ownGross ? "Wróć do kroku „Wynagrodzenie” i podaj swoje wynagrodzenie."

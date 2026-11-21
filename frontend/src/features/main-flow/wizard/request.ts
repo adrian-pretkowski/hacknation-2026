@@ -2,7 +2,7 @@
 // Pola nieznane zostają null (silnik: UNKNOWN → NEEDS_DATA). Preferencje planu bez odpowiednika w kontrakcie
 // trafiają do `wizard_plan` (kontrakt dopuszcza additionalProperties; do formalizacji przez INT).
 import type { EvaluateRequest } from "@/lib/api";
-import { baseFromGrossDetailed } from "../preview/engine";
+import { baseFromGross } from "../preview/engine";
 import { addDays } from "../preview/exact";
 import { type Answers, type Tri, type Variant, extendableUntilBirth, hasContractEnd } from "./answers";
 import { parseMoney } from "./money";
@@ -127,9 +127,9 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       school_obligation_deferred: isGuardian ? tri(a.schoolDeferred) : null,
       items,
     },
-    // FE1-20: podstawa z granicami z 03 (limit dobrowolnego, minimum przy pełnym etacie) — jak w podglądzie
-    income_history: { manual_base_override: gross ? baseFromGrossDetailed(gross, {
-      voluntary: mode === "VOLUNTARY", fullTimeEmployee: a.title === "EMPLOYMENT" && a.fullTime === "YES" }).base : null },
+    // FE1-20: do API podstawa bez granic — minimum i limit nakłada silnik (BE2-12: BASE-EMP-008, BASE-NEMP-005);
+    // podgląd (mock) liczy granice z `wizard_plan.gross_salary` w baseFromGrossDetailed
+    income_history: { manual_base_override: gross ? baseFromGross(gross) : null },
     applications: { combined_815_planned: variant === "COMBINED_815" },
     plan: { maternity_start_date: a.maternityStart || null },
     debt: a.title === "SELF_EMPLOYED" ? { amount_on_right_date: money(a.debt) } : undefined,

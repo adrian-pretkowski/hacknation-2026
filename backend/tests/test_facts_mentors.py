@@ -80,6 +80,8 @@ def _rate_100(demo_payload, base):
     payload = copy.deepcopy(demo_payload)
     payload["applications"] = {"combined_815_planned": False}  # bez wniosku 81,5% → 100%
     payload["income_history"]["manual_base_override"] = base
+    # niepełny etat — bez minimalnej podstawy z art. 45 (BE2-12, D35); test dotyczy podwyższenia do 1000 zł
+    payload.setdefault("employment", {})["working_time_fraction"] = "0.25"
     return payload
 
 

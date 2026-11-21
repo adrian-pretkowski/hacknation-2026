@@ -207,7 +207,9 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
   const warn = (code: string, severity: Warning["severity"], rule_id: string, message: string) =>
     warnings.push({ code, severity, rule_id, message });
 
-  const baseRaw = req.income_history?.manual_base_override ?? null;
+  // FE1-20: podgląd (mock) nakłada granice podstawy jak silnik (BE2-12); do API idzie podstawa bez granic
+  const baseRaw = wp.gross_salary ? baseFromGrossDetailed(wp.gross_salary, baseKindOf(req)).base
+    : req.income_history?.manual_base_override ?? null;
   const base = baseRaw ? ratio(baseRaw) : null;
   const combined = req.applications?.combined_815_planned === true;
   const titles = req.insurance?.titles;
@@ -238,6 +240,8 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
     statuses.push("NOT_ELIGIBLE");
     // FE1-22: ulga na start / uczeń lub student do 26 lat na zleceniu — tytuł bez ubezpieczeń społecznych
     const excluded = wp.no_insurance_reason;
+    if (excluded) assumptions.push({ code: "EXCLUSION_SOURCE_UNCONFIRMED",
+      text: "Wyłączenie z ubezpieczeń (ulga na start / uczeń lub student do 26 lat) wynika z przepisów spoza materiałów zadania — do potwierdzenia przez mentora (M20); progi w 03 mają status UNCONFIRMED." });
     const why = excluded === "START_RELIEF"
       ? "W okresie ulgi na start (Prawo przedsiębiorców art. 18) nie podlegasz ubezpieczeniom społecznym, także chorobowemu — z działalności zasiłek macierzyński nie przysługuje. Chorobowe możesz opłacać dopiero po zakończeniu ulgi, bez działania wstecz."
       : excluded === "STUDENT_UNDER_26"

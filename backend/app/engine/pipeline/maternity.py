@@ -90,8 +90,8 @@ def _rate_base_amount(eng: Engine, segment: dict[str, Any], days: int | None, re
     # kalendarzowego (M05); ręczna podstawa ma pierwszeństwo, bez historii zasiłków reguła nie dotyczy
     manual = ctx.field("income_history.manual_base_override") is not None
     base_source = "MANUAL" if manual else None
-    if manual:
-        _base_limits(eng, applied, reason)
+    if manual and _base_limits(eng, applied, reason):
+        needs_data = True
     if not manual and ctx.field("benefit_history.previous_benefit_end_date") is not None:
         reuse = eng.eval("BASE-GEN-001")
         if reuse.unknown:
@@ -139,20 +139,32 @@ def _rate_base_amount(eng: Engine, segment: dict[str, Any], days: int | None, re
     return {"rate": rate, "daily": daily, "total": total, "base": base, "needs_data": needs_data}
 
 
-def _base_limits(eng: Engine, applied: list[str], reason: Reason) -> None:
+def _base_limits(eng: Engine, applied: list[str], reason: Reason) -> bool:
     """BE2-12: granice nowej podstawy — BASE-EMP-008 (minimum, pełny etat) i BASE-NEMP-005 (limit dobrowolnego).
 
-    Kwotę ustala już f_benefit_base; tu ślad reguł i komunikat, gdy granica zmieniła podstawę. Bez wymiaru etatu
-    BASE-EMP-008 nie jest oceniana (brak minimum to nie brak prawa — bez NEEDS_DATA).
+    BE2-12: granice nowej podstawy — BASE-EMP-008 (minimum, pełny etat) i BASE-NEMP-005 (limit dobrowolnego).
+
+    Kwotę ustala już f_benefit_base; tu ślad reguł i komunikat, gdy granica zmieniła podstawę. Wymiar etatu jest
+    potrzebny (03: NEEDS_DATA) tylko wtedy, gdy rozstrzyga kwotę: tytuł pracowniczy i podstawa poniżej minimum.
+    Gdy podstawa jest ≥ minimum, BASE-EMP-008 nie zmienia wyniku — bez dopytania.
     """
     ctx = eng.ctx
     raw = to_decimal(ctx.field("income_history.manual_base_override"))
     checks = [("BASE-NEMP-005", "BASE_CAPPED_VOLUNTARY",
                "limit podstawy składek przy dobrowolnym ubezpieczeniu (Załącznik, M08)")]
-    if ctx.field("employment.working_time_fraction") is not None:
+    minimum = ctx.fact("f_minimum_base")
+    below = raw is not None and minimum is not None and raw < minimum
+    if ctx.field("employment.working_time_fraction") is not None or (
+            below and ctx.fact("f_is_employee_title_for_base") is True):
         checks.insert(0, ("BASE-EMP-008", "BASE_RAISED_TO_MINIMUM", "art. 45 ust. 1"))
+    missing = False
     for rule_id, code, basis in checks:
         outcome = eng.eval(rule_id)
+        if outcome.unknown:
+            if outcome.missing:  # brak pól wejścia (np. wymiar etatu) → dopytanie; nieznany tytuł — bez granicy
+                eng.need_from(outcome)
+                missing = True
+            continue
         if not outcome.fired:
             continue
         adjusted = ctx.fact(eng.rules.rule(rule_id)["result"]["compute"])
@@ -167,6 +179,7 @@ def _base_limits(eng: Engine, applied: list[str], reason: Reason) -> None:
             message = (f"Podstawa {dec_str(raw)} zł przekracza limit przy dobrowolnym ubezpieczeniu chorobowym "
                        f"— przyjęto {dec_str(adjusted)} zł.")
         reason(code, rule_id, message, basis)
+    return missing
 
 
 def _benefit(benefit_type: str, leave_type: str, status: str, money: dict[str, Any], period: dict[str, Any] | None,

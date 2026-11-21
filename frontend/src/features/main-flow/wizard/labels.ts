@@ -79,6 +79,7 @@ export const FIELD_QUESTION: Record<string, string> = {
   "event.date": "Podaj datę porodu lub przyjęcia dziecka.",
   "insurance.titles": "Podaj tytuł ubezpieczenia i datę jego rozpoczęcia.",
   "insurance.titles[0].sickness_insurance_mode": "Czy opłacasz dobrowolne ubezpieczenie chorobowe?",
+  "employment.working_time_fraction": "Czy pracujesz na pełny etat? (minimalna podstawa zasiłku)",
   "income_history.manual_base_override": "Podaj wynagrodzenie, aby policzyć kwoty.",
   "children.count_at_birth": "Ile dzieci urodziło się przy jednym porodzie?",
   "children.count_at_event": "Ile dzieci przyjmujesz?",
@@ -95,7 +96,7 @@ export const FIELD_QUESTION: Record<string, string> = {
 export const FIELD_STEP: Record<string, string> = {
   "event.date": "event", "children.count_at_birth": "event", "children.count_at_event": "event", "children.items[].birth_date": "event",
   "insurance.titles": "insurance", "insurance.titles[0].sickness_insurance_mode": "insurance", "debt.amount_on_right_date": "insurance",
-  "employment.extended_until_birth_kp177": "insurance", "payer.insured_count_on_nov30_prev_year": "insurance",
+  "employment.extended_until_birth_kp177": "insurance", "employment.working_time_fraction": "insurance", "payer.insured_count_on_nov30_prev_year": "insurance",
   "income_history.manual_base_override": "salary", "mother.sickness_insured": "partner",
   "birth.completed_gestation_weeks": "special", "birth.weight_at_most_threshold": "special", "children.hospital_stays": "special",
 };

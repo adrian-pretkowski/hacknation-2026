@@ -53,12 +53,18 @@ def test_be2_12_base_emp_008_part_time_no_minimum(demo_payload):
     assert "BASE-EMP-008" not in benefit["applied_rules"]
 
 
-def test_be2_12_base_emp_008_unknown_working_time_no_minimum_no_needs_data(demo_payload):
-    """Brak wymiaru etatu: minimum nie jest stosowane i nie ma dopytania (to doprecyzowanie kwoty, nie prawa)."""
+def test_be2_12_base_emp_008_unknown_working_time_below_minimum_needs_data(demo_payload):
+    """Brak wymiaru etatu przy podstawie poniżej minimum: BASE-EMP-008 rozstrzyga kwotę → NEEDS_DATA (03)."""
     result = pipeline.evaluate(_employee(demo_payload, "3000.00", None))
-    benefit = _maternity(result)
-    assert Decimal(benefit["base"]["amount_exact"]) == Decimal("3000.00")
+    assert any(m["field"] == "employment.working_time_fraction" for m in result["missing_data"])
+    assert _maternity(result)["status"] == "NEEDS_DATA"
+
+
+def test_be2_12_base_emp_008_unknown_working_time_above_minimum_no_question(demo_payload):
+    """Podstawa ≥ minimum: wymiar etatu nie zmienia kwoty — bez dopytania."""
+    result = pipeline.evaluate(_employee(demo_payload, "6000.00", None))
     assert all(m["field"] != "employment.working_time_fraction" for m in result["missing_data"])
+    assert Decimal(_maternity(result)["base"]["amount_exact"]) == Decimal("6000.00")
 
 
 # ------------------------------------------------------------ BASE-NEMP-005: limit przy dobrowolnym chorobowym
