@@ -11,6 +11,7 @@ import type { Answers } from "./answers";
 import { Check, Choice, DateField, Field, MoneyField, NumberSelect, Slider, TRI_OPTIONS, inputCls, moneyError } from "./fields";
 import { dateErrors, dateWarnings, hasErrors } from "./validation";
 import { Optimizer, optimizerVisible } from "./Optimizer";
+import { normalizeMoney } from "./money";
 import { todayIso } from "./request";
 import { ZusFetch } from "./ZusFetch";
 
@@ -492,8 +493,8 @@ export const STEPS: Step[] = [
     visible: (a) => a.role !== null && a.title !== "NONE",
     complete: (a) => !moneyError(a.salaryGross),
     summary: (a) => {
-      const v = a.salaryGross.trim().replace(/\s/g, "").replace(",", ".");
-      return /^\d+(\.\d{1,2})?$/.test(v) ? `${formatMoney(v)} brutto` : "nie podano";
+      const v = normalizeMoney(a.salaryGross);
+      return v ? `${formatMoney(v)} brutto` : "nie podano";
     },
     render: ({ a, set }) => (
       <div className="space-y-4">

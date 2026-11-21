@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { formatMoney } from "@/lib/format";
+import { moneyError, normalizeMoney } from "./money";
 
 export const inputCls =
   "mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark";
@@ -58,15 +59,7 @@ export function Field({ label, hint, children, error, errorId }: {
   );
 }
 
-/** FE1-15: kwota w zł z groszami (przecinek lub kropka) — pusta = „nie podano”; błąd przy polu dla złego formatu lub 0. */
-export const moneyError = (raw: string): string | undefined => {
-  const v = raw.trim().replace(/\s/g, "").replace(",", ".");
-  if (v === "") return undefined;
-  // końcowy separator w trakcie pisania („7800,”) nie jest błędem — usuwa go opuszczenie pola (onBlur)
-  if (!/^\d+(\.\d{0,2})?$/.test(v)) return "Wpisz kwotę w złotych, np. 7800 albo 7800,50 (najwyżej 2 miejsca po przecinku).";
-  if (Number(v) <= 0) return "Kwota musi być większa od zera — jeśli jej nie znasz, zostaw pole puste.";
-  return undefined;
-};
+export { moneyError } from "./money";
 
 /** FE1-15: samo pole kwoty (bez suwaka): dokładna kwota, podgląd w formacie PL, komunikat przy polu. */
 export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie podano" }: {
@@ -74,7 +67,7 @@ export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie pod
 }) {
   const id = useId();
   const error = moneyError(value);
-  const normalized = value.trim().replace(/\s/g, "").replace(",", ".");
+  const normalized = normalizeMoney(value);
   return (
     <Field label={label} hint={hint} error={error} errorId={`${id}-err`}>
       <span className="mt-1 flex items-center gap-3">
@@ -85,7 +78,7 @@ export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie pod
           onBlur={() => { if (/[.,]$/.test(value)) onChange(value.slice(0, -1)); }} />
         <span id={`${id}-preview`} className="text-base font-semibold text-zus-navy" aria-live="polite">
           {value.trim() === "" ? <span className="text-sm font-normal text-zinc-500">{emptyLabel}</span>
-            : error ? null : formatMoney(normalized.replace(/\.$/, ""))}
+            : error || normalized === null ? null : formatMoney(normalized)}
         </span>
       </span>
     </Field>

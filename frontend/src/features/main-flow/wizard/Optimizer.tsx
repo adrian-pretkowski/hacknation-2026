@@ -8,6 +8,7 @@ import { formatMoney, formatRate } from "@/lib/format";
 import { baseFromGross } from "../preview/engine";
 import type { Answers } from "./answers";
 import { Choice, MoneyField, TRI_OPTIONS } from "./fields";
+import { normalizeMoney } from "./money";
 
 const STEP_TITLE: Record<string, string> = {
   COMBINED_815: "Wniosek 81,5%",
@@ -22,10 +23,7 @@ const STEP_COUNT = Object.keys(STEP_TITLE).length;
 const PARENT = { MOTHER: "Mama", FATHER: "Tata" } as const;
 const box = "rounded-xl border border-zinc-200 p-4";
 
-const clean = (v: string) => {
-  const n = v.trim().replace(",", ".");
-  return /^\d+(\.\d{1,2})?$/.test(n) && Number(n) > 0 ? n : null;
-};
+const clean = normalizeMoney; // FE1-15: wspólna normalizacja kwot (money.ts)
 
 /** Czy krok „Optymalizacja” ma sens: rodzic biologiczny, przed porodem, mama ubezpieczona. */
 export function optimizerVisible(a: Answers): boolean {
