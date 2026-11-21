@@ -38,6 +38,214 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lista przykładowych spraw do wyboru (syntetyczne; ZUS_SAMPLE po zgodzie M02) */
+        get: operations["listCases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cases/{case_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Szczegóły sprawy: dane wejściowe i oczekiwany wynik */
+        get: operations["getCase"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cases/{case_id}/evaluate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ewaluacja sprawy i porównanie z decyzją ZUS (weryfikacja ubezpieczenia + kalkulator — wymóg § 4 i § 6 zadania) */
+        post: operations["evaluateCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cases/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload wniosku (PDF) — rozpoznanie i mapowanie do modelu wejścia
+         * @description Plik nie jest zapisywany trwale ani logowany (poufność). Bez zgody M16e brak ekstrakcji AI: znane formularze → FIXTURE_MATCH, inne → MANUAL_REQUIRED.
+         */
+        post: operations["uploadCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/parameters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Parametry prawne (zus_rules meta.parameters + nadpisania) */
+        get: operations["listParameters"];
+        /** Nadpisanie parametrów z wersją i datą obowiązywania (wymóg: panel administracyjny) */
+        put: operations["updateParameters"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sim/mobywatel/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** SYMULACJA logowania przez mObywatel (wybór profilu demo) */
+        post: operations["simMobywatelLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sim/zus-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SYMULACJA pobrania danych z systemów ZUS (ubezpieczenie, podstawa, płatnik) */
+        get: operations["simZusProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sim/ezla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SYMULACJA podglądu zaświadczeń lekarskich e-ZLA */
+        get: operations["simEzla"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sim/debt-certificate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** SYMULACJA zaświadczenia o stanie zadłużenia składkowego na dzień powstania prawa */
+        get: operations["simDebtCertificate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sim/pue-question": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** SYMULACJA zadania pytania przez PUE/eZUS */
+        post: operations["simPueQuestion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sim/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** SYMULACJA złożenia wniosku o urlop (do pracodawcy) lub o zasiłek (ZAM, do ZUS/płatnika) */
+        post: operations["simSubmitApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sim/birth-certificate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** SYMULACJA wniosku o odpis aktu urodzenia (gov.pl — rejestr stanu cywilnego) */
+        post: operations["simBirthCertificate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -63,39 +271,156 @@ export interface components {
             /** Format: date */
             to?: string | null;
         };
-        /** @description Podzbiór zus_rules/04_INPUT_DATA_SCHEMA.json. Dodatkowe pola są akceptowane i ignorowane przez slice-v0. */
+        /** @description Model wejścia = zus_rules/04_INPUT_DATA_SCHEMA.json (pełny). Kontrakt v1 wymaga tylko `event`; brak pozostałych pól silnik traktuje jako UNKNOWN → NEEDS_DATA. Docelowo 04 wymaga też `evaluation` i `person` — zaostrzenie tylko przez zmianę wersji kontraktu. */
         EvaluateRequest: {
             evaluation?: {
-                /** Format: date */
-                as_of_date?: string;
+                /** @description Data, wg której ocenia się obowiązywanie przepisów (domyślnie 2026-11-21). */
+                as_of_date?: components["schemas"]["InDate"];
+                /**
+                 * @description FORECAST — zdarzenie przyszłe (planowany poród); wynik jest prognozą.
+                 * @enum {unknown}
+                 */
+                mode?: "DECISION_SUPPORT" | "FORECAST";
+                ruleset_version?: string;
             };
             person?: {
                 /** @enum {unknown} */
                 role?: "MOTHER" | "FATHER" | "OTHER_FAMILY_MEMBER" | "ADOPTIVE_PARENT" | "FOSTER_PARENT";
+                birth_date?: components["schemas"]["InDate"];
+                graduation_date?: components["schemas"]["InDate"];
+                /** @enum {unknown} */
+                special_status?: null | "NONE" | "MP_SENATOR_WITHIN_90_DAYS" | "CUSTOMS_SERVICE_KAS";
+                has_pension_or_disability_pension?: components["schemas"]["InTriBool"];
+                continues_or_started_gainful_activity?: components["schemas"]["InTriBool"];
+                receives_unemployment_or_preretirement_benefit?: components["schemas"]["InTriBool"];
+                mandatory_krus?: components["schemas"]["InTriBool"];
+                on_health_restoration_leave?: components["schemas"]["InTriBool"];
+            };
+            /** @description Dane matki, gdy oceniany jest ojciec / inny członek rodziny. */
+            mother?: {
+                sickness_insured?: components["schemas"]["InTriBool"];
+                incapable_of_independent_living_certificate?: components["schemas"]["InTriBool"];
+                hospitalized_unable_to_care?: components["schemas"]["InTriBool"];
+                hospital_admission_date?: components["schemas"]["InDate"];
+                hospital_discharge_date?: components["schemas"]["InDate"];
+                death_date?: components["schemas"]["InDate"];
+                abandoned_child_date?: components["schemas"]["InDate"];
+                employment_start_date?: components["schemas"]["InDate"];
+                employment_fraction?: components["schemas"]["InFraction"];
             };
             insurance?: {
-                titles?: components["schemas"]["InsuranceTitle"][];
+                /** @description Wszystkie tytuły ubezpieczenia chorobowego (bieżące i historyczne). Pusta lista + titles_confirmed_complete=true = brak ubezpieczenia. */
+                titles?: components["schemas"]["InInsuranceTitle"][];
+                /** @default false */
+                titles_confirmed_complete?: boolean;
+            };
+            employment?: {
+                /** @enum {unknown} */
+                contract_type?: null | "INDEFINITE" | "FIXED_TERM" | "PROBATION_OVER_1_MONTH" | "PROBATION_UP_TO_1_MONTH" | "REPLACEMENT";
+                contract_end_date?: components["schemas"]["InDate"];
+                is_replacement_contract?: components["schemas"]["InTriBool"];
+                /** @description Potwierdzenie przedłużenia do dnia porodu (np. ze świadectwa pracy). null → ocenia MAT-CLS-002 (BLOCKED). */
+                extended_until_birth_kp177?: components["schemas"]["InTriBool"];
+                other_employment_provided?: components["schemas"]["InTriBool"];
+                working_time_fraction?: components["schemas"]["InFraction"];
+                working_time_change_date?: components["schemas"]["InDate"];
+                contract_monthly_salary?: components["schemas"]["InMoney"];
+                employer_sick_pay_rate_override?: components["schemas"]["InFraction"];
+                leaves?: components["schemas"]["InLeave"][];
+            };
+            payer?: {
+                insured_count_on_nov30_prev_year?: number | null;
+            };
+            pregnancy?: {
+                expected_due_date?: components["schemas"]["InDate"];
+                /** @description Szacowana data początku ciąży (z dokumentacji). Używana do ustalenia 'w okresie ciąży'. */
+                pregnancy_start_date?: components["schemas"]["InDate"];
+                is_pregnant_during_incapacity?: components["schemas"]["InTriBool"];
             };
             event: {
                 /** @enum {unknown} */
                 type: "BIRTH" | "ADOPTION" | "FOSTER" | "PREGNANCY_INCAPACITY" | "SICKNESS";
-                /** Format: date */
-                date?: string | null;
+                /** @description BIRTH: data porodu (FORECAST: przewidywana); ADOPTION/FOSTER: data przyjęcia dziecka. */
+                date?: components["schemas"]["InDate"];
+                court_adoption_application_date?: components["schemas"]["InDate"];
+                adoption_final_date?: components["schemas"]["InDate"];
+                /** @enum {unknown} */
+                foster_family_type?: null | "NON_PROFESSIONAL" | "PROFESSIONAL";
+            };
+            birth?: {
+                completed_gestation_weeks?: number | null;
             };
             children?: {
                 count_at_birth?: number | null;
+                count_at_event?: number | null;
+                items?: components["schemas"]["InChild"][];
+                /** @description Skrót — gdy items nie podano. */
+                birth_dates?: components["schemas"]["InDate"][];
+                za_zyciem_certificate?: components["schemas"]["InTriBool"];
+                school_obligation_deferred?: components["schemas"]["InTriBool"];
+                hospital_stays?: components["schemas"]["InHospitalStay"][];
+                abandoned_or_placed_date?: components["schemas"]["InDate"];
+            };
+            /** @description Bieżąca niezdolność do pracy (e-ZLA) — dla zasiłku chorobowego w ciąży. */
+            incapacity?: {
+                start_date?: components["schemas"]["InDate"];
+                end_date?: components["schemas"]["InDate"];
+                codes?: ("A" | "B" | "C" | "D" | "E")[];
+                /** @enum {unknown} */
+                cause?: null | "ILLNESS" | "COMMUTE_ACCIDENT" | "ORGAN_DONOR" | "OTHER";
+                certificate_present?: components["schemas"]["InTriBool"];
+                gainful_work_during_leave_reported?: components["schemas"]["InTriBool"];
+                certificate_forged?: components["schemas"]["InTriBool"];
+                caused_by_own_intentional_offence_final_judgment?: components["schemas"]["InTriBool"];
+            };
+            benefit_history?: {
+                sickness_periods?: (components["schemas"]["InPeriod"] & {
+                    codes?: ("A" | "B" | "C" | "D" | "E")[];
+                    /** @enum {unknown} */
+                    paid_as?: "EMPLOYER_SICK_PAY" | "SICKNESS_BENEFIT" | "NONE";
+                })[];
+                /** @default false */
+                sickness_periods_confirmed_complete?: boolean;
+                employer_sick_pay_days_in_year?: number | null;
+                previous_benefit_end_date?: components["schemas"]["InDate"];
+                previous_base_amount?: components["schemas"]["InMoney"];
             };
             income_history?: {
-                manual_base_override?: components["schemas"]["Money"] | null;
+                months?: components["schemas"]["InIncomeMonth"][];
+                quarterly_components?: components["schemas"]["InPeriodicComponent"][];
+                annual_components?: components["schemas"]["InPeriodicComponent"][];
+                minimum_contribution_base_by_month?: {
+                    [key: string]: components["schemas"]["InMoney"];
+                };
+                /** @description Podstawa podana wprost (np. z poświadczenia ZUS). Gdy podana — f_benefit_base ją zwraca z flagą source=MANUAL. */
+                manual_base_override?: components["schemas"]["InMoney"];
             };
             applications?: {
-                /** Format: date */
-                combined_815_filed_date?: string | null;
-                combined_815_planned?: boolean | null;
+                combined_815_filed_date?: components["schemas"]["InDate"];
+                /** @description FORECAST: czy użytkownik zamierza złożyć wniosek 81,5%. */
+                combined_815_planned?: components["schemas"]["InTriBool"];
             };
+            plan?: {
+                segments?: components["schemas"]["InPlanSegment"][];
+                maternity_start_date?: components["schemas"]["InDate"];
+                parental_start_date?: components["schemas"]["InDate"];
+                paternity_start_date?: components["schemas"]["InDate"];
+                transfer_start_date?: components["schemas"]["InDate"];
+                mother_resigns_remaining_maternity?: components["schemas"]["InTriBool"];
+            };
+            /** @description Zadłużenie składkowe (zaświadczenie — symulacja). */
             debt?: {
-                amount_on_right_date?: components["schemas"]["Money"] | null;
+                amount_on_right_date?: components["schemas"]["InMoney"];
+                repaid_in_full_date?: components["schemas"]["InDate"];
             };
+            rehabilitation?: {
+                zus_medical_opinion_positive?: components["schemas"]["InTriBool"];
+            };
+            evidence?: {
+                documents?: components["schemas"]["InDocument"][];
+            };
+        } & {
+            [key: string]: unknown;
         };
         LegalRef: {
             /** @enum {unknown} */
@@ -120,6 +445,8 @@ export interface components {
                 /** Format: date */
                 to?: string;
                 max_weeks?: number;
+                max_days?: number | null;
+                days_used_in_benefit_period?: number | null;
             } | null;
             days?: number | null;
             daily_amount_exact?: components["schemas"]["Money"] | null;
@@ -128,6 +455,26 @@ export interface components {
             payer_of_benefit?: "CONTRIBUTION_PAYER" | "ZUS" | null;
             reasons: components["schemas"]["Reason"][];
             applied_rules: string[];
+            entitlement_basis?: string | null;
+            suspended_until_debt_repaid?: boolean;
+            /** @description true gdy evaluation.mode = FORECAST */
+            forecast?: boolean;
+            base?: {
+                amount_exact?: components["schemas"]["OutMoney"];
+                method_rule_id?: string;
+                months_used?: string[];
+                /** @enum {unknown} */
+                source?: "CALCULATED" | "MANUAL" | "REUSED_PREVIOUS" | "MINIMUM_APPLIED";
+            } | null;
+            segments?: components["schemas"]["OutSegment"][];
+            totals?: {
+                amount_exact?: components["schemas"]["OutMoney"];
+                amount_rounded?: components["schemas"]["OutMoney"];
+                monthly_indicative?: components["schemas"]["OutMoney"];
+            } | null;
+            legal_basis?: components["schemas"]["OutLegalRef"][];
+            /** @description Łączne uzasadnienie (szablony reguł, kolejność wg grafu zależności). */
+            explanation?: string;
         };
         MissingData: {
             field: string;
@@ -137,6 +484,7 @@ export interface components {
             code: string;
             text: string;
         };
+        /** @description Model wyjścia = zus_rules/05_OUTPUT_DATA_SCHEMA.json + pola kontraktu (engine, not_evaluated_rules). Pola spoza `required` są opcjonalne w v1 — wypełnia je pełny silnik (BE1-02) i kolejne zadania. */
         EvaluateResponse: {
             /** Format: uuid */
             evaluation_id: string;
@@ -151,6 +499,69 @@ export interface components {
             assumptions: components["schemas"]["Assumption"][];
             /** @description Reguły z 03_rules.yaml istotne dla przypadku, których ten silnik jeszcze nie ocenia (jawność ograniczeń). */
             not_evaluated_rules: string[];
+            /** Format: date-time */
+            evaluated_at?: string;
+            /** @enum {unknown} */
+            mode?: "DECISION_SUPPORT" | "FORECAST";
+            missing_documents?: {
+                doc_type: string;
+                rule_id: string;
+                /** @enum {unknown} */
+                submit_to?: "CONTRIBUTION_PAYER" | "ZUS" | "EMPLOYER";
+                provider?: string;
+                obtainable_by_zus?: boolean;
+                legal_basis?: components["schemas"]["OutLegalRef"];
+            }[];
+            deadlines?: {
+                code: string;
+                /** Format: date */
+                date: string;
+                who?: string;
+                rule_id: string;
+            }[];
+            warnings?: {
+                code: string;
+                /** @enum {unknown} */
+                severity: "INFO" | "WARNING" | "CRITICAL";
+                rule_id: string;
+                message?: string;
+            }[];
+            /** @description Błędy walidacji planu (validation_error) — nie zmieniają statusu prawa. */
+            plan_errors?: {
+                code: string;
+                rule_id: string;
+                segment_index?: number;
+            }[];
+            /** @description Wymóg § 4 zadania: demo ma pozwolić zweryfikować, czy osoba posiada ubezpieczenie (na podstawie wybranych formularzy PDF). */
+            insurance_verification?: {
+                /** @enum {unknown} */
+                sickness_insured_on_event_date?: "TRUE" | "FALSE" | "UNKNOWN";
+                /** @enum {unknown} */
+                insurance_mode?: "MANDATORY" | "VOLUNTARY" | "NONE" | null;
+                continuous_insurance_days?: number | null;
+                /** @enum {unknown} */
+                waiting_period_met?: "TRUE" | "FALSE" | "UNKNOWN" | "NOT_REQUIRED";
+                source_documents?: string[];
+                rule_ids?: string[];
+            };
+            /** @description Planowany powrót do pracy per rodzic = dzień po ostatnim segmencie urlopu (pkt 2 zadania: planowanie powrotu do pracy; KP art. 186(4)). */
+            return_to_work?: {
+                parent: string;
+                /** Format: date */
+                date: string;
+                part_time_fraction?: string | null;
+            }[];
+            /** @description Ślad wszystkich ocenionych reguł (pełny silnik). Lista reguł per świadczenie: Benefit.applied_rules. */
+            applied_rules?: {
+                rule_id: string;
+                /** @enum {unknown} */
+                outcome: "FIRED" | "NOT_FIRED" | "UNKNOWN" | "BLOCKED" | "FUTURE_SKIPPED" | "NOT_APPLICABLE";
+            }[];
+            future_changes?: {
+                rule_id?: string;
+                /** Format: date */
+                valid_from?: string;
+            }[];
         };
         Problem: {
             type: string;
@@ -162,6 +573,427 @@ export interface components {
                 code: string;
                 message: string;
             }[];
+        };
+        /** Format: date */
+        InDate: string | null;
+        /** @description Kwota PLN jako string dziesiętny; implementacja: decimal.Decimal. */
+        InMoney: string | null;
+        InFraction: string | null;
+        /** @description true / false / null=nieznane */
+        InTriBool: boolean | null;
+        InPeriod: {
+            from: components["schemas"]["InDate"];
+            /** @description Włącznie. null = trwa / nieznany koniec. */
+            to?: components["schemas"]["InDate"];
+        };
+        InInsuranceTitle: {
+            /** @enum {unknown} */
+            title_type: "EMPLOYMENT_CONTRACT" | "CIVIL_CONTRACT_MANDATE" | "AGENCY_CONTRACT" | "SELF_EMPLOYED" | "SELF_EMPLOYED_COLLABORATOR" | "CLERGY" | "CLERGY_SELF_PAYER" | "SEAFARER_ART6_24" | "FOREIGN_EMPLOYER" | "OTHER";
+            /**
+             * @description Pobierane z danych ZUS/zaświadczenia — NIE wywodzone z rodzaju umowy.
+             * @enum {unknown}
+             */
+            sickness_insurance_mode: "MANDATORY" | "VOLUNTARY" | "NONE";
+            from: components["schemas"]["InDate"];
+            to?: components["schemas"]["InDate"];
+            /** @enum {unknown} */
+            termination_reason?: null | "CONTRACT_EXPIRY" | "NOTICE_BY_EMPLOYEE" | "NOTICE_BY_EMPLOYER" | "MUTUAL_AGREEMENT" | "EMPLOYER_DEATH" | "EMPLOYER_BANKRUPTCY" | "EMPLOYER_LIQUIDATION" | "UNLAWFUL_TERMINATION_COURT_CONFIRMED" | "UNLAWFUL_TERMINATION_PENDING" | "BUSINESS_CLOSED" | "VOLUNTARY_INSURANCE_DEREGISTERED" | "OTHER";
+            contribution_base_is_declared?: components["schemas"]["InTriBool"];
+            /**
+             * @description Przyczyna przerwy przed tym tytułem.
+             * @enum {unknown}
+             */
+            gap_reason_before?: null | "CHILDCARE_LEAVE" | "UNPAID_LEAVE" | "MILITARY_SERVICE_CONSCRIPT" | "OTHER";
+            /** @description Opcjonalnie; nie jest potrzebne do ewaluacji. */
+            payer_nip?: string | null;
+        };
+        InLeave: {
+            /** @enum {unknown} */
+            type: "UNPAID_LEAVE" | "CHILDCARE_LEAVE" | "CARER_LEAVE" | "DETENTION" | "KP_63_2_P8_ABSENCE" | "HEALTH_RESTORATION_LEAVE";
+            from: components["schemas"]["InDate"];
+            to?: components["schemas"]["InDate"];
+        };
+        InIncomeMonth: {
+            month: string;
+            /** @description Niepracownik: podstawa wymiaru składki chorobowej (przed odliczeniem 13,71%). */
+            gross_contribution_base?: components["schemas"]["InMoney"];
+            /** @description Pracownik: składniki stałe po potrąceniu składek pracownika (art. 3 pkt 3). */
+            fixed_components_net?: components["schemas"]["InMoney"];
+            /** @description Składniki zmienne pomniejszane proporcjonalnie (uzupełniane). */
+            variable_components_prorated_net?: components["schemas"]["InMoney"];
+            /** @description Składniki zmienne w kwocie faktycznej (nieuzupełniane). */
+            variable_components_actual_net?: components["schemas"]["InMoney"];
+            components_retained_during_benefit_net?: components["schemas"]["InMoney"];
+            days_worked?: number | null;
+            days_required?: number | null;
+            /** @enum {unknown} */
+            absence_reason?: null | "SICKNESS" | "MATERNITY" | "CARE" | "REHABILITATION" | "UNPAID_LEAVE" | "OTHER_JUSTIFIED" | "UNJUSTIFIED";
+            activity_days_non_employee?: number | null;
+        };
+        InPeriodicComponent: {
+            /** @enum {unknown} */
+            period_type: "QUARTER" | "YEAR" | "OTHER";
+            period_end_month: string;
+            amount_net: components["schemas"]["InMoney"];
+            retained_during_benefit?: components["schemas"]["InTriBool"];
+        };
+        InChild: {
+            birth_date: components["schemas"]["InDate"];
+            /** @default false */
+            stillborn?: boolean;
+            death_date?: components["schemas"]["InDate"];
+            birth_weight_g?: number | null;
+            za_zyciem_certificate?: components["schemas"]["InTriBool"];
+        };
+        InHospitalStay: {
+            child_index?: number;
+            from: components["schemas"]["InDate"];
+            to?: components["schemas"]["InDate"];
+        };
+        InPlanSegment: {
+            /** @enum {unknown} */
+            parent: "MOTHER" | "FATHER" | "OTHER_FAMILY_MEMBER" | "ADOPTIVE_PARENT_1" | "ADOPTIVE_PARENT_2";
+            /** @enum {unknown} */
+            leave_type: "MATERNITY_LEAVE" | "MATERNITY_LEAVE_TRANSFERRED" | "MATERNITY_LEAVE_HOSPITALIZATION_SUBSTITUTE" | "MATERNITY_LIKE_LEAVE" | "SUPPLEMENTARY_MATERNITY_LEAVE" | "PARENTAL_LEAVE" | "PATERNITY_LEAVE";
+            from: components["schemas"]["InDate"];
+            to: components["schemas"]["InDate"];
+            /** @default 0 */
+            work_fraction?: components["schemas"]["InFraction"];
+            /** @description Segment z 9 nieprzenoszalnych tygodni drugiego rodzica (USTAWA art. 31 ust. 3f). Jeśli null — wyznacza f_segment_is_other_parent_reserved_9w. */
+            is_other_parent_reserved_9w?: components["schemas"]["InTriBool"];
+        };
+        InDocument: {
+            /** @description Kod dokumentu z 07_CALCULATION_SPEC § Dokumenty (np. E_ZLA, PAYER_CERTIFICATE_Z3, BIRTH_CERTIFICATE_SHORT). */
+            doc_type: string;
+            /** @enum {unknown} */
+            status: "PROVIDED" | "MISSING" | "NEEDS_VERIFICATION" | "OBTAINABLE_BY_ZUS";
+            issued_date?: components["schemas"]["InDate"];
+        };
+        /** @description Dokładna wartość dziesiętna (bez zaokrąglenia, chyba że pole *_rounded). */
+        OutMoney: string | null;
+        /** @enum {unknown} */
+        OutStatus: "ELIGIBLE" | "NOT_ELIGIBLE" | "NEEDS_DATA" | "NEEDS_REVIEW" | "OUT_OF_SCOPE";
+        OutLegalRef: {
+            /** @enum {unknown} */
+            document: "USTAWA" | "KP" | "ROZP_DOK" | "ROZP_WN" | "ZALACZNIK";
+            location: string;
+        };
+        OutReason: {
+            code: string;
+            rule_id: string;
+            /** @description Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły — bez LLM. */
+            message: string;
+            legal_basis?: components["schemas"]["OutLegalRef"][];
+            /** @enum {unknown} */
+            truth_value?: "TRUE" | "FALSE" | "UNKNOWN";
+        };
+        OutSegment: {
+            parent: string;
+            leave_type: string;
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            days: number;
+            /** @description Np. '0.815' */
+            rate: string;
+            work_fraction?: string;
+            daily_amount_exact?: components["schemas"]["OutMoney"];
+            total_amount_exact?: components["schemas"]["OutMoney"];
+            /** @description Tylko gdy ROUNDING_POLICY ustawiony; inaczej null + assumption ROUNDING_UNCONFIRMED. */
+            total_amount_rounded?: components["schemas"]["OutMoney"];
+            /** @enum {unknown} */
+            payer_of_benefit?: "CONTRIBUTION_PAYER" | "ZUS" | null;
+            /** @enum {unknown} */
+            funded_by?: "FUS" | "EMPLOYER" | "STATE_BUDGET" | null;
+            rule_ids?: string[];
+        };
+        OutBenefit: {
+            /** @enum {unknown} */
+            benefit_type: "SICKNESS_BENEFIT" | "EMPLOYER_SICK_PAY" | "REHABILITATION_BENEFIT" | "MATERNITY_BENEFIT" | "MATERNITY_EQUIVALENT_ALLOWANCE";
+            leave_type?: string | null;
+            status: components["schemas"]["OutStatus"];
+            entitlement_basis?: string | null;
+            suspended_until_debt_repaid?: boolean;
+            /** @description true gdy evaluation.mode = FORECAST */
+            forecast?: boolean;
+            period?: {
+                /** Format: date */
+                from?: string;
+                /** Format: date */
+                to?: string;
+                max_days?: number | null;
+                max_weeks?: number | null;
+                days_used_in_benefit_period?: number | null;
+            } | null;
+            base?: {
+                amount_exact?: components["schemas"]["OutMoney"];
+                method_rule_id?: string;
+                months_used?: string[];
+                /** @enum {unknown} */
+                source?: "CALCULATED" | "MANUAL" | "REUSED_PREVIOUS" | "MINIMUM_APPLIED";
+            } | null;
+            rate?: string | null;
+            segments?: components["schemas"]["OutSegment"][];
+            totals?: {
+                amount_exact?: components["schemas"]["OutMoney"];
+                amount_rounded?: components["schemas"]["OutMoney"];
+                monthly_indicative?: components["schemas"]["OutMoney"];
+            } | null;
+            /** @enum {unknown} */
+            payer_of_benefit?: "CONTRIBUTION_PAYER" | "ZUS" | null;
+            reasons: components["schemas"]["OutReason"][];
+            applied_rules: string[];
+            legal_basis: components["schemas"]["OutLegalRef"][];
+            /** @description Łączne uzasadnienie (szablony reguł, kolejność wg grafu zależności). */
+            explanation?: string;
+        };
+        /**
+         * @description Identyfikator syntetycznego profilu demo (demo/profiles/)
+         * @example employee_mother
+         * @example self_employed_debt
+         * @example father_takeover
+         */
+        ProfileId: string;
+        CaseSummary: {
+            case_id: string;
+            title: string;
+            event_type?: string;
+            /**
+             * @description ZUS_SAMPLE tylko po zgodzie mentora (M02)
+             * @enum {unknown}
+             */
+            source: "SYNTHETIC" | "ZUS_SAMPLE";
+            has_expected: boolean;
+        };
+        CaseList: {
+            items: components["schemas"]["CaseSummary"][];
+        };
+        /** @description Oczekiwany wynik z decyzji ZUS (tylko wartości wprost z dokumentów) */
+        CaseExpected: {
+            status?: components["schemas"]["Status"];
+            benefit_type?: string;
+            leave_type?: string | null;
+            /** Format: date */
+            period_from?: string | null;
+            /** Format: date */
+            period_to?: string | null;
+            base_amount?: components["schemas"]["Money"] | null;
+            rate?: string | null;
+            total_amount?: components["schemas"]["Money"] | null;
+        };
+        CaseDetail: {
+            summary: components["schemas"]["CaseSummary"];
+            input: components["schemas"]["EvaluateRequest"];
+            expected?: components["schemas"]["CaseExpected"] | null;
+        };
+        ComparisonItem: {
+            field: string;
+            expected?: string | null;
+            actual?: string | null;
+            match: boolean;
+            /** @description Kwoty z tolerancją ±0,01 zł/dzień (GAP-001) */
+            match_with_tolerance?: boolean | null;
+        };
+        CaseEvaluation: {
+            case_id: string;
+            result: components["schemas"]["EvaluateResponse"];
+            comparison: components["schemas"]["ComparisonItem"][];
+            /** @enum {unknown} */
+            overall_match: "MATCH" | "MATCH_WITH_TOLERANCE" | "MISMATCH" | "NO_EXPECTED";
+        };
+        CaseUploadResult: {
+            upload_id: string;
+            extracted_input: components["schemas"]["EvaluateRequest"];
+            missing_fields: string[];
+            /**
+             * @description AI_EXTRACTION tylko po zgodzie mentora (M16e) — funkcja oznaczona jako AI
+             * @enum {unknown}
+             */
+            extraction_method: "FIXTURE_MATCH" | "MANUAL_REQUIRED" | "AI_EXTRACTION";
+            warnings?: string[];
+        };
+        Parameter: {
+            name: string;
+            /** @description Liczba jako string dziesiętny, liczba całkowita, tabela (obiekt) lub null */
+            value: unknown;
+            unit: string;
+            source: string;
+            /** @enum {unknown} */
+            status?: "CONFIRMED" | "UNCONFIRMED" | "MISSING" | null;
+            /** Format: date */
+            valid_from?: string | null;
+            overridden?: boolean;
+            version: number;
+        };
+        ParameterList: {
+            ruleset_version: string;
+            parameters_version: number;
+            parameters: components["schemas"]["Parameter"][];
+        };
+        ParameterUpdate: {
+            /** @description Wersja, na której opiera się zmiana — konflikt → 409 */
+            base_parameters_version: number;
+            changes: {
+                name: string;
+                value: unknown;
+                /** Format: date */
+                valid_from?: string | null;
+                /** @description np. odwołanie do wpisu w docs/mentors.md */
+                reason: string;
+            }[];
+        };
+        SimLoginRequest: {
+            profile_id: components["schemas"]["ProfileId"];
+        };
+        SimLoginResponse: {
+            /**
+             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @constant
+             */
+            simulated: true;
+            session_token: string;
+            profile_id: components["schemas"]["ProfileId"];
+            /** @description Fikcyjne imię z profilu demo */
+            display_name: string;
+            role?: string;
+        };
+        SimZusProfile: {
+            /**
+             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @constant
+             */
+            simulated: true;
+            profile_id: components["schemas"]["ProfileId"];
+            /** @description Fragment wejścia silnika: insurance, payer, income_history, benefit_history */
+            data: components["schemas"]["EvaluateRequest"];
+        };
+        SimEzla: {
+            certificate_id: string;
+            /** Format: date */
+            issued_at?: string;
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            codes: ("A" | "B" | "C" | "D" | "E")[];
+        };
+        SimEzlaList: {
+            /**
+             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @constant
+             */
+            simulated: true;
+            certificates: components["schemas"]["SimEzla"][];
+        };
+        SimDebtCertificate: {
+            /**
+             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @constant
+             */
+            simulated: true;
+            certificate_number?: string;
+            /** Format: date */
+            as_of: string;
+            amount: components["schemas"]["Money"];
+            threshold: components["schemas"]["Money"];
+            exceeds_threshold: boolean;
+            /** @constant */
+            rule_id?: "GEN-EXCL-001";
+        };
+        SimPueQuestion: {
+            profile_id: components["schemas"]["ProfileId"];
+            /** @enum {unknown} */
+            topic: "MATERNITY" | "PARENTAL" | "SICKNESS" | "DOCUMENTS" | "OTHER";
+            question: string;
+        };
+        SimPueTicket: {
+            /**
+             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @constant
+             */
+            simulated: true;
+            ticket_id: string;
+            /** @constant */
+            status: "RECEIVED";
+            expected_response_days?: number;
+        };
+        SimApplicationRequest: {
+            profile_id: components["schemas"]["ProfileId"];
+            /**
+             * @description Wnioski urlopowe wg rozporządzenia z 11.03.2025 (ROZP_WN § 2–18); ZAM — wniosek o zasiłek
+             * @enum {unknown}
+             */
+            application_type: "ZAM" | "LEAVE_MATERNITY_PRE_BIRTH" | "LEAVE_MATERNITY_RESIGNATION" | "LEAVE_MATERNITY_TRANSFER" | "LEAVE_SUPPLEMENTARY_MATERNITY" | "LEAVE_PARENTAL" | "LEAVE_PARENTAL_PART_TIME_WORK" | "LEAVE_PATERNITY" | "LEAVE_MATERNITY_LIKE";
+            /** @enum {unknown} */
+            recipient: "EMPLOYER" | "ZUS";
+            /** Format: date */
+            planned_start?: string | null;
+            fields: {
+                [key: string]: unknown;
+            };
+            /** @description Kody dokumentów (zus_rules/07 § 7) */
+            attachments?: string[];
+        };
+        SimApplicationResult: {
+            /**
+             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @constant
+             */
+            simulated: true;
+            application_id: string;
+            /** @constant */
+            status: "SUBMITTED_SIMULATED";
+            /** @enum {unknown} */
+            recipient: "EMPLOYER" | "ZUS";
+            deadline_check?: {
+                ok?: boolean;
+                /** Format: date */
+                deadline?: string;
+                rule_id?: string;
+            } | null;
+            missing_attachments?: string[];
+        };
+        SimBirthCertificateRequest: {
+            /** Format: date */
+            birth_date: string;
+            /** @enum {unknown} */
+            copy_type: "SHORT" | "FULL";
+            /** @enum {unknown} */
+            delivery: "ELECTRONIC" | "REGISTRY_OFFICE_PICKUP";
+        };
+        SimBirthCertificateResult: {
+            /**
+             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @constant
+             */
+            simulated: true;
+            request_id: string;
+            /** @constant */
+            status: "SUBMITTED_SIMULATED";
+            /** Format: uri */
+            info_url: string;
+            note?: string;
+        };
+        /** @description Treść przewodnika (frontend/src/content/*.json — właściciel BA, interfejs I4) */
+        ContentBlock: {
+            id: string;
+            /** @enum {unknown} */
+            kind: "GUIDE" | "RISK" | "SUPPORT_ORG" | "LEGAL_PROTECTION" | "LINK" | "SENSITIVE";
+            title: string;
+            body_md: string;
+            /** @description np. STILLBIRTH, PREMATURE, MISCARRIAGE, SELF_EMPLOYED */
+            situations?: string[];
+            rule_ids?: string[];
+            legal_basis?: components["schemas"]["LegalRef"][];
+            links?: {
+                label: string;
+                /** Format: uri */
+                url: string;
+            }[];
+            /** @default false */
+            sensitive?: boolean;
+            reviewed_by?: string | null;
         };
     };
     responses: never;
@@ -243,6 +1075,497 @@ export interface operations {
                      *       ]
                      *     }
                      */
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listCases: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "case_id": "synthetic-employee-mother",
+                     *           "title": "Pracownica, 1 dziecko, wniosek 81,5%",
+                     *           "event_type": "BIRTH",
+                     *           "source": "SYNTHETIC",
+                     *           "has_expected": true
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["CaseList"];
+                };
+            };
+        };
+    };
+    getCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseDetail"];
+                };
+            };
+            /** @description Brak sprawy */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    evaluateCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                case_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseEvaluation"];
+                };
+            };
+            /** @description Brak sprawy */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    uploadCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseUploadResult"];
+                };
+            };
+            /** @description Plik za duży */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Nieobsługiwany typ pliku */
+            415: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listParameters: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParameterList"];
+                };
+            };
+            /** @description Brak/zły token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    updateParameters: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "base_parameters_version": 1,
+                 *       "changes": [
+                 *         {
+                 *           "name": "MAT_RATE_COMBINED",
+                 *           "value": "0.815",
+                 *           "valid_from": "2027-01-01",
+                 *           "reason": "Demo — zmiana stawki (docs/mentors.md M10)"
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["ParameterUpdate"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParameterList"];
+                };
+            };
+            /** @description Brak/zły token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Konflikt wersji parametrów */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Nieznany parametr lub zła wartość */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    simMobywatelLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "profile_id": "employee_mother"
+                 *     }
+                 */
+                "application/json": components["schemas"]["SimLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimLoginResponse"];
+                };
+            };
+            /** @description Nieznany profil */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    simZusProfile: {
+        parameters: {
+            query: {
+                profile_id: components["schemas"]["ProfileId"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimZusProfile"];
+                };
+            };
+            /** @description Nieznany profil */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    simEzla: {
+        parameters: {
+            query: {
+                profile_id: components["schemas"]["ProfileId"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimEzlaList"];
+                };
+            };
+            /** @description Nieznany profil */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    simDebtCertificate: {
+        parameters: {
+            query: {
+                profile_id: components["schemas"]["ProfileId"];
+                as_of: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimDebtCertificate"];
+                };
+            };
+            /** @description Nieznany profil */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    simPueQuestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "profile_id": "employee_mother",
+                 *       "topic": "MATERNITY",
+                 *       "question": "Czy muszę dostarczyć akt urodzenia?"
+                 *     }
+                 */
+                "application/json": components["schemas"]["SimPueQuestion"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimPueTicket"];
+                };
+            };
+            /** @description Niepoprawne dane */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    simSubmitApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "profile_id": "employee_mother",
+                 *       "application_type": "LEAVE_PARENTAL",
+                 *       "recipient": "EMPLOYER",
+                 *       "planned_start": "2027-08-02",
+                 *       "fields": {
+                 *         "weeks": 32
+                 *       },
+                 *       "attachments": [
+                 *         "BIRTH_CERTIFICATE_SHORT"
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["SimApplicationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimApplicationResult"];
+                };
+            };
+            /** @description Niepoprawne dane */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    simBirthCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "birth_date": "2027-03-15",
+                 *       "copy_type": "SHORT",
+                 *       "delivery": "ELECTRONIC"
+                 *     }
+                 */
+                "application/json": components["schemas"]["SimBirthCertificateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimBirthCertificateResult"];
+                };
+            };
+            /** @description Niepoprawne dane */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
