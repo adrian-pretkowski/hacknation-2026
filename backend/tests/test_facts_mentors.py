@@ -6,7 +6,7 @@ import copy
 from datetime import date
 from decimal import Decimal
 
-from app.core.dates import age_years_on
+from app.core.dates import age_years_on, next_working_day
 from app.core.params import param, param_status
 from app.engine import pipeline
 from app.engine.pipeline import ruleset
@@ -214,3 +214,42 @@ def test_m14_a_nine_weeks_not_a_minimum():
     assert rule["evaluation"] == "INFORMATIONAL" and rule["overrides"] == []
     assert "set" not in rule["result"]
     assert "MAT-DUR-008" not in ruleset().rule("MAT-DUR-007")["exceptions"]
+
+
+# ------------------------------------------------------------ M15 d: termin w dzień wolny → następny dzień roboczy
+def test_m15_d_next_working_day():
+    assert next_working_day(date(2027, 4, 2)) == date(2027, 4, 2)  # piątek — bez zmian
+    assert next_working_day(date(2027, 4, 3)) == date(2027, 4, 5)  # sobota → poniedziałek
+    assert next_working_day(date(2027, 4, 4)) == date(2027, 4, 5)  # niedziela → poniedziałek
+    assert next_working_day(date(2027, 4, 5), {date(2027, 4, 5)}) == date(2027, 4, 6)  # święto z parametru
+
+
+def _born_sunday(demo_payload, filed):
+    payload = copy.deepcopy(demo_payload)
+    payload["event"] = {"type": "BIRTH", "date": "2027-03-14"}
+    payload["applications"] = {"combined_815_filed_date": filed}
+    return payload
+
+
+def test_m15_d_app_dl_001_deadline_on_sunday_moves_to_monday(demo_payload):
+    """T-RATE-009: 14.03 + 21 = 4.04 (niedziela) → wniosek 5.04 w terminie (81,5%), 6.04 — po terminie (100%)."""
+    body = pipeline.evaluate(_born_sunday(demo_payload, "2027-04-05"))
+    assert body["benefits"][0]["rate"] == "0.815"
+    assert "PUBLIC_HOLIDAYS_NOT_LOADED" in [a["code"] for a in body["assumptions"]]
+    late = pipeline.evaluate(_born_sunday(demo_payload, "2027-04-06"))["benefits"][0]
+    assert Decimal(late["rate"]) == param("MAT_RATE_FULL")
+
+
+def test_m15_d_working_day_deadline_not_moved(demo_payload):
+    """T-RATE-001: 15.03 + 21 = 5.04 (poniedziałek) — wniosek 6.04 już po terminie."""
+    payload = copy.deepcopy(demo_payload)
+    payload["applications"] = {"combined_815_filed_date": "2027-04-06"}
+    assert Decimal(pipeline.evaluate(payload)["benefits"][0]["rate"]) == param("MAT_RATE_FULL")
+
+
+# ------------------------------------------------------------ M15 a, c, e: numeracja dni, uzupełniający, art. 30 ust. 3
+def test_m15_rules_reflect_mentor_answers():
+    rules = ruleset()
+    assert "dzień porodu = dzień 1" in rules.rule("SUPP-ELIG-003")["notes"]
+    assert "M15 c" in rules.rule("SUPP-COND-001")["notes"]
+    assert rules.rule("MAT-ELIG-007")["result"]["set"]["period_end"] == "DAY_BEFORE_BIRTH"

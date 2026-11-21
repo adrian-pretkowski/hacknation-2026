@@ -2202,7 +2202,7 @@
    "rule_ids": [
     "SUPP-ELIG-003"
    ],
-   "description": "39. tydz., pobyt od 4. dnia → poza oknem 5–28 → brak urlopu",
+   "description": "39. tydz., pobyt 2 dni od 4. dnia (dzień porodu = 1) → poza oknem 5–28 → brak urlopu",
    "fixture": "employee_mother",
    "patch": {
     "event": {
@@ -2223,7 +2223,7 @@
      "hospital_stays": [
       {
        "child_index": 0,
-       "from": "2027-01-14",
+       "from": "2027-01-13",
        "to": "2027-01-14"
       }
      ],
@@ -2243,7 +2243,7 @@
     "KP art. 180(2) § 1 pkt 3"
    ],
    "assumptions": [
-    "ASSUMPTION-SUPP-DAY0"
+    "M15 a: dzień porodu = dzień 1 → 2027-01-13 = 4. dzień (ASSUMPTION-SUPP-DAY1)"
    ]
   },
   {
@@ -2252,7 +2252,7 @@
    "rule_ids": [
     "SUPP-ELIG-003"
    ],
-   "description": "39. tydz., pobyt 2 dni od 5. dnia → 1 tydzień",
+   "description": "39. tydz., pobyt 2 dni od 6. dnia (dzień porodu = 1) → 1 tydzień",
    "fixture": "employee_mother",
    "patch": {
     "event": {
@@ -2291,7 +2291,107 @@
     "KP art. 180(2) § 1 pkt 3"
    ],
    "assumptions": [
-    "ASSUMPTION-SUPP-DAY0"
+    "M15 a: dzień porodu = dzień 1 → 2027-01-15 = 6. dzień (ASSUMPTION-SUPP-DAY1)"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-008",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 2 dni od 5. dnia (dzień porodu = 1: 2027-01-14) → kwalifikuje się (granica okna)",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-14",
+       "to": "2027-01-15"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "fact": {
+     "f_has_qualifying_late_hospital_stay": true
+    }
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "M15 a: dzień porodu = dzień 1 → 5. dzień = 2027-01-14 (przy numeracji od 0 byłby to 4. dzień)"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-009",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 2 dni od 28. dnia (2027-02-06) → kwalifikuje się; od 29. dnia — nie",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-02-06",
+       "to": "2027-02-07"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "fact": {
+     "f_has_qualifying_late_hospital_stay": true
+    }
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "M15 a: dzień porodu = dzień 1 → 28. dzień = poród + 27 = 2027-02-06"
    ]
   },
   {
@@ -2864,7 +2964,7 @@
     "USTAWA art. 30a ust. 1, art. 31 ust. 3"
    ],
    "assumptions": [
-    "Termin: 2027-03-15 + 21 = 2027-04-05 (C11)"
+    "Termin: 2027-03-15 + 21 = 2027-04-05 (poniedziałek — bez przesunięcia, C11/M15 d)"
    ]
   },
   {
@@ -3099,6 +3199,64 @@
     "PARENTAL_BENEFIT_FLOOR_MONTHLY = 1000 zł (M10)",
     "Dzienna po podwyższeniu = 1000/30 (M09); niepełny miesiąc — M10c",
     "Porównanie do 10 miejsc po przecinku"
+   ]
+  },
+  {
+   "test_id": "T-RATE-009",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "APP-DL-001",
+    "RATE-MAT-003"
+   ],
+   "description": "Poród w niedzielę 2027-03-14: 21. dzień = niedziela 2027-04-04 → termin przesunięty na poniedziałek 2027-04-05; wniosek złożony 2027-04-05 → 81,5% (M15 d)",
+   "fixture": "employee_mother",
+   "patch": {
+    "evaluation": {
+     "as_of_date": "2027-04-05",
+     "mode": "DECISION_SUPPORT"
+    },
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-03-14"
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-03-14",
+       "birth_weight_g": 3400,
+       "za_zyciem_certificate": false
+      }
+     ],
+     "za_zyciem_certificate": false
+    },
+    "applications": {
+     "combined_815_filed_date": "2027-04-05"
+    },
+    "plan": {
+     "segments": [
+      {
+       "parent": "MOTHER",
+       "leave_type": "MATERNITY_LEAVE",
+       "from": "2027-03-14",
+       "to": "2027-07-31"
+      }
+     ]
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "rate": "0.815"
+   },
+   "legal_basis": [
+    "USTAWA art. 30a ust. 1"
+   ],
+   "assumptions": [
+    "M15 d (2026-11-21, mentor fachowy): termin w dzień wolny → następny dzień roboczy",
+    "Lista świąt PUBLIC_HOLIDAYS pusta — przesunięcie tylko z soboty/niedzieli"
    ]
   },
   {

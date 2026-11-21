@@ -16,6 +16,7 @@ from app.core.dates import (
     deadline_after,
     end_after_days,
     end_after_weeks,
+    next_working_day,
     to_date,
 )
 from app.core.money import div, mul, to_decimal
@@ -41,14 +42,16 @@ def maternity_leave_weeks(ctx: Context) -> int | None:
 
 @fact("f_combined_application_deadline")
 def combined_application_deadline(ctx: Context) -> date | None:
-    """07 §5: event.date + APP_COMBINED_DEADLINE_DAYS (C11). USTAWA art. 30a ust. 1-2.
+    """07 §5: event.date + APP_COMBINED_DEADLINE_DAYS (C11); termin w sobotę, niedzielę lub święto
+    (PUBLIC_HOLIDAYS) → następny dzień roboczy (M15 d). USTAWA art. 30a ust. 1-2.
 
     ADOPTION (późniejsza z dat przyjęcia i wniosku do sądu) — BE2-01.
     """
     event = to_date(ctx.field("event.date"))
     if event is None:
         return ctx.need("event.date")
-    return deadline_after(event, int(ctx.param("APP_COMBINED_DEADLINE_DAYS")))
+    holidays = frozenset(to_date(day) for day in ctx.param("PUBLIC_HOLIDAYS") or [])
+    return next_working_day(deadline_after(event, int(ctx.param("APP_COMBINED_DEADLINE_DAYS"))), holidays)
 
 
 @fact("f_combined_application_within_deadline")

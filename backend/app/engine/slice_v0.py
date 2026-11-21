@@ -19,6 +19,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
 
+from app.core.dates import next_working_day
 from app.core.params import param, param_status, ruleset_version
 
 ART2A_TITLES = {"SELF_EMPLOYED", "SELF_EMPLOYED_COLLABORATOR", "CLERGY_SELF_PAYER", "SEAFARER_ART6_24"}
@@ -137,7 +138,14 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     # APP-DL-001 + RATE-MAT-001 / RATE-MAT-003
     rate = None
     if birth is not None:
-        deadline = birth + timedelta(days=int(param("APP_COMBINED_DEADLINE_DAYS")))
+        # M15 d: termin w sobotę, niedzielę lub święto → następny dzień roboczy (jak f_combined_application_deadline)
+        holidays = frozenset(_as_date(day) for day in param("PUBLIC_HOLIDAYS") or [])
+        deadline = next_working_day(birth + timedelta(days=int(param("APP_COMBINED_DEADLINE_DAYS"))), holidays)
+        if param_status("PUBLIC_HOLIDAYS") == "UNCONFIRMED":
+            assumptions.append({"code": "PUBLIC_HOLIDAYS_NOT_LOADED",
+                                "text": "Termin przypadający w sobotę lub niedzielę przesunięto na następny dzień "
+                                        "roboczy (M15); lista świąt ustawowych nie jest uzupełniona — sprawdź, czy "
+                                        "ostatni dzień nie wypada w święto."})
         filed = _as_date(_get(payload, "applications.combined_815_filed_date"))
         planned = _get(payload, "applications.combined_815_planned")
         applied.append("APP-DL-001")

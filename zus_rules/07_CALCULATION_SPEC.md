@@ -16,7 +16,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | C8 | „Przerwa nie przekroczyła X dni” = liczba dni kalendarzowych **pomiędzy** dniem końca poprzedniego a dniem początku następnego okresu (bez obu końców) ≤ X. | DERIVED; GAP-004 |
 | C9 | Logika trójwartościowa Kleene: `all` = FALSE jeśli któryś FALSE, inaczej UNKNOWN jeśli któryś UNKNOWN; `any` = TRUE jeśli któryś TRUE, inaczej UNKNOWN jeśli któryś UNKNOWN; `not UNKNOWN = UNKNOWN`. Funkcja zwracająca `None` = UNKNOWN. | Wymóg projektu |
 | C10 | `operator: in` na polu-liście = część wspólna niepusta. `exists` = wartość ≠ null (pusta lista = istnieje). | 03_rules.yaml meta.dsl |
-| C11 | Liczenie „X dni po zdarzeniu” (termin): ostatni dzień = `zdarzenie + X`. Przesunięcie terminu przypadającego na dzień wolny — **brak w materiałach**. | GAP-020 |
+| C11 | Liczenie „X dni po zdarzeniu” (termin): ostatni dzień = `zdarzenie + X`; termin w sobotę, niedzielę lub święto (`PUBLIC_HOLIDAYS`) → **następny dzień roboczy** (M15 d). | M15; GAP-020 zamknięty |
 
 ## 1. Kolejność obliczeń (pipeline)
 
@@ -131,7 +131,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_paternity_window` | – | object | `{max_days: 14, deadline: birth + 12 mies. − 1 dzień}`; adopcja: `min(adoption_final + 12 mies. − 1, dzień przed 14. urodzinami)` | None | – |
 | `f_paternity_within_deadline` | – | bool | Wszystkie segmenty PATERNITY ≤ deadline, ≤2 części, każda ≥7 dni, Σ ≤14 dni | None | – |
 | `f_min_birth_weight_g` | – | int | min(birth_weight_g) dzieci z porodu | None | – |
-| `f_has_qualifying_late_hospital_stay` | – | bool | Istnieje pobyt ≥2 kolejne dni, którego pierwszy dzień ∈ [dzień 5, dzień 28] po porodzie (dzień porodu = 0) | None | ASSUMPTION-SUPP-DAY0, GAP-010 |
+| `f_has_qualifying_late_hospital_stay` | – | bool | Istnieje pobyt ≥2 kolejne dni, którego pierwszy dzień ∈ [dzień 5, dzień 28] po porodzie (dzień porodu = dzień 1 → [poród + 4, poród + 27]) | None | M15 a; ASSUMPTION-SUPP-DAY1, GAP-010 zamknięty |
 | `f_supplementary_leave_weeks` | cap_week, window_start_day | int | Dla dziecka najdłużej hospitalizowanego: suma dni pobytu w oknie `[birth + window_start_day, birth + 7·cap_week − 1]`; `ceil(dni / 7)` | None | Wieloraczki: masa najlżejszego wybiera wariant, pobyt najdłuższy wyznacza dni (KP 180(2) § 2) |
 | `f_maternity_benefit_eligible_any_parent` | – | bool | Którykolwiek rodzic ELIGIBLE w MAT-ELIG-* | Kleene | – |
 | `f_supplementary_claimants_count` | – | int | Liczba rodziców z segmentem SUPPLEMENTARY | 0 | – |
@@ -140,7 +140,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 
 | Funkcja | Argumenty | Zwraca | Sposób liczenia | Brak danych | Przypadki graniczne |
 |---|---|---|---|---|---|
-| `f_combined_application_deadline` | – | date | `event.date + 21` (ADOPTION: późniejsza z dat przyjęcia i wniosku do sądu + 21) | None | C11 |
+| `f_combined_application_deadline` | – | date | `next_working_day(event.date + 21)` (ADOPTION: późniejsza z dat przyjęcia i wniosku do sądu + 21) | None | C11, M15 d |
 | `f_combined_application_within_deadline` | – | bool | `combined_815_filed_date ≤ f_combined_application_deadline`; FORECAST: `combined_815_planned` | None | Dzień 21 → TRUE |
 | `f_segment_belongs_to_applicant_of_combined` | – | bool | Segment należy do rodzica, który złożył wniosek 81,5% (matka przy BIRTH) | None | Ojciec → RATE-MAT-008 (BLOCKED) |
 | `f_segment_is_other_parent_reserved_9w` | – | bool | `segment.is_other_parent_reserved_9w`, a jeśli null: pierwsze 9 tygodni PARENTAL rodzica ≠ wnioskodawca 81,5% | None | – |

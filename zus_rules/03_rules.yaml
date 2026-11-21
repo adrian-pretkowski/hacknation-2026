@@ -104,6 +104,7 @@ meta:
     MAT_RATE_PARENTAL: {value: "0.70", unit: ratio, source: "USTAWA art. 31 ust. 2"}
     MAT_RATE_COMBINED: {value: "0.815", unit: ratio, source: "USTAWA art. 31 ust. 3"}
     APP_COMBINED_DEADLINE_DAYS: {value: 21, unit: days_after_event, source: "USTAWA art. 30a ust. 1-2"}
+    PUBLIC_HOLIDAYS: {value: [], unit: dates, source: "Dni ustawowo wolne od pracy — ustawa niezałączona; lista do uzupełnienia w panelu admina (M15 d: termin w dzień wolny → następny dzień roboczy)", status: UNCONFIRMED}
     PARENTAL_BENEFIT_FLOOR_MONTHLY: {value: "1000.00", unit: PLN, source: "USTAWA art. 31 ust. 3a → ustawa o świadczeniach rodzinnych (niezałączona); kwota 1000 zł — mentor fachowy ZUS (M10, 2026-11-21)", status: CONFIRMED}
     # --- podstawa wymiaru
     CONTRIBUTION_DEDUCTION_RATE: {value: "0.1371", unit: ratio, source: "USTAWA art. 3 pkt 3 (pracownicy — M06), pkt 4; art. 45 ust. 1"}
@@ -1286,7 +1287,7 @@ rules:
   interpretation_status: DERIVED
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "'w wieku do 14 roku życia' interpretujemy jako: przed ukończeniem 14 lat (lt 14) — GAP-005. event.date = data przyjęcia dziecka; oba warunki (przyjęcie + wniosek do sądu) muszą zajść — data powstania prawa = późniejsza z nich (DERIVED)."
+  notes: "'w wieku do 14 roku życia' interpretujemy jako: przed ukończeniem 14 lat (lt 14) — GAP-005, rozstrzygnięte przez mentora (M14 c, 2026-11-21: „do dnia urodzin”). event.date = data przyjęcia dziecka; oba warunki (przyjęcie + wniosek do sądu) muszą zajść — data powstania prawa = późniejsza z nich (DERIVED)."
 
 - id: MAT-ELIG-003
   name: "Zasiłek macierzyński — rodzina zastępcza niezawodowa (dziecko do 7/10 lat)"
@@ -1469,7 +1470,7 @@ rules:
 
 - id: MAT-ELIG-007
   name: "Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu"
-  description: "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy i nie zapewniono innego zatrudnienia, przysługuje do dnia porodu zasiłek w wysokości zasiłku macierzyńskiego."
+  description: "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu — zasiłek macierzyński)."
   category: MATERNITY_EQUIVALENT
   rule_type: ELIGIBILITY
   legal_basis: {document: USTAWA, article: "30", paragraph: "3", point: null}
@@ -1484,7 +1485,7 @@ rules:
       - {fact: f_title_ended_during_pregnancy, operator: eq, value: true}
       - {fact: f_last_title_termination_reason, operator: in, value: [EMPLOYER_DEATH, EMPLOYER_BANKRUPTCY, EMPLOYER_LIQUIDATION]}
       - {field: employment.other_employment_provided, operator: eq, value: false}
-  result: {status: ELIGIBLE, set: {benefit: MATERNITY_EQUIVALENT_ALLOWANCE, period_end: BIRTH_DATE, rate: {param: MAT_RATE_FULL}, payer_of_benefit: ZUS}}
+  result: {status: ELIGIBLE, set: {benefit: MATERNITY_EQUIVALENT_ALLOWANCE, period_end: DAY_BEFORE_BIRTH, rate: {param: MAT_RATE_FULL}, payer_of_benefit: ZUS}}
   exceptions: [GEN-EXCL-001]
   dependencies: []
   overrides: []
@@ -1495,7 +1496,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P1
   automation_status: AUTOMATABLE
-  notes: "KONFLIKT z treścią zadania: zadanie wymienia też 'naruszenie przepisów prawa', ustawa art. 30 ust. 3 i ROZP_DOK § 17 — tylko śmierć/upadłość/likwidacja. Stosujemy ustawę (CONF-001). Stawka 100% — DERIVED z 'w wysokości zasiłku macierzyńskiego' i art. 31 ust. 1."
+  notes: "KONFLIKT z treścią zadania: zadanie wymienia też 'naruszenie przepisów prawa', ustawa art. 30 ust. 3 i ROZP_DOK § 17 — tylko śmierć/upadłość/likwidacja. Stosujemy ustawę (CONF-001). Stawka 100% — DERIVED z 'w wysokości zasiłku macierzyńskiego' i art. 31 ust. 1. 'Do dnia porodu' = do dnia poprzedzającego poród (M15 e, mentor fachowy 2026-11-21)."
 
 - id: MAT-NEG-001
   name: "Brak ubezpieczenia na dzień porodu — brak prawa"
@@ -1632,7 +1633,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Koniec = max(data porodu + 8 tyg − 1 dzień, data zgonu + 7 dni − 1 dzień) — DERIVED, GAP-004. Gdy żyje ≥1 dziecko z wieloraczków → MAT-DUR-005. Wymagany tryb empatyczny UI. Dokument: zaświadczenie o martwym urodzeniu (ROZP_DOK § 13 ust. 1 pkt 2). Poronienie: zaświadczenie o martwym urodzeniu wydaje się „bez względu na czas trwania ciąży” (§ 13 ust. 1 pkt 2) — wejście stillborn=true przy takim zaświadczeniu (GAP-024)."
+  notes: "Koniec = max(data porodu + 8 tyg − 1 dzień, data zgonu + 7 dni − 1 dzień) — DERIVED, GAP-004. Gdy żyje ≥1 dziecko z wieloraczków → MAT-DUR-005. Wymagany tryb empatyczny UI. Dokument: zaświadczenie o martwym urodzeniu (ROZP_DOK § 13 ust. 1 pkt 2). Poronienie: zaświadczenie o martwym urodzeniu wydaje się „bez względu na czas trwania ciąży” (§ 13 ust. 1 pkt 2) — wejście stillborn=true przy takim zaświadczeniu; potwierdzone przez mentora M15 b (2026-11-21): zaświadczenie o martwym urodzeniu wystarcza (GAP-024 zamknięty)."
 
 - id: MAT-DUR-004
   name: "Zgon dziecka po 8. tygodniu życia — 7 dni"
@@ -1754,7 +1755,7 @@ rules:
   valid_from: null
   valid_to: null
   conditions: {all: [{field: event.type, operator: in, value: [ADOPTION, FOSTER]}, {fact: f_maternity_like_weeks_after_age_cap, operator: lt, value: {param: MATERNITY_LIKE_GUARANTEED_WEEKS}}]}
-  result: {status: INFO, reason_code: AGE_LIMIT_SHORTENS_LEAVE}
+  result: {warning: {code: AGE_LIMIT_SHORTENS_LEAVE, severity: INFO}}
   exceptions: []
   dependencies: [MAT-DUR-007]
   overrides: []
@@ -2084,10 +2085,10 @@ rules:
   missing_data_behavior: NEEDS_DATA
   evaluation: ACTIVE
   confidence: MEDIUM
-  interpretation_status: DERIVED
+  interpretation_status: DIRECT
   implementation_priority: P1
   automation_status: AUTOMATABLE
-  notes: "Numeracja dni po porodzie: dzień porodu = dzień 0 czy 1? — nie wynika ze źródeł (GAP-010). Domyślnie dzień porodu = dzień 0 (założenie, ASSUMPTION-SUPP-DAY0)."
+  notes: "Numeracja dni po porodzie: dzień porodu = dzień 1 (M15 a, mentor fachowy ZUS 2026-11-21; GAP-010 zamknięty) — 5. dzień = data porodu + 4 dni, 28. dzień = data porodu + 27 dni (ASSUMPTION-SUPP-DAY1)."
 
 - id: SUPP-CALC-001
   name: "Uzupełniający urlop — wieloraczki, sumowanie, zaokrąglenie w górę"
@@ -2140,7 +2141,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Stawka 100% (RATE-MAT-001), także przy wniosku 81,5% — art. 31 ust. 3 nie obejmuje uzupełniającego (DERIVED, CONF-005)."
+  notes: "Stawka 100% (RATE-MAT-001), także przy wniosku 81,5% — art. 31 ust. 3 nie obejmuje uzupełniającego (CONF-005; potwierdzone przez mentora M15 c, 2026-11-21)."
 
 # =====================================================================
 # PAR — zasiłek za okres urlopu rodzicielskiego
@@ -2568,7 +2569,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Nie obejmuje uzupełniającego i ojcowskiego (100%). Stosowanie 81,5% do części rodzicielskiego przejętej przez OJCA — RATE-MAT-008 (BLOKOWANA)."
+  notes: "Nie obejmuje uzupełniającego (100% — M15 c) i ojcowskiego (100%). Część rodzicielskiego przejęta przez OJCA — 81,5% (RATE-MAT-008, M11)."
 
 - id: RATE-MAT-004
   name: "70% — 9 tygodni drugiego rodzica przy wniosku 81,5%"
@@ -2732,7 +2733,7 @@ rules:
   interpretation_status: DERIVED
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Ostatni dzień = event.date + 21 dni (DERIVED: liczenie od dnia następnego po porodzie; przesunięcie przy dniu wolnym — brak w źródłach, GAP-020). Wynik sprawdza f_combined_application_within_deadline."
+  notes: "Ostatni dzień = event.date + 21 dni (DERIVED: liczenie od dnia następnego po porodzie); termin w sobotę, niedzielę lub święto → następny dzień roboczy (M15 d, mentor fachowy 2026-11-21; GAP-020 zamknięty). Lista świąt — parametr PUBLIC_HOLIDAYS (pusty do uzupełnienia w panelu admina; brak w materiałach). Wynik sprawdza f_combined_application_within_deadline."
 
 - id: APP-DL-002
   name: "Terminy wniosków urlopowych pracownika (KP)"

@@ -14,7 +14,7 @@ Pytania do mentorów i ich odpowiedzi: **`docs/mentors.md`** (M01–M17). Luki p
 | ID | Założenie | Gdzie | Zmiana gdy |
 |---|---|---|---|
 | A1 | Płaca minimalna 2026 = 4806,00 zł — **potwierdzona (M07, 2026-11-21)**; otwarte tylko zaokrąglenie minimalnej podstawy („do dziesiątek” — do doprecyzowania) | `03_rules.yaml` MIN_WAGE_2026_MONTHLY | doprecyzowanie M07 |
-| A2 | Dzień porodu = dzień 0 przy uzupełniającym urlopie | SUPP-ELIG-003 | M15a |
+| A2 | Dzień porodu = **dzień 1** przy uzupełniającym urlopie — rozstrzygnięte (M15 a, 2026-11-21) | SUPP-ELIG-003 | — |
 | A3 | Data referencyjna prawa 2026-11-21 | `LAW_REFERENCE_DATE` | — |
 | A4 | Frontend w jasnym motywie, bez shadcn/ui w bootstrapie | `frontend/` | zadanie FE2-01 |
 | A5 | Podstawa wymiaru w slice wpisywana ręcznie | `slice_v0` | BE2-03 |

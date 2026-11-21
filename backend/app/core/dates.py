@@ -65,6 +65,13 @@ def deadline_after(event: date, days: int) -> date:
     return event + timedelta(days=days)
 
 
+def next_working_day(day: date, holidays: set[date] | frozenset[date] = frozenset()) -> date:
+    """Termin przypadający w sobotę, niedzielę lub święto → następny dzień roboczy (M15 d, mentor fachowy ZUS)."""
+    while day.weekday() >= 5 or day in holidays:
+        day += timedelta(days=1)
+    return day
+
+
 def add_years(day: date, years: int) -> date:
     """C7: rocznica; 29.02 w roku nieprzestępnym → 28.02 (DERIVED)."""
     try:
