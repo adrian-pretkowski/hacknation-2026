@@ -114,6 +114,7 @@ function StatusHeader({ result, onEdit, canEdit }: {
 function Remaining({ p }: { p: PreviewResult }) {
   const rem = p.summary.remaining!;
   const rows: [string, string][] = [
+    ...(rem.maternityWeeks !== null ? [["Urlop macierzyński — zostało", `${rem.maternityWeeks} tyg.`] as [string, string]] : []),
     ["Pula urlopu rodzicielskiego", `${p.summary.parentalPoolWeeks} tyg.`],
     ["Pozostało łącznie", `${rem.totalWeeks} tyg.`],
     ["Mama może jeszcze", `${rem.motherWeeks} tyg.`],
@@ -409,7 +410,7 @@ function SupportBlock({ kind }: { kind: "loss" | "preterm" | "zazyciem" }) {
       <div className="min-w-0">
         <h3 id={`sup-${kind}`} className="text-lg font-semibold">{text.h}</h3>
         <p className="mt-1 text-base">{text.p}</p>
-        <p className="mt-3 text-sm">Lista organizacji: przewodnik w zakładce Wsparcie (w przygotowaniu). Rzecznik Praw Pacjenta: <a href="tel:800190590" className="font-semibold underline underline-offset-2">800 190 590</a>.</p>
+        <p className="mt-3 text-sm">Lista organizacji i przydatne linki: <a href={kind === "loss" ? "/wsparcie/spokojny" : "/wsparcie"} target="_blank" rel="noopener" className="font-semibold underline underline-offset-2">przewodnik<span className="sr-only"> (otwiera się w nowej karcie — wynik zostaje)</span></a>. Rzecznik Praw Pacjenta: <a href="tel:800190590" className="font-semibold underline underline-offset-2">800 190 590</a>.</p>
       </div>
     </section>
   );

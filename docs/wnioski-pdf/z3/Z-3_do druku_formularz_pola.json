@@ -1,0 +1,3314 @@
+[
+ {
+  "name": "p1_000_chk_wniosek_pierwszorazowy",
+  "page": 1,
+  "type": "checkbox",
+  "label_guess": "wniosek pierwszorazowy",
+  "rect": [
+   209.2,
+   118.8,
+   226.2,
+   136.0
+  ]
+ },
+ {
+  "name": "p1_001_chk_wniosek_o_kontynuacje_swiadczenia",
+  "page": 1,
+  "type": "checkbox",
+  "label_guess": "wniosek o kontynuację świadczenia",
+  "rect": [
+   209.2,
+   145.5,
+   226.2,
+   162.8
+  ]
+ },
+ {
+  "name": "p1_002_txt_nip",
+  "page": 1,
+  "type": "comb(10)",
+  "label_guess": "NIP",
+  "rect": [
+   239.2,
+   305.0,
+   417.2,
+   322.0
+  ]
+ },
+ {
+  "name": "p1_003_txt_regon",
+  "page": 1,
+  "type": "comb(14)",
+  "label_guess": "REGON",
+  "rect": [
+   239.2,
+   330.8,
+   488.8,
+   348.0
+  ]
+ },
+ {
+  "name": "p1_004_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   364.5,
+   435.2,
+   381.8
+  ]
+ },
+ {
+  "name": "p1_005_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   398.5,
+   552.2,
+   415.8
+  ]
+ },
+ {
+  "name": "p1_006_txt_nazwa_albo_imie_i_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa albo imię i nazwisko",
+  "rect": [
+   239.2,
+   432.2,
+   552.2,
+   449.5
+  ]
+ },
+ {
+  "name": "p1_007_txt_ulica",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Ulica",
+  "rect": [
+   239.2,
+   458.2,
+   552.2,
+   475.5
+  ]
+ },
+ {
+  "name": "p1_008_txt_numer_domu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer domu",
+  "rect": [
+   239.2,
+   484.0,
+   310.0,
+   501.2
+  ]
+ },
+ {
+  "name": "p1_009_txt_numer_lokalu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer lokalu",
+  "rect": [
+   400.0,
+   484.0,
+   470.8,
+   501.2
+  ]
+ },
+ {
+  "name": "p1_010_txt_kod_pocztowy",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Kod pocztowy",
+  "rect": [
+   239.2,
+   510.0,
+   310.0,
+   527.0
+  ]
+ },
+ {
+  "name": "p1_011_txt_miejscowosc",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Miejscowość",
+  "rect": [
+   400.0,
+   510.0,
+   552.2,
+   527.0
+  ]
+ },
+ {
+  "name": "p1_012_txt_nazwa_panstwa",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa państwa",
+  "rect": [
+   239.2,
+   535.8,
+   552.2,
+   553.0
+  ]
+ },
+ {
+  "name": "p1_013_txt_numer_telefonu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer telefonu",
+  "rect": [
+   239.2,
+   569.8,
+   552.2,
+   587.0
+  ]
+ },
+ {
+  "name": "p1_014_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   637.5,
+   435.0,
+   654.8
+  ]
+ },
+ {
+  "name": "p1_015_txt_data_urodzenia",
+  "page": 1,
+  "type": "comb(8)",
+  "label_guess": "Data urodzenia",
+  "rect": [
+   239.2,
+   663.5,
+   381.5,
+   680.8
+  ]
+ },
+ {
+  "name": "p1_016_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   705.2,
+   552.2,
+   722.5
+  ]
+ },
+ {
+  "name": "p1_017_txt_imie",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Imię",
+  "rect": [
+   239.2,
+   739.2,
+   552.2,
+   756.5
+  ]
+ },
+ {
+  "name": "p1_018_txt_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwisko",
+  "rect": [
+   239.2,
+   765.0,
+   552.2,
+   782.2
+  ]
+ },
+ {
+  "name": "p2_019_txt_ulica",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Ulica",
+  "rect": [
+   239.2,
+   95.5,
+   552.2,
+   112.8
+  ]
+ },
+ {
+  "name": "p2_020_txt_numer_domu",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Numer domu",
+  "rect": [
+   239.2,
+   122.2,
+   310.0,
+   139.5
+  ]
+ },
+ {
+  "name": "p2_021_txt_numer_lokalu",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Numer lokalu",
+  "rect": [
+   400.0,
+   122.2,
+   470.8,
+   139.5
+  ]
+ },
+ {
+  "name": "p2_022_txt_kod_pocztowy",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Kod pocztowy",
+  "rect": [
+   239.2,
+   149.2,
+   310.0,
+   166.2
+  ]
+ },
+ {
+  "name": "p2_023_txt_miejscowosc",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Miejscowość",
+  "rect": [
+   400.0,
+   149.2,
+   552.2,
+   166.2
+  ]
+ },
+ {
+  "name": "p2_024_txt_nazwa_panstwa",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Nazwa państwa",
+  "rect": [
+   239.2,
+   176.0,
+   552.2,
+   193.2
+  ]
+ },
+ {
+  "name": "p2_025_txt_rachunek_bankowy_pracownika",
+  "page": 2,
+  "type": "comb(26)",
+  "label_guess": "Rachunek bankowy pracownika",
+  "rect": [
+   43.0,
+   263.0,
+   506.5,
+   280.0
+  ]
+ },
+ {
+  "name": "p2_026_chk_zasilek_chorobowy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek chorobowy",
+  "rect": [
+   43.0,
+   357.8,
+   60.2,
+   375.0
+  ]
+ },
+ {
+  "name": "p2_027_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   384.5,
+   552.5,
+   401.8
+  ]
+ },
+ {
+  "name": "p2_028_chk_zasilek_opiekunczy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek opiekuńczy",
+  "rect": [
+   43.0,
+   429.2,
+   60.2,
+   446.5
+  ]
+ },
+ {
+  "name": "p2_029_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   456.0,
+   552.5,
+   473.2
+  ]
+ },
+ {
+  "name": "p2_030_chk_zasilek_macierzynski",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek macierzyński",
+  "rect": [
+   43.0,
+   500.5,
+   60.2,
+   517.8
+  ]
+ },
+ {
+  "name": "p2_031_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   527.5,
+   552.5,
+   544.5
+  ]
+ },
+ {
+  "name": "p2_032_chk_zasilek_w_wysokosci_zasilku_macierzynski",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek w wysokości zasiłku macierzyńskiego",
+  "rect": [
+   43.0,
+   572.0,
+   60.2,
+   589.2
+  ]
+ },
+ {
+  "name": "p2_033_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   598.8,
+   552.5,
+   616.0
+  ]
+ },
+ {
+  "name": "p2_034_chk_zasilek_wyrownawczy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek wyrównawczy",
+  "rect": [
+   43.0,
+   643.5,
+   60.2,
+   660.8
+  ]
+ },
+ {
+  "name": "p2_035_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   670.2,
+   552.5,
+   687.5
+  ]
+ },
+ {
+  "name": "p2_036_chk_swiadczenie_rehabilitacyjne",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "świadczenie rehabilitacyjne",
+  "rect": [
+   43.0,
+   715.0,
+   60.2,
+   732.2
+  ]
+ },
+ {
+  "name": "p2_037_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   741.8,
+   552.5,
+   759.0
+  ]
+ },
+ {
+  "name": "p3_038_txt_jest_zatrudniony",
+  "page": 3,
+  "type": "text",
+  "label_guess": "Jest zatrudniony",
+  "rect": [
+   239.2,
+   114.8,
+   552.2,
+   131.8
+  ]
+ },
+ {
+  "name": "p3_039_txt_w_wymiarze_czasu_pracy",
+  "page": 3,
+  "type": "text",
+  "label_guess": "w wymiarze czasu pracy",
+  "rect": [
+   239.2,
+   150.2,
+   381.5,
+   167.5
+  ]
+ },
+ {
+  "name": "p3_040_txt_podaj_date_od_kiedy_jest_zatrudniony_lub",
+  "page": 3,
+  "type": "text",
+  "label_guess": "Podaj datę, od kiedy jest zatrudniony lub okres zatrudnienia od–do",
+  "rect": [
+   400.0,
+   150.2,
+   552.2,
+   167.5
+  ]
+ },
+ {
+  "name": "p3_041_chk_tak",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   435.8,
+   199.2,
+   453.0,
+   216.5
+  ]
+ },
+ {
+  "name": "p3_042_chk_nie",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   489.2,
+   199.2,
+   506.5,
+   216.5
+  ]
+ },
+ {
+  "name": "p3_043_chk_tak",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   435.8,
+   231.2,
+   453.0,
+   248.5
+  ]
+ },
+ {
+  "name": "p3_044_chk_nie",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   489.2,
+   231.2,
+   506.5,
+   248.5
+  ]
+ },
+ {
+  "name": "p3_045_chk_choroby_zawodowej",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "choroby zawodowej",
+  "rect": [
+   60.8,
+   280.8,
+   78.0,
+   298.0
+  ]
+ },
+ {
+  "name": "p3_046_chk_wypadku_przy_pracy",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "wypadku przy pracy",
+  "rect": [
+   221.5,
+   280.8,
+   238.8,
+   298.0
+  ]
+ },
+ {
+  "name": "p3_047_chk_wypadku_w_drodze_do_pracy_lub_z_pracy",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "wypadku w drodze do pracy lub z pracy",
+  "rect": [
+   346.5,
+   280.8,
+   363.8,
+   298.0
+  ]
+ },
+ {
+  "name": "p3_048_chk_tak",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   60.8,
+   307.8,
+   78.0,
+   325.0
+  ]
+ },
+ {
+  "name": "p3_049_chk_nie",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   114.2,
+   307.8,
+   131.5,
+   325.0
+  ]
+ },
+ {
+  "name": "p3_050_txt_nie",
+  "page": 3,
+  "type": "text",
+  "label_guess": "NIE",
+  "rect": [
+   185.8,
+   307.8,
+   552.2,
+   325.0
+  ]
+ },
+ {
+  "name": "p3_051_chk_bezplatnego",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "bezpłatnego",
+  "rect": [
+   60.8,
+   374.2,
+   78.0,
+   391.5
+  ]
+ },
+ {
+  "name": "p3_052_chk_przebywa",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "przebywa",
+  "rect": [
+   167.8,
+   374.2,
+   185.0,
+   391.5
+  ]
+ },
+ {
+  "name": "p3_053_chk_korzysta_z_urlopu_opiekunczego_przyslugu",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "korzysta z urlopu opiekuńczego przysługującego",
+  "rect": [
+   310.8,
+   374.2,
+   328.0,
+   391.5
+  ]
+ },
+ {
+  "name": "p3_054_chk_korzysta_z_urlopu",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "korzysta z urlopu",
+  "rect": [
+   60.8,
+   401.0,
+   78.0,
+   418.2
+  ]
+ },
+ {
+  "name": "p3_055_chk_odbywa_kare",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "odbywa karę",
+  "rect": [
+   167.8,
+   401.0,
+   185.0,
+   418.2
+  ]
+ },
+ {
+  "name": "p3_056_chk_ma_usprawiedliwiona_nieobecnosc_w_pracy",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "ma usprawiedliwioną nieobecność w pracy,",
+  "rect": [
+   310.8,
+   401.0,
+   328.0,
+   418.2
+  ]
+ },
+ {
+  "name": "p3_057_chk_tak",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   60.8,
+   438.5,
+   78.0,
+   455.8
+  ]
+ },
+ {
+  "name": "p3_058_chk_nie",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   114.2,
+   438.5,
+   131.5,
+   455.8
+  ]
+ },
+ {
+  "name": "p3_059_txt_nie",
+  "page": 3,
+  "type": "text",
+  "label_guess": "NIE",
+  "rect": [
+   185.8,
+   438.5,
+   552.2,
+   455.8
+  ]
+ },
+ {
+  "name": "p3_060_chk_macierzynskiego",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "macierzyńskiego",
+  "rect": [
+   60.8,
+   497.0,
+   78.0,
+   514.2
+  ]
+ },
+ {
+  "name": "p3_061_chk_rodzicielskiego",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "rodzicielskiego",
+  "rect": [
+   203.5,
+   497.0,
+   220.8,
+   514.2
+  ]
+ },
+ {
+  "name": "p3_062_chk_na_warunkach_urlopu_macierzynskiego",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "na warunkach urlopu macierzyńskiego",
+  "rect": [
+   328.5,
+   497.0,
+   345.8,
+   514.2
+  ]
+ },
+ {
+  "name": "p3_063_chk_macierzynskiego",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "macierzyńskiego",
+  "rect": [
+   60.8,
+   524.0,
+   78.0,
+   541.0
+  ]
+ },
+ {
+  "name": "p3_064_chk_ojcowskiego",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "ojcowskiego",
+  "rect": [
+   203.5,
+   524.0,
+   220.8,
+   541.0
+  ]
+ },
+ {
+  "name": "p3_065_chk_nie_wniosek_dotyczy_zasilku_macierzynski",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "NIE \u0007(wniosek dotyczy zasiłku macierzyńskiego",
+  "rect": [
+   328.5,
+   524.0,
+   345.8,
+   541.0
+  ]
+ },
+ {
+  "name": "p3_066_txt_macierzynskiego",
+  "page": 3,
+  "type": "text",
+  "label_guess": "macierzyńskiego",
+  "rect": [
+   60.8,
+   551.2,
+   552.2,
+   568.5
+  ]
+ },
+ {
+  "name": "p3_067_txt_dane_dziecka_dzieci",
+  "page": 3,
+  "type": "multiline",
+  "label_guess": "Dane dziecka/dzieci:",
+  "rect": [
+   60.8,
+   604.8,
+   552.0,
+   673.2
+  ]
+ },
+ {
+  "name": "p3_068_txt_dane_drugiego_rodzica_albo_czlonka_rodzi",
+  "page": 3,
+  "type": "multiline",
+  "label_guess": "Dane drugiego rodzica albo członka rodziny:",
+  "rect": [
+   60.8,
+   709.0,
+   552.0,
+   777.5
+  ]
+ },
+ {
+  "name": "p4_069_chk_tak",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   417.8,
+   95.5,
+   435.0,
+   112.8
+  ]
+ },
+ {
+  "name": "p4_070_chk_nie",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   471.5,
+   95.5,
+   488.8,
+   112.8
+  ]
+ },
+ {
+  "name": "p4_071_txt_czy_pracownik_w_czasie_urlopu_rodziciels",
+  "page": 4,
+  "type": "text",
+  "label_guess": "Czy pracownik w czasie urlopu rodzicielskiego wykonuje pracę u swojego pracodawcy",
+  "rect": [
+   60.8,
+   122.2,
+   552.2,
+   139.5
+  ]
+ },
+ {
+  "name": "p4_072_chk_tak",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   417.8,
+   197.2,
+   435.0,
+   214.5
+  ]
+ },
+ {
+  "name": "p4_073_chk_nie",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   471.5,
+   197.2,
+   488.8,
+   214.5
+  ]
+ },
+ {
+  "name": "p4_074_txt_roku_kalendarzowym_na_podstawie_art_92_k",
+  "page": 4,
+  "type": "text",
+  "label_guess": "roku kalendarzowym na podstawie art. 92 Kodeksu pracy",
+  "rect": [
+   60.8,
+   224.0,
+   552.2,
+   241.2
+  ]
+ },
+ {
+  "name": "p4_075_chk_tak",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   417.8,
+   259.8,
+   435.0,
+   277.0
+  ]
+ },
+ {
+  "name": "p4_076_chk_nie",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   471.5,
+   259.8,
+   488.8,
+   277.0
+  ]
+ },
+ {
+  "name": "p4_077_txt_czy_wyplaciles_zasilek_chorobowy",
+  "page": 4,
+  "type": "text",
+  "label_guess": "Czy wypłaciłeś zasiłek chorobowy",
+  "rect": [
+   60.8,
+   286.5,
+   552.2,
+   303.8
+  ]
+ },
+ {
+  "name": "p4_078_chk_do_20_ubezpieczonych",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "do 20 ubezpieczonych",
+  "rect": [
+   239.2,
+   369.5,
+   256.5,
+   386.8
+  ]
+ },
+ {
+  "name": "p4_079_chk_powyzej_20_ubezpieczonych",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "powyżej 20 ubezpieczonych",
+  "rect": [
+   382.2,
+   369.5,
+   399.2,
+   386.8
+  ]
+ },
+ {
+  "name": "p4_080_tab1_r01_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 1",
+  "rect": [
+   60.8,
+   558.2,
+   95.8,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_081_tab1_r01_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 2",
+  "rect": [
+   96.5,
+   558.2,
+   131.5,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_082_tab1_r01_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 3",
+  "rect": [
+   132.2,
+   558.2,
+   167.2,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_083_tab1_r01_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 4",
+  "rect": [
+   167.8,
+   558.2,
+   220.8,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_084_tab1_r01_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 5",
+  "rect": [
+   221.5,
+   558.2,
+   338.8,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_085_tab1_r01_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 6",
+  "rect": [
+   339.5,
+   558.2,
+   409.8,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_086_tab1_r01_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 7",
+  "rect": [
+   410.5,
+   558.2,
+   467.8,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_087_tab1_r01_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 8",
+  "rect": [
+   468.5,
+   558.2,
+   520.8,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_088_tab1_r01_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 9",
+  "rect": [
+   521.5,
+   558.2,
+   552.8,
+   573.5
+  ]
+ },
+ {
+  "name": "p4_089_tab1_r02_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 1",
+  "rect": [
+   60.8,
+   574.2,
+   95.8,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_090_tab1_r02_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 2",
+  "rect": [
+   96.5,
+   574.2,
+   131.5,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_091_tab1_r02_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 3",
+  "rect": [
+   132.2,
+   574.2,
+   167.2,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_092_tab1_r02_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 4",
+  "rect": [
+   167.8,
+   574.2,
+   220.8,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_093_tab1_r02_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 5",
+  "rect": [
+   221.5,
+   574.2,
+   338.8,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_094_tab1_r02_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 6",
+  "rect": [
+   339.5,
+   574.2,
+   409.8,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_095_tab1_r02_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 7",
+  "rect": [
+   410.5,
+   574.2,
+   467.8,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_096_tab1_r02_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 8",
+  "rect": [
+   468.5,
+   574.2,
+   520.8,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_097_tab1_r02_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 9",
+  "rect": [
+   521.5,
+   574.2,
+   552.8,
+   589.5
+  ]
+ },
+ {
+  "name": "p4_098_tab1_r03_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 1",
+  "rect": [
+   60.8,
+   590.2,
+   95.8,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_099_tab1_r03_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 2",
+  "rect": [
+   96.5,
+   590.2,
+   131.5,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_100_tab1_r03_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 3",
+  "rect": [
+   132.2,
+   590.2,
+   167.2,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_101_tab1_r03_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 4",
+  "rect": [
+   167.8,
+   590.2,
+   220.8,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_102_tab1_r03_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 5",
+  "rect": [
+   221.5,
+   590.2,
+   338.8,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_103_tab1_r03_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 6",
+  "rect": [
+   339.5,
+   590.2,
+   409.8,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_104_tab1_r03_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 7",
+  "rect": [
+   410.5,
+   590.2,
+   467.8,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_105_tab1_r03_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 8",
+  "rect": [
+   468.5,
+   590.2,
+   520.8,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_106_tab1_r03_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 9",
+  "rect": [
+   521.5,
+   590.2,
+   552.8,
+   605.5
+  ]
+ },
+ {
+  "name": "p4_107_tab1_r04_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 1",
+  "rect": [
+   60.8,
+   606.2,
+   95.8,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_108_tab1_r04_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 2",
+  "rect": [
+   96.5,
+   606.2,
+   131.5,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_109_tab1_r04_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 3",
+  "rect": [
+   132.2,
+   606.2,
+   167.2,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_110_tab1_r04_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 4",
+  "rect": [
+   167.8,
+   606.2,
+   220.8,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_111_tab1_r04_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 5",
+  "rect": [
+   221.5,
+   606.2,
+   338.8,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_112_tab1_r04_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 6",
+  "rect": [
+   339.5,
+   606.2,
+   409.8,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_113_tab1_r04_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 7",
+  "rect": [
+   410.5,
+   606.2,
+   467.8,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_114_tab1_r04_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 8",
+  "rect": [
+   468.5,
+   606.2,
+   520.8,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_115_tab1_r04_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 9",
+  "rect": [
+   521.5,
+   606.2,
+   552.8,
+   621.5
+  ]
+ },
+ {
+  "name": "p4_116_tab1_r05_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 1",
+  "rect": [
+   60.8,
+   622.2,
+   95.8,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_117_tab1_r05_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 2",
+  "rect": [
+   96.5,
+   622.2,
+   131.5,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_118_tab1_r05_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 3",
+  "rect": [
+   132.2,
+   622.2,
+   167.2,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_119_tab1_r05_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 4",
+  "rect": [
+   167.8,
+   622.2,
+   220.8,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_120_tab1_r05_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 5",
+  "rect": [
+   221.5,
+   622.2,
+   338.8,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_121_tab1_r05_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 6",
+  "rect": [
+   339.5,
+   622.2,
+   409.8,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_122_tab1_r05_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 7",
+  "rect": [
+   410.5,
+   622.2,
+   467.8,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_123_tab1_r05_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 8",
+  "rect": [
+   468.5,
+   622.2,
+   520.8,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_124_tab1_r05_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 9",
+  "rect": [
+   521.5,
+   622.2,
+   552.8,
+   637.5
+  ]
+ },
+ {
+  "name": "p4_125_tab1_r06_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 1",
+  "rect": [
+   60.8,
+   638.2,
+   95.8,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_126_tab1_r06_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 2",
+  "rect": [
+   96.5,
+   638.2,
+   131.5,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_127_tab1_r06_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 3",
+  "rect": [
+   132.2,
+   638.2,
+   167.2,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_128_tab1_r06_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 4",
+  "rect": [
+   167.8,
+   638.2,
+   220.8,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_129_tab1_r06_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 5",
+  "rect": [
+   221.5,
+   638.2,
+   338.8,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_130_tab1_r06_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 6",
+  "rect": [
+   339.5,
+   638.2,
+   409.8,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_131_tab1_r06_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 7",
+  "rect": [
+   410.5,
+   638.2,
+   467.8,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_132_tab1_r06_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 8",
+  "rect": [
+   468.5,
+   638.2,
+   520.8,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_133_tab1_r06_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 9",
+  "rect": [
+   521.5,
+   638.2,
+   552.8,
+   653.5
+  ]
+ },
+ {
+  "name": "p4_134_tab1_r07_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 1",
+  "rect": [
+   60.8,
+   654.2,
+   95.8,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_135_tab1_r07_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 2",
+  "rect": [
+   96.5,
+   654.2,
+   131.5,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_136_tab1_r07_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 3",
+  "rect": [
+   132.2,
+   654.2,
+   167.2,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_137_tab1_r07_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 4",
+  "rect": [
+   167.8,
+   654.2,
+   220.8,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_138_tab1_r07_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 5",
+  "rect": [
+   221.5,
+   654.2,
+   338.8,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_139_tab1_r07_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 6",
+  "rect": [
+   339.5,
+   654.2,
+   409.8,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_140_tab1_r07_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 7",
+  "rect": [
+   410.5,
+   654.2,
+   467.8,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_141_tab1_r07_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 8",
+  "rect": [
+   468.5,
+   654.2,
+   520.8,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_142_tab1_r07_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 9",
+  "rect": [
+   521.5,
+   654.2,
+   552.8,
+   669.5
+  ]
+ },
+ {
+  "name": "p4_143_tab1_r08_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 1",
+  "rect": [
+   60.8,
+   670.2,
+   95.8,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_144_tab1_r08_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 2",
+  "rect": [
+   96.5,
+   670.2,
+   131.5,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_145_tab1_r08_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 3",
+  "rect": [
+   132.2,
+   670.2,
+   167.2,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_146_tab1_r08_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 4",
+  "rect": [
+   167.8,
+   670.2,
+   220.8,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_147_tab1_r08_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 5",
+  "rect": [
+   221.5,
+   670.2,
+   338.8,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_148_tab1_r08_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 6",
+  "rect": [
+   339.5,
+   670.2,
+   409.8,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_149_tab1_r08_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 7",
+  "rect": [
+   410.5,
+   670.2,
+   467.8,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_150_tab1_r08_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 8",
+  "rect": [
+   468.5,
+   670.2,
+   520.8,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_151_tab1_r08_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 9",
+  "rect": [
+   521.5,
+   670.2,
+   552.8,
+   685.5
+  ]
+ },
+ {
+  "name": "p4_152_tab1_r09_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 1",
+  "rect": [
+   60.8,
+   686.2,
+   95.8,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_153_tab1_r09_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 2",
+  "rect": [
+   96.5,
+   686.2,
+   131.5,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_154_tab1_r09_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 3",
+  "rect": [
+   132.2,
+   686.2,
+   167.2,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_155_tab1_r09_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 4",
+  "rect": [
+   167.8,
+   686.2,
+   220.8,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_156_tab1_r09_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 5",
+  "rect": [
+   221.5,
+   686.2,
+   338.8,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_157_tab1_r09_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 6",
+  "rect": [
+   339.5,
+   686.2,
+   409.8,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_158_tab1_r09_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 7",
+  "rect": [
+   410.5,
+   686.2,
+   467.8,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_159_tab1_r09_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 8",
+  "rect": [
+   468.5,
+   686.2,
+   520.8,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_160_tab1_r09_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 9",
+  "rect": [
+   521.5,
+   686.2,
+   552.8,
+   701.5
+  ]
+ },
+ {
+  "name": "p4_161_tab1_r10_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 1",
+  "rect": [
+   60.8,
+   702.2,
+   95.8,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_162_tab1_r10_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 2",
+  "rect": [
+   96.5,
+   702.2,
+   131.5,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_163_tab1_r10_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 3",
+  "rect": [
+   132.2,
+   702.2,
+   167.2,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_164_tab1_r10_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 4",
+  "rect": [
+   167.8,
+   702.2,
+   220.8,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_165_tab1_r10_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 5",
+  "rect": [
+   221.5,
+   702.2,
+   338.8,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_166_tab1_r10_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 6",
+  "rect": [
+   339.5,
+   702.2,
+   409.8,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_167_tab1_r10_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 7",
+  "rect": [
+   410.5,
+   702.2,
+   467.8,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_168_tab1_r10_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 8",
+  "rect": [
+   468.5,
+   702.2,
+   520.8,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_169_tab1_r10_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 9",
+  "rect": [
+   521.5,
+   702.2,
+   552.8,
+   717.5
+  ]
+ },
+ {
+  "name": "p4_170_tab1_r11_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 1",
+  "rect": [
+   60.8,
+   718.2,
+   95.8,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_171_tab1_r11_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 2",
+  "rect": [
+   96.5,
+   718.2,
+   131.5,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_172_tab1_r11_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 3",
+  "rect": [
+   132.2,
+   718.2,
+   167.2,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_173_tab1_r11_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 4",
+  "rect": [
+   167.8,
+   718.2,
+   220.8,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_174_tab1_r11_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 5",
+  "rect": [
+   221.5,
+   718.2,
+   338.8,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_175_tab1_r11_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 6",
+  "rect": [
+   339.5,
+   718.2,
+   409.8,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_176_tab1_r11_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 7",
+  "rect": [
+   410.5,
+   718.2,
+   467.8,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_177_tab1_r11_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 8",
+  "rect": [
+   468.5,
+   718.2,
+   520.8,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_178_tab1_r11_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 9",
+  "rect": [
+   521.5,
+   718.2,
+   552.8,
+   733.5
+  ]
+ },
+ {
+  "name": "p4_179_tab1_r12_c1",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 1",
+  "rect": [
+   60.8,
+   734.2,
+   95.8,
+   749.5
+  ]
+ },
+ {
+  "name": "p4_180_tab1_r12_c2",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 2",
+  "rect": [
+   96.5,
+   734.2,
+   131.5,
+   749.5
+  ]
+ },
+ {
+  "name": "p4_181_tab1_r12_c3",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 3",
+  "rect": [
+   132.2,
+   734.2,
+   167.2,
+   749.5
+  ]
+ },
+ {
+  "name": "p4_182_tab1_r12_c4",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 4",
+  "rect": [
+   167.8,
+   734.2,
+   220.8,
+   749.5
+  ]
+ },
+ {
+  "name": "p4_183_tab1_r12_c5",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 5",
+  "rect": [
+   221.5,
+   734.2,
+   338.8,
+   749.5
+  ]
+ },
+ {
+  "name": "p4_184_tab1_r12_c6",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 6",
+  "rect": [
+   339.5,
+   734.2,
+   409.8,
+   749.5
+  ]
+ },
+ {
+  "name": "p4_185_tab1_r12_c7",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 7",
+  "rect": [
+   410.5,
+   734.2,
+   467.8,
+   749.5
+  ]
+ },
+ {
+  "name": "p4_186_tab1_r12_c8",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 8",
+  "rect": [
+   468.5,
+   734.2,
+   520.8,
+   749.5
+  ]
+ },
+ {
+  "name": "p4_187_tab1_r12_c9",
+  "page": 4,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 9",
+  "rect": [
+   521.5,
+   734.2,
+   552.8,
+   749.5
+  ]
+ },
+ {
+  "name": "p5_188_tab1_r01_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 1",
+  "rect": [
+   60.8,
+   191.2,
+   95.8,
+   206.5
+  ]
+ },
+ {
+  "name": "p5_189_tab1_r01_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 2",
+  "rect": [
+   96.5,
+   191.2,
+   131.5,
+   206.5
+  ]
+ },
+ {
+  "name": "p5_190_tab1_r01_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 3",
+  "rect": [
+   132.2,
+   191.2,
+   167.2,
+   206.5
+  ]
+ },
+ {
+  "name": "p5_191_tab1_r01_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 4",
+  "rect": [
+   167.8,
+   191.2,
+   221.2,
+   206.5
+  ]
+ },
+ {
+  "name": "p5_192_tab1_r01_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 5",
+  "rect": [
+   221.8,
+   191.2,
+   274.8,
+   206.5
+  ]
+ },
+ {
+  "name": "p5_193_tab1_r01_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 6",
+  "rect": [
+   275.5,
+   191.2,
+   506.8,
+   206.5
+  ]
+ },
+ {
+  "name": "p5_194_tab1_r01_c7",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 7",
+  "rect": [
+   507.5,
+   191.2,
+   552.5,
+   206.5
+  ]
+ },
+ {
+  "name": "p5_195_tab1_r02_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 1",
+  "rect": [
+   60.8,
+   207.2,
+   95.8,
+   222.5
+  ]
+ },
+ {
+  "name": "p5_196_tab1_r02_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 2",
+  "rect": [
+   96.5,
+   207.2,
+   131.5,
+   222.5
+  ]
+ },
+ {
+  "name": "p5_197_tab1_r02_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 3",
+  "rect": [
+   132.2,
+   207.2,
+   167.2,
+   222.5
+  ]
+ },
+ {
+  "name": "p5_198_tab1_r02_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 4",
+  "rect": [
+   167.8,
+   207.2,
+   221.2,
+   222.5
+  ]
+ },
+ {
+  "name": "p5_199_tab1_r02_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 5",
+  "rect": [
+   221.8,
+   207.2,
+   274.8,
+   222.5
+  ]
+ },
+ {
+  "name": "p5_200_tab1_r02_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 6",
+  "rect": [
+   275.5,
+   207.2,
+   506.8,
+   222.5
+  ]
+ },
+ {
+  "name": "p5_201_tab1_r02_c7",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 7",
+  "rect": [
+   507.5,
+   207.2,
+   552.5,
+   222.5
+  ]
+ },
+ {
+  "name": "p5_202_tab1_r03_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 1",
+  "rect": [
+   60.8,
+   223.2,
+   95.8,
+   238.5
+  ]
+ },
+ {
+  "name": "p5_203_tab1_r03_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 2",
+  "rect": [
+   96.5,
+   223.2,
+   131.5,
+   238.5
+  ]
+ },
+ {
+  "name": "p5_204_tab1_r03_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 3",
+  "rect": [
+   132.2,
+   223.2,
+   167.2,
+   238.5
+  ]
+ },
+ {
+  "name": "p5_205_tab1_r03_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 4",
+  "rect": [
+   167.8,
+   223.2,
+   221.2,
+   238.5
+  ]
+ },
+ {
+  "name": "p5_206_tab1_r03_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 5",
+  "rect": [
+   221.8,
+   223.2,
+   274.8,
+   238.5
+  ]
+ },
+ {
+  "name": "p5_207_tab1_r03_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 6",
+  "rect": [
+   275.5,
+   223.2,
+   506.8,
+   238.5
+  ]
+ },
+ {
+  "name": "p5_208_tab1_r03_c7",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 7",
+  "rect": [
+   507.5,
+   223.2,
+   552.5,
+   238.5
+  ]
+ },
+ {
+  "name": "p5_209_tab1_r04_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 1",
+  "rect": [
+   60.8,
+   239.2,
+   95.8,
+   254.5
+  ]
+ },
+ {
+  "name": "p5_210_tab1_r04_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 2",
+  "rect": [
+   96.5,
+   239.2,
+   131.5,
+   254.5
+  ]
+ },
+ {
+  "name": "p5_211_tab1_r04_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 3",
+  "rect": [
+   132.2,
+   239.2,
+   167.2,
+   254.5
+  ]
+ },
+ {
+  "name": "p5_212_tab1_r04_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 4",
+  "rect": [
+   167.8,
+   239.2,
+   221.2,
+   254.5
+  ]
+ },
+ {
+  "name": "p5_213_tab1_r04_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 5",
+  "rect": [
+   221.8,
+   239.2,
+   274.8,
+   254.5
+  ]
+ },
+ {
+  "name": "p5_214_tab1_r04_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 6",
+  "rect": [
+   275.5,
+   239.2,
+   506.8,
+   254.5
+  ]
+ },
+ {
+  "name": "p5_215_tab1_r04_c7",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 7",
+  "rect": [
+   507.5,
+   239.2,
+   552.5,
+   254.5
+  ]
+ },
+ {
+  "name": "p5_216_tab1_r05_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 1",
+  "rect": [
+   60.8,
+   255.2,
+   95.8,
+   270.5
+  ]
+ },
+ {
+  "name": "p5_217_tab1_r05_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 2",
+  "rect": [
+   96.5,
+   255.2,
+   131.5,
+   270.5
+  ]
+ },
+ {
+  "name": "p5_218_tab1_r05_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 3",
+  "rect": [
+   132.2,
+   255.2,
+   167.2,
+   270.5
+  ]
+ },
+ {
+  "name": "p5_219_tab1_r05_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 4",
+  "rect": [
+   167.8,
+   255.2,
+   221.2,
+   270.5
+  ]
+ },
+ {
+  "name": "p5_220_tab1_r05_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 5",
+  "rect": [
+   221.8,
+   255.2,
+   274.8,
+   270.5
+  ]
+ },
+ {
+  "name": "p5_221_tab1_r05_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 6",
+  "rect": [
+   275.5,
+   255.2,
+   506.8,
+   270.5
+  ]
+ },
+ {
+  "name": "p5_222_tab1_r05_c7",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 7",
+  "rect": [
+   507.5,
+   255.2,
+   552.5,
+   270.5
+  ]
+ },
+ {
+  "name": "p5_223_tab2_r01_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 1, kolumna 1",
+  "rect": [
+   60.8,
+   371.2,
+   113.5,
+   386.8
+  ]
+ },
+ {
+  "name": "p5_224_tab2_r01_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 1, kolumna 2",
+  "rect": [
+   114.2,
+   371.2,
+   167.2,
+   386.8
+  ]
+ },
+ {
+  "name": "p5_225_tab2_r01_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 1, kolumna 3",
+  "rect": [
+   167.8,
+   371.2,
+   221.2,
+   386.8
+  ]
+ },
+ {
+  "name": "p5_226_tab2_r01_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 1, kolumna 4",
+  "rect": [
+   221.8,
+   371.2,
+   274.8,
+   386.8
+  ]
+ },
+ {
+  "name": "p5_227_tab2_r01_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 1, kolumna 5",
+  "rect": [
+   275.5,
+   371.2,
+   506.8,
+   386.8
+  ]
+ },
+ {
+  "name": "p5_228_tab2_r01_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 1, kolumna 6",
+  "rect": [
+   507.5,
+   371.2,
+   552.5,
+   386.8
+  ]
+ },
+ {
+  "name": "p5_229_tab2_r02_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 2, kolumna 1",
+  "rect": [
+   60.8,
+   387.2,
+   113.5,
+   402.8
+  ]
+ },
+ {
+  "name": "p5_230_tab2_r02_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 2, kolumna 2",
+  "rect": [
+   114.2,
+   387.2,
+   167.2,
+   402.8
+  ]
+ },
+ {
+  "name": "p5_231_tab2_r02_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 2, kolumna 3",
+  "rect": [
+   167.8,
+   387.2,
+   221.2,
+   402.8
+  ]
+ },
+ {
+  "name": "p5_232_tab2_r02_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 2, kolumna 4",
+  "rect": [
+   221.8,
+   387.2,
+   274.8,
+   402.8
+  ]
+ },
+ {
+  "name": "p5_233_tab2_r02_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 2, kolumna 5",
+  "rect": [
+   275.5,
+   387.2,
+   506.8,
+   402.8
+  ]
+ },
+ {
+  "name": "p5_234_tab2_r02_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 2, kolumna 6",
+  "rect": [
+   507.5,
+   387.2,
+   552.5,
+   402.8
+  ]
+ },
+ {
+  "name": "p5_235_tab2_r03_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 3, kolumna 1",
+  "rect": [
+   60.8,
+   403.2,
+   113.5,
+   418.8
+  ]
+ },
+ {
+  "name": "p5_236_tab2_r03_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 3, kolumna 2",
+  "rect": [
+   114.2,
+   403.2,
+   167.2,
+   418.8
+  ]
+ },
+ {
+  "name": "p5_237_tab2_r03_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 3, kolumna 3",
+  "rect": [
+   167.8,
+   403.2,
+   221.2,
+   418.8
+  ]
+ },
+ {
+  "name": "p5_238_tab2_r03_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 3, kolumna 4",
+  "rect": [
+   221.8,
+   403.2,
+   274.8,
+   418.8
+  ]
+ },
+ {
+  "name": "p5_239_tab2_r03_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 3, kolumna 5",
+  "rect": [
+   275.5,
+   403.2,
+   506.8,
+   418.8
+  ]
+ },
+ {
+  "name": "p5_240_tab2_r03_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 3, kolumna 6",
+  "rect": [
+   507.5,
+   403.2,
+   552.5,
+   418.8
+  ]
+ },
+ {
+  "name": "p5_241_tab2_r04_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 4, kolumna 1",
+  "rect": [
+   60.8,
+   419.2,
+   113.5,
+   434.8
+  ]
+ },
+ {
+  "name": "p5_242_tab2_r04_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 4, kolumna 2",
+  "rect": [
+   114.2,
+   419.2,
+   167.2,
+   434.8
+  ]
+ },
+ {
+  "name": "p5_243_tab2_r04_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 4, kolumna 3",
+  "rect": [
+   167.8,
+   419.2,
+   221.2,
+   434.8
+  ]
+ },
+ {
+  "name": "p5_244_tab2_r04_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 4, kolumna 4",
+  "rect": [
+   221.8,
+   419.2,
+   274.8,
+   434.8
+  ]
+ },
+ {
+  "name": "p5_245_tab2_r04_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 4, kolumna 5",
+  "rect": [
+   275.5,
+   419.2,
+   506.8,
+   434.8
+  ]
+ },
+ {
+  "name": "p5_246_tab2_r04_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 2, wiersz 4, kolumna 6",
+  "rect": [
+   507.5,
+   419.2,
+   552.5,
+   434.8
+  ]
+ },
+ {
+  "name": "p5_247_tab3_r01_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 1, kolumna 1",
+  "rect": [
+   60.8,
+   534.5,
+   113.5,
+   549.8
+  ]
+ },
+ {
+  "name": "p5_248_tab3_r01_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 1, kolumna 2",
+  "rect": [
+   114.2,
+   534.5,
+   167.2,
+   549.8
+  ]
+ },
+ {
+  "name": "p5_249_tab3_r01_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 1, kolumna 3",
+  "rect": [
+   167.8,
+   534.5,
+   219.2,
+   549.8
+  ]
+ },
+ {
+  "name": "p5_250_tab3_r01_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 1, kolumna 4",
+  "rect": [
+   219.8,
+   534.5,
+   272.8,
+   549.8
+  ]
+ },
+ {
+  "name": "p5_251_tab3_r01_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 1, kolumna 5",
+  "rect": [
+   273.5,
+   534.5,
+   506.8,
+   549.8
+  ]
+ },
+ {
+  "name": "p5_252_tab3_r01_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 1, kolumna 6",
+  "rect": [
+   507.5,
+   534.5,
+   552.5,
+   549.8
+  ]
+ },
+ {
+  "name": "p5_253_tab3_r02_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 2, kolumna 1",
+  "rect": [
+   60.8,
+   550.5,
+   113.5,
+   565.8
+  ]
+ },
+ {
+  "name": "p5_254_tab3_r02_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 2, kolumna 2",
+  "rect": [
+   114.2,
+   550.5,
+   167.2,
+   565.8
+  ]
+ },
+ {
+  "name": "p5_255_tab3_r02_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 2, kolumna 3",
+  "rect": [
+   167.8,
+   550.5,
+   219.2,
+   565.8
+  ]
+ },
+ {
+  "name": "p5_256_tab3_r02_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 2, kolumna 4",
+  "rect": [
+   219.8,
+   550.5,
+   272.8,
+   565.8
+  ]
+ },
+ {
+  "name": "p5_257_tab3_r02_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 2, kolumna 5",
+  "rect": [
+   273.5,
+   550.5,
+   506.8,
+   565.8
+  ]
+ },
+ {
+  "name": "p5_258_tab3_r02_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 2, kolumna 6",
+  "rect": [
+   507.5,
+   550.5,
+   552.5,
+   565.8
+  ]
+ },
+ {
+  "name": "p5_259_tab3_r03_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 3, kolumna 1",
+  "rect": [
+   60.8,
+   566.5,
+   113.5,
+   581.8
+  ]
+ },
+ {
+  "name": "p5_260_tab3_r03_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 3, kolumna 2",
+  "rect": [
+   114.2,
+   566.5,
+   167.2,
+   581.8
+  ]
+ },
+ {
+  "name": "p5_261_tab3_r03_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 3, kolumna 3",
+  "rect": [
+   167.8,
+   566.5,
+   219.2,
+   581.8
+  ]
+ },
+ {
+  "name": "p5_262_tab3_r03_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 3, kolumna 4",
+  "rect": [
+   219.8,
+   566.5,
+   272.8,
+   581.8
+  ]
+ },
+ {
+  "name": "p5_263_tab3_r03_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 3, kolumna 5",
+  "rect": [
+   273.5,
+   566.5,
+   506.8,
+   581.8
+  ]
+ },
+ {
+  "name": "p5_264_tab3_r03_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 3, kolumna 6",
+  "rect": [
+   507.5,
+   566.5,
+   552.5,
+   581.8
+  ]
+ },
+ {
+  "name": "p5_265_tab3_r04_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 4, kolumna 1",
+  "rect": [
+   60.8,
+   582.5,
+   113.5,
+   597.8
+  ]
+ },
+ {
+  "name": "p5_266_tab3_r04_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 4, kolumna 2",
+  "rect": [
+   114.2,
+   582.5,
+   167.2,
+   597.8
+  ]
+ },
+ {
+  "name": "p5_267_tab3_r04_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 4, kolumna 3",
+  "rect": [
+   167.8,
+   582.5,
+   219.2,
+   597.8
+  ]
+ },
+ {
+  "name": "p5_268_tab3_r04_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 4, kolumna 4",
+  "rect": [
+   219.8,
+   582.5,
+   272.8,
+   597.8
+  ]
+ },
+ {
+  "name": "p5_269_tab3_r04_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 4, kolumna 5",
+  "rect": [
+   273.5,
+   582.5,
+   506.8,
+   597.8
+  ]
+ },
+ {
+  "name": "p5_270_tab3_r04_c6",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 3, wiersz 4, kolumna 6",
+  "rect": [
+   507.5,
+   582.5,
+   552.5,
+   597.8
+  ]
+ },
+ {
+  "name": "p5_271_chk_tak",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   60.8,
+   644.8,
+   78.0,
+   662.0
+  ]
+ },
+ {
+  "name": "p5_272_chk_nie",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   114.2,
+   644.8,
+   131.5,
+   662.0
+  ]
+ },
+ {
+  "name": "p5_273_txt_nie",
+  "page": 5,
+  "type": "multiline",
+  "label_guess": "NIE",
+  "rect": [
+   185.8,
+   644.8,
+   552.2,
+   671.0
+  ]
+ },
+ {
+  "name": "p6_274_txt_uwagi",
+  "page": 6,
+  "type": "multiline",
+  "label_guess": "Uwagi",
+  "rect": [
+   43.0,
+   114.8,
+   552.5,
+   234.0
+  ]
+ },
+ {
+  "name": "p6_275_txt_data",
+  "page": 6,
+  "type": "comb(8)",
+  "label_guess": "Data",
+  "rect": [
+   78.5,
+   325.2,
+   220.8,
+   342.2
+  ]
+ }
+]

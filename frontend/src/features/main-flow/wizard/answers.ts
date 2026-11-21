@@ -33,6 +33,8 @@ export type Answers = {
   /** Masa urodzeniowa (przy kilkorgu dzieci: najlżejszego) ≤ SUPP_WEIGHT_THRESHOLD_G — FE1-05, zamiast dokładnej masy. */
   lowBirthWeight: Tri;
   hospitalWeeks: string;
+  /** FE1-08: liczba dni pobytu z zaświadczenia ze szpitala; hospitalWeeks = ceil(dni / WEEK_AS_DAYS) — wartość wysyłana do API. */
+  hospitalDays: string;
   lateHospitalQualifies: Tri;
   zaZyciem: boolean;
   stillborn: boolean;
@@ -42,6 +44,7 @@ export type Answers = {
   partnerInsured: Tri;
   maternityStart: string;
   usedMaternityFully: Tri;
+  usedMaternityWeeks: string; // FE1-09: przy „Nie” — ile tygodni macierzyńskiego wykorzystano
   usedParentalMotherWeeks: string;
   usedParentalFatherWeeks: string;
   usedParts: string;
@@ -83,6 +86,7 @@ export const EMPTY_ANSWERS: Answers = {
   gestationWeeks: "",
   lowBirthWeight: "UNKNOWN",
   hospitalWeeks: "",
+  hospitalDays: "",
   lateHospitalQualifies: "UNKNOWN",
   zaZyciem: false,
   stillborn: false,
@@ -92,6 +96,7 @@ export const EMPTY_ANSWERS: Answers = {
   partnerInsured: "YES",
   maternityStart: "",
   usedMaternityFully: "YES",
+  usedMaternityWeeks: "",
   usedParentalMotherWeeks: "0",
   usedParentalFatherWeeks: "0",
   usedParts: "0",

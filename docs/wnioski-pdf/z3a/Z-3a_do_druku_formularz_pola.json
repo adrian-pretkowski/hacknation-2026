@@ -1,0 +1,1754 @@
+[
+ {
+  "name": "p1_000_chk_pierwszy_wniosek_o_swiadczenie",
+  "page": 1,
+  "type": "checkbox",
+  "label_guess": "pierwszy wniosek o świadczenie",
+  "rect": [
+   211.2,
+   116.8,
+   228.2,
+   134.0
+  ]
+ },
+ {
+  "name": "p1_001_chk_wniosek_o_kontynuacje_swiadczenia",
+  "page": 1,
+  "type": "checkbox",
+  "label_guess": "wniosek o kontynuację świadczenia",
+  "rect": [
+   211.2,
+   143.5,
+   228.2,
+   160.8
+  ]
+ },
+ {
+  "name": "p1_002_txt_nip",
+  "page": 1,
+  "type": "comb(10)",
+  "label_guess": "NIP",
+  "rect": [
+   239.2,
+   294.8,
+   417.2,
+   312.0
+  ]
+ },
+ {
+  "name": "p1_003_txt_regon",
+  "page": 1,
+  "type": "comb(14)",
+  "label_guess": "REGON",
+  "rect": [
+   239.2,
+   321.5,
+   488.8,
+   338.8
+  ]
+ },
+ {
+  "name": "p1_004_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   357.2,
+   435.2,
+   374.5
+  ]
+ },
+ {
+  "name": "p1_005_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   393.0,
+   552.2,
+   410.2
+  ]
+ },
+ {
+  "name": "p1_006_txt_nazwa_albo_imie_i_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa albo imię i nazwisko",
+  "rect": [
+   239.2,
+   428.8,
+   552.2,
+   446.0
+  ]
+ },
+ {
+  "name": "p1_007_txt_ulica",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Ulica",
+  "rect": [
+   239.2,
+   455.5,
+   552.2,
+   472.8
+  ]
+ },
+ {
+  "name": "p1_008_txt_numer_domu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer domu",
+  "rect": [
+   239.2,
+   482.2,
+   310.0,
+   499.5
+  ]
+ },
+ {
+  "name": "p1_009_txt_numer_lokalu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer lokalu",
+  "rect": [
+   400.0,
+   482.2,
+   470.8,
+   499.5
+  ]
+ },
+ {
+  "name": "p1_010_txt_kod_pocztowy",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Kod pocztowy",
+  "rect": [
+   239.2,
+   509.0,
+   310.0,
+   526.2
+  ]
+ },
+ {
+  "name": "p1_011_txt_miejscowosc",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Miejscowość",
+  "rect": [
+   400.0,
+   509.0,
+   552.2,
+   526.2
+  ]
+ },
+ {
+  "name": "p1_012_txt_nazwa_panstwa",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa państwa",
+  "rect": [
+   239.2,
+   535.8,
+   552.2,
+   553.0
+  ]
+ },
+ {
+  "name": "p1_013_txt_numer_telefonu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer telefonu",
+  "rect": [
+   239.2,
+   571.5,
+   552.2,
+   588.8
+  ]
+ },
+ {
+  "name": "p1_014_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   630.5,
+   435.2,
+   647.8
+  ]
+ },
+ {
+  "name": "p1_015_txt_data_urodzenia",
+  "page": 1,
+  "type": "comb(8)",
+  "label_guess": "Data urodzenia",
+  "rect": [
+   239.2,
+   657.2,
+   381.5,
+   674.5
+  ]
+ },
+ {
+  "name": "p1_016_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   701.8,
+   552.2,
+   719.0
+  ]
+ },
+ {
+  "name": "p1_017_txt_imie",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Imię",
+  "rect": [
+   239.2,
+   737.5,
+   552.2,
+   754.8
+  ]
+ },
+ {
+  "name": "p1_018_txt_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwisko",
+  "rect": [
+   239.2,
+   764.5,
+   552.2,
+   781.5
+  ]
+ },
+ {
+  "name": "p2_019_txt_ulica",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Ulica",
+  "rect": [
+   239.2,
+   95.5,
+   552.2,
+   112.8
+  ]
+ },
+ {
+  "name": "p2_020_txt_numer_domu",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Numer domu",
+  "rect": [
+   239.2,
+   122.2,
+   310.0,
+   139.5
+  ]
+ },
+ {
+  "name": "p2_021_txt_numer_lokalu",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Numer lokalu",
+  "rect": [
+   400.0,
+   122.2,
+   470.8,
+   139.5
+  ]
+ },
+ {
+  "name": "p2_022_txt_kod_pocztowy",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Kod pocztowy",
+  "rect": [
+   239.2,
+   149.2,
+   310.0,
+   166.2
+  ]
+ },
+ {
+  "name": "p2_023_txt_miejscowosc",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Miejscowość",
+  "rect": [
+   400.0,
+   149.2,
+   552.2,
+   166.2
+  ]
+ },
+ {
+  "name": "p2_024_txt_nazwa_panstwa",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Nazwa państwa",
+  "rect": [
+   239.2,
+   176.0,
+   552.2,
+   193.2
+  ]
+ },
+ {
+  "name": "p2_025_txt_rachunek_bankowy",
+  "page": 2,
+  "type": "comb(26)",
+  "label_guess": "Rachunek bankowy",
+  "rect": [
+   43.0,
+   250.5,
+   506.8,
+   267.8
+  ]
+ },
+ {
+  "name": "p2_026_chk_zasilek_chorobowy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek chorobowy",
+  "rect": [
+   43.0,
+   333.2,
+   60.2,
+   350.5
+  ]
+ },
+ {
+  "name": "p2_027_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   360.0,
+   552.5,
+   377.2
+  ]
+ },
+ {
+  "name": "p2_028_chk_zasilek_opiekunczy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek opiekuńczy",
+  "rect": [
+   43.0,
+   395.8,
+   60.2,
+   413.0
+  ]
+ },
+ {
+  "name": "p2_029_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   422.5,
+   552.5,
+   439.8
+  ]
+ },
+ {
+  "name": "p2_030_chk_zasilek_macierzynski",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "zasiłek macierzyński",
+  "rect": [
+   43.0,
+   458.2,
+   60.2,
+   475.5
+  ]
+ },
+ {
+  "name": "p2_031_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   485.0,
+   552.5,
+   502.2
+  ]
+ },
+ {
+  "name": "p2_032_chk_swiadczenie_rehabilitacyjne",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "świadczenie rehabilitacyjne",
+  "rect": [
+   43.0,
+   520.0,
+   60.2,
+   537.2
+  ]
+ },
+ {
+  "name": "p2_033_txt_za_okres",
+  "page": 2,
+  "type": "text",
+  "label_guess": "za okres",
+  "rect": [
+   114.5,
+   547.0,
+   552.5,
+   564.0
+  ]
+ },
+ {
+  "name": "p2_034_txt_wniosek_o_zasilek_macierzynski_zlozyl_w",
+  "page": 2,
+  "type": "comb(8)",
+  "label_guess": "Wniosek o zasiłek macierzyński złożył w dniu",
+  "rect": [
+   239.2,
+   582.8,
+   381.5,
+   600.0
+  ]
+ },
+ {
+  "name": "p2_035_txt_jesli_wyplacales_zasilek_macierzynski_po",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Jeśli wypłacałeś zasiłek macierzyński, podaj stawkę procentową wypłaconego zasiłku.",
+  "rect": [
+   471.5,
+   627.5,
+   552.2,
+   644.8
+  ]
+ },
+ {
+  "name": "p2_036_txt_dane_dziecka_dzieci",
+  "page": 2,
+  "type": "multiline",
+  "label_guess": "Dane dziecka/dzieci:",
+  "rect": [
+   60.8,
+   669.5,
+   552.0,
+   764.8
+  ]
+ },
+ {
+  "name": "p3_037_txt_dane_drugiego_rodzica_albo_czlonka_rodzi",
+  "page": 3,
+  "type": "multiline",
+  "label_guess": "Dane drugiego rodzica albo członka rodziny",
+  "rect": [
+   60.8,
+   114.8,
+   552.0,
+   210.0
+  ]
+ },
+ {
+  "name": "p3_038_chk_tak",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   435.8,
+   279.2,
+   453.0,
+   296.5
+  ]
+ },
+ {
+  "name": "p3_039_chk_nie",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   489.2,
+   279.2,
+   506.5,
+   296.5
+  ]
+ },
+ {
+  "name": "p3_040_chk_tak",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   435.8,
+   306.2,
+   453.0,
+   323.2
+  ]
+ },
+ {
+  "name": "p3_041_chk_nie",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   489.2,
+   306.2,
+   506.5,
+   323.2
+  ]
+ },
+ {
+  "name": "p3_042_chk_jako_czlonek_rolniczej_spoldzielni_produ",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako członek rolniczej spółdzielni produkcyjnej lub spółdzielni kółek rolniczych",
+  "rect": [
+   60.8,
+   333.0,
+   78.0,
+   350.2
+  ]
+ },
+ {
+  "name": "p3_043_chk_do_ktorej_zgodnie_z_kodeksem_cywilnym_st",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia lub jako osoba współpracująca",
+  "rect": [
+   60.8,
+   359.8,
+   78.0,
+   377.0
+  ]
+ },
+ {
+  "name": "p3_044_chk_jako_osoba_wykonujaca_umowe_o_prace_nakl",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako osoba wykonująca umowę o pracę nakładczą",
+  "rect": [
+   60.8,
+   386.5,
+   78.0,
+   403.8
+  ]
+ },
+ {
+  "name": "p3_045_chk_jako_osoba_wykonujaca_odplatnie_prace_na",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako osoba wykonująca odpłatnie pracę na podstawie skierowania do pracy w czasie odbywania kary pozbawienia",
+  "rect": [
+   60.8,
+   410.8,
+   78.0,
+   428.0
+  ]
+ },
+ {
+  "name": "p3_046_chk_jako_posel_lub_senator_pobierajacy_uposa",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako poseł lub senator pobierający uposażenie",
+  "rect": [
+   60.8,
+   437.8,
+   78.0,
+   455.0
+  ]
+ },
+ {
+  "name": "p3_047_chk_jako_osoba_pobierajaca_stypendium_sporto",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako osoba pobierająca stypendium sportowe",
+  "rect": [
+   60.8,
+   464.5,
+   78.0,
+   481.8
+  ]
+ },
+ {
+  "name": "p3_048_chk_jako_sluchacz_krajowej_szkoly_administra",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako słuchacz Krajowej Szkoły Administracji Publicznej pobierający stypendium",
+  "rect": [
+   60.8,
+   491.2,
+   78.0,
+   508.5
+  ]
+ },
+ {
+  "name": "p3_049_chk_jako_osoba_pobierajaca_stypendium_w_okre",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako osoba pobierająca stypendium w okresie odbywania szkolenia, stażu lub przygotowania zawodowego dorosłych, na",
+  "rect": [
+   60.8,
+   518.0,
+   78.0,
+   535.2
+  ]
+ },
+ {
+  "name": "p3_050_chk_jako_osoba_odbywajaca_sluzbe_zastepcza",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako osoba odbywająca służbę zastępczą",
+  "rect": [
+   60.8,
+   555.5,
+   78.0,
+   572.8
+  ]
+ },
+ {
+  "name": "p3_051_chk_4_lutego_2011_r_o_opiece_nad_dzieckiem_d",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "4 lutego 2011 r. o opiece nad dzieckiem do lat 3",
+  "rect": [
+   60.8,
+   582.2,
+   78.0,
+   599.5
+  ]
+ },
+ {
+  "name": "p3_052_chk_jako_doktorant_ktory_otrzymuje_stypendiu",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "jako doktorant, który otrzymuje stypendium doktoranckie",
+  "rect": [
+   60.8,
+   609.0,
+   78.0,
+   626.2
+  ]
+ },
+ {
+  "name": "p3_053_txt_ubezpieczeniu_chorobowemu_podlega",
+  "page": 3,
+  "type": "text",
+  "label_guess": "Ubezpieczeniu chorobowemu podlega",
+  "rect": [
+   239.2,
+   669.2,
+   453.0,
+   686.5
+  ]
+ },
+ {
+  "name": "p3_054_txt_ubezpieczeniu_wypadkowemu_podlega",
+  "page": 3,
+  "type": "text",
+  "label_guess": "Ubezpieczeniu wypadkowemu podlega",
+  "rect": [
+   239.2,
+   705.0,
+   453.0,
+   722.2
+  ]
+ },
+ {
+  "name": "p3_055_chk_tak",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   239.2,
+   740.8,
+   256.5,
+   758.0
+  ]
+ },
+ {
+  "name": "p3_056_chk_nie",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   292.8,
+   740.8,
+   310.0,
+   758.0
+  ]
+ },
+ {
+  "name": "p3_057_txt_nie",
+  "page": 3,
+  "type": "comb(8)",
+  "label_guess": "NIE",
+  "rect": [
+   364.2,
+   740.8,
+   506.5,
+   758.0
+  ]
+ },
+ {
+  "name": "p4_058_chk_choroby_zawodowej",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "choroby zawodowej",
+  "rect": [
+   60.8,
+   122.0,
+   78.0,
+   139.2
+  ]
+ },
+ {
+  "name": "p4_059_chk_wypadku_przy_pracy",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "wypadku przy pracy",
+  "rect": [
+   221.5,
+   122.0,
+   238.8,
+   139.2
+  ]
+ },
+ {
+  "name": "p4_060_chk_wypadku_w_drodze_do_pracy_lub_z_pracy",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "wypadku w drodze do pracy lub z pracy",
+  "rect": [
+   346.5,
+   122.0,
+   363.8,
+   139.2
+  ]
+ },
+ {
+  "name": "p4_061_chk_tak",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   60.8,
+   149.0,
+   78.0,
+   166.0
+  ]
+ },
+ {
+  "name": "p4_062_chk_nie",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   114.2,
+   149.0,
+   131.5,
+   166.0
+  ]
+ },
+ {
+  "name": "p4_063_txt_nie",
+  "page": 4,
+  "type": "text",
+  "label_guess": "NIE",
+  "rect": [
+   185.8,
+   149.0,
+   552.2,
+   166.0
+  ]
+ },
+ {
+  "name": "p4_064_chk_bezplatnego",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "bezpłatnego",
+  "rect": [
+   60.8,
+   210.2,
+   78.0,
+   227.5
+  ]
+ },
+ {
+  "name": "p4_065_chk_przebywa",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "przebywa",
+  "rect": [
+   167.8,
+   210.2,
+   185.0,
+   227.5
+  ]
+ },
+ {
+  "name": "p4_066_chk_korzysta_z_urlopu_opiekunczego_przyslugu",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "korzysta z urlopu opiekuńczego przysługującego",
+  "rect": [
+   310.8,
+   210.2,
+   328.0,
+   227.5
+  ]
+ },
+ {
+  "name": "p4_067_chk_korzysta_z_urlopu",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "korzysta z urlopu",
+  "rect": [
+   60.8,
+   237.2,
+   78.0,
+   254.2
+  ]
+ },
+ {
+  "name": "p4_068_chk_odbywa_kare",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "odbywa karę",
+  "rect": [
+   167.8,
+   237.2,
+   185.0,
+   254.2
+  ]
+ },
+ {
+  "name": "p4_069_chk_ma_usprawiedliwiona_nieobecnosc_w_pracy",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "ma usprawiedliwioną nieobecność w pracy,",
+  "rect": [
+   310.8,
+   237.2,
+   328.0,
+   254.2
+  ]
+ },
+ {
+  "name": "p4_070_chk_tak",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   60.8,
+   274.5,
+   78.0,
+   291.8
+  ]
+ },
+ {
+  "name": "p4_071_chk_nie",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   114.2,
+   274.5,
+   131.5,
+   291.8
+  ]
+ },
+ {
+  "name": "p4_072_txt_nie",
+  "page": 4,
+  "type": "text",
+  "label_guess": "NIE",
+  "rect": [
+   185.8,
+   274.5,
+   552.2,
+   291.8
+  ]
+ },
+ {
+  "name": "p4_073_chk_tak",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   417.8,
+   340.8,
+   435.0,
+   358.0
+  ]
+ },
+ {
+  "name": "p4_074_chk_nie",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   471.5,
+   340.8,
+   488.8,
+   358.0
+  ]
+ },
+ {
+  "name": "p4_075_txt_prace_nakladcza_oraz_osoby_odbywajacej_s",
+  "page": 4,
+  "type": "multiline",
+  "label_guess": "pracę nakładczą oraz osoby odbywającej służbę zastępczą)",
+  "rect": [
+   60.8,
+   378.2,
+   552.2,
+   404.5
+  ]
+ },
+ {
+  "name": "p4_076_chk_tak",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   417.8,
+   431.2,
+   435.0,
+   448.2
+  ]
+ },
+ {
+  "name": "p4_077_chk_nie",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   471.5,
+   431.2,
+   488.8,
+   448.2
+  ]
+ },
+ {
+  "name": "p4_078_txt_czy_wyplaciles_zasilek_chorobowy",
+  "page": 4,
+  "type": "multiline",
+  "label_guess": "Czy wypłaciłeś zasiłek chorobowy",
+  "rect": [
+   60.8,
+   458.0,
+   552.2,
+   484.2
+  ]
+ },
+ {
+  "name": "p4_079_chk_tak",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   417.8,
+   511.8,
+   435.0,
+   529.0
+  ]
+ },
+ {
+  "name": "p4_080_chk_nie",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   471.5,
+   511.8,
+   488.8,
+   529.0
+  ]
+ },
+ {
+  "name": "p4_081_txt_o_ubezpieczeniu",
+  "page": 4,
+  "type": "multiline",
+  "label_guess": "o ubezpieczeniu)",
+  "rect": [
+   60.8,
+   549.2,
+   552.2,
+   575.5
+  ]
+ },
+ {
+  "name": "p4_082_chk_do_20_ubezpieczonych",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "do 20 ubezpieczonych",
+  "rect": [
+   239.2,
+   623.2,
+   256.5,
+   640.5
+  ]
+ },
+ {
+  "name": "p4_083_chk_powyzej_20_ubezpieczonych",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "powyżej 20 ubezpieczonych",
+  "rect": [
+   382.2,
+   623.2,
+   399.2,
+   640.5
+  ]
+ },
+ {
+  "name": "p5_084_tab1_r01_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 1",
+  "rect": [
+   43.0,
+   164.8,
+   78.2,
+   183.0
+  ]
+ },
+ {
+  "name": "p5_085_tab1_r01_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 2",
+  "rect": [
+   78.8,
+   164.8,
+   149.5,
+   183.0
+  ]
+ },
+ {
+  "name": "p5_086_tab1_r01_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 3",
+  "rect": [
+   150.2,
+   164.8,
+   221.0,
+   183.0
+  ]
+ },
+ {
+  "name": "p5_087_tab1_r01_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 4",
+  "rect": [
+   221.8,
+   164.8,
+   310.2,
+   183.0
+  ]
+ },
+ {
+  "name": "p5_088_tab1_r01_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 1, kolumna 5",
+  "rect": [
+   311.0,
+   164.8,
+   552.5,
+   183.0
+  ]
+ },
+ {
+  "name": "p5_089_tab1_r02_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 1",
+  "rect": [
+   43.0,
+   183.8,
+   78.2,
+   202.0
+  ]
+ },
+ {
+  "name": "p5_090_tab1_r02_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 2",
+  "rect": [
+   78.8,
+   183.8,
+   149.5,
+   202.0
+  ]
+ },
+ {
+  "name": "p5_091_tab1_r02_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 3",
+  "rect": [
+   150.2,
+   183.8,
+   221.0,
+   202.0
+  ]
+ },
+ {
+  "name": "p5_092_tab1_r02_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 4",
+  "rect": [
+   221.8,
+   183.8,
+   310.2,
+   202.0
+  ]
+ },
+ {
+  "name": "p5_093_tab1_r02_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 2, kolumna 5",
+  "rect": [
+   311.0,
+   183.8,
+   552.5,
+   202.0
+  ]
+ },
+ {
+  "name": "p5_094_tab1_r03_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 1",
+  "rect": [
+   43.0,
+   202.8,
+   78.2,
+   221.0
+  ]
+ },
+ {
+  "name": "p5_095_tab1_r03_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 2",
+  "rect": [
+   78.8,
+   202.8,
+   149.5,
+   221.0
+  ]
+ },
+ {
+  "name": "p5_096_tab1_r03_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 3",
+  "rect": [
+   150.2,
+   202.8,
+   221.0,
+   221.0
+  ]
+ },
+ {
+  "name": "p5_097_tab1_r03_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 4",
+  "rect": [
+   221.8,
+   202.8,
+   310.2,
+   221.0
+  ]
+ },
+ {
+  "name": "p5_098_tab1_r03_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 3, kolumna 5",
+  "rect": [
+   311.0,
+   202.8,
+   552.5,
+   221.0
+  ]
+ },
+ {
+  "name": "p5_099_tab1_r04_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 1",
+  "rect": [
+   43.0,
+   221.8,
+   78.2,
+   240.0
+  ]
+ },
+ {
+  "name": "p5_100_tab1_r04_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 2",
+  "rect": [
+   78.8,
+   221.8,
+   149.5,
+   240.0
+  ]
+ },
+ {
+  "name": "p5_101_tab1_r04_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 3",
+  "rect": [
+   150.2,
+   221.8,
+   221.0,
+   240.0
+  ]
+ },
+ {
+  "name": "p5_102_tab1_r04_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 4",
+  "rect": [
+   221.8,
+   221.8,
+   310.2,
+   240.0
+  ]
+ },
+ {
+  "name": "p5_103_tab1_r04_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 4, kolumna 5",
+  "rect": [
+   311.0,
+   221.8,
+   552.5,
+   240.0
+  ]
+ },
+ {
+  "name": "p5_104_tab1_r05_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 1",
+  "rect": [
+   43.0,
+   240.8,
+   78.2,
+   259.0
+  ]
+ },
+ {
+  "name": "p5_105_tab1_r05_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 2",
+  "rect": [
+   78.8,
+   240.8,
+   149.5,
+   259.0
+  ]
+ },
+ {
+  "name": "p5_106_tab1_r05_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 3",
+  "rect": [
+   150.2,
+   240.8,
+   221.0,
+   259.0
+  ]
+ },
+ {
+  "name": "p5_107_tab1_r05_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 4",
+  "rect": [
+   221.8,
+   240.8,
+   310.2,
+   259.0
+  ]
+ },
+ {
+  "name": "p5_108_tab1_r05_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 5, kolumna 5",
+  "rect": [
+   311.0,
+   240.8,
+   552.5,
+   259.0
+  ]
+ },
+ {
+  "name": "p5_109_tab1_r06_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 1",
+  "rect": [
+   43.0,
+   259.8,
+   78.2,
+   278.0
+  ]
+ },
+ {
+  "name": "p5_110_tab1_r06_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 2",
+  "rect": [
+   78.8,
+   259.8,
+   149.5,
+   278.0
+  ]
+ },
+ {
+  "name": "p5_111_tab1_r06_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 3",
+  "rect": [
+   150.2,
+   259.8,
+   221.0,
+   278.0
+  ]
+ },
+ {
+  "name": "p5_112_tab1_r06_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 4",
+  "rect": [
+   221.8,
+   259.8,
+   310.2,
+   278.0
+  ]
+ },
+ {
+  "name": "p5_113_tab1_r06_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 6, kolumna 5",
+  "rect": [
+   311.0,
+   259.8,
+   552.5,
+   278.0
+  ]
+ },
+ {
+  "name": "p5_114_tab1_r07_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 1",
+  "rect": [
+   43.0,
+   278.8,
+   78.2,
+   297.0
+  ]
+ },
+ {
+  "name": "p5_115_tab1_r07_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 2",
+  "rect": [
+   78.8,
+   278.8,
+   149.5,
+   297.0
+  ]
+ },
+ {
+  "name": "p5_116_tab1_r07_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 3",
+  "rect": [
+   150.2,
+   278.8,
+   221.0,
+   297.0
+  ]
+ },
+ {
+  "name": "p5_117_tab1_r07_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 4",
+  "rect": [
+   221.8,
+   278.8,
+   310.2,
+   297.0
+  ]
+ },
+ {
+  "name": "p5_118_tab1_r07_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 7, kolumna 5",
+  "rect": [
+   311.0,
+   278.8,
+   552.5,
+   297.0
+  ]
+ },
+ {
+  "name": "p5_119_tab1_r08_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 1",
+  "rect": [
+   43.0,
+   297.8,
+   78.2,
+   316.0
+  ]
+ },
+ {
+  "name": "p5_120_tab1_r08_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 2",
+  "rect": [
+   78.8,
+   297.8,
+   149.5,
+   316.0
+  ]
+ },
+ {
+  "name": "p5_121_tab1_r08_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 3",
+  "rect": [
+   150.2,
+   297.8,
+   221.0,
+   316.0
+  ]
+ },
+ {
+  "name": "p5_122_tab1_r08_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 4",
+  "rect": [
+   221.8,
+   297.8,
+   310.2,
+   316.0
+  ]
+ },
+ {
+  "name": "p5_123_tab1_r08_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 8, kolumna 5",
+  "rect": [
+   311.0,
+   297.8,
+   552.5,
+   316.0
+  ]
+ },
+ {
+  "name": "p5_124_tab1_r09_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 1",
+  "rect": [
+   43.0,
+   316.8,
+   78.2,
+   335.0
+  ]
+ },
+ {
+  "name": "p5_125_tab1_r09_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 2",
+  "rect": [
+   78.8,
+   316.8,
+   149.5,
+   335.0
+  ]
+ },
+ {
+  "name": "p5_126_tab1_r09_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 3",
+  "rect": [
+   150.2,
+   316.8,
+   221.0,
+   335.0
+  ]
+ },
+ {
+  "name": "p5_127_tab1_r09_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 4",
+  "rect": [
+   221.8,
+   316.8,
+   310.2,
+   335.0
+  ]
+ },
+ {
+  "name": "p5_128_tab1_r09_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 9, kolumna 5",
+  "rect": [
+   311.0,
+   316.8,
+   552.5,
+   335.0
+  ]
+ },
+ {
+  "name": "p5_129_tab1_r10_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 1",
+  "rect": [
+   43.0,
+   335.8,
+   78.2,
+   354.0
+  ]
+ },
+ {
+  "name": "p5_130_tab1_r10_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 2",
+  "rect": [
+   78.8,
+   335.8,
+   149.5,
+   354.0
+  ]
+ },
+ {
+  "name": "p5_131_tab1_r10_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 3",
+  "rect": [
+   150.2,
+   335.8,
+   221.0,
+   354.0
+  ]
+ },
+ {
+  "name": "p5_132_tab1_r10_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 4",
+  "rect": [
+   221.8,
+   335.8,
+   310.2,
+   354.0
+  ]
+ },
+ {
+  "name": "p5_133_tab1_r10_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 10, kolumna 5",
+  "rect": [
+   311.0,
+   335.8,
+   552.5,
+   354.0
+  ]
+ },
+ {
+  "name": "p5_134_tab1_r11_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 1",
+  "rect": [
+   43.0,
+   354.8,
+   78.2,
+   373.0
+  ]
+ },
+ {
+  "name": "p5_135_tab1_r11_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 2",
+  "rect": [
+   78.8,
+   354.8,
+   149.5,
+   373.0
+  ]
+ },
+ {
+  "name": "p5_136_tab1_r11_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 3",
+  "rect": [
+   150.2,
+   354.8,
+   221.0,
+   373.0
+  ]
+ },
+ {
+  "name": "p5_137_tab1_r11_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 4",
+  "rect": [
+   221.8,
+   354.8,
+   310.2,
+   373.0
+  ]
+ },
+ {
+  "name": "p5_138_tab1_r11_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 11, kolumna 5",
+  "rect": [
+   311.0,
+   354.8,
+   552.5,
+   373.0
+  ]
+ },
+ {
+  "name": "p5_139_tab1_r12_c1",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 1",
+  "rect": [
+   43.0,
+   373.8,
+   78.2,
+   392.0
+  ]
+ },
+ {
+  "name": "p5_140_tab1_r12_c2",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 2",
+  "rect": [
+   78.8,
+   373.8,
+   149.5,
+   392.0
+  ]
+ },
+ {
+  "name": "p5_141_tab1_r12_c3",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 3",
+  "rect": [
+   150.2,
+   373.8,
+   221.0,
+   392.0
+  ]
+ },
+ {
+  "name": "p5_142_tab1_r12_c4",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 4",
+  "rect": [
+   221.8,
+   373.8,
+   310.2,
+   392.0
+  ]
+ },
+ {
+  "name": "p5_143_tab1_r12_c5",
+  "page": 5,
+  "type": "text",
+  "label_guess": "tabela 1, wiersz 12, kolumna 5",
+  "rect": [
+   311.0,
+   373.8,
+   552.5,
+   392.0
+  ]
+ },
+ {
+  "name": "p5_144_txt_uwagi",
+  "page": 5,
+  "type": "multiline",
+  "label_guess": "Uwagi",
+  "rect": [
+   43.0,
+   419.0,
+   552.5,
+   594.5
+  ]
+ },
+ {
+  "name": "p5_145_txt_data",
+  "page": 5,
+  "type": "comb(8)",
+  "label_guess": "Data",
+  "rect": [
+   78.5,
+   697.5,
+   220.8,
+   714.8
+  ]
+ }
+]

@@ -12,16 +12,17 @@
 10. Zaznacz „Wcześniak lub pobyt dziecka w szpitalu”.
 11. Z listy „Ukończony tydzień ciąży przy porodzie” wybierz „30. tydzień”.
 12. Wybierz „Powyżej 1000 g”.
-13. Z listy „Łącznie tygodni w szpitalu (dziecko najdłużej w szpitalu)” wybierz „6 tyg.”.
-14. Sprawdź, że widać „które było w szpitalu najdłużej”.
-15. Przejdź dalej.
-16. Wybierz „Umowa o pracę”.
-17. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „2021-03-01”.
-18. Wybierz „Na czas nieokreślony”.
-19. Wybierz „Nie”.
-20. Wybierz „Więcej niż 20”.
-21. Przejdź dalej.
+13. W polu „Łącznie dni w szpitalu (dziecko najdłużej w szpitalu)” wpisz „38”.
+14. Sprawdź, że widać „38 dni = 6 tyg.”.
+15. Sprawdź, że widać „które było w szpitalu najdłużej”.
+16. Przejdź dalej.
+17. Wybierz „Umowa o pracę”.
+18. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „2021-03-01”.
+19. Wybierz „Na czas nieokreślony”.
+20. Wybierz „Nie”.
+21. Wybierz „Więcej niż 20”.
 22. Przejdź dalej.
 23. Przejdź dalej.
-24. Sprawdź, że nagłówek to „Twój plan”.
-25. Sprawdź, że widać „uzupełniający”.
+24. Przejdź dalej.
+25. Sprawdź, że nagłówek to „Twój plan”.
+26. Sprawdź, że widać „uzupełniający”.
