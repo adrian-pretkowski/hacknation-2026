@@ -18,6 +18,8 @@
 16. Przejdź dalej.
 17. Ustaw suwak „Zadeklarowana podstawa składek (zł / miesiąc)” na „5000”.
 18. Przejdź dalej.
-19. Sprawdź, że nagłówek to „Twój plan”.
-20. Sprawdź, że widać „Radar ryzyk”.
-21. Sprawdź, że widać „zaległ”.
+19. Sprawdź, że nagłówek to „Optymalizacja”.
+20. Przejdź dalej.
+21. Sprawdź, że nagłówek to „Twój plan”.
+22. Sprawdź, że widać „Radar ryzyk”.
+23. Sprawdź, że widać „zaległ”.

@@ -4,7 +4,7 @@
 2. Kliknij „Mama na etacie, poród 1 grudnia”.
 3. Sprawdź, że nagłówek to „Twój plan”.
 4. Kliknij „← Wstecz”.
-5. Sprawdź, że nagłówek to „Wynagrodzenie”.
+5. Sprawdź, że nagłówek to „Optymalizacja”.
 6. Cofnij w przeglądarce.
 7. Sprawdź, że nagłówek to „Twój plan”.
 8. Kliknij „Zmień odpowiedzi od początku”.

@@ -23,5 +23,7 @@
 19. Kliknij „Pobierz dane z ZUS”.
 20. Sprawdź, że widać „Uzupełniono przykładowymi danymi”.
 21. Przejdź dalej.
-22. Sprawdź, że nagłówek to „Twój plan”.
-23. Sprawdź, że widać „Oś czasu”.
+22. Sprawdź, że nagłówek to „Optymalizacja”.
+23. Przejdź dalej.
+24. Sprawdź, że nagłówek to „Twój plan”.
+25. Sprawdź, że widać „Oś czasu”.
