@@ -43,7 +43,7 @@
 | FE-1 | — (FE1-05 DONE, scalone do `main` po `/review` READY_TO_MERGE) | `fe1/FE1-05-birth-weight-choice` | 2026-11-21 | Następne: wg TASKS. Drobne z review: podgląd liczy masę bez martwo urodzonych (07: wszystkie dzieci), `cd e2e; npm test` dla scenariusza 08 |
 | FE-1 (Michał) | — (FE1-02/03/09/10/12/13/14 DONE, scalone; FE1-15 DONE, scalone) | `fe1/FE1-15-salary-field` | 2026-11-21 | Kreator dalej liczy podgląd na kopii `PARAMS` — zmiana z `/admin` widoczna w `/api/evaluate` (kontrola krzyżowa, podgląd w `/admin`) |
 | FE-2 | FE2-05 DONE (Michał, czeka na /review); wcześniej FE2-02 DONE (symulacje) | `fe2/FE2-05-guide` | 2026-11-21 | Następne: FE2-03/FE2-04. Po INT-03: zamienić `simulations/simApi.ts` na klienta `lib/api.ts`; FE-1: `simFetchFromZus` w `wizard/simZus.ts` nieużywany — do usunięcia |
-| BA | BA-01 (odpowiedzi mentora M06–M17, lider z Claude Code); BA-02 DONE (Michał, scalone) | `ba/BA-02-content` | 2026-11-21 | Każdy punkt na osobnej gałęzi, merge do main po /review. BA-02: treści do przejrzenia przez BA/lidera (`reviewed_by` = null) |
+| BA | BA-06 IN_PROGRESS | `fe1/FE1-19-gap-fixes` | 2026-11-21 | Każdy punkt na osobnej gałęzi, merge do main po /review. BA-02: treści do przejrzenia przez BA/lidera (`reviewed_by` = null) |
 | FE-1 (Tomasz) | — (FE1-23 DONE: wypełnianie pism PDF formularzem, wysyłka SYMULACJA, pobranie PDF) | `fe1/FE1-23-pdf-forms` | 2026-11-21 | ID zmienione z FE1-19 (kolizja z zadaniem zajętym równolegle; commit ma FE1-19); wysyłka przez `/api/sim/applications` dla Z-3/Z-3a/ZAS-12/ZAS-53 wymagałaby zmiany kontraktu (INT) |
 
 ## 4. Następne kroki (kolejność)
