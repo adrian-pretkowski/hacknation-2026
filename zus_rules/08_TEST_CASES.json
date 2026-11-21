@@ -2353,7 +2353,7 @@
    "rule_ids": [
     "SUPP-ELIG-003"
    ],
-   "description": "39. tydz., pobyt 2 dni od 28. dnia (2027-02-06) → kwalifikuje się; od 29. dnia — nie",
+   "description": "39. tydz., pobyt 2 dni od 28. dnia (2027-02-06, dzień porodu = 1) → kwalifikuje się",
    "fixture": "employee_mother",
    "patch": {
     "event": {
@@ -2395,6 +2395,105 @@
    ],
    "assumptions": [
     "M15 a: dzień porodu = dzień 1 → 28. dzień = poród + 27 = 2027-02-06"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-010",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 2 dni od 29. dnia (2027-02-07) → poza oknem 5–28 → brak urlopu",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-02-07",
+       "to": "2027-02-08"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "fact": {
+     "f_has_qualifying_late_hospital_stay": false
+    }
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "M15 a: dzień porodu = dzień 1 → 29. dzień = poród + 28 = 2027-02-07"
+   ]
+  },
+  {
+   "test_id": "T-SUPP-011",
+   "kind": "POSITIVE",
+   "rule_ids": [
+    "SUPP-ELIG-003"
+   ],
+   "description": "39. tydz., pobyt 8 dni od 5. dnia (2027-01-14..2027-01-21, dzień porodu = 1) → 8 dni w oknie → 2 tygodnie",
+   "fixture": "employee_mother",
+   "patch": {
+    "event": {
+     "type": "BIRTH",
+     "date": "2027-01-10"
+    },
+    "birth": {
+     "completed_gestation_weeks": 39
+    },
+    "children": {
+     "count_at_birth": 1,
+     "items": [
+      {
+       "birth_date": "2027-01-10",
+       "birth_weight_g": 3400
+      }
+     ],
+     "hospital_stays": [
+      {
+       "child_index": 0,
+       "from": "2027-01-14",
+       "to": "2027-01-21"
+      }
+     ],
+     "za_zyciem_certificate": false
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "SUPPLEMENTARY_MATERNITY_LEAVE"
+   },
+   "expected": {
+    "period.max_weeks": 2
+   },
+   "legal_basis": [
+    "KP art. 180(2) § 1 pkt 3"
+   ],
+   "assumptions": [
+    "M15 a: okno od 5. dnia = poród + 4 (window_start_day = 5 jako numer dnia)",
+    "ceil(8/7) = 2"
    ]
   },
   {

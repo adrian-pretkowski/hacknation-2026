@@ -2020,7 +2020,7 @@ rules:
     any:
       - {field: birth.completed_gestation_weeks, operator: lt, value: {param: SUPP_GESTATION_EARLY_WEEK}}
       - {fact: f_min_birth_weight_g, operator: lte, value: {param: SUPP_WEIGHT_THRESHOLD_G}}
-  result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_EARLY}, window_start_day: 0}, output: duration.supplementary_weeks}
+  result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_EARLY}, window_start_day: 1}, output: duration.supplementary_weeks}
   exceptions: []
   dependencies: [SUPP-COND-001]
   overrides: []
@@ -2049,7 +2049,7 @@ rules:
       - {field: birth.completed_gestation_weeks, operator: gte, value: {param: SUPP_GESTATION_EARLY_WEEK}}
       - {field: birth.completed_gestation_weeks, operator: lt, value: {param: SUPP_GESTATION_TERM_WEEK}}
       - {fact: f_min_birth_weight_g, operator: gt, value: {param: SUPP_WEIGHT_THRESHOLD_G}}
-  result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_PRETERM}, window_start_day: 0}, output: duration.supplementary_weeks}
+  result: {compute: f_supplementary_leave_weeks, args: {cap_week: {param: SUPP_CAP_WEEK_PRETERM}, window_start_day: 1}, output: duration.supplementary_weeks}
   exceptions: []
   dependencies: [SUPP-COND-001]
   overrides: []

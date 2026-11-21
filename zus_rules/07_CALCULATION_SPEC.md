@@ -132,7 +132,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_paternity_within_deadline` | – | bool | Wszystkie segmenty PATERNITY ≤ deadline, ≤2 części, każda ≥7 dni, Σ ≤14 dni | None | – |
 | `f_min_birth_weight_g` | – | int | min(birth_weight_g) dzieci z porodu | None | – |
 | `f_has_qualifying_late_hospital_stay` | – | bool | Istnieje pobyt ≥2 kolejne dni, którego pierwszy dzień ∈ [dzień 5, dzień 28] po porodzie (dzień porodu = dzień 1 → [poród + 4, poród + 27]) | None | M15 a; ASSUMPTION-SUPP-DAY1, GAP-010 zamknięty |
-| `f_supplementary_leave_weeks` | cap_week, window_start_day | int | Dla dziecka najdłużej hospitalizowanego: suma dni pobytu w oknie `[birth + window_start_day, birth + 7·cap_week − 1]`; `ceil(dni / 7)` | None | Wieloraczki: masa najlżejszego wybiera wariant, pobyt najdłuższy wyznacza dni (KP 180(2) § 2) |
+| `f_supplementary_leave_weeks` | cap_week, window_start_day | int | Dla dziecka najdłużej hospitalizowanego: suma dni pobytu w oknie `[birth + window_start_day − 1, birth + 7·cap_week − 1]` — `window_start_day` = numer dnia, dzień porodu = 1 (M15 a; SUPP-ELIG-001/002: 1, SUPP-ELIG-003: 5); `ceil(dni / 7)` | None | Wieloraczki: masa najlżejszego wybiera wariant, pobyt najdłuższy wyznacza dni (KP 180(2) § 2) |
 | `f_maternity_benefit_eligible_any_parent` | – | bool | Którykolwiek rodzic ELIGIBLE w MAT-ELIG-* | Kleene | – |
 | `f_supplementary_claimants_count` | – | int | Liczba rodziców z segmentem SUPPLEMENTARY | 0 | – |
 

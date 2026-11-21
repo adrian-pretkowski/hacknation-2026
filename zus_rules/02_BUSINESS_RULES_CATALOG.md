@@ -90,7 +90,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [MAT-ELIG-007](#mat-elig-007) | Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu | ELIGIBILITY | P1 | ACTIVE | MEDIUM | DERIVED | 2 |
 | [SUPP-ELIG-001](#supp-elig-001) | Uzupełniający urlop — poród przed 28. tyg. lub masa ≤1000 g | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [SUPP-ELIG-002](#supp-elig-002) | Uzupełniający urlop — poród 28–37 tydz. i masa >1000 g | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
-| [SUPP-ELIG-003](#supp-elig-003) | Uzupełniający urlop — poród po 37. tyg. i hospitalizacja ≥2 dni od 5.–28. dnia | DURATION | P1 | ACTIVE | MEDIUM | DIRECT | 4 |
+| [SUPP-ELIG-003](#supp-elig-003) | Uzupełniający urlop — poród po 37. tyg. i hospitalizacja ≥2 dni od 5.–28. dnia | DURATION | P1 | ACTIVE | MEDIUM | DIRECT | 6 |
 | [SUPP-CALC-001](#supp-calc-001) | Uzupełniający urlop — wieloraczki, sumowanie, zaokrąglenie w górę | CALCULATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [SUPP-COND-001](#supp-cond-001) | Uzupełniający urlop — warunki udzielenia | ELIGIBILITY | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [PAR-DUR-001](#par-dur-001) | Wymiar urlopu rodzicielskiego — 41/43 tygodnie | DURATION | P0 | ACTIVE | HIGH | DIRECT | 4 |
@@ -1782,7 +1782,7 @@ Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 15. tygo
   - KTÓRYKOLWIEK:
     - `birth.completed_gestation_weeks` **lt** SUPP_GESTATION_EARLY_WEEK (=28)
     - `f_min_birth_weight_g` **lte** SUPP_WEIGHT_THRESHOLD_G (=1000)
-- **Rezultat:** `{"compute": "f_supplementary_leave_weeks", "args": {"cap_week": {"param": "SUPP_CAP_WEEK_EARLY"}, "window_start_day": 0}, "output": "duration.supplementary_weeks"}`
+- **Rezultat:** `{"compute": "f_supplementary_leave_weeks", "args": {"cap_week": {"param": "SUPP_CAP_WEEK_EARLY"}, "window_start_day": 1}, "output": "duration.supplementary_weeks"}`
 - **Wyjątki:** — · **Zależy od:** SUPP-COND-001 · **Ma pierwszeństwo przed:** —
 - **Dane:** `birth.completed_gestation_weeks`, `children.items`, `children.hospital_stays` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
@@ -1803,7 +1803,7 @@ Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 8. tygod
     - `birth.completed_gestation_weeks` **gte** SUPP_GESTATION_EARLY_WEEK (=28)
     - `birth.completed_gestation_weeks` **lt** SUPP_GESTATION_TERM_WEEK (=37)
     - `f_min_birth_weight_g` **gt** SUPP_WEIGHT_THRESHOLD_G (=1000)
-- **Rezultat:** `{"compute": "f_supplementary_leave_weeks", "args": {"cap_week": {"param": "SUPP_CAP_WEEK_PRETERM"}, "window_start_day": 0}, "output": "duration.supplementary_weeks"}`
+- **Rezultat:** `{"compute": "f_supplementary_leave_weeks", "args": {"cap_week": {"param": "SUPP_CAP_WEEK_PRETERM"}, "window_start_day": 1}, "output": "duration.supplementary_weeks"}`
 - **Wyjątki:** — · **Zależy od:** SUPP-COND-001 · **Ma pierwszeństwo przed:** —
 - **Dane:** `birth.completed_gestation_weeks`, `children.items`, `children.hospital_stays` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
@@ -1826,7 +1826,7 @@ Tydzień urlopu za każdy tydzień pobytu w szpitalu od 5. dnia do upływu 8. ty
 - **Wyjątki:** — · **Zależy od:** SUPP-COND-001 · **Ma pierwszeństwo przed:** —
 - **Dane:** `birth.completed_gestation_weeks`, `children.hospital_stays`, `event.date` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DIRECT
-- **Testy:** T-SUPP-004, T-SUPP-005, T-SUPP-008, T-SUPP-009
+- **Testy:** T-SUPP-004, T-SUPP-005, T-SUPP-008, T-SUPP-009, T-SUPP-010, T-SUPP-011
 - **Uwagi:** Numeracja dni po porodzie: dzień porodu = dzień 1 (M15 a, mentor fachowy ZUS 2026-11-21; GAP-010 zamknięty) — 5. dzień = data porodu + 4 dni, 28. dzień = data porodu + 27 dni (ASSUMPTION-SUPP-DAY1).
 
 ### SUPP-CALC-001

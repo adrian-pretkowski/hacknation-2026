@@ -4,7 +4,7 @@ Wygenerowano przez `tools/build_catalog.py` z `03_rules.yaml` v0.1.0. **Błędy:
 
 ## Statystyki
 
-- Reguły: 119; testy: 100; fakty użyte: 99 (zdefiniowane w 07: 102); pola użyte: 81; parametry: 83
+- Reguły: 119; testy: 102; fakty użyte: 99 (zdefiniowane w 07: 102); pola użyte: 81; parametry: 83
 - Priorytet: P0=70, P1=37, P2=12
 - Evaluation: ACTIVE=94, BLOCKED=4, FUTURE=1, HUMAN_REVIEW=3, INFORMATIONAL=17
 - Interpretacja: AMBIGUOUS=3, DERIVED=23, DIRECT=90, INCOMPLETE_SOURCE=3
@@ -43,7 +43,7 @@ Brak błędów i ostrzeżeń.
 | KP KP art. 180(1) § 2 | MAT-DUR-004 | ACTIVE | — |
 | KP KP art. 180(2) § 1 pkt 1 | SUPP-ELIG-001 | ACTIVE | T-SUPP-001, T-SUPP-002 |
 | KP KP art. 180(2) § 1 pkt 2 | SUPP-ELIG-002 | ACTIVE | T-SUPP-003, T-INT-003 |
-| KP KP art. 180(2) § 1 pkt 3 | SUPP-ELIG-003 | ACTIVE | T-SUPP-004, T-SUPP-005, T-SUPP-008, T-SUPP-009 |
+| KP KP art. 180(2) § 1 pkt 3 | SUPP-ELIG-003 | ACTIVE | T-SUPP-004, T-SUPP-005, T-SUPP-008, T-SUPP-009, T-SUPP-010, T-SUPP-011 |
 | KP KP art. 180(2) § 1, § 4-5; art. 183 § 3(1); ROZP_DOK § 26-27 | SUPP-COND-001 | ACTIVE | T-RATE-007, T-INT-003 |
 | KP KP art. 180(2) § 2-3 | SUPP-CALC-001 | ACTIVE | T-SUPP-001, T-SUPP-006 |
 | KP KP art. 182(1a) § 1, § 3 | PAR-DUR-001 | ACTIVE | T-PAR-001, T-PAR-003, T-INT-003, T-INT-004 |
