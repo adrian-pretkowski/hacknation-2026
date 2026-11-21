@@ -24,7 +24,7 @@
 | M07 | Minimalna podstawa 2026 (tabela w Załączniku pusta): czy 4806 × 0,8629 = 4147,0974 zł i jak zaokrąglić? Czy 4806 zł to właściwa płaca minimalna? | BASE-EMP-008, GEN-EXCL-001, GAP-022, `MIN_WAGE_2026_MONTHLY` | | |
 | M08 | Skąd wziąć najniższą podstawę składek JDG do art. 48a — czy jest w poświadczeniu ubezpieczenia w sprawach? Czy limit 23 550 zł dla dobrowolnego chorobowego jest aktualny? | BASE-NEMP-002/003, GAP-023, `VOLUNTARY_MAX_CONTRIB_BASE_2026` | | |
 | M09 | Czy dzienna stawka zasiłku macierzyńskiego = podstawa / 30 (odesłanie art. 47 → art. 36 ust. 3)? | CALC-MAT-001 | | |
-| M10 | Kwota świadczenia rodzicielskiego do podwyższenia zasiłku (art. 31 ust. 3a) i czy uwzględniać to w MVP. | RATE-MAT-007 (BLOCKED), `PARENTAL_BENEFIT_FLOOR_MONTHLY` | | |
+| M10 | Kwota świadczenia rodzicielskiego do podwyższenia zasiłku (art. 31 ust. 3a) i czy uwzględniać to w MVP. Doprecyzowanie: (a) jaka jest miesięczna kwota świadczenia rodzicielskiego na 2026/2027 (ustawy o świadczeniach rodzinnych nie ma w materiałach)? (b) czy porównujemy z nią miesięczną kwotę zasiłku `podstawa × stawka × (1 − część etatu)` przed jakimkolwiek zaokrągleniem? (c) jak liczyć podwyższenie za niepełny miesiąc (art. 31 ust. 3b–3c: proporcjonalnie do dni kalendarzowych?). Bez kwoty reguła zostaje nieoceniona — po wpisaniu kwoty jako parametru silnik ocenia ją automatycznie. | RATE-MAT-007 (BLOCKED), `PARENTAL_BENEFIT_FLOOR_MONTHLY` (MISSING), `f_monthly_maternity_amount`, `f_raise_to_parental_benefit_floor`, GAP-002 | | |
 
 ## C. Interpretacja prawa (wpływ na status i okres)
 
@@ -42,6 +42,7 @@
 |---|---|---|---|---|
 | M16 | (a) Zasiłek w wysokości macierzyńskiego: zadanie przyznaje go też przy naruszeniu prawa, ustawa nie — stosujemy ustawę? (b) Czy pkt j) obejmuje rodzinę zastępczą zawodową? (c) Jak głęboko obsłużyć świadczenie rehabilitacyjne? (d) Czy ZUS ma zweryfikowaną listę organizacji wsparcia? (e) Czy wolno wysłać dane spraw do zewnętrznego API AI? | CONF-001, MAT-EXCL-001, REHAB-*, pkt i), F13 | | |
 | M17 | Progi ostrzeżeń o ryzykach przyjęte przez zespół (umowa zawarta ≤90 dni przed ciążą, wzrost podstawy ≥50%) — czy ZUS ma własne kryteria? Pokazujemy je jako ostrzeżenie, nie decyzję. | RISK-001, RISK-002 | | |
+| M18 | Poród w czasie urlopu wychowawczego (brak aktywnego tytułu w dniu porodu, art. 29 ust. 1 pkt 1): czy próg zadłużenia z art. 2a stosujemy według ostatniego tytułu przed urlopem (np. gdy osoba prowadziła też działalność)? Silnik przyjmuje dziś ostatni zakończony tytuł (DERIVED, D17). | GEN-EXCL-001, MAT-ELIG-001, `f_primary_title_type` | | |
 
 ## Dziennik ustaleń
 
