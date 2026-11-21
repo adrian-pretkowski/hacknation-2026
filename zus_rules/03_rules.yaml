@@ -2932,7 +2932,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "'Wynagrodzenie' = przychód po odliczeniu składek emerytalnej, rentowej i chorobowej potrąconych przez pracodawcę (art. 3 pkt 3) — kwoty z Z-3 (% potrąconej składki, zał. 2 pkt 16). 13,71% dla pracowników = założenie Załącznika (CONF-002). Dla macierzyńskiego 'miesiąc powstania niezdolności' → 'miesiąc powstania prawa' (art. 47 'odpowiednio', DERIVED)."
+  notes: "'Wynagrodzenie' = przychód po odliczeniu składek emerytalnej, rentowej i chorobowej potrąconych przez pracodawcę (art. 3 pkt 3) — pomniejszony zawsze o 13,71% (CONTRIBUTION_DEDUCTION_RATE) — ustalenie z mentorem M06 (2026-11-21), CONF-002 zamknięty; pola *_net = brutto × (1 − 0,1371). Dla macierzyńskiego 'miesiąc powstania niezdolności' → 'miesiąc powstania prawa' (art. 47 'odpowiednio', DERIVED)."
 
 - id: BASE-EMP-002
   name: "Podstawa pracownika — ubezpieczenie krótsze niż 12 miesięcy"
@@ -2957,7 +2957,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: ""
+  notes: "M06 (2026-11-21, mentor fachowy): zatrudnienie krótsze niż 12 miesięcy → podstawa z pełnego okresu zatrudnienia (pełne miesiące kalendarzowe), zawsze po odliczeniu 13,71%."
 
 - id: BASE-EMP-003
   name: "Podstawa pracownika — niezdolność w pierwszym miesiącu ubezpieczenia"
