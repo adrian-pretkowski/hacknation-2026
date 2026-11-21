@@ -1,4 +1,4 @@
-// FE1-19: wstępne wypełnienie pism danymi z konta testowego (SYMULACJA) i z odpowiedzi kreatora.
+// FE1-23: wstępne wypełnienie pism danymi z konta testowego (SYMULACJA) i z odpowiedzi kreatora.
 // Dane osobowe poniżej są FIKCYJNE (do demonstracji) — nie odpowiadają żadnej rzeczywistej osobie, firmie ani rachunkowi.
 // Czego nie wiemy, nie zgadujemy: pole zostaje puste, a formularz prosi o uzupełnienie (jak NEEDS_DATA w silniku).
 import { formatDate } from "@/lib/format";

@@ -1,6 +1,6 @@
 # Od czego zacząć: szybkie pisma bez kreatora i te same pisma na podsumowaniu planu (FE1-11)
 
-> Wymaganie: docs/FORMS_FLOW.md. Wypełnianie pisma formularzem (etap 3, FE1-19) — scenariusz 19.
+> Wymaganie: docs/FORMS_FLOW.md. Wypełnianie pisma formularzem (etap 3, FE1-23) — scenariusz 19.
 
 1. Otwórz stronę główną.
 2. Sprawdź, że widać „Od czego chcesz zacząć?”.

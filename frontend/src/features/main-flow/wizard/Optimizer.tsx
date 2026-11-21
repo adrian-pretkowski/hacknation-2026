@@ -5,9 +5,11 @@
 import { useEffect, useState } from "react";
 import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResponse, plannerSuggest } from "@/lib/api";
 import { formatMoney, formatRate } from "@/lib/format";
+import { RuleList, RuleText } from "../RuleList";
 import { baseFromGross } from "../preview/engine";
 import type { Answers } from "./answers";
-import { Choice, Slider, TRI_OPTIONS } from "./fields";
+import { Choice, MoneyField, TRI_OPTIONS } from "./fields";
+import { normalizeMoney } from "./money";
 
 const STEP_TITLE: Record<string, string> = {
   COMBINED_815: "Wniosek 81,5%",
@@ -22,10 +24,7 @@ const STEP_COUNT = Object.keys(STEP_TITLE).length;
 const PARENT = { MOTHER: "Mama", FATHER: "Tata" } as const;
 const box = "rounded-xl border border-zinc-200 p-4";
 
-const clean = (v: string) => {
-  const n = v.trim().replace(",", ".");
-  return /^\d+(\.\d{1,2})?$/.test(n) && Number(n) > 0 ? n : null;
-};
+const clean = normalizeMoney; // FE1-15: wspólna normalizacja kwot (money.ts)
 
 /** Czy krok „Optymalizacja” ma sens: rodzic biologiczny, przed porodem, mama ubezpieczona. */
 export function optimizerVisible(a: Answers): boolean {
@@ -93,7 +92,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           onChange={(partnerInsured) => set({ partnerInsured, plannerChoices: [] })} options={TRI_OPTIONS} />
       )}
       {fatherInsured && (
-        <Slider label={`Wynagrodzenie brutto ${isMother ? "taty" : "mamy"} (zł / miesiąc)`} unit="zł" money min={0} max={30000} step={100}
+        <MoneyField label={`Wynagrodzenie brutto ${isMother ? "taty" : "mamy"} (zł / miesiąc)`}
           value={a.partnerSalaryGross} emptyLabel="nie podano"
           hint="Potrzebne, żeby porównać, komu bardziej opłaca się wziąć część urlopu."
           onChange={(partnerSalaryGross) => set({ partnerSalaryGross, plannerChoices: [] })} />
@@ -161,14 +160,15 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
                 ) : (
                   <div className="rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-sm text-zinc-500">
                     <span className="line-through">{o.label}</span>
-                    <span className="ml-2 text-xs">Niedozwolone: {o.blocked_reason} ({o.blocked_by_rule})</span>
+                    <span className="ml-2 text-xs">Niedozwolone: {o.blocked_reason}</span>
+                    {o.blocked_by_rule && <RuleText entry={o.blocked_by_rule} className="mt-1 block text-xs" />}
                   </div>
                 )}
               </li>
             ))}
           </ul>
           {data.explanation && <p className="mt-3 text-sm text-zinc-700" aria-live="polite">{data.explanation}</p>}
-          <p className="mt-1 text-xs text-zinc-500">Przepisy: {data.step.rule_ids.join(", ")}</p>
+          <div className="mt-1 text-xs text-zinc-500">Przepisy:<RuleList ids={data.step.rule_ids} /></div>
         </fieldset>
       )}
 
@@ -179,14 +179,15 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           <p className="text-xs text-zinc-600">
             Mama {formatMoney(plan.totals.mother_preview)} · Tata {formatMoney(plan.totals.father_preview)} · {plan.totals.covered_weeks} tyg. opieki nad dzieckiem
           </p>
-          {plan.needs_review && <p className="mt-2 text-xs">Część planu wymaga weryfikacji ({plan.review_rules.join(", ")}).</p>}
+          {plan.needs_review && <div className="mt-2 text-xs">Część planu wymaga weryfikacji:<RuleList ids={plan.review_rules} /></div>}
           <details className="mt-2 text-sm">
             <summary className="cursor-pointer font-medium">Rozliczenie</summary>
             <ul className="mt-2 divide-y divide-zinc-200">
               {plan.items.map((i, n) => (
                 <li key={n} className="py-2">
                   <p className="flex gap-2"><span className="min-w-0 flex-1">{i.label}</span><span className="tabular-nums">{formatMoney(i.amount_exact)}</span></p>
-                  <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` · ${formatRate(i.rate)}` : ""} · {i.rule_ids.join(", ")}</p>
+                  <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` · ${formatRate(i.rate)}` : ""}</p>
+                  <RuleList ids={i.rule_ids} className="text-xs text-zinc-500" />
                 </li>
               ))}
             </ul>

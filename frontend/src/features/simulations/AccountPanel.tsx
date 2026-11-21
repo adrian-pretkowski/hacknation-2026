@@ -4,6 +4,7 @@
 // Każda zakładka ma stały baner „SYMULACJA” z nazwą docelowej integracji. Dane fikcyjne (users.ts, simApi.ts).
 import { useEffect, useState } from "react";
 import { formatDate, formatMoney } from "@/lib/format";
+import { RuleText } from "../main-flow/RuleList";
 import { PARAMS } from "../main-flow/preview/params";
 import { type SimDebtCertificate, type SimEzla, type SimPueTicket, type SimPueTopic, localToday, simDebtCertificate, simEzla, simPueQuestion, usedLeaveText } from "./simApi";
 import { SimModal, simBtnPrimary, simBtnSecondary } from "./ui";
@@ -96,8 +97,9 @@ function DebtTab({ u }: { u: TestUser }) {
             </dl>
             <p className={`mt-3 rounded-md p-2 font-medium ${cert.exceeds_threshold ? "bg-red-50 text-red-900" : "bg-emerald-50 text-emerald-900"}`}>
               {cert.exceeds_threshold
-                ? "Zaległość przekracza próg z art. 2a ustawy zasiłkowej. Skutek dla prawa do zasiłku (m.in. przy działalności gospodarczej, z wyjątkami) oceni kalkulator — reguła GEN-EXCL-001."
-                : "Zaległość nie przekracza progu z art. 2a ustawy zasiłkowej (reguła GEN-EXCL-001)."}
+                ? "Zaległość przekracza próg z art. 2a ustawy zasiłkowej. Skutek dla prawa do zasiłku (m.in. przy działalności gospodarczej, z wyjątkami) oceni kalkulator."
+                : "Zaległość nie przekracza progu z art. 2a ustawy zasiłkowej."}
+              <span className="mt-1 block text-xs font-normal">Przepis: <RuleText entry="GEN-EXCL-001" /></span>
             </p>
           </article>
         )}

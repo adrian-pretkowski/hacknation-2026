@@ -1,4 +1,4 @@
-// FE1-19: wypełnianie szablonów PDF pism (AcroForm) w przeglądarce — pdf-lib + osadzona czcionka DejaVu Sans (polskie znaki).
+// FE1-23: wypełnianie szablonów PDF pism (AcroForm) w przeglądarce — pdf-lib + osadzona czcionka DejaVu Sans (polskie znaki).
 // Szablony i metadane pól: public/forms/<KOD>.pdf i <KOD>.json (kopie z docs/wnioski-pdf/; opis formatu: *_formularz_instrukcja.md).
 // Wartości trzymamy pod pełną nazwą pola PDF; typ pola (comb, data, checkbox) wynika z metadanych.
 import type { FormCode } from "./forms";

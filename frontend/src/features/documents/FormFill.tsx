@@ -1,6 +1,6 @@
 "use client";
 
-// FE1-19: formularz pisma generowany z metadanych pól PDF (public/forms/<KOD>.json) i układu z formSpecs.ts.
+// FE1-23: formularz pisma generowany z metadanych pól PDF (public/forms/<KOD>.json) i układu z formSpecs.ts.
 // Prefill: konto testowe (SYMULACJA) + odpowiedzi kreatora; puste pola wymagane są oznaczone „Uzupełnij”.
 // „Prześlij” = walidacja → wypełniony PDF (pobierany jako dowód) → potwierdzenie wysyłki (SYMULACJA, nic nie trafia do ZUS).
 import { useEffect, useId, useMemo, useRef, useState } from "react";

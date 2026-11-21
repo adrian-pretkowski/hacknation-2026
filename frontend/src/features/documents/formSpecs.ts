@@ -1,4 +1,4 @@
-// FE1-19: układ formularzy pism — sekcje z najważniejszymi polami, etykiety po ludzku i pola wymagane.
+// FE1-23: układ formularzy pism — sekcje z najważniejszymi polami, etykiety po ludzku i pola wymagane.
 // Pola wskazujemy krótkim ID (`p1_000`, `p2_17`) — pełna nazwa pola PDF pochodzi z metadanych (public/forms/<KOD>.json),
 // więc po regeneracji szablonu poprawia się tylko ten plik (zalecenie z docs/wnioski-pdf/*_instrukcja.md).
 // Pola z PDF, których tu nie ma, formularz pokazuje w części „Pozostałe pola formularza” (z etykietą z metadanych).

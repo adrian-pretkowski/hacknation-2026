@@ -1,7 +1,7 @@
 "use client";
 
 // Kafelki pism (FE1-11): ten sam komponent na ścieżce „Szybkie pisma” i na podsumowaniu wyniku.
-// Klik → onOpen(kod) — ekran pisma z formularzem do wypełnienia (etap 3: FE1-19).
+// Klik → onOpen(kod) — ekran pisma z formularzem do wypełnienia (etap 3: FE1-23).
 import { useId, useState } from "react";
 import type { Answers } from "@/features/main-flow/wizard/answers";
 import { FormFill } from "./FormFill";
@@ -117,7 +117,7 @@ export function MatchedFormPicker({ onOpen, recommended, headingLevel = 4 }: {
   );
 }
 
-/** Ekran pojedynczego pisma: opis i formularz do wypełnienia (FE1-19) — Anuluj wraca, Prześlij pobiera wypełniony PDF. */
+/** Ekran pojedynczego pisma: opis i formularz do wypełnienia (FE1-23) — Anuluj wraca, Prześlij pobiera wypełniony PDF. */
 export function FormDetail({ code, onBack, backLabel, answers = null }: { code: FormCode; onBack: () => void; backLabel: string; answers?: Answers | null }) {
   const f = FORMS[code];
   return (

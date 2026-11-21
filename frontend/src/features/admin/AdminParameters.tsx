@@ -9,6 +9,7 @@ import {
   updateParameters,
 } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
+import { RuleList } from "../main-flow/RuleList";
 import { PARAMS } from "../main-flow/preview/params";
 import { STATUS_HEADLINE } from "../main-flow/wizard/labels";
 import { DEMO_REQUEST } from "./demoRequest";
@@ -220,9 +221,9 @@ function DemoCheck({ version }: { version: number }) {
             <li>Podstawa {formatMoney(b.base?.amount_exact ?? null)} × stawka {b.rate ? `${(Number(b.rate) * 100).toLocaleString("pl-PL")}%` : "—"} / {PARAMS.MONTH_AS_DAYS}
               = {formatMoney(b.daily_amount_exact)} dziennie; × {b.days ?? 0} dni = {formatMoney(b.total_amount_exact)}.</li>
             {b.explanation && <li className="whitespace-pre-line">{b.explanation}</li>}
-            <li>Reguły: {b.applied_rules.join(", ") || "—"}.</li>
+            <li>Przepisy:{b.applied_rules.length > 0 ? <RuleList ids={b.applied_rules} /> : " —"}</li>
             {(result?.assumptions ?? []).map((a) => <li key={a.code}>Założenie: {a.text}</li>)}
-            {(result?.not_evaluated_rules ?? []).length > 0 && <li>Nieoceniane w tej wersji: {result!.not_evaluated_rules!.join(", ")}.</li>}
+            {(result?.not_evaluated_rules ?? []).length > 0 && <li>Nieoceniane w tej wersji:<RuleList ids={result!.not_evaluated_rules!} /></li>}
           </ul>
         </details>
       )}
