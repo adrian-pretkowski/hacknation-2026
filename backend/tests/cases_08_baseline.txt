@@ -1,0 +1,35 @@
+# Zapadka testów zus_rules/08_TEST_CASES.json (BE1-03, runner: tests/test_cases.py).
+# Jeden test_id w linii. Test z tej listy MUSI przejść (regresja = czerwony pytest); pozostałe są xfail.
+# Gdy po twojej zmianie test zacznie przechodzić (XPASS / „nowe zielone” w raporcie) — dopisz go tutaj
+# w tym samym commicie. Usuwanie ID tylko z uzasadnieniem w commicie (np. zmiana 08 z wpisem w mentors.md).
+# Raport: cd backend; .\.venv\Scripts\python -m tests.test_cases --all
+
+# GEN — wyłączenie przy zadłużeniu (GEN-EXCL-001)
+T-GEN-007
+T-GEN-008
+T-GEN-009
+
+# MAT — macierzyński matki
+T-MAT-001
+T-MAT-002
+T-MAT-003
+T-MAT-010
+T-MAT-012
+T-MAT-013
+T-MAT-009
+
+# RATE — 81,5% / 100%
+T-RATE-001
+T-RATE-002
+T-RATE-008
+T-RATE-009
+
+# BASE — art. 43, ta sama podstawa (BASE-GEN-001, M05)
+T-BASE-006
+T-BASE-007
+T-BASE-010
+T-BASE-011
+T-BASE-012
+
+# INT
+T-INT-005

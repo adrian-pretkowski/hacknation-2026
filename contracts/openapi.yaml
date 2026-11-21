@@ -298,7 +298,7 @@ paths:
   /api/sim/mobywatel/login:
     post:
       operationId: simMobywatelLogin
-      x-status: planned
+      x-status: implemented
       x-owner: INT
       x-task: INT-03
       x-simulation: true
@@ -324,7 +324,7 @@ paths:
   /api/sim/zus-profile:
     get:
       operationId: simZusProfile
-      x-status: planned
+      x-status: implemented
       x-owner: INT
       x-task: INT-03
       x-simulation: true
@@ -349,7 +349,7 @@ paths:
   /api/sim/ezla:
     get:
       operationId: simEzla
-      x-status: planned
+      x-status: implemented
       x-owner: INT
       x-task: INT-03
       x-simulation: true
@@ -369,7 +369,7 @@ paths:
   /api/sim/debt-certificate:
     get:
       operationId: simDebtCertificate
-      x-status: planned
+      x-status: implemented
       x-owner: INT
       x-task: INT-03
       x-simulation: true
@@ -395,7 +395,7 @@ paths:
   /api/sim/pue-question:
     post:
       operationId: simPueQuestion
-      x-status: planned
+      x-status: implemented
       x-owner: INT
       x-task: INT-03
       x-simulation: true
@@ -423,7 +423,7 @@ paths:
   /api/sim/applications:
     post:
       operationId: simSubmitApplication
-      x-status: planned
+      x-status: implemented
       x-owner: INT
       x-task: INT-03
       x-simulation: true
@@ -456,7 +456,7 @@ paths:
   /api/sim/birth-certificate:
     post:
       operationId: simBirthCertificate
-      x-status: planned
+      x-status: implemented
       x-owner: INT
       x-task: INT-03
       x-simulation: true

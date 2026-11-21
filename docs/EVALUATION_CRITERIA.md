@@ -217,11 +217,11 @@ Razem wymagań: **57**.
 | F-01 | Tytuł i szczegółowy opis projektu | PZ 4 | TAK | ☐ | ☐ | |
 | F-02 | Prezentacja (maksymalnie 10 slajdów) | PZ 4 | TAK | ☐ | ☐ | |
 | F-03 | Film do 3 min w otwartym repozytorium (link), pokazuje projekt i jego użycie | PZ 4 | TAK | ☐ | ☐ | |
-| F-04 | Repozytorium kodu | PZ 4 | dodatkowo | ☐ | ☐ | |
+| F-04 | Repozytorium kodu | PZ 4 | dodatkowo | ☑ | ☐ | github.com/adrian-pretkowski/hacknation-2026 (origin), README |
 | F-05 | Zrzuty ekranu | PZ 4 | dodatkowo | ☐ | ☐ | |
 | F-06 | Link do demo jako strony internetowej | PZ 4 | dodatkowo | ☐ | ☐ | |
 | F-07 | W demo można przetestować załączone przykłady (PDF): weryfikacja ubezpieczenia i sprawdzenie kalkulatora | PZ 4 | dodatkowo | ☐ | ☐ | |
-| F-08 | Interfejs w pełni responsywny (desktop i mobile) | PZ 4 | dodatkowo | ☐ | ☐ | |
+| F-08 | Interfejs w pełni responsywny (desktop i mobile) | PZ 4 | dodatkowo | ☐ | ☐ | częściowo: 375/1440 px sprawdzone; brak ui-verifier 768 px i części ekranów |
 | F-09 | Materiały graficzne lub inne elementy związane z projektem | PZ 4 | dodatkowo | ☐ | ☐ | |
 | F-10 | Wskazanie funkcjonalności korzystających z AI | PZ 4 | dodatkowo | ☐ | ☐ | |
 | F-11 | Opis zakresu użycia AI w procesie tworzenia i w działaniu aplikacji | PZ 9 | TAK (jeśli używacie AI) | ☐ | ☐ | |
@@ -229,10 +229,10 @@ Razem wymagań: **57**.
 | R-01 | Rozwiązania zewnętrzne (biblioteki, API, modele, assety) wskazane w prezentacji | REG §4 ust. 1 | TAK | ☐ | ☐ | |
 | R-02 | Rozwiązanie wolne od wad prawnych, bez naruszania praw osób trzecich (licencje) | REG §4 ust. 2 | TAK | ☐ | ☐ | |
 | R-03 | Możliwość przeniesienia autorskich praw majątkowych i przekazania kodu z opisem (zwycięzca) | REG §3 ust. 5, §4 | TAK (zwycięzca) | ☐ | ☐ | |
-| R-04 | Dokumenty z zestawów ZUS nie są kopiowane ani rozpowszechniane (publiczne repo, demo, film) | PZ 2 | TAK | ☐ | ☐ | |
+| R-04 | Dokumenty z zestawów ZUS nie są kopiowane ani rozpowszechniane (publiczne repo, demo, film) | PZ 2 | TAK | ☑ | ☐ | git ls-files: brak cases/, materials/, *.pdf; wpisy w .gitignore |
 | **Funkcjonalne (PZ pkt 3)** | | | | | | |
 | A | Informacje o świadczeniach w ciąży (chorobowy, rehabilitacyjne, w wysokości macierzyńskiego), także o braku uprawnień | PZ 3 a | TAK | ☐ | ☐ | |
-| B | Kalkulator zasiłku macierzyńskiego dla obojga rodziców (okres i kwota; liczba dzieci, wiek, „Za życiem”) | PZ 3 b | TAK | ☐ | ☐ | |
+| B | Kalkulator zasiłku macierzyńskiego dla obojga rodziców (okres i kwota; liczba dzieci, wiek, „Za życiem”) | PZ 3 b | TAK | ☐ | ☐ | częściowo: macierzyński matki w silniku; brak ojca i rodzicielskiego |
 | C | Kalkulator przy łączeniu pracy z urlopem rodzicielskim (okres i kwota) | PZ 3 c | TAK | ☐ | ☐ | |
 | D | Symulacja, gdy z uprawnień korzystają oboje rodzice (okres i kwota) | PZ 3 d | TAK | ☐ | ☐ | |
 | E | Kalkulator dla rodziców adopcyjnych i rodzin zastępczych niezawodowych (okres i kwota) | PZ 3 e | TAK | ☐ | ☐ | |
@@ -241,10 +241,10 @@ Razem wymagań: **57**.
 | H | Zagrożenia i ryzyka utraty uprawnień albo zmiany wymiaru i wysokości świadczeń | PZ 3 h | TAK | ☐ | ☐ | |
 | I | Podmioty wyłącznie charytatywne wspierające w sytuacjach szczególnych (śmierć dziecka, wcześniak, poronienie, ciężka choroba) | PZ 3 i | TAK | ☐ | ☐ | |
 | J | Kalkulator dla rodziców adopcyjnych i rodzin zastępczych (okres i kwota); szerzej niż E, bez „niezawodowej” | PZ 3 j | TAK | ☐ | ☐ | |
-| K | Wszystkie kalkulatory jako jeden zintegrowany kalkulator z wyborem opcji | PZ 3 | rekomendacja | ☐ | ☐ | |
+| K | Wszystkie kalkulatory jako jeden zintegrowany kalkulator z wyborem opcji | PZ 3 | rekomendacja | ☐ | ☐ | częściowo: kreator FE, większość wyniku z podglądu FE (fe-preview-mock) |
 | L | Uprawnienia ustalane dla indywidualnej sytuacji (dane z ZUS albo wpisane przez użytkownika, np. data porodu, data ustania stosunku pracy) | PZ 3 | TAK | ☐ | ☐ | |
 | **Sytuacje szczególne (PZ pkt 1–2)** | | | | | | |
-| SZ-01 | Urodzenie martwego dziecka lub zgon dziecka (8 tyg. / 7 dni od zgonu) | PZ 1 | pośrednie | ☐ | ☐ | |
+| SZ-01 | Urodzenie martwego dziecka lub zgon dziecka (8 tyg. / 7 dni od zgonu) | PZ 1 | pośrednie | ☐ | ☐ | częściowo: MAT-DUR-003/004 w pipeline (T-MAT-013); brak ekranu z realnego API |
 | SZ-02 | Wcześniak lub hospitalizacja noworodka: uzupełniający urlop macierzyński | PZ 1, załącznik | pośrednie | ☐ | ☐ | |
 | SZ-03 | Przejęcie urlopu macierzyńskiego przez ojca (po 14 tyg. i wcześniej w sytuacjach szczególnych) | PZ 1 | pośrednie | ☐ | ☐ | |
 | SZ-04 | Matka nieubezpieczona: uprawnienia ojca (rodzicielski, ojcowski) | PZ 1 | pośrednie | ☐ | ☐ | |
@@ -253,11 +253,11 @@ Razem wymagań: **57**.
 | SZ-07 | Ochrona pracownicy w ciąży wg Kodeksu pracy (zakaz wypowiedzenia, przedłużenie umowy do dnia porodu) | PZ 1 I | pośrednie | ☐ | ☐ | |
 | SZ-08 | Planowanie powrotu do pracy i dzielenia się opieką nad dzieckiem | PZ 2 | pośrednie | ☐ | ☐ | |
 | **Symulacje integracji (PZ pkt 3)** | | | | | | |
-| S-01 | Logowanie przez mObywatela (symulacja) | PZ 3 | TAK | ☐ | ☐ | |
-| S-02 | Pobranie danych z ZUS o ubezpieczeniu lub jego braku (symulacja) albo ręczne wprowadzenie danych | PZ 3 | TAK | ☐ | ☐ | |
-| S-03 | Stan zadłużenia składkowego na dzień powstania prawa, zwłaszcza dla JDG (symulacja zaświadczenia i kwoty) | PZ 3 | TAK | ☐ | ☐ | |
-| S-04 | Podgląd zaświadczeń lekarskich e-ZLA (symulacja) | PZ 3 | TAK | ☐ | ☐ | |
-| S-05 | Połączenie z PUE/eZUS: pytanie w razie wątpliwości, sprawdzenie danych na koncie (symulacja) | PZ 3 | TAK | ☐ | ☐ | |
+| S-01 | Logowanie przez mObywatela (symulacja) | PZ 3 | TAK | ☐ | ☐ | częściowo: mock FE features/simulations (FE2-02); /api/sim planned |
+| S-02 | Pobranie danych z ZUS o ubezpieczeniu lub jego braku (symulacja) albo ręczne wprowadzenie danych | PZ 3 | TAK | ☐ | ☐ | częściowo: mock FE + ręczne dane w kreatorze; /api/sim planned |
+| S-03 | Stan zadłużenia składkowego na dzień powstania prawa, zwłaszcza dla JDG (symulacja zaświadczenia i kwoty) | PZ 3 | TAK | ☐ | ☐ | częściowo: mock FE zaświadczenia (FE2-02); /api/sim planned |
+| S-04 | Podgląd zaświadczeń lekarskich e-ZLA (symulacja) | PZ 3 | TAK | ☐ | ☐ | częściowo: mock FE e-ZLA (FE2-02); /api/sim planned |
+| S-05 | Połączenie z PUE/eZUS: pytanie w razie wątpliwości, sprawdzenie danych na koncie (symulacja) | PZ 3 | TAK | ☐ | ☐ | częściowo: mock FE pytanie PUE/eZUS (FE2-02); /api/sim planned |
 | S-06 | Wypełnianie wniosków o świadczenia (wzory z zus.pl) i ewentualna wysyłka do pracodawcy lub ZUS (symulacja) | PZ 3 | TAK | ☐ | ☐ | |
 | S-07 | Zaprojektowane własne wnioski o urlopy związane z rodzicielstwem | PZ 3 | TAK | ☐ | ☐ | |
 | S-08 | Wniosek o odpis zupełny lub skrócony aktu urodzenia (symulacja) | PZ 3 | TAK | ☐ | ☐ | |
@@ -268,13 +268,13 @@ Razem wymagań: **57**.
 | ADM-02 | Możliwość dodawania i usprawniania funkcjonalności (np. treści, linki, organizacje) | PZ 3 | TAK | ☐ | ☐ | |
 | **Techniczne (PZ pkt 5)** | | | | | | |
 | T-01 | Nowoczesna, funkcjonalna aplikacja webowa nadająca się do realnego użycia | PZ 5 | TAK | ☐ | ☐ | |
-| T-02 | Architektura RWD | PZ 5 | TAK | ☐ | ☐ | |
-| T-03 | Działa w środowisku testowym i ma potencjał wdrożenia produkcyjnego | PZ 5 | TAK | ☐ | ☐ | |
-| T-04 | Frontend React/Next.js | PZ 5 | preferowane | ☐ | ☐ | |
-| T-05 | Backend JavaScript / Python / C#/.NET | PZ 5 | preferowane | ☐ | ☐ | |
-| T-06 | Integracja frontendu z backendem przez REST API | PZ 5 | zalecane | ☐ | ☐ | |
+| T-02 | Architektura RWD | PZ 5 | TAK | ☑ | ☐ | Tailwind 4, klasy sm/md/lg; Playwright e2e 375 i 1440 px (PROGRESS) |
+| T-03 | Działa w środowisku testowym i ma potencjał wdrożenia produkcyjnego | PZ 5 | TAK | ☐ | ☐ | częściowo: lokalnie i Docker (smoke PASS); brak środowiska demo online |
+| T-04 | Frontend React/Next.js | PZ 5 | preferowane | ☑ | ☐ | frontend/package.json: next 16.4.6, react 19.3.0 |
+| T-05 | Backend JavaScript / Python / C#/.NET | PZ 5 | preferowane | ☑ | ☐ | backend/app: Python 3.12 + FastAPI |
+| T-06 | Integracja frontendu z backendem przez REST API | PZ 5 | zalecane | ☑ | ☐ | frontend/src/lib/api.ts → POST /api/evaluate; contracts/openapi.yaml |
 | **Testowanie przez jury (PZ pkt 6)** | | | | | | |
-| Q-01 | Upload lub wybór przykładowych wniosków na stronie | PZ 6 | TAK | ☐ | ☐ | |
+| Q-01 | Upload lub wybór przykładowych wniosków na stronie | PZ 6 | TAK | ☐ | ☐ | częściowo: przyciski „Przykłady” (scenariusze syntetyczne); brak uploadu |
 | Q-02 | Poprawne wyliczenia dla przykładowych spraw (zgodność z rozstrzygnięciem ZUS) | PZ 6 | TAK | ☐ | ☐ | |
 | Q-03 | Demo działa samodzielnie podczas praktycznych testów jury | PZ 6 | TAK | ☐ | ☐ | |
-| Q-04 | Czytelna struktura kodu w repozytorium (jury ją przegląda) | PZ 6 | TAK | ☐ | ☐ | |
+| Q-04 | Czytelna struktura kodu w repozytorium (jury ją przegląda) | PZ 6 | TAK | ☑ | ☐ | backend/app (core, engine, modules), frontend/src/features, README |

@@ -17,7 +17,7 @@ Wymagania: `docs/CHALLENGE.md`. Szczegóły i uzasadnienia: `docs/background/01_
 | F15 | Podstawa wymiaru z dokumentów sprawy (art. 36, 38, 45, 47, 48, 48a, 50) | f, § 6 | BE2-03 |
 
 ## P1
-F13 odczyt PDF przez AI — **odrzucony** (M16e, D20: dane spraw nie trafiają do zewnętrznego AI) · F14 objaśnienia AI · F16 dopracowany tryb wrażliwy · składniki kwartalne/roczne, art. 37, 40 · świadczenie rehabilitacyjne (więcej niż informacja).
+F13 odczyt PDF przez AI — **odrzucony** (M16e, D22: dane spraw nie trafiają do zewnętrznego AI) · F14 objaśnienia AI · F16 dopracowany tryb wrażliwy · składniki kwartalne/roczne, art. 37, 40 · świadczenie rehabilitacyjne (więcej niż informacja).
 
 ## P2
 Eksport planu PDF/.ics · audyt WCAG z raportem · przypadki szczególne art. 29 ust. 5–10.
@@ -35,4 +35,4 @@ Prawdziwe integracje, konta z hasłami, zasiłek opiekuńczy, świadczenia rodzi
 | Potencjał wdrożeniowy (15%) | Stack preferowany przez ZUS, OpenAPI, parametry z wersjonowaniem, testy reguł, adaptery integracji | repo, CI, `docs/ARCHITECTURE.md` |
 
 ## Kolejność cięcia zakresu przy opóźnieniu
-P2 → F16 → F10 (tylko podgląd) → F15 (fallback: podstawa wpisywana ręcznie); F13 odrzucony (D20). Nigdy nie tniemy: F1–F3, F6, F12.
+P2 → F16 → F10 (tylko podgląd) → F15 (fallback: podstawa wpisywana ręcznie); F13 odrzucony (D22). Nigdy nie tniemy: F1–F3, F6, F12.

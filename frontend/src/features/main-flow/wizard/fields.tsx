@@ -81,7 +81,8 @@ export function Slider({ label, hint, value, onChange, min, max, step = 1, unit,
   const id = useId();
   const hintId = `${id}-hint`;
   const normalized = value.replace(",", ".");
-  const num = value === "" || Number.isNaN(Number(normalized)) ? null : Number(normalized);
+  const valid = money ? /^\d+(\.\d{1,2})?$/.test(normalized) : value !== "";
+  const num = !valid || Number.isNaN(Number(normalized)) ? null : Number(normalized);
   const show = (v: string) => (money ? formatMoney(v) : `${Number(v).toLocaleString("pl-PL")} ${unit}`);
   const clean = (raw: string) => (money ? raw.replace(/[^\d.,]/g, "").replace(/([.,].{0,2}).*$/, "$1") : raw.replace(/\D/g, ""));
   return (
