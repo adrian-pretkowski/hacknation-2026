@@ -27,6 +27,117 @@ function Illustration() {
   );
 }
 
+/** FE: dekoracyjne tło sekcji powitalnej - miękkie plamy koloru, przerywana „oś czasu” i drobne motywy rodzicielskie.
+ *  Czysto ozdobne (aria-hidden, pointer-events-none), niska krycia - nie obniża kontrastu tekstu (WCAG). */
+function HeroBackdrop() {
+  const icon = "absolute fill-none stroke-current";
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-br from-white via-white to-zus-green-50" />
+      <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-zus-green-50 blur-2xl" />
+      <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-zus-blue-50 blur-2xl" />
+      <div className="absolute top-1/3 right-1/3 h-40 w-40 rounded-full bg-zus-yellow/10 blur-3xl" />
+
+      {/* przerywana linia - oś czasu urlopów z kamieniami milowymi */}
+      <svg viewBox="0 0 1000 200" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-32 w-full text-zus-green-dark/25">
+        <path d="M-10 170 C 200 110, 380 190, 560 130 S 880 60, 1010 100" className="fill-none stroke-current" strokeWidth="2" strokeDasharray="2 10" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      </svg>
+
+      {/* wózek */}
+      <svg viewBox="0 0 24 24" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className={`${icon} right-4 bottom-4 h-24 w-24 text-zus-navy/10 sm:right-10 sm:text-zus-navy/15 sm:h-36 sm:w-36 md:right-72 md:bottom-4`}>
+        <path d="M11 12V4a8 8 0 0 0-8 8z" /><path d="M3 12h15a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5z" /><path d="M18 12l1.5-6H22" />
+        <circle cx="7" cy="20" r="1.8" /><circle cx="15" cy="20" r="1.8" />
+      </svg>
+      {/* serce */}
+      <svg viewBox="0 0 24 24" strokeWidth="1.4" strokeLinejoin="round" className={`${icon} top-5 right-6 h-10 w-10 text-zus-green-dark/25 sm:top-8 sm:right-10 sm:h-12 sm:w-12`}>
+        <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" />
+      </svg>
+      {/* księżyc i gwiazdki - noce z maluszkiem */}
+      <svg viewBox="0 0 24 24" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={`${icon} top-6 left-[46%] hidden h-12 w-12 text-zus-blue/25 md:block`}>
+        <path d="M20 13.5A8 8 0 1 1 10.5 4a6.2 6.2 0 0 0 9.5 9.5z" /><path d="M17 3.5v3M15.5 5h3M21 8.5v2M20 9.5h2" />
+      </svg>
+      {/* grzechotka */}
+      <svg viewBox="0 0 24 24" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className={`${icon} bottom-10 left-[42%] hidden h-14 w-14 -rotate-12 text-zus-green-dark/20 sm:block`}>
+        <circle cx="15" cy="9" r="5" /><circle cx="15" cy="9" r="2" /><path d="M11.5 12.5 4 20M3 18.5l2.5 2.5" />
+      </svg>
+      {/* stópki */}
+      <svg viewBox="0 0 24 24" className="absolute top-[42%] right-[30%] hidden h-10 w-10 rotate-12 fill-current text-zus-navy/10 lg:block">
+        <ellipse cx="7" cy="15" rx="3" ry="4.5" /><circle cx="5" cy="8.6" r="1" /><circle cx="7.4" cy="8.1" r="1" /><circle cx="9.6" cy="9" r="0.9" />
+        <ellipse cx="16.5" cy="11" rx="3" ry="4.5" /><circle cx="14.5" cy="4.6" r="1" /><circle cx="16.9" cy="4.1" r="1" /><circle cx="19.1" cy="5" r="0.9" />
+      </svg>
+    </div>
+  );
+}
+
+/** Wariant „ciepły”: rodzina tuląca maluszka, pozytywka nad łóżeczkiem, delikatne serduszka. Ozdobne (aria-hidden). */
+function HeroBackdropWarm() {
+  const hang = "absolute top-0 hidden flex-col items-center md:flex";
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-br from-zus-green-50 via-white to-amber-50" />
+      <div className="absolute -top-24 -right-10 h-80 w-80 rounded-full bg-amber-100/70 blur-3xl" />
+      <div className="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-zus-green-50 blur-3xl" />
+      <div className="absolute bottom-0 left-1/3 h-40 w-72 rounded-full bg-amber-50 blur-3xl" />
+
+      {/* pozytywka nad łóżeczkiem: gwiazdka, księżyc, chmurka na nitkach */}
+      <div className={`${hang} right-[24%]`}><span className="h-10 w-px bg-zus-green-dark/30" />
+        <svg viewBox="0 0 24 24" className="h-7 w-7 fill-amber-200 stroke-amber-400/70" strokeWidth="1"><path d="M12 2.5l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.4l-5.4 2.9 1.1-6.1-4.5-4.3 6.1-.8z" strokeLinejoin="round" /></svg></div>
+      <div className={`${hang} right-[17%]`}><span className="h-12 w-px bg-zus-green-dark/30" />
+        <svg viewBox="0 0 24 24" className="h-8 w-8 fill-zus-blue-50 stroke-zus-blue/40" strokeWidth="1"><path d="M20 13.5A8 8 0 1 1 10.5 4a6.2 6.2 0 0 0 9.5 9.5z" strokeLinejoin="round" /></svg></div>
+      <div className={`${hang} right-[9%]`}><span className="h-7 w-px bg-zus-green-dark/30" />
+        <svg viewBox="0 0 32 20" className="h-6 w-9 fill-white stroke-zus-blue/40" strokeWidth="1"><path d="M8 18a6 6 0 0 1-.6-12A8 8 0 0 1 22.5 5 6.5 6.5 0 0 1 25 18z" strokeLinejoin="round" /></svg></div>
+
+      {/* rozsypane serduszka */}
+      {[
+        "top-2 left-2 h-4 w-4 text-zus-green/40 -rotate-12 sm:top-6 sm:left-6 sm:h-5 sm:w-5",
+        "bottom-8 left-[44%] hidden h-6 w-6 text-zus-green/30 rotate-12 sm:block",
+        "top-1/2 left-[60%] h-4 w-4 text-amber-400/40 hidden md:block",
+        "bottom-2 right-3 h-5 w-5 text-zus-green/40 md:hidden",
+      ].map((c) => (
+        <svg key={c} viewBox="0 0 24 24" className={`absolute fill-current ${c}`}>
+          <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+/** Rodzice przytulający maluszka w kocyku, w świetle wschodzącego słońca. Ozdobne. */
+function FamilyIllustration() {
+  const heart = "M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z";
+  return (
+    <svg viewBox="0 0 240 210" className="h-auto w-full max-w-xs" aria-hidden="true">
+      <circle cx="120" cy="120" r="88" className="fill-amber-100" />
+      <circle cx="120" cy="120" r="64" className="fill-amber-50" />
+      {/* rodzic 1 */}
+      <path d="M44 210c0-62 14-100 46-104 26-2 34 22 34 44v60z" className="fill-zus-navy" />
+      <circle cx="88" cy="78" r="20" className="fill-orange-200" />
+      <path d="M68 76c0-16 10-24 22-24 11 0 19 7 19 17-8 1-20-3-26-10-3 7-8 13-15 17z" className="fill-zus-ink" />
+      {/* rodzic 2 */}
+      <path d="M116 210v-58c0-24 10-42 36-42 28 2 44 40 44 100z" className="fill-zus-green-dark" />
+      <circle cx="152" cy="86" r="19" className="fill-orange-100" />
+      <path d="M133 84c0-14 9-22 20-22 12 0 20 9 19 22-6-6-15-9-24-9-6 0-11 3-15 9z" className="fill-amber-800" />
+      <circle cx="166" cy="62" r="8" className="fill-amber-800" />
+      {/* maluszek w kocyku */}
+      <ellipse cx="122" cy="156" rx="40" ry="22" transform="rotate(-8 122 156)" className="fill-amber-50 stroke-white" strokeWidth="3" />
+      <path d="M92 158c14 10 40 10 62-2" className="fill-none stroke-amber-200" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="100" cy="148" r="13" className="fill-orange-100 stroke-white" strokeWidth="2" />
+      <path d="M95 148q2 2 4 0M103 147q2 2 4 0" className="fill-none stroke-zus-ink" strokeWidth="1.3" strokeLinecap="round" />
+      <circle cx="96" cy="153" r="2" className="fill-zus-green/50" />
+      {/* ramiona obejmujące */}
+      <path d="M70 150c10 26 40 30 62 22" className="fill-none stroke-zus-navy" strokeWidth="10" strokeLinecap="round" />
+      <path d="M182 150c-6 22-28 30-46 26" className="fill-none stroke-zus-green-dark" strokeWidth="10" strokeLinecap="round" />
+      {/* serduszka nad rodziną */}
+      <g className="fill-zus-green"><path d={heart} transform="translate(108 14) scale(.9)" /></g>
+      <g className="fill-zus-green/50"><path d={heart} transform="translate(138 30) scale(.55)" /></g>
+      <g className="fill-amber-300"><path d={heart} transform="translate(86 34) scale(.45)" /></g>
+    </svg>
+  );
+}
+
+/** Który wygląd sekcji powitalnej: "calm" (oś czasu, wózek) albo "warm" (rodzina, pozytywka). */
+const HERO_VARIANT: "calm" | "warm" = "warm";
+
 /** Karta wyboru drogi na ekranie startowym - cała klikalna (after:inset-0 na przycisku). */
 function PathCard({ tag, title, text, points, cta, onClick, icon, primary }: {
   tag: string; title: string; text: string; points: string[]; cta: string; onClick: () => void; icon: "plan" | "forms"; primary?: boolean;
@@ -70,7 +181,8 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
 }) {
   return (
     <div className="space-y-12">
-      <section className="grid items-center gap-8 rounded-3xl bg-white px-5 py-8 sm:px-10 sm:py-12 md:grid-cols-[minmax(0,1fr)_16rem]">
+      <section className="relative isolate grid items-center gap-8 overflow-hidden rounded-3xl border border-zus-green-50 bg-white px-5 py-8 sm:px-10 sm:py-12 md:grid-cols-[minmax(0,1fr)_16rem]">
+        {HERO_VARIANT === "warm" ? <HeroBackdropWarm /> : <HeroBackdrop />}
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-zus-green-dark">Urlopy i zasiłki dla rodziców</p>
           <h1 ref={headingRef} tabIndex={-1} className="mt-2 text-3xl font-semibold leading-tight text-zus-navy focus:outline-none sm:text-4xl">
@@ -85,7 +197,7 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
           </button>
           <p className="mt-4 text-xs text-zinc-600">Wynik ma charakter informacyjny i nie jest decyzją ZUS.</p>
         </div>
-        <div className="hidden justify-center md:flex"><Illustration /></div>
+        <div className="hidden justify-center md:flex">{HERO_VARIANT === "warm" ? <FamilyIllustration /> : <Illustration />}</div>
       </section>
 
       {/* FE1-11: wybór drogi - kreator (pełny plan) albo szybkie pisma (docs/FORMS_FLOW.md) */}
