@@ -183,6 +183,9 @@ def compare(case: dict[str, Any], payload: dict[str, Any], result: dict[str, Any
     expected = case["expected"]
     errors: list[str] = []
     benefit = select_benefit(result, case.get("benefit_selector"))
+    # Wybrane świadczenie jest wymagane także dla kluczy z poziomu wyniku (plan_errors, warnings, missing_data,
+    # applied_rules): bez niego np. ``plan_errors: []`` przechodziłoby pusto, gdy silnik w ogóle nie ocenia
+    # tego świadczenia (T-PAR-005/011). Wyjątek: ``fact`` — fakt liczony jest niezależnie od pipeline.
     needs_benefit = any(key != "fact" for key in expected)
     if needs_benefit and benefit is None:
         got = [(b.get("benefit_type"), b.get("leave_type")) for b in result.get("benefits") or []]
@@ -407,6 +410,13 @@ def test_compare_checks_only_given_keys():
 def test_compare_missing_benefit_is_reported():
     errors = compare(_case({"status": "ELIGIBLE"}, {"benefit_type": "SICKNESS_BENEFIT"}), {},
                      _result(status="ELIGIBLE"))
+    assert len(errors) == 1 and "brak świadczenia" in errors[0]
+
+
+def test_compare_result_level_keys_require_selected_benefit():
+    # plan_errors: [] nie może przejść „pusto”, gdy silnik nie zwrócił wybranego świadczenia
+    selector = {"benefit_type": "MATERNITY_BENEFIT", "leave_type": "PARENTAL_LEAVE"}
+    errors = compare(_case({"plan_errors": []}, selector), {}, _result(status="ELIGIBLE"))
     assert len(errors) == 1 and "brak świadczenia" in errors[0]
 
 
