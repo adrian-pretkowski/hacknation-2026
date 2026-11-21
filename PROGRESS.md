@@ -11,7 +11,7 @@
 | Działa end-to-end | Kalkulator zasiłku macierzyńskiego matki (slice_v0): UI → `POST /api/evaluate` → wynik w UI |
 | Silnik | **pipeline reguł** (`engine/pipeline/`, `engine=rules-engine`, domyślnie) — macierzyński matki na regułach z `03_rules.yaml`; `ENGINE=slice` przywraca `slice_v0`; pozostałe świadczenia — BE1-04/05, BE2-01..04 |
 | Kontrakt | `contracts/openapi.yaml` **v1.0.0** — 2 operacje `implemented`, 12 `planned` (sprawy, admin, symulacje); modele = `zus_rules/04`/`05`; czeka na akceptację BE+FE |
-| Testy | backend 203/203 (w tym 75 testów kontraktu) · audyt reguł 119 reguł / 92 testy spec / 0 błędów · frontend lint, typecheck, build OK |
+| Testy | backend 218/218 (w tym 75 testów kontraktu) · audyt reguł 119 reguł / 94 testy spec / 0 błędów · frontend lint, typecheck, build OK |
 
 ## 2. Bramki
 | Bramka | Punkt | Status | Dowód (komenda → wynik) |
@@ -42,7 +42,7 @@
 
 ## 4. Następne kroki (kolejność)
 1. Lider: utworzyć zdalne repo (odblokowuje INT-04) i zdecydować o hostingu demo (INT-02). Repo przeniesione do `D:\hacknation-2026`, pierwsze commity zrobione.
-2. BA-01: mentorzy M01–M05, M11 (`docs/mentors.md`) — blokery B1–B4.
+2. BA-01: mentorzy M01–M04, M11 (`docs/mentors.md`) — blokery B1–B3 (M05 rozstrzygnięte 2026-11-21).
 3. BE i FE: przejrzeć i zaakceptować kontrakt v1 (INT-01). Kontrakt już odblokowuje FE1-01..03, FE2-02..04, BE2-05/06, INT-03 — typy FE: `npm run gen:api`.
 4. BE1-01: interfejs rejestru faktów I2 jako pierwszy commit (odblokowuje BE2-01..04).
 5. Równolegle: FE2-01 (layout), FE1-01 (główny przepływ na mock).
@@ -54,7 +54,7 @@
 | B1 | Brak przykładowych spraw ZUS | BA | `docs/mentors.md` M01 |
 | B2 | Publikacja spraw i materiałów | BA | M02 |
 | B3 | Zaokrąglenia kwot | BA → BE-2 | M04 |
-| B4 | Art. 43 — ta sama podstawa L4 → macierzyński | BA → BE-2 | M05 |
+| ~~B4~~ | ~~Art. 43 — ta sama podstawa L4 → macierzyński~~ — ROZWIĄZANE 2026-11-21 (M05: pełny miesiąc kalendarzowy, D18) | BA → BE-2 | M05 |
 | B5 | Zdalne repo i deploy publiczny | Lider | INT-02, INT-04 |
 
 ## 6. Dziennik (dopisuj na końcu, nie edytuj cudzych wpisów)
@@ -68,3 +68,4 @@
 | 2026-11-21 14:20 | BE-1 (Claude Code) | BE1-01 | Silnik DSL (wariant okrojony): loader `03_rules.yaml` z walidacją strukturalną, evaluator Kleene TRUE/FALSE/UNKNOWN z raportem brakujących pól, rejestr faktów `@fact` (I2), `core/money.py`, `core/dates.py` (C1–C11), 11 faktów ścieżki macierzyńskiej; `engine/maternity_v0.py` (rules-v0) liczy macierzyński z reguł YAML identycznie jak slice_v0 (router bez zmian) | `pytest` → 161 passed (84 → +77: `test_engine_dsl.py`, `test_engine_parity.py` 16 wariantów); `ruff check` → OK; audyt → rules=119 errors=0 | — (commit na `be1/BE1-01-dsl`) |
 | 2026-11-21 14:55 | BE-1 (Claude Code) | BE1-02 | Pipeline (wariant okrojony): `engine/pipeline/` — tryby FUTURE/BLOCKED/HUMAN_REVIEW, częściowa ocena reguł z faktami spoza rejestru (`not_evaluated_rules`), wyjątki i `overrides` z YAML, agregacja DT-9, ślad `applied_rules` i `future_changes`; macierzyński jako moduł kroków; router `ENGINE=rules\|slice` (domyślnie rules) | `pytest` → 183 passed (także `ENGINE=slice`: test_evaluate_slice + test_contract zielone); `ruff check` → OK; audyt → rules=119 errors=0; smoke nie uruchamiany (brak serwerów) | — (commit na `be1/BE1-01-dsl`) |
 | 2026-11-21 15:25 | BE-1 (Claude Code) | BE1-01, BE1-02 | Poprawki po `/review` (CHANGES_REQUIRED, 2 poważne): testy faktów spoza slice (`test_engine_facts.py`: spłata długu, urlop wychowawczy, priorytet tytułów, granica `date = to`, `work_fraction`), martwe urodzenie i zgon dziecka (MAT-DUR-003/004, T-MAT-013 — wcześniej API zwracało 140 dni), GEN-EXCL-002 w `not_evaluated_rules`, komunikaty z parametrów, walidacja `ENGINE`, `/api/health` pokazuje aktywny silnik, `test_pipeline.py` → `test_engine_pipeline.py`, szkielet `facts/maternity.py` przekazany BE-2 (TASKS), § 1, coverage b) | `pytest` → 203 passed (także `ENGINE=slice`); `ruff` OK; audyt errors=0; `smoke.py --api :8011` → SMOKE: PASS (engine rules-engine) | — (commit na `be1/BE1-01-dsl`) |
+| 2026-11-21 16:15 | Lider (Claude Code) | BA-01 (M05), BE2-03 (część: BASE-GEN-001) | Odpowiedź mentora fachowego M05 udokumentowana (art. 43: „miesiąc kalendarzowy” = pełny miesiąc 1.–ostatni dzień; CONF-006 zamknięty, D18); silnik: `f_gap_shorter_than_calendar_month` + `contains_full_calendar_month`, `f_benefit_base` z podstawą poprzedniego zasiłku, BASE-GEN-001 w pipeline (ślad + komunikat); 08: T-BASE-007 → POSITIVE, nowe T-BASE-010/011 | `pytest` → 218 passed (także `ENGINE=slice`: slice + kontrakt zielone); `ruff` OK; audyt → rules=119 tests=94 errors=0; smoke nie uruchamiany (brak serwerów, kontrakt bez zmian) | — |

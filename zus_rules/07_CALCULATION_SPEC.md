@@ -158,7 +158,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_apply_minimum_base` | – | Decimal | §2 minimum | MIN_WAGE UNCONFIRMED → wynik + assumption | – |
 | `f_base_after_working_time_change` | – | – | — | — | Reguła BLOCKED (GAP-021) |
 | `f_working_time_change_in_base_window` | – | bool | `working_time_change_date` ∈ [początek okna 12 m-cy, koniec miesiąca zdarzenia] | None | – |
-| `f_gap_shorter_than_calendar_month` | – | bool | Automatycznie TRUE tylko dla przerwy 0 dni; FALSE gdy przerwa > 31 dni; inaczej None (→ NEEDS_REVIEW) | None | CONF-006 |
+| `f_gap_shorter_than_calendar_month` | – | bool | Przerwa = dni pomiędzy `previous_benefit_end_date` a początkiem zasiłku (`base.reference_event_date`, domyślnie `event.date`); TRUE ⇔ przerwa nie obejmuje pełnego miesiąca kalendarzowego (1.–ostatni dzień); brak przerwy/nakładanie → TRUE (M05) | None | CONF-006 rozstrzygnięty (M05): 2.02–14.03 (41 dni) → TRUE; 1.02–14.03 → FALSE |
 | `f_apply_after_title_cap` | – | – | — | — | BLOCKED (GAP-002) |
 | `f_benefit_amount` | – | object | Per segment: `daily = base × rate × (1 − wf) / 30`; `total = daily × dni` | None | C1, C2 |
 | `f_monthly_maternity_amount` | – | Decimal | `base × rate × (1 − wf)` | None | – |

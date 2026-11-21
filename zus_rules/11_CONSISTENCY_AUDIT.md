@@ -4,7 +4,7 @@ Wygenerowano przez `tools/build_catalog.py` z `03_rules.yaml` v0.1.0. **Błędy:
 
 ## Statystyki
 
-- Reguły: 119; testy: 92; fakty użyte: 99 (zdefiniowane w 07: 102); pola użyte: 81; parametry: 79
+- Reguły: 119; testy: 94; fakty użyte: 99 (zdefiniowane w 07: 102); pola użyte: 81; parametry: 79
 - Priorytet: P0=70, P1=37, P2=12
 - Evaluation: ACTIVE=91, BLOCKED=8, FUTURE=1, HUMAN_REVIEW=3, INFORMATIONAL=16
 - Interpretacja: AMBIGUOUS=6, DERIVED=19, DIRECT=90, INCOMPLETE_SOURCE=4
@@ -104,7 +104,7 @@ Brak błędów i ostrzeżeń.
 | USTAWA USTAWA art. 40 | BASE-EMP-005 | BLOCKED | — |
 | USTAWA USTAWA art. 41 ust. 1-3 | BASE-EMP-007 | ACTIVE | — |
 | USTAWA USTAWA art. 42 ust. 1-5 | BASE-EMP-006 | ACTIVE | — |
-| USTAWA USTAWA art. 43; art. 48 ust. 2; art. 52 | BASE-GEN-001 | ACTIVE | T-BASE-006, T-BASE-007, T-INT-001 |
+| USTAWA USTAWA art. 43; art. 48 ust. 2; art. 52 | BASE-GEN-001 | ACTIVE | T-BASE-006, T-BASE-007, T-BASE-010, T-BASE-011, T-INT-001 |
 | USTAWA USTAWA art. 45 ust. 1-2; art. 47 | BASE-EMP-008 | ACTIVE | T-BASE-003 |
 | USTAWA USTAWA art. 46 | BASE-GEN-002 | BLOCKED | — |
 | USTAWA USTAWA art. 48 ust. 1-2; art. 3 pkt 4; art. 52 | BASE-NEMP-001 | ACTIVE | T-BASE-004, T-INT-005, T-BASE-009 |

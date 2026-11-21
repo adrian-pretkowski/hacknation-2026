@@ -5,11 +5,18 @@ Właściciel dalszych faktów macierzyńskich/rodzicielskich i podstawy: BE2-01.
 """
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
 
-from app.core.dates import days_in, deadline_after, end_after_days, end_after_weeks, to_date
+from app.core.dates import (
+    contains_full_calendar_month,
+    days_in,
+    deadline_after,
+    end_after_days,
+    end_after_weeks,
+    to_date,
+)
 from app.core.money import div, mul, to_decimal
 from app.engine.facts.registry import Context, fact
 
@@ -73,13 +80,41 @@ def segment_belongs_to_applicant_of_combined(ctx: Context) -> bool | None:
     return parent == "MOTHER"
 
 
+@fact("f_gap_shorter_than_calendar_month")
+def gap_shorter_than_calendar_month(ctx: Context) -> bool | None:
+    """07 §6, BASE-GEN-001: przerwa między poprzednim zasiłkiem a obecnym nie obejmuje pełnego miesiąca kalendarzowego.
+
+    Przerwa = dni POMIĘDZY ``benefit_history.previous_benefit_end_date`` a początkiem obecnego zasiłku
+    (``base.reference_event_date``, a gdy silnik go nie ustalił — ``event.date``); brak przerwy lub nakładanie → TRUE.
+    TRUE ⇔ przerwa nie zawiera całego miesiąca od 1. do ostatniego dnia (M05, CONF-006 rozstrzygnięty z mentorem).
+    USTAWA art. 43.
+    """
+    prev_end = to_date(ctx.field("benefit_history.previous_benefit_end_date"))
+    start = to_date(ctx.field("base.reference_event_date")) or to_date(ctx.field("event.date"))
+    if prev_end is None:
+        ctx.need("benefit_history.previous_benefit_end_date")
+    if start is None:
+        ctx.need("event.date")
+    if prev_end is None or start is None:
+        return None
+    return not contains_full_calendar_month(prev_end + timedelta(days=1), start - timedelta(days=1))
+
+
 @fact("f_benefit_base")
 def benefit_base(ctx: Context) -> Decimal | None:
-    """07 §7: manual_base_override, jeśli podano; metody BASE-* — BE2-03. USTAWA art. 36, 47."""
+    """07 §6: manual_base_override, jeśli podano; inaczej BASE-GEN-001 (podstawa poprzedniego zasiłku, art. 43);
+    metody BASE-* — BE2-03. USTAWA art. 36, 43, 47.
+
+    Bez historii zasiłków (brak ``previous_benefit_end_date``) art. 43 nie dotyczy — potrzebna nowa podstawa.
+    """
     base = to_decimal(ctx.field("income_history.manual_base_override"))
-    if base is None:
-        return ctx.need("income_history.manual_base_override")
-    return base
+    if base is not None:
+        return base
+    if ctx.field("benefit_history.previous_benefit_end_date") is not None:
+        if ctx.fact("f_gap_shorter_than_calendar_month") is True:
+            previous = to_decimal(ctx.field("benefit_history.previous_base_amount"))
+            return previous if previous is not None else ctx.need("benefit_history.previous_base_amount")
+    return ctx.need("income_history.manual_base_override")
 
 
 @fact("f_benefit_amount")

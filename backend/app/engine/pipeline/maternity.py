@@ -132,6 +132,20 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                        f"{deadline.isoformat()}.", "art. 31 ust. 1; art. 30a ust. 1")
     ctx.state["rate"] = rate
 
+    # Krok 6: podstawa — art. 43 (BASE-GEN-001): ta sama podstawa, gdy przerwa nie obejmuje pełnego miesiąca
+    # kalendarzowego (M05); ręczna podstawa ma pierwszeństwo, bez historii zasiłków reguła nie dotyczy
+    if ctx.field("income_history.manual_base_override") is None \
+            and ctx.field("benefit_history.previous_benefit_end_date") is not None:
+        reuse = eng.eval("BASE-GEN-001")
+        if reuse.unknown:
+            eng.need_from(reuse)
+            needs_data = True
+        elif reuse.fired:
+            applied.append("BASE-GEN-001")
+            reason("BASE_REUSED_NO_FULL_MONTH_GAP", "BASE-GEN-001",
+                   "Między poprzednim zasiłkiem a zasiłkiem macierzyńskim nie było przerwy obejmującej pełny miesiąc "
+                   "kalendarzowy — podstawa wymiaru jest taka sama jak poprzedniego zasiłku.", "art. 43")
+
     # Krok 8: kwota
     daily = total = None
     calc = eng.eval("CALC-MAT-001")

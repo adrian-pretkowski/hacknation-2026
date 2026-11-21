@@ -11,7 +11,7 @@ Wpływ na MVP: **H** — blokuje część demo lub poprawność kwot; **M** — 
 | CONF-003 | MAT-DUR-008, PAR-DUR-003 | KP art. 183 § 3, § 4 pkt 3, § 4(2), § 4(5) ↔ ZALACZNIK | Załącznik: „urlop na warunkach macierzyńskiego nie może trwać krócej niż 9 tygodni”; pomija 38/62 tyg. rodzicielskiego. KP § 3 przyznaje „prawo do 9 tygodni” bez słowa „minimum” | Uproszczenie + możliwa interpretacja | **NEEDS_LEGAL_REVIEW** — reguły BLOCKED | M |
 | CONF-004 | MAT-SHARE-006 | USTAWA art. 29 ust. 10; KP art. 180 § 17 | Matka „nieposiadająca tytułu do ubezpieczenia” podejmuje zatrudnienie ≥½ etatu — zatrudnienie zwykle jest tytułem; pozorna sprzeczność | Pozorna sprzeczność | **NEEDS_LEGAL_REVIEW** (BLOCKED) | L |
 | CONF-005 | SUPP-COND-001, RATE-MAT-003 | USTAWA art. 31 ust. 1 i 3 ↔ ZALACZNIK | Art. 31 ust. 3 (81,5%) wymienia macierzyński, na warunkach macierzyńskiego i rodzicielski — **nie** uzupełniający. Załącznik o tym milczy | Luka w Załączniku | Uzupełniający zawsze 100% (DERIVED, HIGH) | L |
-| CONF-006 | BASE-GEN-001 | USTAWA art. 43 ↔ ZALACZNIK | Ustawa: przerwa „krótsza niż **miesiąc kalendarzowy**”; Załącznik: „poniżej 1 miesiąca” / „min. 1 miesiąc”. Pełny miesiąc kalendarzowy (1.–ost.) czy okres miesiąca? | Różne interpretacje granicy | Automatycznie tylko przerwa 0 dni i > 31 dni; pozostałe NEEDS_REVIEW | **H** (typowy scenariusz: chorobowy → macierzyński) |
+| CONF-006 | BASE-GEN-001 | USTAWA art. 43 ↔ ZALACZNIK | Ustawa: przerwa „krótsza niż **miesiąc kalendarzowy**”; Załącznik: „poniżej 1 miesiąca” / „min. 1 miesiąc”. Pełny miesiąc kalendarzowy (1.–ost.) czy okres miesiąca? | Różne interpretacje granicy | **ROZSTRZYGNIĘTE (M05, 2026-11-21, mentor fachowy):** pełny miesiąc kalendarzowy (1.–ostatni dzień); nowa podstawa tylko, gdy przerwa obejmuje cały taki miesiąc — `f_gap_shorter_than_calendar_month` | **H** (typowy scenariusz: chorobowy → macierzyński) |
 | CONF-007 | APP-DOC-003 | ROZP_DOK ↔ treść zadania | Symbole ZAM/ZUR/ZAO/Z-3b (połączenia od 24.10.2026) pochodzą z zadania; rozporządzenie określa zakres danych | Źródło pozaustawowe | Nazwy formularzy w UI z etykietą „wg informacji ZUS” | L |
 | CONF-008 | PAT-ELIG-001 | treść zadania ↔ KP art. 182(3) | Zadanie: ojcowski także dla ojca, który zaczął pracę po narodzinach / gdy matka nieubezpieczona — brak tego w wyciągu KP, ale wynika z braku wymogu ubezpieczenia na dzień porodu | Wywód | DERIVED, MEDIUM | L |
 
@@ -51,7 +51,7 @@ Wpływ na MVP: **H** — blokuje część demo lub poprawność kwot; **M** — 
 | Q-LEG-01 | Czy potwierdzają brak okresu wyczekiwania dla zasiłku macierzyńskiego (dobrowolne chorobowe JDG zgłoszone np. 30 dni przed porodem)? | MAT-CLS-001 |
 | Q-LEG-02 | Czy ojciec musi podlegać ubezpieczeniu chorobowemu w dniu rozpoczęcia swojej części rodzicielskiego, czy w dniu porodu? | PAR-ELIG-001, PAR-SHARE-003 |
 | Q-LEG-03 | Jaką stawkę otrzymuje ojciec za część rodzicielskiego (poza 9 tyg.) przy wniosku 81,5% złożonym przez matkę? | RATE-MAT-008 |
-| Q-LEG-04 | Interpretacja „przerwy krótszej niż miesiąc kalendarzowy” (art. 43) | BASE-GEN-001 |
+| Q-LEG-04 | Interpretacja „przerwy krótszej niż miesiąc kalendarzowy” (art. 43) — **odpowiedź M05: pełny miesiąc kalendarzowy** | BASE-GEN-001 |
 | Q-LEG-05 | Zasady zaokrągleń stosowane w decyzjach ZUS (podstawa, stawka dzienna, kwota) | wszystkie CALC |
 | Q-LEG-06 | Minimalna podstawa 2026 i kwota świadczenia rodzicielskiego do parametrów | BASE-EMP-008, RATE-MAT-007 |
 

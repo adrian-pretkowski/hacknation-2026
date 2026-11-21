@@ -19,7 +19,7 @@
 
 | ID | Pytanie | Reguły | Odpowiedź (data, mentor) | Decyzja / zmiany |
 |---|---|---|---|---|
-| M05 | Art. 43: „przerwa krótsza niż miesiąc kalendarzowy” — pełny miesiąc kalendarzowy (1.–ostatni) czy okres miesiąca? Dotyczy przejścia z L4 w ciąży na macierzyński. | BASE-GEN-001, CONF-006, T-BASE-007 | | |
+| M05 | Art. 43: „przerwa krótsza niż miesiąc kalendarzowy” — pełny miesiąc kalendarzowy (1.–ostatni) czy okres miesiąca? Dotyczy przejścia z L4 w ciąży na macierzyński. | BASE-GEN-001, CONF-006, T-BASE-007 | 2026-11-21, mentor fachowy (ZUS): **miesiąc kalendarzowy** — pełny miesiąc od 1. do ostatniego dnia | Podstawy nie ustala się na nowo, jeśli przerwa nie obejmuje całego miesiąca kalendarzowego (np. 2.02–14.03 = ta sama podstawa; 1.02–14.03 obejmuje luty = nowa podstawa). Zaimplementowane: `f_gap_shorter_than_calendar_month`, `f_benefit_base`, BASE-GEN-001 w pipeline; T-BASE-007 → POSITIVE, nowe T-BASE-010/011; CONF-006 zamknięty, D18 |
 | M06 | Pracownik: wynagrodzenie po faktycznie potrąconych składkach (Z-3) czy zawsze „minus 13,71%” (Załącznik)? | BASE-EMP-001, CONF-002 | | |
 | M07 | Minimalna podstawa 2026 (tabela w Załączniku pusta): czy 4806 × 0,8629 = 4147,0974 zł i jak zaokrąglić? Czy 4806 zł to właściwa płaca minimalna? | BASE-EMP-008, GEN-EXCL-001, GAP-022, `MIN_WAGE_2026_MONTHLY` | | |
 | M08 | Skąd wziąć najniższą podstawę składek JDG do art. 48a — czy jest w poświadczeniu ubezpieczenia w sprawach? Czy limit 23 550 zł dla dobrowolnego chorobowego jest aktualny? | BASE-NEMP-002/003, GAP-023, `VOLUNTARY_MAX_CONTRIB_BASE_2026` | | |
@@ -48,4 +48,4 @@
 
 | Data i godzina | ID | Mentor | Ustalenie (cytat/streszczenie) | Kto wprowadza zmianę | Zmienione pliki |
 |---|---|---|---|---|---|
-| | | | | | |
+| 2026-11-21 16:15 | M05 | mentor fachowy (ZUS) | „Miesiąc kalendarzowy” w art. 43 = pełny miesiąc kalendarzowy (1.–ostatni dzień). Temat wyjaśniony; zgodne z wykładnią ZUS (nowa podstawa tylko, gdy przerwa obejmuje cały miesiąc). | lider (Claude Code) | `backend/app/core/dates.py`, `backend/app/engine/facts/maternity.py`, `backend/app/engine/pipeline/maternity.py`, `backend/tests/test_engine_facts.py`, `zus_rules/03_rules.yaml`, `07`, `08`, `09`, katalog `02`/`11`, `docs/ASSUMPTIONS.md`, `docs/DECISIONS.md`, `PROGRESS.md` |

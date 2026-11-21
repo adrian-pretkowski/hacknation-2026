@@ -3508,11 +3508,11 @@
   },
   {
    "test_id": "T-BASE-007",
-   "kind": "MISSING_DATA",
+   "kind": "POSITIVE",
    "rule_ids": [
     "BASE-GEN-001"
    ],
-   "description": "Przerwa 20 dni → NEEDS_REVIEW (wykładnia 'miesiąca kalendarzowego')",
+   "description": "Przerwa 20 dni (23.02–14.03, bez pełnego miesiąca kalendarzowego) → ta sama podstawa (M05)",
    "fixture": "employee_mother",
    "patch": {
     "income_history": {
@@ -3529,13 +3529,77 @@
     "leave_type": "MATERNITY_LEAVE"
    },
    "expected": {
-    "status": "NEEDS_REVIEW"
+    "base.amount_exact": "5123.45"
    },
    "legal_basis": [
     "USTAWA art. 43"
    ],
    "assumptions": [
-    "CONF-006"
+    "M05: miesiąc kalendarzowy = pełny miesiąc od 1. do ostatniego dnia (CONF-006 rozstrzygnięty)"
+   ]
+  },
+  {
+   "test_id": "T-BASE-010",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "BASE-GEN-001"
+   ],
+   "description": "Przerwa 41 dni (02.02–14.03) bez pełnego miesiąca kalendarzowego → ta sama podstawa (M05; okres dłuższy niż miesiąc nie wystarcza)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-02-01",
+     "previous_base_amount": "5123.45"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "base.amount_exact": "5123.45"
+   },
+   "legal_basis": [
+    "USTAWA art. 43"
+   ],
+   "assumptions": [
+    "M05: miesiąc kalendarzowy = pełny miesiąc od 1. do ostatniego dnia (CONF-006 rozstrzygnięty)"
+   ]
+  },
+  {
+   "test_id": "T-BASE-011",
+   "kind": "BOUNDARY",
+   "rule_ids": [
+    "BASE-GEN-001"
+   ],
+   "description": "Przerwa 01.02–14.03 obejmuje cały luty → podstawę ustala się na nowo; bez wynagrodzeń → NEEDS_DATA, nie odmowa (M05)",
+   "fixture": "employee_mother",
+   "patch": {
+    "income_history": {
+     "manual_base_override": null,
+     "months": []
+    },
+    "benefit_history": {
+     "previous_benefit_end_date": "2027-01-31",
+     "previous_base_amount": "5123.45"
+    }
+   },
+   "benefit_selector": {
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE"
+   },
+   "expected": {
+    "status": "NEEDS_DATA"
+   },
+   "legal_basis": [
+    "USTAWA art. 43"
+   ],
+   "assumptions": [
+    "M05: miesiąc kalendarzowy = pełny miesiąc od 1. do ostatniego dnia (CONF-006 rozstrzygnięty)"
    ]
   },
   {
