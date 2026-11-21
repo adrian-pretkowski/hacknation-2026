@@ -1,0 +1,17 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "Scenariusze E2E pisane po polsku, wykonywane przez Playwright",
+  "scripts": {
+    "test": "playwright test",
+    "test:telefon": "playwright test --project=telefon",
+    "test:komputer": "playwright test --project=komputer",
+    "slownik": "playwright test slownik --project=komputer",
+    "raport": "playwright show-report"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  },
+  "private": true
+}
