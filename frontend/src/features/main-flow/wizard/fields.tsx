@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { formatMoney } from "@/lib/format";
+import { moneyError, normalizeMoney } from "./money";
 
 export const inputCls =
   "mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark";
@@ -55,6 +56,32 @@ export function Field({ label, hint, children, error, errorId }: {
       </label>
       {error && <p id={errorId} role="alert" className="mt-1 text-sm text-zus-red">{error}</p>}
     </div>
+  );
+}
+
+export { moneyError } from "./money";
+
+/** FE1-15: samo pole kwoty (bez suwaka): dokładna kwota, podgląd w formacie PL, komunikat przy polu. */
+export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie podano" }: {
+  label: string; hint?: string; value: string; onChange: (v: string) => void; emptyLabel?: string;
+}) {
+  const id = useId();
+  const error = moneyError(value);
+  const normalized = normalizeMoney(value);
+  return (
+    <Field label={label} hint={hint} error={error} errorId={`${id}-err`}>
+      <span className="mt-1 flex items-center gap-3">
+        <input type="text" inputMode="decimal" autoComplete="off" placeholder="np. 7800,00" value={value}
+          className={`${inputCls} max-w-48 text-right ${error ? "border-zus-red" : ""}`}
+          aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-err` : `${id}-preview`}
+          onChange={(e) => onChange(e.target.value.replace(/[^\d.,]/g, ""))}
+          onBlur={() => { if (/[.,]$/.test(value)) onChange(value.slice(0, -1)); }} />
+        <span id={`${id}-preview`} className="text-base font-semibold text-zus-navy" aria-live="polite">
+          {value.trim() === "" ? <span className="text-sm font-normal text-zinc-500">{emptyLabel}</span>
+            : error || normalized === null ? null : formatMoney(normalized)}
+        </span>
+      </span>
+    </Field>
   );
 }
 
