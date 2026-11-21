@@ -21,6 +21,7 @@ Wymagania nadrzędne: `docs/CHALLENGE.md`. Ten dokument opisuje decyzje produkto
 
 ## Zasady produktowe
 - Silnik deterministyczny; AI nie ustala uprawnień ani kwot.
+- **Wyjaśnialność (wyróżnik, wskazany przez jury):** przy każdej kwocie blok „Pokaż, jak to policzyliśmy” — kroki, dni × stawka, przepis i ID reguły, założenia, reguły jeszcze nieoceniane (D19).
 - Brak danych nigdy nie oznacza odmowy — pytamy o brakujące pole.
 - Każda symulacja jawnie oznaczona; bez brandingu ZUS/mObywatel.
 - Tryb wrażliwy dla martwego urodzenia, poronienia, zgonu dziecka lub matki.
