@@ -13,7 +13,7 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 | g) dokumenty, terminy, adresat (płatnik vs ZUS) | GEN-CLS-*, APP-*, SICK-DOC-* | Dokumenty | T-GEN-001..005 | ⬜ |
 | h) zagrożenia i ryzyka | RISK-*, GEN-EXCL-* | Ryzyka | T-MAT-004, T-GEN-006 | ⬜ |
 | i) organizacje wsparcia | treść statyczna | Wsparcie | — | ⬜ |
-| Logowanie mObywatel (symulacja) | adapter | Logowanie | ui-verifier | ⬜ |
+| Logowanie mObywatel (symulacja) | adapter `integrations/simulated/` (serwisy per system — `docs/ARCHITECTURE.md` § Symulowane systemy trzecie) | Logowanie | ui-verifier | ⬜ |
 | Pobranie danych z ZUS (symulacja) / dane ręczne | adapter | Dane | ui-verifier | ⬜ |
 | Zadłużenie składkowe (symulacja zaświadczenia) | adapter + GEN-EXCL-001 | Dane | T-GEN-006..009 | ⬜ |
 | Podgląd e-ZLA (symulacja) | adapter | Dane | ui-verifier | ⬜ |
