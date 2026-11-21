@@ -132,3 +132,30 @@ def test_m11_father_9_weeks_and_after_first_year_stay_70():
     conditions = ruleset().rule("RATE-MAT-008")["conditions"]["all"]
     assert {"fact": "f_segment_is_other_parent_reserved_9w", "operator": "eq", "value": False} in conditions
     assert "RATE-MAT-008" in ruleset().rule("RATE-MAT-005")["overrides"]
+
+
+# ------------------------------------------------------------ M12: brak okresu wyczekiwania (MAT-CLS-001)
+def _jdg_from(demo_payload, start):
+    payload = copy.deepcopy(demo_payload)
+    payload["insurance"]["titles"] = [{"title_type": "SELF_EMPLOYED", "sickness_insurance_mode": "VOLUNTARY",
+                                       "from": start, "to": None}]
+    payload["debt"] = {"amount_on_right_date": "0.00"}
+    return payload
+
+
+def test_m12_mat_cls_001_jdg_insured_30_days_before_birth_eligible(demo_payload):
+    """Typowy: JDG z dobrowolnym chorobowym od 30 dni przed porodem → ELIGIBLE (bez 90 dni wyczekiwania)."""
+    assert pipeline.evaluate(_jdg_from(demo_payload, "2027-02-13"))["benefits"][0]["status"] == "ELIGIBLE"
+
+
+def test_m12_mat_cls_001_insured_from_birth_day_eligible(demo_payload):
+    """Graniczny: ubezpieczenie od dnia porodu → ELIGIBLE; od dnia po porodzie → brak prawa z art. 29."""
+    assert pipeline.evaluate(_jdg_from(demo_payload, "2027-03-15"))["benefits"][0]["status"] == "ELIGIBLE"
+    assert pipeline.evaluate(_jdg_from(demo_payload, "2027-03-16"))["benefits"][0]["status"] != "ELIGIBLE"
+
+
+def test_m12_par_elig_001_father_insured_on_his_parental_start():
+    """M12 b: ubezpieczenie ojca badane w dniu startu jego części rodzicielskiego, nie w dniu porodu."""
+    conditions = ruleset().rule("PAR-ELIG-001")["conditions"]["all"]
+    insured = [c for c in conditions if c.get("fact") == "f_sickness_insured_on"]
+    assert insured and insured[0]["args"] == {"date": "plan.parental_start_date"}

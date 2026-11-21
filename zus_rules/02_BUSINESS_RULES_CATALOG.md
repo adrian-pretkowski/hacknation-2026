@@ -58,7 +58,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [MAT-ELIG-006](#mat-elig-006) | Zasiłek macierzyński po ustaniu — umowa terminowa przedłużona do dnia porodu | ELIGIBILITY | P0 | ACTIVE | HIGH | DIRECT | 1 |
 | [MAT-CLS-002](#mat-cls-002) | Przedłużenie umowy terminowej do dnia porodu (KP 177 § 3) | CLASSIFICATION | P1 | BLOCKED | MEDIUM | AMBIGUOUS | 1 |
 | [MAT-NEG-001](#mat-neg-001) | Brak ubezpieczenia na dzień porodu — brak prawa | EXCLUSION | P0 | ACTIVE | HIGH | DERIVED | 1 |
-| [MAT-CLS-001](#mat-cls-001) | Brak okresu wyczekiwania dla zasiłku macierzyńskiego | CLASSIFICATION | P0 | ACTIVE | MEDIUM | DERIVED | 1 |
+| [MAT-CLS-001](#mat-cls-001) | Brak okresu wyczekiwania dla zasiłku macierzyńskiego | CLASSIFICATION | P0 | ACTIVE | HIGH | DERIVED | 1 |
 | [MAT-DUR-001](#mat-dur-001) | Wymiar urlopu macierzyńskiego wg liczby dzieci | DURATION | P0 | ACTIVE | HIGH | DIRECT | 4 |
 | [MAT-DUR-002](#mat-dur-002) | Do 6 tygodni urlopu przed przewidywaną datą porodu | VALIDATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [MAT-DUR-003](#mat-dur-003) | Martwe urodzenie lub zgon dziecka przed 8. tygodniem życia | DURATION | P0 | ACTIVE | HIGH | DIRECT | 3 |
@@ -1178,9 +1178,9 @@ Przepisy o okresie wyczekiwania (art. 4) dotyczą zasiłku chorobowego; rozdzia�
 - **Rezultat:** `{"set": {"waiting_period_required": false}}`
 - **Wyjątki:** — · **Zależy od:** — · **Ma pierwszeństwo przed:** —
 - **Dane:** — · brak danych → `NOT_APPLICABLE`
-- **Jakość:** pewność MEDIUM, interpretacja DERIVED
+- **Jakość:** pewność HIGH, interpretacja DERIVED
 - **Testy:** T-MAT-001
-- **Uwagi:** Wniosek a contrario — do potwierdzenia u mentora (Q-LEG-01). Uwaga: pozorność umowy/podwyższenia podstawy (pkt H zadania) to ryzyko oceniane przez ZUS w postępowaniu — RISK-001/002.
+- **Uwagi:** Wniosek a contrario — potwierdzony przez mentora fachowego ZUS (M12 a, 2026-11-21): zasiłek macierzyński nie ma okresu wyczekiwania (także JDG zgłoszona do dobrowolnego chorobowego krótko przed porodem). Uwaga: pozorność umowy/podwyższenia podstawy (pkt H zadania) to ryzyko oceniane przez ZUS w postępowaniu — RISK-001/002.
 
 ### MAT-DUR-001
 
@@ -1986,7 +1986,7 @@ Zasiłek za okres urlopu rodzicielskiego przysługuje ojcu także wtedy, gdy mat
 - **Dane:** `mother.sickness_insured`, `insurance.titles` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** —
-- **Uwagi:** Ust. 3h reguluje finansowanie i pośrednio potwierdza prawo; wprost opisuje to treść zadania. Dokumenty: ROZP_DOK § 32.
+- **Uwagi:** Ust. 3h reguluje finansowanie i pośrednio potwierdza prawo; wprost opisuje to treść zadania. Ubezpieczenie ojca badane w dniu startu jego części rodzicielskiego (M12 b). Dokumenty: ROZP_DOK § 32.
 
 ### PAR-ELIG-001
 
@@ -2007,7 +2007,7 @@ Za okres urlopu rodzicielskiego (u niepracowników — okres odpowiadający) prz
 - **Dane:** `insurance.titles`, `plan.parental_start_date`, `children.items` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** T-RATE-003, T-INT-004
-- **Uwagi:** Ustawa wiąże prawo z art. 29 (zdarzenie w okresie ubezpieczenia); wymóg ubezpieczenia ojca w chwili rozpoczęcia jego części — DERIVED (Q-LEG-02).
+- **Uwagi:** Ustawa wiąże prawo z art. 29 (zdarzenie w okresie ubezpieczenia); ojciec musi podlegać ubezpieczeniu chorobowemu w dniu rozpoczęcia swojej części urlopu rodzicielskiego (nie w dniu porodu) — potwierdzone przez mentora fachowego ZUS (M12 b, 2026-11-21), Q-LEG-02 zamknięte.
 
 ### PAR-COND-001
 
