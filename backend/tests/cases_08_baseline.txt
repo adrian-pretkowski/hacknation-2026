@@ -45,13 +45,23 @@ T-SICK-004
 T-SICK-005
 T-SICK-006
 T-SICK-012
+# SICK — okres zasiłkowy, łączenie okresów, po ustaniu tytułu, kwoty (BE1-05)
+T-SICK-007
+T-SICK-008
+T-SICK-009
+T-SICK-010
+T-SICK-011
+T-SICK-013
+T-SICK-014
 
 # SP — wynagrodzenie chorobowe: prawo, stawka, limit dni (BE1-04)
 T-SP-001
 T-SP-002
 T-SP-003
 T-SP-004
+T-SP-005
 
 # INT
 T-INT-002
 T-INT-005
+T-INT-006

@@ -47,10 +47,11 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     eng = Engine(ruleset(), Context(input=payload, as_of=as_of))
 
     event_type = (payload.get("event") or {}).get("type")
+    extra_assumptions: list[dict[str, Any]] = []
     if event_type == "BIRTH":
         benefits = [evaluate_maternity(eng)]
     elif event_type in INCAPACITY_EVENTS:
-        benefits = evaluate_sickness(eng)
+        benefits, extra_assumptions = evaluate_sickness(eng)
     else:
         return _response(eng, [], [{"code": "OUT_OF_SCOPE_SLICE",
                                     "text": "Silnik reguł obsługuje na razie event.type: BIRTH, "
@@ -58,6 +59,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     for benefit in benefits:
         benefit.update(explain_benefit(eng, benefit))  # BE1-06: explanation + legal_basis (kontrakt Benefit)
     assumptions = [ROUNDING] + [PARAM_ASSUMPTIONS[p] for p in eng.unconfirmed_params() if p in PARAM_ASSUMPTIONS]
+    assumptions += extra_assumptions
     overall = next((s for s in STATUS_ORDER if any(b["status"] == s for b in benefits)), "NEEDS_DATA")
     return _response(eng, benefits, assumptions, overall)
 

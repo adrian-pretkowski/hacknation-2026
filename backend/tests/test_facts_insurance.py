@@ -256,13 +256,20 @@ def test_sickness_longer_than_remaining_sick_pay_lists_both_benefits():
     payload["benefit_history"]["employer_sick_pay_days_in_year"] = 20
     body = pipeline.evaluate(payload)
     assert [b["benefit_type"] for b in body["benefits"]] == ["EMPLOYER_SICK_PAY", "SICKNESS_BENEFIT"]
-    assert "SICK-DUR-001" in body["not_evaluated_rules"]
+    # BE1-05: podział e-ZLA 2026-10-30..2026-11-30 (32 dni): 13 dni wynagrodzenia (33 - 20), potem 19 dni zasiłku
+    sick_pay, benefit = body["benefits"]
+    assert (sick_pay["days"], sick_pay["period"]["to"]) == (13, "2026-11-11")
+    assert (benefit["days"], benefit["period"]["from"], benefit["period"]["to"]) == (19, "2026-11-12", "2026-11-30")
+    assert "SICK-DUR-001" in benefit["applied_rules"]
 
 
-def test_sickness_after_title_end_is_review_not_refusal():
-    body = pipeline.evaluate(_case("T-SICK-011"))
-    benefit = _benefit(body, "SICKNESS_BENEFIT")
-    assert benefit["status"] == "NEEDS_REVIEW" and "SICK-ELIG-006" in body["not_evaluated_rules"]
+def test_sickness_after_title_end_without_statement_needs_data_not_refusal():
+    # BE1-05: SICK-ELIG-006 oceniane; brak oswiadczenia (zal. 4 ROZP_DOK) dla SICK-EXCL-003 -> NEEDS_DATA, nie odmowa
+    payload = _case("T-SICK-011")
+    payload["person"] = {"role": "MOTHER", "birth_date": "1994-04-02"}
+    body = pipeline.evaluate(payload)
+    assert _benefit(body, "SICKNESS_BENEFIT")["status"] == "NEEDS_DATA"
+    assert "person.has_pension_or_disability_pension" in [item["field"] for item in body["missing_data"]]
 
 
 def test_sickness_missing_incapacity_start_needs_data():
