@@ -7,12 +7,12 @@ import { formatDate, formatMoney } from "@/lib/format";
 import { maternityWeeks } from "../preview/engine";
 import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
-import type { Answers } from "./answers";
+import { type Answers, extendableUntilBirth, hasContractEnd } from "./answers";
 import { Check, Choice, DateField, Field, MoneyField, NumberSelect, Slider, TRI_OPTIONS, inputCls, moneyError } from "./fields";
 import { dateErrors, dateWarnings, hasErrors } from "./validation";
 import { Optimizer, optimizerVisible } from "./Optimizer";
 import { normalizeMoney } from "./money";
-import { todayIso } from "./request";
+import { noInsuranceReason, todayIso } from "./request";
 import { ZusFetch } from "./ZusFetch";
 
 const plYears = (n: number) => `${n} ${n === 1 ? "rok" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "lata" : "lat"}`;
@@ -33,6 +33,13 @@ const WEIGHT_OPTIONS = [
 const weightMatters = (a: Answers) => a.gestationWeeks === "" || Number(a.gestationWeeks) >= PARAMS.SUPP_GESTATION_EARLY_WEEK;
 /** FE1-12: przyjęcie dziecka ponad granicę wieku (KP art. 183 § 3) - rodzicielski 38 / 62 tyg. (PAR-DUR-003); ten sam warunek
  * co `kp183Case` w preview/engine.ts. Dotyczy suwaka w kroku „Plany” (krok „Co już wykorzystano” jest tylko dla mamy po porodzie). */
+/** FE1-26: pełne lata między datami ISO (wiek dziecka w dniu przyjęcia). */
+function fullYears(birth: string, on: string): number {
+  const [by, bm, bd] = birth.split("-").map(Number);
+  const [oy, om, od] = on.split("-").map(Number);
+  return Math.max(oy - by - (om < bm || (om === bm && od < bd) ? 1 : 0), 0);
+}
+
 const kp183Case = (a: Answers) => a.role === "GUARDIAN" && a.guardianKind === "FOSTER_NON_PROFESSIONAL" && a.childAgeYears !== ""
   && Number(a.childAgeYears) >= (a.schoolDeferred === "YES" ? PARAMS.FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED : PARAMS.FOSTER_CHILD_AGE_MAX);
 const parentalPool = (a: Answers) => kp183Case(a)
@@ -57,6 +64,13 @@ export type Step = {
 };
 
 const TRI_TEXT = { YES: "tak", NO: "nie", UNKNOWN: "nie wiem" } as const;
+/** FE1-24: rodzaj umowy w podsumowaniu kroku. */
+const CONTRACT_TEXT: Record<Exclude<Answers["contractType"], null | "INDEFINITE">, string> = {
+  FIXED_TERM: "na czas określony",
+  PROBATION_OVER_1_MONTH: "próbna > 1 mies.",
+  PROBATION_UP_TO_1_MONTH: "próbna do 1 mies.",
+  REPLACEMENT: "na zastępstwo",
+};
 const TITLE_TEXT = { EMPLOYMENT: "Umowa o pracę", MANDATE: "Umowa zlecenia", SELF_EMPLOYED: "Działalność (JDG)", NONE: "Bez ubezpieczenia / nie wiem" } as const;
 const GUARDIAN_TEXT = { ADOPTION: "Adopcja", FOSTER_NON_PROFESSIONAL: "Rodzina zastępcza niezawodowa", FOSTER_PROFESSIONAL: "Zawodowa rodzina zastępcza" } as const;
 const plWeeks = (n: number) => `${n} tyg.`;
@@ -196,6 +210,16 @@ export const STEPS: Step[] = [
           <>
             <NumberSelect label="Wiek dziecka" value={a.childAgeYears} from={0} to={17} unit={plYears} unknownLabel="Wybierz wiek"
               onChange={(childAgeYears) => set({ childAgeYears })} />
+            <DateField label="Data urodzenia dziecka (jeśli znasz)"
+              hint={`Policzymy dokładny koniec urlopu - najpóźniej dzień przed ${a.guardianKind === "ADOPTION" ? PARAMS.ADOPTION_CHILD_AGE_MAX
+                : a.schoolDeferred === "YES" ? PARAMS.FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED : PARAMS.FOSTER_CHILD_AGE_MAX}. urodzinami dziecka.`}
+              value={a.childBirthDate} onChange={(childBirthDate) => set(childBirthDate && a.eventDate
+                ? { childBirthDate, childAgeYears: String(fullYears(childBirthDate, a.eventDate)) } : { childBirthDate })} />
+            {a.guardianKind === "ADOPTION" && (
+              <DateField label="Data uprawomocnienia postanowienia o przysposobieniu (jeśli znasz)"
+                hint={`Od tej daty liczy się ${PARAMS.PATERNITY_ADOPTION_WINDOW_MONTHS} miesięcy na urlop ojcowski.`}
+                value={a.adoptionFinalDate} onChange={(adoptionFinalDate) => set({ adoptionFinalDate })} />
+            )}
             {a.guardianKind !== "ADOPTION" && (
               <Choice legend="Czy dziecku odroczono obowiązek szkolny?" value={a.schoolDeferred} columns={3}
                 onChange={(schoolDeferred) => set({ schoolDeferred })} options={TRI_OPTIONS} />
@@ -288,10 +312,11 @@ export const STEPS: Step[] = [
     id: "insurance",
     title: "Praca i ubezpieczenie",
     visible: (a) => a.role !== null,
-    complete: (a) => a.title !== null && (a.title === "NONE" || !!a.insuredFrom) && !hasErrors(a, "contractEnd")
+    complete: (a) => a.title !== null && (a.title === "NONE" || !!noInsuranceReason(a) || !!a.insuredFrom) && !hasErrors(a, "contractEnd")
       && (a.title !== "EMPLOYMENT" || a.contractType !== null),
     summary: (a) => (a.title ? join([TITLE_TEXT[a.title], a.title !== "NONE" && a.insuredFrom && `od ${formatDate(a.insuredFrom)}`,
-      a.contractType === "FIXED_TERM" && "na czas określony"]) : null),
+      a.contractType && a.contractType !== "INDEFINITE" && CONTRACT_TEXT[a.contractType], a.title === "EMPLOYMENT" && a.fullTime === "NO" && "niepełny etat",
+      noInsuranceReason(a) === "START_RELIEF" && "ulga na start", noInsuranceReason(a) === "STUDENT_UNDER_26" && "student do 26 lat"]) : null),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <Choice legend="Z jakiego tytułu masz ubezpieczenie?" value={a.title} onChange={(title) => set({ title })} options={[
@@ -300,11 +325,21 @@ export const STEPS: Step[] = [
           { value: "SELF_EMPLOYED", label: "Działalność gospodarcza (JDG)" },
           { value: "NONE", label: "Nie pracuję / nie wiem", description: "sprawdzimy inne możliwości" },
         ]} />
-        {(a.title === "MANDATE" || a.title === "SELF_EMPLOYED") && (
+        {a.title === "SELF_EMPLOYED" && (
+          <Choice legend="Czy korzystasz z ulgi na start?" value={a.startRelief} columns={3}
+            hint={`Pierwsze ${PARAMS.START_RELIEF_MONTHS} miesięcy działalności bez składek na ubezpieczenia społeczne - w tym czasie nie ma też chorobowego.`}
+            onChange={(startRelief) => set({ startRelief })} options={TRI_OPTIONS} />
+        )}
+        {a.title === "MANDATE" && (
+          <Choice legend={`Czy jesteś uczniem lub studentem i nie masz jeszcze ${PARAMS.STUDENT_AGE_LIMIT_YEARS} lat?`} value={a.studentUnder26} columns={3}
+            hint={`Uczeń lub student przed ${PARAMS.STUDENT_AGE_LIMIT_YEARS}. urodzinami na umowie zlecenia nie podlega ubezpieczeniom społecznym, także chorobowemu.`}
+            onChange={(studentUnder26) => set({ studentUnder26 })} options={TRI_OPTIONS} />
+        )}
+        {(a.title === "MANDATE" || a.title === "SELF_EMPLOYED") && !noInsuranceReason(a) && (
           <Choice legend="Czy opłacasz dobrowolne ubezpieczenie chorobowe?" hint="Bez niego nie ma zasiłku macierzyńskiego z tego tytułu."
             value={a.voluntarySickness} columns={3} onChange={(voluntarySickness) => set({ voluntarySickness })} options={TRI_OPTIONS} />
         )}
-        {a.title && a.title !== "NONE" && (
+        {a.title && a.title !== "NONE" && !noInsuranceReason(a) && (
           <>
             <ZusFetch source="insurance" a={a} set={set} what="Nie pamiętasz dat? Pobierzemy okres ubezpieczenia i dane płatnika." />
             <DateField label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej."
@@ -315,13 +350,25 @@ export const STEPS: Step[] = [
           <>
             <Choice legend="Rodzaj umowy" value={a.contractType} onChange={(contractType) => set({ contractType })} options={[
               { value: "INDEFINITE", label: "Na czas nieokreślony" },
-              { value: "FIXED_TERM", label: "Na czas określony / próbny" },
+              { value: "FIXED_TERM", label: "Na czas określony" },
+              { value: "PROBATION_OVER_1_MONTH", label: "Na okres próbny dłuższy niż 1 miesiąc" },
+              { value: "PROBATION_UP_TO_1_MONTH", label: "Na okres próbny do 1 miesiąca" },
+              { value: "REPLACEMENT", label: "Na zastępstwo" },
             ]} />
-            {a.contractType === "FIXED_TERM" && (
+            <Choice legend="Czy pracujesz na pełny etat?" value={a.fullTime} columns={3}
+              hint="Przy pełnym etacie podstawa zasiłku nie może być niższa niż minimalna (płaca minimalna po odliczeniu 13,71%)."
+              onChange={(fullTime) => set({ fullTime })} options={TRI_OPTIONS} />
+            {hasContractEnd(a.contractType) && (
               <DateField label="Do kiedy trwa umowa?" value={a.contractEnd} error={dateErrors(a).contractEnd}
                 onChange={(contractEnd) => set({ contractEnd })} />
             )}
-            {a.contractType === "FIXED_TERM" && a.contractEnd && a.eventDate && a.contractEnd < a.eventDate && (
+            {hasContractEnd(a.contractType) && !extendableUntilBirth(a.contractType) && a.contractEnd && a.eventDate && a.contractEnd < a.eventDate && (
+              <p role="note" className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                {a.contractType === "REPLACEMENT" ? "Umowa na zastępstwo" : "Umowa na okres próbny do 1 miesiąca"} nie przedłuża się do dnia porodu
+                (KP art. 177 § 3) - jeśli skończy się przed porodem, bez innego ubezpieczenia nie będzie zasiłku macierzyńskiego.
+              </p>
+            )}
+            {extendableUntilBirth(a.contractType) && a.contractEnd && a.eventDate && a.contractEnd < a.eventDate && (
               <Choice legend="Czy umowa kończy się po upływie 3. miesiąca ciąży?" value={a.contractEndsAfter3rdMonth} columns={3}
                 onChange={(contractEndsAfter3rdMonth) => set({ contractEndsAfter3rdMonth })} options={TRI_OPTIONS} />
             )}
@@ -339,7 +386,7 @@ export const STEPS: Step[] = [
               { value: "GT20", label: "Więcej niż 20" }, { value: "LE20", label: "20 lub mniej" }, { value: "UNKNOWN", label: "Nie wiem" },
             ]} />
         )}
-        {a.title === "SELF_EMPLOYED" && (
+        {a.title === "SELF_EMPLOYED" && !noInsuranceReason(a) && (
           <div className="space-y-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
             <ZusFetch source="debt" a={a} set={set} what="Pobierz zaświadczenie o stanie rozliczeń składek." />
             <Field label="Zaległość w składkach na dzień porodu (zł)" hint="0, jeśli brak.">

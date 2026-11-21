@@ -159,6 +159,8 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_filter_excluded_components` | – | list | Odrzuć `retained_during_benefit = true` | null → NEEDS_REVIEW | – |
 | `f_minimum_base` | – | Decimal | `MIN_WAGE × (1 − CONTRIBUTION_DEDUCTION_RATE)` zaokrąglone ROUND_HALF_UP do `MIN_BASE_ROUNDING_STEP` (0,01) | None | M07a: 4147,10 zł |
 | `f_apply_minimum_base` | – | Decimal | `max(base, f_minimum_base)` (§2 minimum) | None | M07, M07a |
+| `f_is_voluntary_sickness_title_for_base` | – | bool | Tytuł podstawy (aktywny w dniu zdarzenia, priorytet jak `f_primary_title_type`) ma `sickness_insurance_mode = VOLUNTARY` | None | BE2-12 |
+| `f_apply_voluntary_base_cap` | – | Decimal | `min(base, VOLUNTARY_MAX_CONTRIB_BASE_2026 × (1 − CONTRIBUTION_DEDUCTION_RATE))` - BASE-NEMP-005 | None | BE2-12, M08: 20 321,295 zł |
 | `f_base_after_working_time_change` | – | – | - | - | Reguła BLOCKED (GAP-021) |
 | `f_working_time_change_in_base_window` | – | bool | `working_time_change_date` ∈ [początek okna 12 m-cy, koniec miesiąca zdarzenia] | None | – |
 | `f_gap_shorter_than_calendar_month` | – | bool | Przerwa = dni pomiędzy `previous_benefit_end_date` a początkiem zasiłku (`base.reference_event_date` → `plan.maternity_start_date` → `event.date`); TRUE ⇔ przerwa nie obejmuje pełnego miesiąca kalendarzowego (1.–ostatni dzień); brak przerwy/nakładanie → TRUE (M05) | None | CONF-006 rozstrzygnięty (M05): 2.02–14.03 (41 dni) → TRUE; 1.02–14.03 → FALSE; macierzyński od 1.02 przed porodem po L4 do 31.01 → TRUE |

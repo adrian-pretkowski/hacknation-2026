@@ -17,7 +17,7 @@
 13. Kliknij „Pobierz dane z ZUS”.
 14. Sprawdź, że widać „Uzupełniono przykładowymi danymi”.
 15. Sprawdź, że pole „Od kiedy podlegasz ubezpieczeniu chorobowemu?” ma wartość „2019-03-01”.
-16. Wybierz „Nie”.
+16. W pytaniu „Czy umowa ustała” wybierz „Nie”.
 17. Przejdź dalej.
 18. Przejdź dalej.
 19. Kliknij „Pobierz dane z ZUS”.

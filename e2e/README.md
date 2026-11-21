@@ -63,6 +63,7 @@ Logowanie (SYMULACJA)
 
 Formularz
 - `Wybierz „Mamą”` - opcja (radio), pole wyboru, zakładka.
+- `W pytaniu „Czy pracujesz na pełny etat?” wybierz „Tak”` - opcja w konkretnym pytaniu (gdy na ekranie jest kilka pytań z tymi samymi odpowiedziami, np. „Tak” / „Nie”).
 - `Zaznacz „Wcześniak”` · `Odznacz „Wcześniak”` - pole wyboru.
 - `Z listy „Ile dzieci przy jednym porodzie?” wybierz „2”` (albo `Wybierz „2” z listy „…”`).
 - `W polu „Planowana data porodu” wpisz „za 60 dni”` (albo `Wpisz „7800” w pole „…”`).

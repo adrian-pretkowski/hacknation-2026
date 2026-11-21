@@ -42,6 +42,9 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
   const fatherInsured = isMother ? a.partnerInsured !== "NO" : true;
   const motherGross = isMother ? ownGross : partnerGross;
   const fatherGross = isMother ? partnerGross : ownGross;
+  // planer (API) dostaje podstawę bez granic - minimum i limit nakłada silnik, nie przeglądarka (review FE1-20)
+  const motherBase = motherGross ? baseFromGross(motherGross) : null;
+  const fatherBase = fatherGross ? baseFromGross(fatherGross) : null;
   const choices = a.plannerChoices;
   const setChoices = (plannerChoices: PlannerChoice[]) => set({ plannerChoices });
   const missing = !ownGross ? "Wróć do kroku „Wynagrodzenie” i podaj swoje wynagrodzenie."
@@ -55,9 +58,9 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
       plannerSuggest({
         profile: {
           children_count: Math.min(Math.max(a.children, 1), 10), za_zyciem: a.zaZyciem,
-          mother: { base_monthly: baseFromGross(motherGross), gross_monthly: motherGross, insured: true },
+          mother: { base_monthly: motherBase, gross_monthly: motherGross, insured: true },
           father: fatherInsured && fatherGross
-            ? { base_monthly: baseFromGross(fatherGross), gross_monthly: fatherGross, insured: true }
+            ? { base_monthly: fatherBase, gross_monthly: fatherGross, insured: true }
             : { base_monthly: null, insured: false },
         },
         choices, objective: a.plannerObjective, lookback: 3,
@@ -74,7 +77,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
     return () => { cancelled = true; clearTimeout(timer); };
     // set jest stabilne w obrębie kreatora; zależymy od danych wejściowych planera
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [missing, motherGross, fatherGross, fatherInsured, a.children, a.zaZyciem, a.plannerObjective, choices]);
+  }, [missing, motherGross, fatherGross, motherBase, fatherBase, fatherInsured, a.children, a.zaZyciem, a.plannerObjective, choices]);
 
   const done = data?.current_best_plan?.choices.slice(0, choices.length) ?? [];
   const plan = data?.current_best_plan;
