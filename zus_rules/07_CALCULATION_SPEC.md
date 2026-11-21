@@ -175,7 +175,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | Funkcja | Argumenty | Zwraca | Sposób liczenia | Brak danych | Przypadki graniczne |
 |---|---|---|---|---|---|
 | `f_claim_deadline` | – | date | `ostatni dzień okresu + 6 miesięcy kalendarzowych` | None | ust. 3-4 → info |
-| `f_leave_application_deadlines` | – | list | Per segment: start − 21 (rodzicielski, łączenie), start − 14 (część macierzyńskiego dla ojca), start − 7 (ojcowski), koniec_macierzyńskiego − 21 (uzupełniający), powrót − 7 (rezygnacja), przyjęcie + 7 (na warunkach macierzyńskiego) | – | KP — patrz APP-DL-002 |
+| `f_leave_application_deadlines` | – | list | Per segment: start − 21 (rodzicielski, łączenie), start − 14 (część macierzyńskiego dla ojca), start − 7 (ojcowski), koniec_macierzyńskiego − 21 (uzupełniający), powrót − 7 (rezygnacja), przyjęcie + 7 (na warunkach macierzyńskiego), start − 14 (część macierzyńskiego przed porodem — Poradnik ZUS 2026, BE2-08) | – | KP — patrz APP-DL-002 |
 | `f_documents_for_segment` | – | list | Mapa poniżej | – | ROZP_WN § 22 — dokumenty w aktach osobowych pomija się |
 
 **Mapa dokumentów `f_documents_for_segment`** (ROZP_DOK; dla pracowników — także ROZP_WN):

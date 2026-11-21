@@ -126,6 +126,7 @@ meta:
     PAYER_FORWARD_DAYS: {value: 7, unit: days, source: "USTAWA art. 61b ust. 5"}
     # --- terminy wniosków urlopowych pracownika (APP-DL-002, f_leave_application_deadlines; BE2-04)
     LEAVE_APP_PARENTAL_DAYS_BEFORE: {value: 21, unit: days_before_start, source: "KP art. 182(1d) § 1; art. 182(1e) § 2 (łączenie z pracą)"}
+    LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "Poradnik dla rodziców, ZUS 2026 — rozdz. „Zasiłek macierzyński za okres urlopu macierzyńskiego przed porodem” (wniosek najpóźniej 14 dni przed rozpoczęciem); w wyciągu KP (art. 180 § 2) brak terminu", status: UNCONFIRMED}
     LEAVE_APP_MATERNITY_FOR_FATHER_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "KP art. 180 § 9"}
     LEAVE_APP_PATERNITY_DAYS_BEFORE: {value: 7, unit: days_before_start, source: "KP art. 182(3) § 2"}
     LEAVE_APP_SUPPLEMENTARY_DAYS_BEFORE_MATERNITY_END: {value: 21, unit: days_before_maternity_end, source: "KP art. 180(2) § 4"}
