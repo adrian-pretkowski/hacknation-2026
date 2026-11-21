@@ -86,7 +86,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [APP-DOC-004](#app-doc-004) | Dokumenty — macierzyński po ustaniu ubezpieczenia / zasiłek w wysokości macierzyńskiego | DOCUMENT_REQUIREMENT | P1 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [APP-DOC-005](#app-doc-005) | Dokumenty — przyjęcie dziecka (przysposobienie / rodzina zastępcza) | DOCUMENT_REQUIREMENT | P0 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [APP-DOC-006](#app-doc-006) | Dokumenty — rodzicielski, ojcowski, uzupełniający, przejęcie przez ojca | DOCUMENT_REQUIREMENT | P1 | INFORMATIONAL | HIGH | DIRECT | 0 |
-| [CALC-MAT-001](#calc-mat-001) | Kwota zasiłku macierzyńskiego za segment | CALCULATION | P0 | ACTIVE | MEDIUM | DERIVED | 2 |
+| [CALC-MAT-001](#calc-mat-001) | Kwota zasiłku macierzyńskiego za segment | CALCULATION | P0 | ACTIVE | HIGH | DERIVED | 2 |
 | [MAT-ELIG-007](#mat-elig-007) | Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu | ELIGIBILITY | P1 | ACTIVE | HIGH | DIRECT | 2 |
 | [SUPP-ELIG-001](#supp-elig-001) | Uzupełniający urlop — poród przed 28. tyg. lub masa ≤1000 g | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
 | [SUPP-ELIG-002](#supp-elig-002) | Uzupełniający urlop — poród 28–37 tydz. i masa >1000 g | DURATION | P0 | ACTIVE | HIGH | DIRECT | 2 |
@@ -1736,9 +1736,9 @@ Kwota = podstawa × stawka × (1 − wymiar pracy) / 30 × liczba dni kalendarzo
 - **Rezultat:** `{"compute": "f_benefit_amount", "output": "amount"}`
 - **Wyjątki:** — · **Zależy od:** RATE-MAT-001, RATE-MAT-002, RATE-MAT-003, RATE-MAT-004, RATE-MAT-005, PAR-WORK-003, BASE-EMP-001, BASE-NEMP-001 · **Ma pierwszeństwo przed:** —
 - **Dane:** `plan.segments`, `income_history` · brak danych → `NEEDS_DATA`
-- **Jakość:** pewność MEDIUM, interpretacja DERIVED
+- **Jakość:** pewność HIGH, interpretacja DERIVED
 - **Testy:** T-MAT-001, T-RATE-001
-- **Uwagi:** Dzienna stawka 1/30 dla zasiłku macierzyńskiego wynika z odesłania art. 47 → art. 36 ust. 3 'odpowiednio' (DERIVED). Zaokrąglenia — GAP-001. Kwota 'miesięczna' w UI = base × rate (informacyjnie).
+- **Uwagi:** Dzienna stawka 1/30 dla zasiłku macierzyńskiego wynika z odesłania art. 47 → art. 36 ust. 3 'odpowiednio' (DERIVED) — potwierdzone przez mentora fachowego ZUS (M09, 2026-11-21): stawka dzienna = podstawa / 30. Zaokrąglenia — GAP-001. Kwota 'miesięczna' w UI = base × rate (informacyjnie).
 
 
 ## Zasiłek w wysokości zasiłku macierzyńskiego

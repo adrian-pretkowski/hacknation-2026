@@ -3285,11 +3285,11 @@ rules:
   required_inputs: [plan.segments, income_history]
   missing_data_behavior: NEEDS_DATA
   evaluation: ACTIVE
-  confidence: MEDIUM
+  confidence: HIGH
   interpretation_status: DERIVED
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "Dzienna stawka 1/30 dla zasiłku macierzyńskiego wynika z odesłania art. 47 → art. 36 ust. 3 'odpowiednio' (DERIVED). Zaokrąglenia — GAP-001. Kwota 'miesięczna' w UI = base × rate (informacyjnie)."
+  notes: "Dzienna stawka 1/30 dla zasiłku macierzyńskiego wynika z odesłania art. 47 → art. 36 ust. 3 'odpowiednio' (DERIVED) — potwierdzone przez mentora fachowego ZUS (M09, 2026-11-21): stawka dzienna = podstawa / 30. Zaokrąglenia — GAP-001. Kwota 'miesięczna' w UI = base × rate (informacyjnie)."
 
 # =====================================================================
 # RISK — reguły ostrzegawcze (pkt H zadania) — nie zmieniają statusu

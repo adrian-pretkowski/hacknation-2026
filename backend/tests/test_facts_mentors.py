@@ -52,3 +52,20 @@ def test_m08_values_consistent_with_each_other():
     assert param("MIN_WAGE_2026_MONTHLY") * Decimal("0.3") == param("JDG_PREFERENTIAL_CONTRIB_BASE_2026")
     base = param("JDG_MIN_CONTRIB_BASE_2026") / Decimal("0.6")
     assert base == param("VOLUNTARY_MAX_CONTRIB_BASE_2026") / Decimal("2.5")
+
+
+# ------------------------------------------------------------ M09: stawka dzienna = podstawa / 30 (CALC-MAT-001)
+def test_m09_calc_mat_001_daily_rate_is_base_over_30(demo_payload):
+    """Demo: podstawa 6000 zł, 100% → 200 zł/dzień; 140 dni → 28 000 zł (bez zaokrągleń)."""
+    benefit = pipeline.evaluate(copy.deepcopy(demo_payload))["benefits"][0]
+    base = Decimal(demo_payload["income_history"]["manual_base_override"])
+    assert Decimal(benefit["daily_amount_exact"]) == base * Decimal(benefit["rate"]) / param("MONTH_AS_DAYS")
+    assert Decimal(benefit["total_amount_exact"]) == Decimal(benefit["daily_amount_exact"]) * benefit["days"]
+
+
+def test_m09_daily_rate_non_terminating_division_kept_exact(demo_payload):
+    """Podstawa niepodzielna przez 30 — dzienna stawka bez zaokrąglenia pośredniego (C1)."""
+    payload = copy.deepcopy(demo_payload)
+    payload["income_history"]["manual_base_override"] = "5000.00"
+    benefit = pipeline.evaluate(payload)["benefits"][0]
+    assert Decimal(benefit["daily_amount_exact"]) == Decimal("5000.00") * Decimal(benefit["rate"]) / Decimal(30)

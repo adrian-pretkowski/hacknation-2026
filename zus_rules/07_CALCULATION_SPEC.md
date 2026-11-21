@@ -11,7 +11,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | C3 | Daty: `datetime.date`, okresy **domknięte obustronnie** `[from, to]`. Liczba dni = `(to − from).days + 1`. | DERIVED |
 | C4 | Tydzień urlopu = 7 dni kalendarzowych. Wprost dla urlopu macierzyńskiego i na warunkach macierzyńskiego; dla rodzicielskiego, ojcowskiego, uzupełniającego — przyjęte analogicznie. | KP 183(1) § 1; GAP-003 |
 | C5 | Okres `N tygodni` od dnia `d`: koniec = `d + 7N − 1`. | DERIVED z C3–C4 |
-| C6 | Miesiąc przy zasiłku chorobowym = 30 dni (gdy okres oznaczony w miesiącach). Podstawa dzienna = podstawa / 30. | USTAWA art. 11 ust. 5, art. 36 ust. 3 |
+| C6 | Miesiąc przy zasiłku chorobowym = 30 dni (gdy okres oznaczony w miesiącach). Podstawa dzienna = podstawa / 30 — także dla zasiłku macierzyńskiego (art. 47 → art. 36 ust. 3; potwierdzone M09). | USTAWA art. 11 ust. 5, art. 36 ust. 3; M09 |
 | C7 | „Ukończenie N lat/miesięcy” = dzień urodzin/miesięcznicy. „Do N roku życia” = **przed** ukończeniem N lat (`age < N`). | DERIVED; GAP-005 |
 | C8 | „Przerwa nie przekroczyła X dni” = liczba dni kalendarzowych **pomiędzy** dniem końca poprzedniego a dniem początku następnego okresu (bez obu końców) ≤ X. | DERIVED; GAP-004 |
 | C9 | Logika trójwartościowa Kleene: `all` = FALSE jeśli któryś FALSE, inaczej UNKNOWN jeśli któryś UNKNOWN; `any` = TRUE jeśli któryś TRUE, inaczej UNKNOWN jeśli któryś UNKNOWN; `not UNKNOWN = UNKNOWN`. Funkcja zwracająca `None` = UNKNOWN. | Wymóg projektu |
@@ -42,7 +42,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | Uzupełnienie składnika zmiennego | `kwota / days_worked × days_required` | PLN | art. 37 ust. 2 pkt 2 |
 | Minimum (pełny etat) | `max(base, MIN_WAGE × (1 − 0,1371))` | PLN | art. 45 ust. 1 |
 | Art. 48a (zadeklarowana, <12 m-cy) | `avg(min_base_net[m]) + (avg(declared_net[m] − min_base_net[m]) / 12) × n` dla n pełnych miesięcy | PLN | art. 48a ust. 1 |
-| Dzienny zasiłek | `base × rate × (1 − work_fraction) / 30` | PLN/dzień | art. 36 ust. 3, 31 ust. 4a, 47 |
+| Dzienny zasiłek | `base × rate × (1 − work_fraction) / 30` (M09 — potwierdzone) | PLN/dzień | art. 36 ust. 3, 31 ust. 4a, 47 |
 | Kwota segmentu | `daily × dni(segment)` | PLN | art. 11 ust. 4, 31 ust. 5 |
 | Wyrównanie do 100% | `base × (1 − 0,815) / 30 × dni(macierzyński)` | PLN | art. 31 ust. 4 (DERIVED) |
 | Wydłużenie rodzicielskiego | `tygodnie_łączenia × work_fraction` (tyg.) → dni = `floor(7 × wynik)` | tygodnie/dni | KP 182(1f) § 2, § 4 |
