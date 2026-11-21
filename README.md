@@ -13,6 +13,11 @@ python scripts\smoke.py         # test głównego przepływu na działających s
 scripts\verify.ps1              # audyt reguł, ruff, pytest, lint, typecheck, build
 ```
 
+Review po każdym commicie (zasady w `CLAUDE.md`): `scripts\dev.ps1` włącza git hook przypominający o `/review`. Jeśli nie uruchamiasz `dev.ps1`, zrób to raz na klon:
+```powershell
+git config core.hooksPath .githooks
+```
+
 Docker (dowolny system):
 ```bash
 docker compose up --build
