@@ -133,6 +133,29 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
 
   const fieldId = (name: string) => `${idp}-${name}`;
 
+  /** Link z podsumowania błędów: przewija do pola i ustawia na nim fokus. Bez zmiany adresu (#…) — zmiana hasha
+   *  wywołuje popstate, który kreator traktuje jak powrót na stronę startową. Pola z „Pozostałych pól” najpierw rozwija. */
+  const goToField = (e: React.MouseEvent, name: string) => {
+    e.preventDefault();
+    const page = rest.find((m) => m.name === name)?.page;
+    if (page !== undefined && !openRest[page]) setOpenRest((o) => ({ ...o, [page]: true }));
+    const focus = () => {
+      const id = fieldId(name);
+      const el = document.getElementById(id) ?? document.querySelector<HTMLElement>(`[name="${CSS.escape(id)}"]`);
+      if (!el) return false;
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+      el.focus({ preventScroll: true });
+      return true;
+    };
+    if (!focus()) requestAnimationFrame(() => requestAnimationFrame(focus));
+  };
+  /** Pierwsze pole błędu (dla „zaznacz co najmniej jedno” — pierwszy checkbox sekcji). */
+  const errorTarget = (key: string) => {
+    if (!key.startsWith("oneOf:")) return key;
+    const s = sections.find((x) => `oneOf:${x.id}` === key);
+    return s?.oneOf ? byShort.get(s.oneOf.ids[0])?.name ?? null : null;
+  };
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setAttempted(true);
@@ -342,9 +365,13 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
           <ul className="mt-2 list-disc space-y-1 pl-5">
             {errors.slice(0, 12).map((e) => (
               <li key={e.key}>
-                {e.key.startsWith("oneOf:") ? <span>{e.label}: {e.message}</span>
-                  : <a href={`#${fieldId(e.key)}`} className="underline underline-offset-2">{e.label}</a>}
-                {!e.key.startsWith("oneOf:") && <span> — {e.message}</span>}
+                {(() => {
+                  const target = errorTarget(e.key);
+                  return target
+                    ? <a href={`#${fieldId(target)}`} onClick={(ev) => goToField(ev, target)} className="underline underline-offset-2">{e.label}</a>
+                    : <span>{e.label}</span>;
+                })()}
+                <span> — {e.message}</span>
               </li>
             ))}
             {errors.length > 12 && <li>…i {errors.length - 12} więcej</li>}
@@ -360,7 +387,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
           <p className="mt-1 text-sm text-zinc-600">Rzadziej potrzebne pola z wzoru {code}, według stron formularza. Wypełnij te, które Cię dotyczą.</p>
           <div className="mt-3 space-y-2">
             {restPages.map((p) => (
-              <details key={p} className="rounded-xl border border-zinc-200 bg-white" onToggle={(e) => { const isOpen = (e.currentTarget as HTMLDetailsElement).open; setOpenRest((o) => ({ ...o, [p]: isOpen })); }}>
+              <details key={p} open={!!openRest[p]} className="rounded-xl border border-zinc-200 bg-white" onToggle={(e) => { const isOpen = (e.currentTarget as HTMLDetailsElement).open; setOpenRest((o) => ({ ...o, [p]: isOpen })); }}>
                 <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-zus-navy">Strona {p} ({rest.filter((m) => m.page === p).length} {plural(rest.filter((m) => m.page === p).length, "pole", "pola", "pól")})</summary>
                 {openRest[p] && <div className="border-t border-zinc-100 p-4">{renderRest(p)}</div>}
               </details>
