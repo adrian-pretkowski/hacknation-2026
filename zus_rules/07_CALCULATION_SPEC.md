@@ -164,7 +164,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_apply_after_title_cap` | – | – | — | — | BLOCKED (GAP-002) |
 | `f_benefit_amount` | – | object | Per segment: `daily = base × rate × (1 − wf) / 30`; `total = daily × dni` | None | C1, C2 |
 | `f_monthly_maternity_amount` | – | Decimal | `base × rate × (1 − wf)` | None | – |
-| `f_raise_to_parental_benefit_floor` | – | object | Gdy `f_monthly_maternity_amount` < `PARENTAL_BENEFIT_FLOOR_MONTHLY`: `daily = PARENTAL_BENEFIT_FLOOR_MONTHLY / 30`, `total = daily × dni(segment)`, `monthly = PARENTAL_BENEFIT_FLOOR_MONTHLY` | None | M10 (1000 zł); niepełny miesiąc proporcjonalnie przez dzienną /30 — założenie do potwierdzenia (M10c) |
+| `f_raise_to_parental_benefit_floor` | – | object | Gdy `f_monthly_maternity_amount` < `PARENTAL_BENEFIT_FLOOR_MONTHLY`: `total = Σ_miesiące FLOOR × dni segmentu w miesiącu / dni miesiąca` (pełny miesiąc = FLOOR), `daily = total / dni(segment)` (średnia), `monthly = FLOOR`; `work_fraction > 0` → None | None | M10 (1000 zł), M10c (proporcjonalnie do dni danego miesiąca) |
 | `f_one_off_equalization` | – | Decimal | §2 wyrównanie | None | – |
 | `f_debt_on_right_date_exceeds_threshold` | – | bool | `debt.amount_on_right_date > MIN_WAGE × 0,01` | None | Równe progowi → FALSE („przekraczającą”) |
 | `f_debt_fully_repaid` | – | bool | `repaid_in_full_date` istnieje i ≤ as_of | None | – |

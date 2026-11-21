@@ -5,6 +5,7 @@ Właściciel dalszych faktów macierzyńskich/rodzicielskich i podstawy: BE2-01.
 """
 from __future__ import annotations
 
+import calendar
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
@@ -189,8 +190,9 @@ def monthly_maternity_amount(ctx: Context) -> Decimal | None:
 def raise_to_parental_benefit_floor(ctx: Context) -> dict[str, Any] | None:
     """07 §6, RATE-MAT-007: kwota podwyższona do PARENTAL_BENEFIT_FLOOR_MONTHLY (M10: 1000 zł).
 
-    daily = floor / MONTH_AS_DAYS (art. 36 ust. 3, M09); total = daily × dni(segment). Niepełny miesiąc
-    proporcjonalnie przez stawkę dzienną — założenie do potwierdzenia (M10c). USTAWA art. 31 ust. 3a-3c.
+    Za każdy miesiąc kalendarzowy segmentu: floor × (dni segmentu w miesiącu / dni miesiąca) — pełny miesiąc
+    = floor, niepełny proporcjonalnie do liczby dni danego miesiąca (M10c, mentor fachowy). total = suma,
+    daily = total / dni(segment) (średnia, informacyjnie). USTAWA art. 31 ust. 3a-3c.
     """
     floor = to_decimal(ctx.param("PARENTAL_BENEFIT_FLOOR_MONTHLY"))
     start, end = to_date(ctx.field("segment.from")), to_date(ctx.field("segment.to"))
@@ -198,9 +200,15 @@ def raise_to_parental_benefit_floor(ctx: Context) -> dict[str, Any] | None:
         return None
     if (to_decimal(ctx.field("segment.work_fraction")) or Decimal(0)) > 0:
         return None  # łączenie z pracą: sposób podwyższenia nieustalony (M10c) — bez podwyższenia na zapas
-    daily = div(floor, int(ctx.param("MONTH_AS_DAYS")))
+    total = Decimal(0)
+    day = start
+    while day <= end:
+        month_days = calendar.monthrange(day.year, day.month)[1]
+        month_end = min(end, day.replace(day=month_days))
+        total += div(mul(floor, Decimal(days_in(day, month_end))), month_days)
+        day = month_end + timedelta(days=1)
     days = days_in(start, end)
-    return {"monthly": floor, "daily": daily, "total": mul(daily, Decimal(days)), "days": days}
+    return {"monthly": floor, "daily": div(total, days), "total": total, "days": days}
 
 
 # ------------------------------------------------------------ martwe urodzenie / zgon dziecka (MAT-DUR-003/004/005)

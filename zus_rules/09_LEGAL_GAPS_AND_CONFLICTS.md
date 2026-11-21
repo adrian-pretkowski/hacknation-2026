@@ -20,7 +20,7 @@ Wpływ na MVP: **H** — blokuje część demo lub poprawność kwot; **M** — 
 | ID | Opis | Reguły | Założenie / obsługa | Wpływ |
 |---|---|---|---|---|
 | GAP-001 | **Brak zasad zaokrąglania** kwot (podstawa, dzienna stawka, kwota) | wszystkie CALC | Decimal bez zaokrągleń; `amount_rounded` tylko z polityką z panelu admina; tryb podglądu HALF_UP 0,01 z assumption | **H** — jury porównuje kwoty z decyzjami ZUS |
-| GAP-002 | Brak kwot: świadczenie rodzicielskie (art. 31 ust. 3a), przeciętne wynagrodzenie (art. 46) | RATE-MAT-007, BASE-GEN-002 | **Świadczenie rodzicielskie rozstrzygnięte (M10, 2026-11-21): 1000 zł/mies.**, RATE-MAT-007 aktywna (niepełny miesiąc: dzienna 1000/30 × dni — do potwierdzenia, M10c). Przeciętne wynagrodzenie (art. 46) — nadal `null` → BLOCKED | M |
+| GAP-002 | Brak kwot: świadczenie rodzicielskie (art. 31 ust. 3a), przeciętne wynagrodzenie (art. 46) | RATE-MAT-007, BASE-GEN-002 | **Świadczenie rodzicielskie rozstrzygnięte (M10, 2026-11-21): 1000 zł/mies.**, RATE-MAT-007 aktywna (niepełny miesiąc proporcjonalnie do dni danego miesiąca — M10c). Przeciętne wynagrodzenie (art. 46) — nadal `null` → BLOCKED | M |
 | GAP-003 | KP definiuje „tydzień = 7 dni” tylko dla macierzyńskiego i na warunkach macierzyńskiego | wszystkie DUR | 7 dni także dla pozostałych (DERIVED) | L |
 | GAP-004 | Brak definicji liczenia „przerwy” i granic okresów | SICK-ELIG-004, SICK-DUR-003, MAT-DUR-003 | Konwencje C3, C5, C8 w 07 | M |
 | GAP-005 | „Do 7/10/14 roku życia” — włącznie z dniem urodzin? | MAT-ELIG-002/003, MAT-DUR-007, PAR-COND-001 | **ROZSTRZYGNIĘTE (M14 c, 2026-11-21):** „do dnia urodzin” — `age < N`, ostatni dzień = dzień przed urodzinami granicznymi (C7) | M |

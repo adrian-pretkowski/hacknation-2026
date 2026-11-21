@@ -1588,7 +1588,7 @@ Jeżeli miesięczna kwota zasiłku jest niższa niż świadczenie rodzicielskie 
 - **Dane:** `income_history` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** T-RATE-008
-- **Uwagi:** Odblokowana po odpowiedzi mentora M10 (2026-11-21): świadczenie rodzicielskie = 1000 zł miesięcznie (PARENTAL_BENEFIT_FLOOR_MONTHLY), uwzględniamy w MVP; porównanie miesięcznej kwoty base × rate × (1 − wf) przed zaokrągleniem. Po podwyższeniu dzienna kwota = 1000 / 30 (art. 36 ust. 3, M09), kwota za segment = dzienna × dni — sposób liczenia za niepełny miesiąc (ust. 3b-3c) do potwierdzenia (M10c). GAP-002 częściowo zamknięty.
+- **Uwagi:** Odblokowana po odpowiedzi mentora M10 (2026-11-21): świadczenie rodzicielskie = 1000 zł miesięcznie (PARENTAL_BENEFIT_FLOOR_MONTHLY), uwzględniamy w MVP; porównanie miesięcznej kwoty base × rate × (1 − wf) przed zaokrągleniem. Po podwyższeniu: każdy pełny miesiąc kalendarzowy = 1000 zł, niepełny miesiąc proporcjonalnie do liczby dni danego miesiąca (1000 × dni / dni miesiąca) — M10c, mentor fachowy 2026-11-21 (ust. 3b-3c). Przy pracy w niepełnym wymiarze — bez podwyższenia do czasu ustalenia. GAP-002 częściowo zamknięty.
 
 ### APP-DL-001
 

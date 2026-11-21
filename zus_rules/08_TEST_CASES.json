@@ -3265,7 +3265,7 @@
     "RATE-MAT-007",
     "CALC-MAT-001"
    ],
-   "description": "Podstawa 800 zł, 100% → 800 zł/mies. < 1000 zł → podwyższenie: 1000/30 zł za dzień × 140 dni (M10)",
+   "description": "Podstawa 800 zł, 100% → 800 zł/mies. < 1000 zł → podwyższenie: pełne miesiące po 1000 zł, marzec (17/31) i sierpień (1/31) proporcjonalnie (M10, M10c)",
    "fixture": "employee_mother",
    "patch": {
     "income_history": {
@@ -3291,15 +3291,16 @@
    },
    "expected": {
     "rate": "1.00",
-    "daily_amount_exact": "33.3333333333",
-    "total_amount_exact": "4666.6666666667"
+    "daily_amount_exact": "32.7188940092",
+    "total_amount_exact": "4580.6451612903"
    },
    "legal_basis": [
     "USTAWA art. 31 ust. 3a-3c"
    ],
    "assumptions": [
     "PARENTAL_BENEFIT_FLOOR_MONTHLY = 1000 zł (M10)",
-    "Dzienna po podwyższeniu = 1000/30 (M09); niepełny miesiąc — M10c",
+    "M10c (mentor fachowy): niepełny miesiąc proporcjonalnie do liczby dni danego miesiąca; 4 × 1000 + 1000 × 18/31",
+    "daily = total / 140 (średnia, informacyjnie)",
     "Porównanie do 10 miejsc po przecinku"
    ]
   },
