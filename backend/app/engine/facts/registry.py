@@ -100,6 +100,8 @@ class Context:
     def param(self, name: str) -> Any:
         """Parametr prawny (app.core.params); użycie jest rejestrowane (np. assumption dla UNCONFIRMED)."""
         self.used_params.add(name)
+        if self.params is _param:  # BE2-05: wartość obowiązująca w dniu oceny (nadpisania z valid_from)
+            return _param(name, self.as_of)
         return self.params(name)
 
     def field(self, path: str) -> Any:
