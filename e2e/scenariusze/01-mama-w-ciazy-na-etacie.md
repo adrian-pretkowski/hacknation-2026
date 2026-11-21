@@ -30,13 +30,14 @@
 26. Sprawdź, że nie można przejść dalej.
 27. W polu „Wynagrodzenie brutto (zł / miesiąc)” wpisz „31250,50”.
 28. Sprawdź, że widać „31 250,50 zł”.
-29. W polu „Wynagrodzenie brutto (zł / miesiąc)” wpisz „7800”.
-30. Przejdź dalej.
-31. Sprawdź, że nagłówek to „Optymalizacja”.
-32. Przejdź dalej.
-33. Sprawdź, że nagłówek to „Twój plan”.
-34. Sprawdź, że widać „Oś czasu”.
-35. Sprawdź, że widać „Co i gdzie złożyć”.
-36. Sprawdź, że widać „Kalendarz terminów”.
-37. Sprawdź, że strona nie przewija się w poziomie.
-38. Zrób zrzut ekranu „plan-mamy-na-etacie”.
+29. Sprawdź, że nie widać „zł zł”.
+30. W polu „Wynagrodzenie brutto (zł / miesiąc)” wpisz „7800”.
+31. Przejdź dalej.
+32. Sprawdź, że nagłówek to „Optymalizacja”.
+33. Przejdź dalej.
+34. Sprawdź, że nagłówek to „Twój plan”.
+35. Sprawdź, że widać „Oś czasu”.
+36. Sprawdź, że widać „Co i gdzie złożyć”.
+37. Sprawdź, że widać „Kalendarz terminów”.
+38. Sprawdź, że strona nie przewija się w poziomie.
+39. Zrób zrzut ekranu „plan-mamy-na-etacie”.

@@ -62,7 +62,8 @@ export function Field({ label, hint, children, error, errorId }: {
 export const moneyError = (raw: string): string | undefined => {
   const v = raw.trim().replace(/\s/g, "").replace(",", ".");
   if (v === "") return undefined;
-  if (!/^\d+(\.\d{1,2})?$/.test(v)) return "Wpisz kwotę w złotych, np. 7800 albo 7800,50 (najwyżej 2 miejsca po przecinku).";
+  // końcowy separator w trakcie pisania („7800,”) nie jest błędem — usuwa go opuszczenie pola (onBlur)
+  if (!/^\d+(\.\d{0,2})?$/.test(v)) return "Wpisz kwotę w złotych, np. 7800 albo 7800,50 (najwyżej 2 miejsca po przecinku).";
   if (Number(v) <= 0) return "Kwota musi być większa od zera — jeśli jej nie znasz, zostaw pole puste.";
   return undefined;
 };
@@ -80,10 +81,11 @@ export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie pod
         <input type="text" inputMode="decimal" autoComplete="off" placeholder="np. 7800,00" value={value}
           className={`${inputCls} max-w-48 text-right ${error ? "border-zus-red" : ""}`}
           aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-err` : `${id}-preview`}
-          onChange={(e) => onChange(e.target.value.replace(/[^\d.,]/g, ""))} />
+          onChange={(e) => onChange(e.target.value.replace(/[^\d.,]/g, ""))}
+          onBlur={() => { if (/[.,]$/.test(value)) onChange(value.slice(0, -1)); }} />
         <span id={`${id}-preview`} className="text-base font-semibold text-zus-navy" aria-live="polite">
           {value.trim() === "" ? <span className="text-sm font-normal text-zinc-500">{emptyLabel}</span>
-            : error ? null : `${formatMoney(normalized)} zł`}
+            : error ? null : formatMoney(normalized.replace(/\.$/, ""))}
         </span>
       </span>
     </Field>
