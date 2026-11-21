@@ -1,12 +1,16 @@
 // Formatowanie do wyświetlenia. Nie przelicza kwot (backend zwraca wartości dokładne jako string).
-// Ułamek dłuższy niż 2 cyfry jest skracany z oznaczeniem „…”, bo zasady zaokrąglania ZUS nie są potwierdzone (GAP-001).
+// FE1-31: każda kwota pokazywana do 0,01 zł, połówki w górę (ROUND_HALF_UP jak M04/M07a) - bez „…”.
+// Zaokrąglenie tylko na ekranie, na napisie dziesiętnym (BigInt, bez float); obliczenia zostają w silniku.
 export function formatMoney(value: string | null | undefined): string {
-  if (value === null || value === undefined) return "-";
+  if (value === null || value === undefined || value === "") return "-";
   const negative = value.startsWith("-");
-  const [intPart, fraction = ""] = value.replace("-", "").split(".");
-  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  const shown = fraction.length > 2 ? `${fraction.slice(0, 2)}…` : fraction.padEnd(2, "0");
-  return `${negative ? "-" : ""}${grouped},${shown} zł`;
+  const [intPart = "0", fraction = ""] = value.replace(/^[-+]/, "").split(".");
+  let cents = BigInt((intPart || "0") + fraction.padEnd(2, "0").slice(0, 2));
+  if ((fraction[2] ?? "0") >= "5") cents += BigInt(1);
+  const zl = (cents / BigInt(100)).toString();
+  const gr = (cents % BigInt(100)).toString().padStart(2, "0");
+  const grouped = zl.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return `${negative && cents > BigInt(0) ? "-" : ""}${grouped},${gr} zł`;
 }
 
 export function formatRate(value: string | null | undefined): string {

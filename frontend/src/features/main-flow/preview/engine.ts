@@ -196,10 +196,8 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
   const planErrors: PlanError[] = [];
   const reasons: Reason[] = [];
   const calcSteps: CalcStep[] = [];
-  const assumptions: EvaluateResponse["assumptions"] = [
-    { code: "FE_PREVIEW_MOCK", text: "Podgląd planu liczony w przeglądarce (mock silnika) - docelowo wylicza silnik reguł w API." },
-    { code: "ROUNDING_UNCONFIRMED", text: "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)." },
-  ];
+  // FE1-31: bez notatek o mocku i o zaokrągleniach (prośba lidera) - kwoty prezentowane do 0,01 zł (M04)
+  const assumptions: EvaluateResponse["assumptions"] = [];
   const need = (field: string, ...rule_ids: string[]) => {
     missing.push({ field, rule_ids });
     statuses.push("NEEDS_DATA");
