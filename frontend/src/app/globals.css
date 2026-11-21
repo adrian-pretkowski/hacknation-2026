@@ -1,3 +1,25 @@
 @import "tailwindcss";
 
-/* Motyw (kolory, tryb ciemny, typografia) — zadanie FE-2 w docs/TASKS.md. Na razie jasny, bez nadpisań body poza warstwami Tailwinda. */
+/* Paleta inspirowana kolorystyką ZUS (zieleń, granat, szarości) — bez logotypów i znaków ZUS.
+   Ekrany SYMULACJI integracji mają własny, neutralny wygląd (D8). Kontrast tekstu ≥ 4,5:1 (WCAG 2.1 AA):
+   tekst i przyciski na zieleni ciemnej (zus-green-dark), zieleń podstawowa tylko jako akcent/wykresy. */
+@theme {
+  --color-zus-green: #00993f;
+  --color-zus-green-dark: #007a33;
+  --color-zus-green-100: #d6efdf;
+  --color-zus-green-50: #eef8f2;
+  --color-zus-navy: #00416e;
+  --color-zus-blue: #3f84d2;
+  --color-zus-blue-50: #edf3fb;
+  --color-zus-yellow: #ffb34f;
+  --color-zus-yellow-50: #fff6e9;
+  --color-zus-red: #c0392b;
+  --color-zus-red-50: #fdf0ee;
+  --color-zus-gray: #bec3ce;
+  --color-zus-gray-50: #f5f6f8;
+  --color-zus-ink: #1f2933;
+}
+
+body {
+  color: var(--color-zus-ink);
+}

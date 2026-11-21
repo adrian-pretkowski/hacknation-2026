@@ -7,11 +7,24 @@ Aplikacja webowa (RWD), która dla konkretnej sytuacji rodzica ustala, jakie św
 ## Start (Windows / PowerShell)
 Wymagane: Python 3.12, Node.js 22+ (npm). Opcjonalnie Docker.
 
+1. W katalogu repo (opcjonalnie) skopiuj konfigurację: `Copy-Item .env.example .env` — wartości domyślne działają lokalnie.
+2. Uruchom `scripts\dev.ps1`. Przy pierwszym uruchomieniu tworzy `backend\.venv`, instaluje pakiety Pythona i robi `npm ci`, potem otwiera dwa okna: backend :8000 (z przeładowaniem) i frontend :3000. Porty 3000 i 8000 muszą być wolne.
+3. Otwórz http://localhost:3000 — kreator na stronie głównej; przyciski „Przykłady” ładują gotowe scenariusze. API: http://localhost:8000/api/health.
+4. Sprawdź działanie: `python scripts\smoke.py` (na działających serwerach); pełna weryfikacja: `scripts\verify.ps1`.
+
 ```powershell
 scripts\dev.ps1                 # instaluje zależności przy pierwszym uruchomieniu; backend :8000, frontend :3000
 python scripts\smoke.py         # test głównego przepływu na działających serwerach
 scripts\verify.ps1              # audyt reguł, ruff, pytest, lint, typecheck, build
 ```
+
+Ręcznie (bez `dev.ps1`), w dwóch oknach:
+```powershell
+cd backend; .\.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
+cd frontend; npm run dev
+```
+
+Silnik: domyślnie `ENGINE=rules` (pipeline z `zus_rules/03_rules.yaml`); stary `slice_v0` — w oknie backendu przed startem `$env:ENGINE = "slice"`.
 
 Review po każdym commicie (zasady w `CLAUDE.md`): `scripts\dev.ps1` włącza git hook przypominający o `/review`. Jeśli nie uruchamiasz `dev.ps1`, zrób to raz na klon:
 ```powershell
@@ -29,7 +42,7 @@ Konfiguracja: skopiuj `.env.example` → `.env` (wartości domyślne działają 
 > Po przeniesieniu katalogu usuń `backend\.venv` i `frontend\node_modules` (zawierają ścieżki bezwzględne) i uruchom ponownie `scripts\dev.ps1`.
 
 ## Demo
-Otwórz http://localhost:3000 → „Oblicz” (dane syntetyczne): 20 tyg. / 140 dni, 81,5%, 163,00 zł dziennie, 22 820,00 zł. Scenariusz i fallback: [docs/DEMO.md](docs/DEMO.md).
+Otwórz http://localhost:3000 → „Przykłady” → np. „Bliźnięta, poród 1 grudnia” (dane syntetyczne): oś czasu obojga rodziców, porównanie wariantów 81,5% vs 100/70, terminy, radar ryzyk, „co i gdzie złożyć”. Części wyniku spoza silnika API liczy tymczasowo podgląd w przeglądarce (oznaczony `fe-preview-mock`). Scenariusz i fallback: [docs/DEMO.md](docs/DEMO.md).
 
 ## Dla zespołu i nowych developerów
 | Potrzebujesz | Plik |
