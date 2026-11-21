@@ -31,7 +31,7 @@ export function SimSessionProvider({ children }: { children: React.ReactNode }) 
   const pending = useRef<((u: TestUser) => void) | null>(null);
 
   useEffect(() => {
-    // Przywrócenie sesji po odświeżeniu — synchronizacja z zewnętrznym magazynem przeglądarki.
+    // Przywrócenie sesji po odświeżeniu - synchronizacja z zewnętrznym magazynem przeglądarki.
     const restored = findUser(window.sessionStorage.getItem(STORAGE_KEY));
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (restored) setUser(restored);

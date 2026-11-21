@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { formatMoney } from "@/lib/format";
+import { moneyError, normalizeMoney } from "./money";
 
 export const inputCls =
   "mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark";
@@ -58,7 +59,33 @@ export function Field({ label, hint, children, error, errorId }: {
   );
 }
 
-/** FE1-10: pole daty z walidacją — aria-invalid i aria-describedby wskazują komunikat pod polem. */
+export { moneyError } from "./money";
+
+/** FE1-15: samo pole kwoty (bez suwaka): dokładna kwota, podgląd w formacie PL, komunikat przy polu. */
+export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie podano" }: {
+  label: string; hint?: string; value: string; onChange: (v: string) => void; emptyLabel?: string;
+}) {
+  const id = useId();
+  const error = moneyError(value);
+  const normalized = normalizeMoney(value);
+  return (
+    <Field label={label} hint={hint} error={error} errorId={`${id}-err`}>
+      <span className="mt-1 flex items-center gap-3">
+        <input type="text" inputMode="decimal" autoComplete="off" placeholder="np. 7800,00" value={value}
+          className={`${inputCls} max-w-48 text-right ${error ? "border-zus-red" : ""}`}
+          aria-invalid={error ? true : undefined} aria-describedby={error ? `${id}-err` : `${id}-preview`}
+          onChange={(e) => onChange(e.target.value.replace(/[^\d.,]/g, ""))}
+          onBlur={() => { if (/[.,]$/.test(value)) onChange(value.slice(0, -1)); }} />
+        <span id={`${id}-preview`} className="text-base font-semibold text-zus-navy" aria-live="polite">
+          {value.trim() === "" ? <span className="text-sm font-normal text-zinc-500">{emptyLabel}</span>
+            : error || normalized === null ? null : formatMoney(normalized)}
+        </span>
+      </span>
+    </Field>
+  );
+}
+
+/** FE1-10: pole daty z walidacją - aria-invalid i aria-describedby wskazują komunikat pod polem. */
 export function DateField({ label, hint, value, onChange, error, warning }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void; error?: string;
   /** Ostrzeżenie bez blokady (np. sytuacja prawnie istotna, którą ocenia silnik). */
@@ -131,7 +158,7 @@ export function Slider({ label, hint, value, onChange, min, max, step = 1, unit,
           aria-valuetext={num === null ? emptyLabel : show(normalized)} aria-describedby={described} aria-invalid={describedBy ? true : undefined}
           className={`h-2 w-full cursor-pointer accent-zus-green-dark disabled:cursor-not-allowed disabled:opacity-40 ${num === null ? "opacity-50" : ""}`}
           onChange={(e) => onChange(e.target.value)} />
-        <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} — wpisz wartość`} placeholder="—" disabled={disabled}
+        <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} - wpisz wartość`} placeholder="-" disabled={disabled}
           aria-describedby={described} aria-invalid={describedBy ? true : undefined}
           className={`${money ? "w-28" : "w-20"} shrink-0 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-right text-base disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark`}
           value={value} onChange={(e) => onChange(clean(e.target.value))} />

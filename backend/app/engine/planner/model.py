@@ -3,9 +3,9 @@
 Graf jest warstwowy (DAG): węzeł = (indeks kroku, ``State``), krawędź = opcja kroku. ``State`` trzyma tylko to,
 od czego zależą dalsze ograniczenia i kwoty (stawka 81,5%, tygodnie rodzicielskiego każdego rodzica, wykorzystane
 wydłużenie), więc różne ścieżki zbiegają się w tych samych węzłach. Zysk krawędzi (``Outcome.totals``) jest
-addytywny — najlepszy plan to najdłuższa ścieżka w DAG (``optimizer.py``).
+addytywny - najlepszy plan to najdłuższa ścieżka w DAG (``optimizer.py``).
 
-Wszystkie wymiary, stawki i progi pochodzą z ``param()`` (meta.parameters) — bez liczb z przepisów w kodzie.
+Wszystkie wymiary, stawki i progi pochodzą z ``param()`` (meta.parameters) - bez liczb z przepisów w kodzie.
 """
 from __future__ import annotations
 
@@ -182,13 +182,13 @@ def _item(who: str, kind: str, label: str, days: int, base: Decimal | None, rate
 def _father_blocked(p: Profile, value_is_zero: bool, rule: str) -> tuple[bool, str | None, str | None]:
     if value_is_zero or p.father.insured:
         return True, None, None
-    return False, rule, "Ojciec nie podlega ubezpieczeniu chorobowemu — zasiłek mu nie przysługuje."
+    return False, rule, "Ojciec nie podlega ubezpieczeniu chorobowemu - zasiłek mu nie przysługuje."
 
 
 # --------------------------------------------------------------------------------------------------------- kroki
 def _combined_options(p: Profile, s: State) -> list[Option]:
-    return [Option(True, "Tak — wniosek o 81,5% za cały okres w 21 dni od porodu"),
-            Option(False, "Nie — 100% za macierzyński, 70% za rodzicielski")]
+    return [Option(True, "Tak - wniosek o 81,5% za cały okres w 21 dni od porodu"),
+            Option(False, "Nie - 100% za macierzyński, 70% za rodzicielski")]
 
 
 def _combined_apply(p: Profile, s: State, value: bool) -> Outcome:
@@ -212,7 +212,7 @@ def _transfer_options(p: Profile, s: State) -> list[Option]:
 def _transfer_apply(p: Profile, s: State, weeks: int) -> Outcome:
     w, total = week(), maternity_weeks(p)
     rate, rate_rule = mother_maternity_rate(s)
-    items = [_item(MOTHER, "MATERNITY_LEAVE", "Zasiłek macierzyński — matka", (total - weeks) * w,
+    items = [_item(MOTHER, "MATERNITY_LEAVE", "Zasiłek macierzyński - matka", (total - weeks) * w,
                    p.mother.base_monthly, rate, ("MAT-DUR-001", rate_rule))]
     if weeks:
         items.append(_item(FATHER, "MATERNITY_LEAVE_TRANSFERRED", "Macierzyński przejęty przez ojca", weeks * w,
@@ -251,7 +251,7 @@ def _father_reserved_options(p: Profile, s: State) -> list[Option]:
     options = []
     for weeks in range(reserved_weeks(), -1, -1):
         ok, rule, reason = _father_blocked(p, weeks == 0, "PAR-ELIG-001")
-        label = (f"Ojciec nie korzysta — {reserved_weeks()} tyg. przepada" if weeks == 0
+        label = (f"Ojciec nie korzysta - {reserved_weeks()} tyg. przepada" if weeks == 0
                  else f"Ojciec wykorzystuje {weeks} z {reserved_weeks()} tyg. (nieprzenoszalne)")
         options.append(Option(weeks, label, ok, rule, reason))
     return options
@@ -263,7 +263,7 @@ def _father_reserved_apply(p: Profile, s: State, weeks: int) -> Outcome:
     new_state = replace(s, father_parental_weeks=s.father_parental_weeks + weeks)
     if not days:
         return Outcome(new_state, Totals())
-    item = _item(FATHER, "PARENTAL_LEAVE", "Rodzicielski — 9 tyg. ojca", days, p.father.base_monthly, rate,
+    item = _item(FATHER, "PARENTAL_LEAVE", "Rodzicielski - 9 tyg. ojca", days, p.father.base_monthly, rate,
                  ("PAR-ELIG-001", "PAR-SHARE-001", rate_rule))
     return Outcome(new_state, Totals(item.amount, days), (item,))
 
@@ -281,7 +281,7 @@ def _shared_apply(p: Profile, s: State, father_weeks: int) -> Outcome:
     mother_weeks = reserved_weeks() + shared_weeks(p) - father_weeks
     m_rate, m_rule = parental_rate(s, MOTHER)
     f_rate, f_rule = parental_rate(s, FATHER)
-    items = [_item(MOTHER, "PARENTAL_LEAVE", "Rodzicielski — matka (9 tyg. własnych + część wspólna)",
+    items = [_item(MOTHER, "PARENTAL_LEAVE", "Rodzicielski - matka (9 tyg. własnych + część wspólna)",
                    mother_weeks * w, p.mother.base_monthly, m_rate, ("PAR-ELIG-001", "PAR-DUR-001", m_rule))]
     review: frozenset[str] = frozenset()
     if father_weeks:
@@ -289,7 +289,7 @@ def _shared_apply(p: Profile, s: State, father_weeks: int) -> Outcome:
         if s.combined:
             rules += ("RATE-MAT-008",)
             review = frozenset({"RATE-MAT-008"})
-        items.append(_item(FATHER, "PARENTAL_LEAVE", "Rodzicielski — ojciec (część wspólna)", father_weeks * w,
+        items.append(_item(FATHER, "PARENTAL_LEAVE", "Rodzicielski - ojciec (część wspólna)", father_weeks * w,
                            p.father.base_monthly, f_rate, rules))
     new_state = replace(s, mother_parental_weeks=mother_weeks,
                         father_parental_weeks=s.father_parental_weeks + father_weeks)
@@ -345,11 +345,11 @@ def _work_apply(who: str) -> Callable[[Profile, State, Any], Outcome]:
         wage = ZERO if gross is None else mul(div(gross, param("MONTH_AS_DAYS")), Decimal(days), fraction)
         name = "matka" if who == MOTHER else "ojciec"
         items = (
-            Item(who, "PARENTAL_WORK_REDUCTION", f"Zasiłek zmniejszony o wymiar pracy — {name}", days, -reduction,
+            Item(who, "PARENTAL_WORK_REDUCTION", f"Zasiłek zmniejszony o wymiar pracy - {name}", days, -reduction,
                  ("PAR-WORK-003",), rate, fraction),
-            _item(who, "PARENTAL_EXTENSION", f"Wydłużenie rodzicielskiego — {name}", ext, parent.base_monthly, rate,
+            _item(who, "PARENTAL_EXTENSION", f"Wydłużenie rodzicielskiego - {name}", ext, parent.base_monthly, rate,
                   ("PAR-WORK-002", rate_rule)),
-            Item(who, "WORK_INCOME", f"Wynagrodzenie za pracę {pct(fraction)} etatu — {name}"
+            Item(who, "WORK_INCOME", f"Wynagrodzenie za pracę {pct(fraction)} etatu - {name}"
                  + (" (szacunek z podstawy)" if estimated else ""), days, wage, ("PAR-WORK-001",), None, fraction),
         )
         return Outcome(replace(s, ext_days=s.ext_days + ext),
@@ -358,7 +358,7 @@ def _work_apply(who: str) -> Callable[[Profile, State, Any], Outcome]:
 
 
 def _work_hint(p: Profile, s: State) -> str | None:
-    return ("Praca do ½ etatu nie zmniejsza łącznej kwoty zasiłku — zasiłek maleje proporcjonalnie, ale urlop "
+    return ("Praca do ½ etatu nie zmniejsza łącznej kwoty zasiłku - zasiłek maleje proporcjonalnie, ale urlop "
             "wydłuża się o tyle samo; dochodzi wynagrodzenie.")
 
 

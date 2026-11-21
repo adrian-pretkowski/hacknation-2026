@@ -1,6 +1,6 @@
 """Parametry prawne czytane z zus_rules/03_rules.yaml (meta.parameters) + nadpisania panelu admina (BE2-05).
 
-Jedyne źródło wartości liczbowych (stawki, wymiary, progi) — nie wpisuj tych wartości w kodzie.
+Jedyne źródło wartości liczbowych (stawki, wymiary, progi) - nie wpisuj tych wartości w kodzie.
 
 Nadpisania (``PUT /api/admin/parameters``): każda zmiana ma ``valid_from`` (albo ``null`` = od razu), powód i numer
 wersji zestawu parametrów (``parameters_version``, start 1 = same wartości z YAML). Zapis w pliku JSON
@@ -96,7 +96,7 @@ def _normalize(name: str, value: Any, field: str) -> Any:
     spec = _specs()[name]
     base = spec["value"]
     if spec.get("file"):
-        raise ParameterError(field, "not_editable", f"{name}: lista z pliku {spec['file']} — edycja pliku, nie panelu")
+        raise ParameterError(field, "not_editable", f"{name}: lista z pliku {spec['file']} - edycja pliku, nie panelu")
     if isinstance(base, bool) or isinstance(value, bool):
         raise ParameterError(field, "invalid_type", f"{name}: wartość logiczna nieobsługiwana")
     if isinstance(base, dict):
@@ -111,7 +111,7 @@ def _normalize_scalar(name: str, base: Any, value: Any, field: str) -> Any:
         if isinstance(value, int) or (isinstance(value, str) and value.strip().lstrip("-").isdigit()):
             return int(value)
         raise ParameterError(field, "invalid_integer", f"{name}: wymagana liczba całkowita")
-    # string dziesiętny (stawki, kwoty) albo parametr bez wartości (MISSING) — przyjmujemy liczbę dziesiętną
+    # string dziesiętny (stawki, kwoty) albo parametr bez wartości (MISSING) - przyjmujemy liczbę dziesiętną
     if isinstance(value, (int, float, str)):
         try:
             number = Decimal(str(value).strip().replace(",", "."))

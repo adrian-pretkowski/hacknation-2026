@@ -2,7 +2,7 @@
 
 Najlepsza kontynuacja z węzła (krok, stan) = programowanie dynamiczne po DAG z ``model.STEPS`` (memoizacja), więc
 liczba ocenianych węzłów jest mała, mimo że pełnych ścieżek są dziesiątki tysięcy. Cel:
-MAX_MONEY — (kwota, dni opieki), MAX_TIME — (dni opieki, kwota). Remis → pierwsza opcja w kolejności kroku.
+MAX_MONEY - (kwota, dni opieki), MAX_TIME - (dni opieki, kwota). Remis → pierwsza opcja w kolejności kroku.
 """
 from __future__ import annotations
 
@@ -167,7 +167,7 @@ class Planner:
             prefix_acc = sum((t.outcome.totals for t in taken[:j]), Totals())
             state_j = taken[j - 1].outcome.state if j else State()
             best: tuple[Option, Totals] | None = None
-            keep: Totals | None = None  # wybór j bez zmian, reszta optymalnie — zysk z późniejszych kroków
+            keep: Totals | None = None  # wybór j bez zmian, reszta optymalnie - zysk z późniejszych kroków
             for opt in self.options(j, state_j):
                 if not opt.feasible:
                     continue
@@ -192,7 +192,7 @@ class Planner:
                 "extra_covered_days": total.covered_days - current.covered_days,
                 "message": (f"Cofnij się o {back} krok(i) do „{self.steps[j].title}”: "
                             f"zamiast „{taken[j].option.label}” wybierz „{opt.label}” "
-                            f"— plan lepszy o {money_label(total.money - current.money)}."),
+                            f"- plan lepszy o {money_label(total.money - current.money)}."),
                 "plan": self.plan(plan),
             })
         return improvements
@@ -218,10 +218,10 @@ class Planner:
         }
 
     def graph(self, depth: int | None = None) -> dict[str, Any]:
-        """Graf decyzji: węzły (krok, stan), krawędzie z zyskiem — także opcje zablokowane regułą.
+        """Graf decyzji: węzły (krok, stan), krawędzie z zyskiem - także opcje zablokowane regułą.
 
         ``depth`` ogranicza graf do pierwszych kroków (węzły na głębokości ``depth`` są liśćmi); etykiety opcji są
-        w katalogu kroku (``steps[].options``), nie w krawędziach — mniejsza odpowiedź.
+        w katalogu kroku (``steps[].options``), nie w krawędziach - mniejsza odpowiedź.
         """
         depth = len(self.steps) if depth is None else max(1, min(depth, len(self.steps)))
         catalog: list[dict[str, tuple[Any, str]]] = [{} for _ in self.steps]

@@ -14,7 +14,7 @@ export default function GuideLayout({ children }: LayoutProps<"/wsparcie">) {
           <Link href="/" className="text-sm font-medium text-zus-navy underline underline-offset-2">Kalkulator</Link>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:py-10">{children}</main>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:py-10">{children}</main>
       <footer className="border-t border-zinc-200 bg-white">
         <div className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-zinc-600">
           Prototyp HackNation 2026. Treści mają charakter informacyjny i nie są decyzją ZUS.

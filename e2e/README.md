@@ -20,12 +20,12 @@ cd e2e; npm test
 
 Inne warianty:
 
-- `npm run test:telefon` / `npm run test:komputer` — tylko jeden widok.
-- `npx playwright test -g "tata"` — scenariusze, których nazwa zawiera „tata”.
-- `npx playwright test --headed --project=komputer -g "01-"` — z widocznym oknem przeglądarki.
-- `npm run raport` — raport HTML z krokami, zrzutami ekranu i nagraniem (trace) nieudanych prób.
-- `$env:E2E_BASE_URL = "https://adres-demo"; npm test` — na innym adresie (np. publiczne demo).
-- `$env:E2E_BROWSER = "msedge"` — Edge zamiast Chrome (`chromium` po `npx playwright install chromium`).
+- `npm run test:telefon` / `npm run test:komputer` - tylko jeden widok.
+- `npx playwright test -g "tata"` - scenariusze, których nazwa zawiera „tata”.
+- `npx playwright test --headed --project=komputer -g "01-"` - z widocznym oknem przeglądarki.
+- `npm run raport` - raport HTML z krokami, zrzutami ekranu i nagraniem (trace) nieudanych prób.
+- `$env:E2E_BASE_URL = "https://adres-demo"; npm test` - na innym adresie (np. publiczne demo).
+- `$env:E2E_BROWSER = "msedge"` - Edge zamiast Chrome (`chromium` po `npx playwright install chromium`).
 
 Serwer deweloperski przeładowuje stronę po zapisaniu zmian w kodzie, więc gdy ktoś równolegle edytuje frontend, pojedynczy test może się wysypać. Dlatego każdy nieudany test jest powtarzany raz (`retries: 1`); stabilny wynik daje `npm run build; npm start` we `frontend/`.
 
@@ -35,7 +35,7 @@ Serwer deweloperski przeładowuje stronę po zapisaniu zmian w kodzie, więc gdy
 # Mama w ciąży na umowie o pracę planuje urlop
 
 Widok: telefon
-> Komentarz — pomijany.
+> Komentarz - pomijany.
 
 1. Otwórz stronę główną.
 2. Kliknij „Zaczynamy”.
@@ -57,29 +57,30 @@ Nawigacja
 - `Otwórz stronę główną` · `Otwórz stronę „/admin”` · `Cofnij w przeglądarce` · `Odśwież stronę`
 
 Logowanie (SYMULACJA)
-- `Zaloguj się przez mObywatel jako „Anna Przykładowa”` — cały przebieg: przycisk „Zaloguj się” w nagłówku (albo okno logowania już otwarte, np. po „Zaloguj się i pobierz”), zeskanowanie kodu QR na symulowanym telefonie, potwierdzenie, powrót do serwisu.
-- `Zeskanuj kod QR jako „Anna Przykładowa”` · `Potwierdź logowanie w telefonie` · `Odrzuć logowanie w telefonie` — te same czynności po kolei.
+- `Zaloguj się przez mObywatel jako „Anna Przykładowa”` - cały przebieg: przycisk „Zaloguj się” w nagłówku (albo okno logowania już otwarte, np. po „Zaloguj się i pobierz”), zeskanowanie kodu QR na symulowanym telefonie, potwierdzenie, powrót do serwisu.
+- `Zeskanuj kod QR jako „Anna Przykładowa”` · `Potwierdź logowanie w telefonie` · `Odrzuć logowanie w telefonie` - te same czynności po kolei.
 - Konta testowe: Anna Przykładowa (mama w ciąży, etat), Ewa Testowa (JDG z zaległością), Piotr Próbny (tata, mała firma), Marta Wzorcowa (mama po porodzie, zlecenie).
 
 Formularz
-- `Wybierz „Mamą”` — opcja (radio), pole wyboru, zakładka.
-- `Zaznacz „Wcześniak”` · `Odznacz „Wcześniak”` — pole wyboru.
+- `Wybierz „Mamą”` - opcja (radio), pole wyboru, zakładka.
+- `W pytaniu „Czy pracujesz na pełny etat?” wybierz „Tak”` - opcja w konkretnym pytaniu (gdy na ekranie jest kilka pytań z tymi samymi odpowiedziami, np. „Tak” / „Nie”).
+- `Zaznacz „Wcześniak”` · `Odznacz „Wcześniak”` - pole wyboru.
 - `Z listy „Ile dzieci przy jednym porodzie?” wybierz „2”` (albo `Wybierz „2” z listy „…”`).
 - `W polu „Planowana data porodu” wpisz „za 60 dni”` (albo `Wpisz „7800” w pole „…”`).
 - `Ustaw suwak „Ile tygodni rodzicielskiego weźmie tata?” na „9”`.
-- `Przejdź dalej` — przycisk „Dalej →” albo, na ostatnim kroku, „Pokaż plan →”.
-- `Kliknij „Zaczynamy”` — przycisk, link, zakładka albo tekst.
+- `Przejdź dalej` - przycisk „Dalej →” albo, na ostatnim kroku, „Pokaż plan →”.
+- `Kliknij „Zaczynamy”` - przycisk, link, zakładka albo tekst.
 - `Naciśnij klawisz „Escape”` · `Poczekaj 2 sekundy`
 
 Sprawdzenia
-- `Sprawdź, że nagłówek to „Twój plan”` — dokładny tekst nagłówka.
-- `Sprawdź, że widać „Oś czasu”` · `Sprawdź, że nie widać „Nie przysługuje”` — fragment tekstu na ekranie.
+- `Sprawdź, że nagłówek to „Twój plan”` - dokładny tekst nagłówka.
+- `Sprawdź, że widać „Oś czasu”` · `Sprawdź, że nie widać „Nie przysługuje”` - fragment tekstu na ekranie.
 - `Sprawdź, że można przejść dalej` · `Sprawdź, że nie można przejść dalej`
 - `Sprawdź, że przycisk „Pokaż wynik teraz” jest aktywny` (albo `nieaktywny`)
 - `Sprawdź, że pole „Od kiedy podlegasz” ma wartość „2019-03-01”`
 - `Sprawdź, że jestem zalogowana jako „Anna Przykładowa”` (albo `zalogowany`)
 - `Sprawdź, że strona nie przewija się w poziomie`
-- `Zrób zrzut ekranu „plan-mamy”` — zrzut trafia do raportu.
+- `Zrób zrzut ekranu „plan-mamy”` - zrzut trafia do raportu.
 
 ## Nowy krok
 

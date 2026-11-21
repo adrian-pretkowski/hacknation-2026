@@ -1,4 +1,4 @@
-"""Fakty — zasiłek chorobowy i wynagrodzenie chorobowe (zus_rules/07 §4).
+"""Fakty - zasiłek chorobowy i wynagrodzenie chorobowe (zus_rules/07 §4).
 
 BE1-04: zestaw potrzebny do ustalenia prawa, płatnika i stawki (SICK-ELIG, SICK-RATE, SICKPAY-ELIG/RATE).
 BE1-05: zasiłek po ustaniu tytułu (art. 7, 13), okres zasiłkowy 182/270 dni i łączenie okresów (art. 8–9),
@@ -52,7 +52,7 @@ def sick_pay_day_limit(ctx: Context, year: Any = None) -> int | None:
 def sick_pay_days_remaining_in_year(ctx: Context) -> int | None:
     """07 §4: ``max(0, f_sick_pay_day_limit(rok niezdolności) − benefit_history.employer_sick_pay_days_in_year)``.
 
-    Niezdolność przechodząca przez 31.12 (odnowienie limitu) — BE1-05. KP art. 92 § 1.
+    Niezdolność przechodząca przez 31.12 (odnowienie limitu) - BE1-05. KP art. 92 § 1.
     """
     start = to_date(ctx.field("incapacity.start_date"))
     if start is None:
@@ -77,7 +77,7 @@ def sickness_benefit_right_exists(ctx: Context) -> bool | None:
 
 
 # ---------------------------------------------------------------------------------------- BE1-05
-# art. 12 ust. 2 — dni bez zasiłku, niewliczane do okresu zasiłkowego (lista także w SICK-EXCL-002 args.types)
+# art. 12 ust. 2 - dni bez zasiłku, niewliczane do okresu zasiłkowego (lista także w SICK-EXCL-002 args.types)
 EXCLUDED_LEAVE_TYPES = ("UNPAID_LEAVE", "CHILDCARE_LEAVE", "DETENTION", "KP_63_2_P8_ABSENCE", "CARER_LEAVE")
 
 
@@ -185,7 +185,7 @@ def incapacity_continuous_days(ctx: Context) -> int | None:
 @fact("f_sick_pay_limit_reached_date")
 def sick_pay_limit_reached_date(ctx: Context) -> date | None:
     """07 §4: ostatni dzień wynagrodzenia chorobowego w roku początku niezdolności (start + pozostałe dni − 1;
-    pozostało 0 → dzień przed niezdolnością). Odnowienie limitu 1.01 — podział w pipeline. KP art. 92 § 1.
+    pozostało 0 → dzień przed niezdolnością). Odnowienie limitu 1.01 - podział w pipeline. KP art. 92 § 1.
     """
     start = to_date(ctx.field("incapacity.start_date"))
     remaining = ctx.fact("f_sick_pay_days_remaining_in_year")
@@ -225,7 +225,7 @@ def day_in_excluded_leave(ctx: Context, types: Any = None, day: Any = None) -> b
 @fact("f_waiting_period_met_during_insurance")
 def waiting_period_met_during_insurance(ctx: Context) -> bool | None:
     """07 §4: okres wyczekiwania (WAITING_DAYS_MANDATORY/VOLUNTARY wg trybu ostatniego tytułu) upłynął przed
-    ustaniem tytułu — dni łańcucha (art. 4 ust. 2) do dnia ustania włącznie. USTAWA art. 4 ust. 1, art. 13 ust. 1.
+    ustaniem tytułu - dni łańcucha (art. 4 ust. 2) do dnia ustania włącznie. USTAWA art. 4 ust. 1, art. 13 ust. 1.
     """
     day = event_day(ctx)
     titles = ctx.field("insurance.titles")
@@ -244,7 +244,7 @@ def waiting_period_met_during_insurance(ctx: Context) -> bool | None:
 
 @fact("f_benefit_period_days_used")
 def benefit_period_days_used(ctx: Context) -> int | None:
-    """07 §4: dni okresu zasiłkowego — historia + bieżąca niezdolność (łącznie z nią), łączenie przy przerwie
+    """07 §4: dni okresu zasiłkowego - historia + bieżąca niezdolność (łącznie z nią), łączenie przy przerwie
     ≤ BENEFIT_PERIOD_BREAK_DAYS (C8), reset przy nowej niezdolności w ciąży po wcześniejszej poza ciążą
     (art. 9 ust. 2 zd. 2); bez dni z art. 12 ust. 2 bieżącej niezdolności. USTAWA art. 9 ust. 1-2.
     """

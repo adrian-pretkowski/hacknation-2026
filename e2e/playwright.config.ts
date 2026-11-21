@@ -1,5 +1,5 @@
 // Scenariusze E2E pisane po polsku (e2e/scenariusze/*.md) wykonywane przez Playwright.
-// Domyślnie korzysta z już uruchomionego frontendu (scripts\dev.ps1, :3000); jeśli go nie ma — uruchamia `npm run dev`.
+// Domyślnie korzysta z już uruchomionego frontendu (scripts\dev.ps1, :3000); jeśli go nie ma - uruchamia `npm run dev`.
 // Inny adres: $env:E2E_BASE_URL = "https://..." (wtedy serwer nie jest uruchamiany).
 import { defineConfig } from "@playwright/test";
 
@@ -13,7 +13,7 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 7_000 },
   fullyParallel: true,
-  // Serwer deweloperski przeładowuje stronę po każdej zapisanej zmianie w kodzie (Fast Refresh) — jedna powtórka chroni przed fałszywym błędem.
+  // Serwer deweloperski przeładowuje stronę po każdej zapisanej zmianie w kodzie (Fast Refresh) - jedna powtórka chroni przed fałszywym błędem.
   retries: 1,
   workers: process.env.CI ? 2 : 3,
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],

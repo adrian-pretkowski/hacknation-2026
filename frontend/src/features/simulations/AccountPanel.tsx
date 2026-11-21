@@ -4,6 +4,7 @@
 // Każda zakładka ma stały baner „SYMULACJA” z nazwą docelowej integracji. Dane fikcyjne (users.ts, simApi.ts).
 import { useEffect, useState } from "react";
 import { formatDate, formatMoney } from "@/lib/format";
+import { RuleText } from "../main-flow/RuleList";
 import { PARAMS } from "../main-flow/preview/params";
 import { type SimDebtCertificate, type SimEzla, type SimPueTicket, type SimPueTopic, localToday, simDebtCertificate, simEzla, simPueQuestion, usedLeaveText } from "./simApi";
 import { SimModal, simBtnPrimary, simBtnSecondary } from "./ui";
@@ -38,7 +39,7 @@ function ProfileTab({ u }: { u: TestUser }) {
       <Row k="Płatnik składek" v={u.payerName} />
       <Row k="Ubezpieczenie chorobowe od" v={formatDate(u.insuredFrom)} />
       <Row k="Dobrowolne chorobowe" v={u.title === "EMPLOYMENT" ? "nie dotyczy (obowiązkowe)" : u.voluntarySickness ? "tak, opłacane" : "nie"} />
-      <Row k="Płatnik zgłasza" v={u.payerSize === "GT20" ? `więcej niż ${PARAMS.PAYER_INSURED_THRESHOLD} osób (zasiłek wypłaca płatnik)` : u.payerSize === "LE20" ? `${PARAMS.PAYER_INSURED_THRESHOLD} osób lub mniej (zasiłek wypłaca ZUS)` : "nie dotyczy — zasiłek wypłaca ZUS"} />
+      <Row k="Płatnik zgłasza" v={u.payerSize === "GT20" ? `więcej niż ${PARAMS.PAYER_INSURED_THRESHOLD} osób (zasiłek wypłaca płatnik)` : u.payerSize === "LE20" ? `${PARAMS.PAYER_INSURED_THRESHOLD} osób lub mniej (zasiłek wypłaca ZUS)` : "nie dotyczy - zasiłek wypłaca ZUS"} />
       <Row k="Średnia podstawa (12 mies.)" v={`${formatMoney(u.salaryAvg)} brutto / mies.`} />
       <Row k="Wypłacone zasiłki rodzicielskie" v={u.usedLeave ? usedLeaveText(u.usedLeave) : "brak"} />
     </dl>
@@ -75,7 +76,7 @@ function DebtTab({ u }: { u: TestUser }) {
   const get = async () => { setBusy(true); setCert(await simDebtCertificate(u.id, asOf)); setBusy(false); };
   return (
     <div className="space-y-4 text-sm">
-      <p className="text-zinc-700">Zaświadczenie o stanie rozliczeń składek na wskazany dzień — przy działalności gospodarczej ważne na dzień powstania prawa do zasiłku.</p>
+      <p className="text-zinc-700">Zaświadczenie o stanie rozliczeń składek na wskazany dzień - przy działalności gospodarczej ważne na dzień powstania prawa do zasiłku.</p>
       <div className="flex flex-wrap items-end gap-3">
         <label className="font-medium">Na dzień
           <input type="date" value={asOf} onChange={(e) => { setAsOf(e.target.value); setCert(null); }}
@@ -96,8 +97,9 @@ function DebtTab({ u }: { u: TestUser }) {
             </dl>
             <p className={`mt-3 rounded-md p-2 font-medium ${cert.exceeds_threshold ? "bg-red-50 text-red-900" : "bg-emerald-50 text-emerald-900"}`}>
               {cert.exceeds_threshold
-                ? "Zaległość przekracza próg z art. 2a ustawy zasiłkowej. Skutek dla prawa do zasiłku (m.in. przy działalności gospodarczej, z wyjątkami) oceni kalkulator — reguła GEN-EXCL-001."
-                : "Zaległość nie przekracza progu z art. 2a ustawy zasiłkowej (reguła GEN-EXCL-001)."}
+                ? "Zaległość przekracza próg z art. 2a ustawy zasiłkowej. Skutek dla prawa do zasiłku (m.in. przy działalności gospodarczej, z wyjątkami) oceni kalkulator."
+                : "Zaległość nie przekracza progu z art. 2a ustawy zasiłkowej."}
+              <span className="mt-1 block text-xs font-normal">Przepis: <RuleText entry="GEN-EXCL-001" /></span>
             </p>
           </article>
         )}
@@ -139,7 +141,7 @@ function PueTab({ u }: { u: TestUser }) {
       <label className="block font-medium">Pytanie
         <textarea value={q} onChange={(e) => setQ(e.target.value)} rows={4} maxLength={2000} placeholder="np. Czy muszę dostarczyć akt urodzenia dziecka?"
           className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-zinc-900" />
-        <span className="mt-1 block text-xs font-normal text-zinc-600">Nie wpisuj prawdziwych danych osobowych — to symulacja.</span>
+        <span className="mt-1 block text-xs font-normal text-zinc-600">Nie wpisuj prawdziwych danych osobowych - to symulacja.</span>
       </label>
       <button type="submit" disabled={busy || q.trim().length < 3} className={simBtnPrimary}>{busy ? "Wysyłanie…" : "Wyślij (symulacja)"}</button>
     </form>

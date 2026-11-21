@@ -26,7 +26,7 @@
 24. Przejdź dalej.
 25. Przejdź dalej.
 26. Sprawdź, że nagłówek to „Twój plan”.
-27. Sprawdź, że widać „Urlop macierzyński — zostało”.
+27. Sprawdź, że widać „Urlop macierzyński - zostało”.
 28. Sprawdź, że widać „6 tyg.”.
 29. Sprawdź, że widać „może wykorzystać tylko tata”.
 30. Sprawdź, że widać „do przejęcia przez tatę”.

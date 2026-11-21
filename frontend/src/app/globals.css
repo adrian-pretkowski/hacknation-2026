@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Paleta inspirowana kolorystyką ZUS (zieleń, granat, szarości) — bez logotypów i znaków ZUS.
+/* Paleta inspirowana kolorystyką ZUS (zieleń, granat, szarości) - bez logotypów i znaków ZUS.
    Ekrany SYMULACJI integracji mają własny, neutralny wygląd (D8). Kontrast tekstu ≥ 4,5:1 (WCAG 2.1 AA):
    tekst i przyciski na zieleni ciemnej (zus-green-dark), zieleń podstawowa tylko jako akcent/wykresy. */
 @theme {
@@ -24,7 +24,7 @@ body {
   color: var(--color-zus-ink);
 }
 
-/* Tailwind 4 nie daje przyciskom kursora „rączki” — przywracamy go dla wszystkich klikalnych elementów. */
+/* Tailwind 4 nie daje przyciskom kursora „rączki” - przywracamy go dla wszystkich klikalnych elementów. */
 @layer base {
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),

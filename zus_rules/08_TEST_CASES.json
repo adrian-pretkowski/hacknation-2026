@@ -1,7 +1,7 @@
 {
  "contract": {
   "version": "1.0",
-  "description": "Wspólny kontrakt testowy. input = deep-merge(fixtures[fixture], patch) — listy w patch ZASTĘPUJĄ listy z fixture. expected — porównanie częściowe: sprawdzane są tylko podane klucze. benefit_selector wybiera element result.benefits (benefit_type [+ leave_type]). Kwoty porównywane jako Decimal dokładnie (amount_exact); wartości z dzieleniem nieskończonym — do 10 miejsc po przecinku. Wartości oczekiwane wyprowadzono z przepisów (legal_basis), NIE z implementacji.",
+  "description": "Wspólny kontrakt testowy. input = deep-merge(fixtures[fixture], patch) - listy w patch ZASTĘPUJĄ listy z fixture. expected - porównanie częściowe: sprawdzane są tylko podane klucze. benefit_selector wybiera element result.benefits (benefit_type [+ leave_type]). Kwoty porównywane jako Decimal dokładnie (amount_exact); wartości z dzieleniem nieskończonym - do 10 miejsc po przecinku. Wartości oczekiwane wyprowadzono z przepisów (legal_basis), NIE z implementacji.",
   "kinds": [
    "POSITIVE",
    "NEGATIVE",
@@ -353,7 +353,7 @@
     "USTAWA art. 2a ust. 1"
    ],
    "assumptions": [
-    "MIN_WAGE_2026_MONTHLY=4806.00 (potwierdzona — M07)"
+    "MIN_WAGE_2026_MONTHLY=4806.00 (potwierdzona - M07)"
    ]
   },
   {
@@ -362,7 +362,7 @@
    "rule_ids": [
     "GEN-EXCL-001"
    ],
-   "description": "Zadłużenie dokładnie 48,06 zł — nie 'przekracza' 1%",
+   "description": "Zadłużenie dokładnie 48,06 zł - nie 'przekracza' 1%",
    "fixture": "self_employed_mother",
    "patch": {
     "debt": {
@@ -380,7 +380,7 @@
     "USTAWA art. 2a ust. 1"
    ],
    "assumptions": [
-    "MIN_WAGE_2026_MONTHLY=4806.00 (potwierdzona — M07)"
+    "MIN_WAGE_2026_MONTHLY=4806.00 (potwierdzona - M07)"
    ]
   },
   {
@@ -450,7 +450,7 @@
     "SICKPAY-RATE-002",
     "SICK-ELIG-001"
    ],
-   "description": "Pracownica w ciąży — wynagrodzenie chorobowe 100%",
+   "description": "Pracownica w ciąży - wynagrodzenie chorobowe 100%",
    "fixture": "pregnant_sick_employee",
    "patch": {},
    "benefit_selector": {
@@ -471,7 +471,7 @@
    "rule_ids": [
     "SICKPAY-RATE-001"
    ],
-   "description": "Bez ciąży (potwierdzone) — 80%",
+   "description": "Bez ciąży (potwierdzone) - 80%",
    "fixture": "pregnant_sick_employee",
    "patch": {
     "pregnancy": {
@@ -589,7 +589,7 @@
     "SICKPAY-EXCL-001",
     "SICK-ELIG-002"
    ],
-   "description": "Pracownica 10 dni po zatrudnieniu — brak prawa do zasiłku → brak wynagrodzenia chorobowego",
+   "description": "Pracownica 10 dni po zatrudnieniu - brak prawa do zasiłku → brak wynagrodzenia chorobowego",
    "fixture": "pregnant_sick_employee",
    "patch": {
     "insurance": {
@@ -709,7 +709,7 @@
    "rule_ids": [
     "SICK-ELIG-004"
    ],
-   "description": "Przerwa 30 dni między tytułami — okresy się sumują",
+   "description": "Przerwa 30 dni między tytułami - okresy się sumują",
    "fixture": "pregnant_sick_employee",
    "patch": {
     "insurance": {
@@ -756,7 +756,7 @@
     "SICK-ELIG-004",
     "SICK-ELIG-002"
    ],
-   "description": "Przerwa 31 dni — bez sumowania; 4 dni < 30",
+   "description": "Przerwa 31 dni - bez sumowania; 4 dni < 30",
    "fixture": "pregnant_sick_employee",
    "patch": {
     "insurance": {
@@ -805,7 +805,7 @@
    "rule_ids": [
     "SICK-ELIG-005"
    ],
-   "description": "Absolwentka — ubezpieczenie w 60 dni od dyplomu → zasiłek od 1. dnia",
+   "description": "Absolwentka - ubezpieczenie w 60 dni od dyplomu → zasiłek od 1. dnia",
    "fixture": "pregnant_sick_employee",
    "patch": {
     "insurance": {
@@ -1407,7 +1407,7 @@
     "USTAWA art. 30 ust. 3"
    ],
    "assumptions": [
-    "'do dnia porodu' = do dnia poprzedzającego poród (DERIVED); od dnia porodu — zasiłek macierzyński art. 30 ust. 1"
+    "'do dnia porodu' = do dnia poprzedzającego poród (DERIVED); od dnia porodu - zasiłek macierzyński art. 30 ust. 1"
    ]
   },
   {
@@ -1416,7 +1416,7 @@
    "rule_ids": [
     "MAT-ELIG-007"
    ],
-   "description": "Rozwiązanie umowy w ciąży z naruszeniem prawa stwierdzonym przez sąd → zasiłek w wysokości macierzyńskiego do dnia przed porodem (M16 a — stosujemy treść zadania)",
+   "description": "Rozwiązanie umowy w ciąży z naruszeniem prawa stwierdzonym przez sąd → zasiłek w wysokości macierzyńskiego do dnia przed porodem (M16 a - stosujemy treść zadania)",
    "fixture": "employee_mother",
    "patch": {
     "insurance": {
@@ -1448,7 +1448,7 @@
     "USTAWA art. 30 ust. 3 + treść zadania (CONF-001, M16 a)"
    ],
    "assumptions": [
-    "M16 a (2026-11-21, mentor fachowy): CONF-001 — stosujemy treść zadania",
+    "M16 a (2026-11-21, mentor fachowy): CONF-001 - stosujemy treść zadania",
     "'do dnia porodu' = do dnia poprzedzającego poród (M15 e)"
    ]
   },
@@ -1757,7 +1757,7 @@
    ],
    "assumptions": [
     "C7: ukończenie 14 lat = 2027-04-01; urlop do dnia przed 14. urodzinami (M14 c)",
-    "M14 a: 9 tyg. nie jest minimum — limit wieku skraca urlop, niewykorzystana część przepada"
+    "M14 a: 9 tyg. nie jest minimum - limit wieku skraca urlop, niewykorzystana część przepada"
    ]
   },
   {
@@ -3066,7 +3066,7 @@
     "USTAWA art. 30a ust. 1, art. 31 ust. 3"
    ],
    "assumptions": [
-    "Termin: 2027-03-15 + 21 = 2027-04-05 (poniedziałek — bez przesunięcia, C11/M15 d)"
+    "Termin: 2027-03-15 + 21 = 2027-04-05 (poniedziałek - bez przesunięcia, C11/M15 d)"
    ]
   },
   {
@@ -3139,7 +3139,7 @@
    "rule_ids": [
     "RATE-MAT-004"
    ],
-   "description": "Przy 81,5% — 9 tyg. ojca płatne 70%",
+   "description": "Przy 81,5% - 9 tyg. ojca płatne 70%",
    "fixture": "employee_mother",
    "patch": {
     "person": {
@@ -3213,7 +3213,7 @@
     "USTAWA art. 31 ust. 3g"
    ],
    "assumptions": [
-    "1. urodziny 2028-03-15 — pierwszy dzień PO 1. roku życia"
+    "1. urodziny 2028-03-15 - pierwszy dzień PO 1. roku życia"
    ]
   },
   {
@@ -3255,7 +3255,7 @@
     "USTAWA art. 30a ust. 3, art. 31 ust. 3"
    ],
    "assumptions": [
-    "M11 (2026-11-21, mentor fachowy): ojciec przejmuje stawkę 81,5% — RATE-MAT-008 ACTIVE (wcześniej Q-LEG-03 / NEEDS_REVIEW)"
+    "M11 (2026-11-21, mentor fachowy): ojciec przejmuje stawkę 81,5% - RATE-MAT-008 ACTIVE (wcześniej Q-LEG-03 / NEEDS_REVIEW)"
    ]
   },
   {
@@ -3270,6 +3270,9 @@
    "patch": {
     "income_history": {
      "manual_base_override": "800.00"
+    },
+    "employment": {
+     "working_time_fraction": "0.25"
     },
     "applications": {
      "combined_815_planned": false
@@ -3298,6 +3301,7 @@
     "USTAWA art. 31 ust. 3a-3c"
    ],
    "assumptions": [
+    "Praca w 1/4 etatu - bez minimalnej podstawy z art. 45 (BE2-12: BASE-EMP-008 dotyczy pełnego etatu)",
     "PARENTAL_BENEFIT_FLOOR_MONTHLY = 1000 zł (M10)",
     "M10c (mentor fachowy): niepełny miesiąc proporcjonalnie do liczby dni danego miesiąca; 4 × 1000 + 1000 × 18/31",
     "daily = total / 140 (średnia, informacyjnie)",
@@ -3359,7 +3363,7 @@
    ],
    "assumptions": [
     "M15 d (2026-11-21, mentor fachowy): termin w dzień wolny → następny dzień roboczy",
-    "Lista świąt PUBLIC_HOLIDAYS z public_holidays.yaml — 2027-04-04 to zwykła niedziela (Wielkanoc 2027: 28.03)"
+    "Lista świąt PUBLIC_HOLIDAYS z public_holidays.yaml - 2027-04-04 to zwykła niedziela (Wielkanoc 2027: 28.03)"
    ]
   },
   {
@@ -3668,7 +3672,7 @@
     "USTAWA art. 45 ust. 1, art. 36 ust. 2"
    ],
    "assumptions": [
-    "MIN_WAGE 4806,00 (potwierdzona — M07)",
+    "MIN_WAGE 4806,00 (potwierdzona - M07)",
     "M07a (2026-11-21, mentor fachowy): minimalna podstawa zaokrąglana do groszy"
    ]
   },
@@ -4423,7 +4427,7 @@
     "BASE-NEMP-004",
     "BASE-NEMP-001"
    ],
-   "description": "Zleceniobiorczyni: listopad — działalność 10 z 30 dni (zasiłek) → miesiąc wyłączony, średnia z 11 = 4314,50",
+   "description": "Zleceniobiorczyni: listopad - działalność 10 z 30 dni (zasiłek) → miesiąc wyłączony, średnia z 11 = 4314,50",
    "fixture": "self_employed_mother",
    "patch": {
     "insurance": {

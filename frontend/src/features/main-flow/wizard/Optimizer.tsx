@@ -1,13 +1,15 @@
 "use client";
 
 // Krok kreatora „Optymalizacja” (BE2-07): planer urlopów obojga rodziców na API /api/planner/suggest.
-// Graf decyzji i kwoty liczy backend (zus_rules/03_rules.yaml) — tu tylko wyświetlanie i zapis wyborów w odpowiedziach.
+// Graf decyzji i kwoty liczy backend (zus_rules/03_rules.yaml) - tu tylko wyświetlanie i zapis wyborów w odpowiedziach.
 import { useEffect, useState } from "react";
 import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResponse, plannerSuggest } from "@/lib/api";
 import { formatMoney, formatRate } from "@/lib/format";
+import { RuleList, RuleText } from "../RuleList";
 import { baseFromGross } from "../preview/engine";
 import type { Answers } from "./answers";
-import { Choice, Slider, TRI_OPTIONS } from "./fields";
+import { Choice, MoneyField, TRI_OPTIONS } from "./fields";
+import { normalizeMoney } from "./money";
 
 const STEP_TITLE: Record<string, string> = {
   COMBINED_815: "Wniosek 81,5%",
@@ -22,10 +24,7 @@ const STEP_COUNT = Object.keys(STEP_TITLE).length;
 const PARENT = { MOTHER: "Mama", FATHER: "Tata" } as const;
 const box = "rounded-xl border border-zinc-200 p-4";
 
-const clean = (v: string) => {
-  const n = v.trim().replace(",", ".");
-  return /^\d+(\.\d{1,2})?$/.test(n) && Number(n) > 0 ? n : null;
-};
+const clean = normalizeMoney; // FE1-15: wspólna normalizacja kwot (money.ts)
 
 /** Czy krok „Optymalizacja” ma sens: rodzic biologiczny, przed porodem, mama ubezpieczona. */
 export function optimizerVisible(a: Answers): boolean {
@@ -43,6 +42,9 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
   const fatherInsured = isMother ? a.partnerInsured !== "NO" : true;
   const motherGross = isMother ? ownGross : partnerGross;
   const fatherGross = isMother ? partnerGross : ownGross;
+  // planer (API) dostaje podstawę bez granic - minimum i limit nakłada silnik, nie przeglądarka (review FE1-20)
+  const motherBase = motherGross ? baseFromGross(motherGross) : null;
+  const fatherBase = fatherGross ? baseFromGross(fatherGross) : null;
   const choices = a.plannerChoices;
   const setChoices = (plannerChoices: PlannerChoice[]) => set({ plannerChoices });
   const missing = !ownGross ? "Wróć do kroku „Wynagrodzenie” i podaj swoje wynagrodzenie."
@@ -56,9 +58,9 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
       plannerSuggest({
         profile: {
           children_count: Math.min(Math.max(a.children, 1), 10), za_zyciem: a.zaZyciem,
-          mother: { base_monthly: baseFromGross(motherGross), gross_monthly: motherGross, insured: true },
+          mother: { base_monthly: motherBase, gross_monthly: motherGross, insured: true },
           father: fatherInsured && fatherGross
-            ? { base_monthly: baseFromGross(fatherGross), gross_monthly: fatherGross, insured: true }
+            ? { base_monthly: fatherBase, gross_monthly: fatherGross, insured: true }
             : { base_monthly: null, insured: false },
         },
         choices, objective: a.plannerObjective, lookback: 3,
@@ -75,7 +77,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
     return () => { cancelled = true; clearTimeout(timer); };
     // set jest stabilne w obrębie kreatora; zależymy od danych wejściowych planera
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [missing, motherGross, fatherGross, fatherInsured, a.children, a.zaZyciem, a.plannerObjective, choices]);
+  }, [missing, motherGross, fatherGross, motherBase, fatherBase, fatherInsured, a.children, a.zaZyciem, a.plannerObjective, choices]);
 
   const done = data?.current_best_plan?.choices.slice(0, choices.length) ?? [];
   const plan = data?.current_best_plan;
@@ -93,13 +95,13 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           onChange={(partnerInsured) => set({ partnerInsured, plannerChoices: [] })} options={TRI_OPTIONS} />
       )}
       {fatherInsured && (
-        <Slider label={`Wynagrodzenie brutto ${isMother ? "taty" : "mamy"} (zł / miesiąc)`} unit="zł" money min={0} max={30000} step={100}
+        <MoneyField label={`Wynagrodzenie brutto ${isMother ? "taty" : "mamy"} (zł / miesiąc)`}
           value={a.partnerSalaryGross} emptyLabel="nie podano"
           hint="Potrzebne, żeby porównać, komu bardziej opłaca się wziąć część urlopu."
           onChange={(partnerSalaryGross) => set({ partnerSalaryGross, plannerChoices: [] })} />
       )}
       <Choice legend="Jak chcecie ułożyć ten czas?" value={a.plannerObjective} columns={2}
-        hint="Każdy wybór jest dobry — to tylko podpowiedź dla planera. Możesz go zmienić w dowolnej chwili."
+        hint="Każdy wybór jest dobry - to tylko podpowiedź dla planera. Możesz go zmienić w dowolnej chwili."
         onChange={(plannerObjective) => set({ plannerObjective, plannerChoices: [] })}
         options={[
           { value: "MAX_TIME", label: "Więcej wspólnego czasu", description: "Podział, w którym urlop z dzieckiem trwa najdłużej." },
@@ -161,14 +163,15 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
                 ) : (
                   <div className="rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-sm text-zinc-500">
                     <span className="line-through">{o.label}</span>
-                    <span className="ml-2 text-xs">Niedozwolone: {o.blocked_reason} ({o.blocked_by_rule})</span>
+                    <span className="ml-2 text-xs">Niedozwolone: {o.blocked_reason}</span>
+                    {o.blocked_by_rule && <RuleText entry={o.blocked_by_rule} className="mt-1 block text-xs" />}
                   </div>
                 )}
               </li>
             ))}
           </ul>
           {data.explanation && <p className="mt-3 text-sm text-zinc-700" aria-live="polite">{data.explanation}</p>}
-          <p className="mt-1 text-xs text-zinc-500">Przepisy: {data.step.rule_ids.join(", ")}</p>
+          <div className="mt-1 text-xs text-zinc-500">Przepisy:<RuleList ids={data.step.rule_ids} /></div>
         </fieldset>
       )}
 
@@ -179,14 +182,15 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           <p className="text-xs text-zinc-600">
             Mama {formatMoney(plan.totals.mother_preview)} · Tata {formatMoney(plan.totals.father_preview)} · {plan.totals.covered_weeks} tyg. opieki nad dzieckiem
           </p>
-          {plan.needs_review && <p className="mt-2 text-xs">Część planu wymaga weryfikacji ({plan.review_rules.join(", ")}).</p>}
+          {plan.needs_review && <div className="mt-2 text-xs">Część planu wymaga weryfikacji:<RuleList ids={plan.review_rules} /></div>}
           <details className="mt-2 text-sm">
             <summary className="cursor-pointer font-medium">Rozliczenie</summary>
             <ul className="mt-2 divide-y divide-zinc-200">
               {plan.items.map((i, n) => (
                 <li key={n} className="py-2">
                   <p className="flex gap-2"><span className="min-w-0 flex-1">{i.label}</span><span className="tabular-nums">{formatMoney(i.amount_exact)}</span></p>
-                  <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` · ${formatRate(i.rate)}` : ""} · {i.rule_ids.join(", ")}</p>
+                  <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` · ${formatRate(i.rate)}` : ""}</p>
+                  <RuleList ids={i.rule_ids} className="text-xs text-zinc-500" />
                 </li>
               ))}
             </ul>

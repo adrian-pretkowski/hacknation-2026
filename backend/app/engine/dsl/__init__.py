@@ -1,4 +1,4 @@
-"""DSL v1 (zus_rules/03_rules.yaml): loader + evaluator Kleene — BE1-01."""
+"""DSL v1 (zus_rules/03_rules.yaml): loader + evaluator Kleene - BE1-01."""
 from app.engine.dsl.evaluator import (
     RuleOutcome,
     Ruleset,

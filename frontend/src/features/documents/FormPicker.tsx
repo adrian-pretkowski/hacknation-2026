@@ -1,8 +1,10 @@
 "use client";
 
 // Kafelki pism (FE1-11): ten sam komponent na ścieżce „Szybkie pisma” i na podsumowaniu wyniku.
-// Klik → onOpen(kod) — ekran pisma (etap 3: wypełnianie formularzem, osobne zadanie).
+// Klik → onOpen(kod) - ekran pisma z formularzem do wypełnienia (etap 3: FE1-23).
 import { useId, useState } from "react";
+import type { Answers } from "@/features/main-flow/wizard/answers";
+import { FormFill } from "./FormFill";
 import { FORM_CODES, FORM_GROUPS, FORMS, type FormCode } from "./forms";
 
 const TONE = {
@@ -51,7 +53,7 @@ function FormTile({ code, recommended, onOpen, level }: { code: FormCode; recomm
         <div><dt className="inline font-semibold text-zinc-900">Kto: </dt><dd className="inline text-zinc-700">{f.who}</dd></div>
       </dl>
       {/* cały kafelek klikalny (after:inset-0), nazwa przycisku krótka dla czytników ekranu */}
-      <button type="button" onClick={() => onOpen(code)} aria-label={`Wypełnij ${code} — ${f.name}`}
+      <button type="button" onClick={() => onOpen(code)} aria-label={`Wypełnij ${code} - ${f.name}`}
         className="mt-auto self-start pt-4 text-sm font-semibold text-zus-green-dark after:absolute after:inset-0 after:rounded-2xl hover:underline focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-zus-green-dark">
         Wypełnij {code} →
       </button>
@@ -81,13 +83,13 @@ export function FormPicker({ onOpen, recommended = [], headingLevel = 3, codes, 
           </ul>
         </section>
       ))}
-      {showLegend && <p className="text-xs text-zinc-600">Symbole i nazwy formularzy wg informacji ZUS. Kolor ikony: zielony — wypełniasz Ty, granatowy — wypełnia płatnik składek.</p>}
+      {showLegend && <p className="text-xs text-zinc-600">Symbole i nazwy formularzy wg informacji ZUS. Kolor ikony: zielony - wypełniasz Ty, granatowy - wypełnia płatnik składek.</p>}
     </div>
   );
 }
 
 /** Na wyniku (FE1-16): widać tylko pisma dopasowane do planu, pozostałe po kliknięciu „Pokaż pozostałe pisma”.
- *  Bez dopasowania — informacja, że nic nie pasuje, i ten sam przycisk (wszystkie pisma zwinięte). */
+ *  Bez dopasowania - informacja, że nic nie pasuje, i ten sam przycisk (wszystkie pisma zwinięte). */
 export function MatchedFormPicker({ onOpen, recommended, headingLevel = 4 }: {
   onOpen: (code: FormCode) => void; recommended: FormCode[]; headingLevel?: 3 | 4;
 }) {
@@ -115,8 +117,8 @@ export function MatchedFormPicker({ onOpen, recommended, headingLevel = 4 }: {
   );
 }
 
-/** Ekran pojedynczego pisma. Etap 3 (wypełnianie formularzem) — osobne zadanie; teraz: opis i zaślepka. */
-export function FormDetail({ code, onBack, backLabel }: { code: FormCode; onBack: () => void; backLabel: string }) {
+/** Ekran pojedynczego pisma: opis i formularz do wypełnienia (FE1-23) - Anuluj wraca, Prześlij pobiera wypełniony PDF. */
+export function FormDetail({ code, onBack, backLabel, answers = null }: { code: FormCode; onBack: () => void; backLabel: string; answers?: Answers | null }) {
   const f = FORMS[code];
   return (
     <div className="space-y-5">
@@ -131,14 +133,7 @@ export function FormDetail({ code, onBack, backLabel }: { code: FormCode; onBack
           </dl>
         </div>
       </section>
-      <section role="status" className="rounded-2xl border border-dashed border-zus-navy/40 bg-zus-blue-50 p-5 text-sm text-zus-navy">
-        <h3 className="font-semibold">Wypełnianie {code} — w przygotowaniu</h3>
-        <p className="mt-1">Wkrótce wypełnisz tu pismo krok po kroku, z danymi z kreatora. Wysyłka będzie SYMULACJĄ — nic nie trafi do ZUS.</p>
-      </section>
-      <button type="button" onClick={onBack}
-        className="rounded-full border border-zinc-300 bg-white px-5 py-2.5 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
-        ← {backLabel}
-      </button>
+      <FormFill key={code} code={code} answers={answers} onCancel={onBack} cancelLabel={`← ${backLabel}`} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 # Od czego zacząć: szybkie pisma bez kreatora i te same pisma na podsumowaniu planu (FE1-11)
 
-> Wymaganie: docs/FORMS_FLOW.md. Etap 3 (wypełnianie formularzem) to na razie zaślepka.
+> Wymaganie: docs/FORMS_FLOW.md. Wypełnianie pisma formularzem (etap 3, FE1-23) - scenariusz 19.
 
 1. Otwórz stronę główną.
 2. Sprawdź, że widać „Od czego chcesz zacząć?”.
@@ -12,8 +12,8 @@
 8. Sprawdź, że strona nie przewija się w poziomie.
 9. Kliknij „Wypełnij ZAS-53 →”.
 10. Sprawdź, że nagłówek to „Wniosek o zasiłek chorobowy”.
-11. Sprawdź, że widać „w przygotowaniu”.
-12. Kliknij „← Wróć do listy pism”.
+11. Sprawdź, że widać „Składam wniosek o przyznanie zasiłku chorobowego”.
+12. Kliknij „Anuluj”.
 13. Sprawdź, że nagłówek to „Które pismo chcesz złożyć?”.
 14. Kliknij „← Strona startowa”.
 15. Kliknij „JDG w ciąży, zaległość w składkach”.
@@ -24,6 +24,6 @@
 20. Kliknij „Pokaż pozostałe pisma (5)”.
 21. Kliknij „Wypełnij ZAM →”.
 22. Sprawdź, że nagłówek to „Wniosek o zasiłek macierzyński”.
-23. Kliknij „← Wróć do planu”.
+23. Kliknij „Anuluj”.
 24. Sprawdź, że nagłówek to „Twój plan”.
 25. Sprawdź, że strona nie przewija się w poziomie.

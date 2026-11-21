@@ -21,9 +21,9 @@
 19. Sprawdź, że widać „dostępny po wykorzystaniu całego urlopu macierzyńskiego”.
 20. Wybierz „Tak”.
 21. Ustaw suwak „Rodzicielski wykorzystany przez mamę” na „41”.
-22. Sprawdź, że pole „Rodzicielski wykorzystany przez mamę — wpisz wartość” ma wartość „32”.
+22. Sprawdź, że pole „Rodzicielski wykorzystany przez mamę - wpisz wartość” ma wartość „32”.
 23. Ustaw suwak „Rodzicielski wykorzystany przez tatę” na „20”.
-24. Sprawdź, że pole „Rodzicielski wykorzystany przez tatę — wpisz wartość” ma wartość „9”.
+24. Sprawdź, że pole „Rodzicielski wykorzystany przez tatę - wpisz wartość” ma wartość „9”.
 25. Ustaw suwak „Rodzicielski wykorzystany przez tatę” na „0”.
 26. Ustaw suwak „Rodzicielski wykorzystany przez mamę” na „5”.
 27. Sprawdź, że widać „podaj, na ile części”.

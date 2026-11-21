@@ -1,10 +1,10 @@
-// FE1-10: klasyczna walidacja pól kreatora — komunikat przy polu i blokada „Dalej” dla wartości, które nie mogą
+// FE1-10: klasyczna walidacja pól kreatora - komunikat przy polu i blokada „Dalej” dla wartości, które nie mogą
 // być prawdziwe (np. planowana data porodu w przeszłości). Braki danych NIE są tu błędem (UNKNOWN → silnik pyta),
 // a sytuacje prawnie istotne (np. ubezpieczenie od dnia po porodzie) ocenia silnik, nie walidator.
-// Granice z PARAMS (PRE_BIRTH_MAX_WEEKS, WEEK_AS_DAYS) — bez liczb z przepisów w kodzie.
+// Granice z PARAMS (PRE_BIRTH_MAX_WEEKS, WEEK_AS_DAYS) - bez liczb z przepisów w kodzie.
 import { PARAMS } from "../preview/params";
 import { addDays } from "../preview/exact";
-import type { Answers } from "./answers";
+import { type Answers, hasContractEnd } from "./answers";
 import { todayIso } from "./request";
 
 export type DateFieldKey = "eventDate" | "deathDate" | "insuredFrom" | "contractEnd" | "maternityStart";
@@ -26,27 +26,27 @@ export function dateErrors(a: Answers, today = todayIso()): FieldErrors {
     else if (a.deathDate > today) e.deathDate = "Data śmierci dziecka jest w przyszłości.";
   }
   // Początek ubezpieczenia NIE jest blokowany: przyszła data bywa prawdziwa (nowa umowa), a skutek prawny zależy od
-  // świadczenia (macierzyński — dzień porodu, art. 29; ojcowski — dzień startu urlopu, PAT-ELIG-001). Ocenia silnik;
+  // świadczenia (macierzyński - dzień porodu, art. 29; ojcowski - dzień startu urlopu, PAT-ELIG-001). Ocenia silnik;
   // kreator pokazuje tylko ostrzeżenie (dateWarnings).
-  if (a.title === "EMPLOYMENT" && a.contractType === "FIXED_TERM" && a.contractEnd && a.insuredFrom && a.contractEnd < a.insuredFrom) {
+  if (a.title === "EMPLOYMENT" && hasContractEnd(a.contractType) && a.contractEnd && a.insuredFrom && a.contractEnd < a.insuredFrom) {
     e.contractEnd = "Umowa nie może kończyć się przed dniem, od którego podlegasz ubezpieczeniu.";
   }
   if (a.maternityStart && ev && a.role === "MOTHER") {
     const earliest = addDays(ev, -PARAMS.PRE_BIRTH_MAX_WEEKS * PARAMS.WEEK_AS_DAYS);
     if (a.maternityStart > ev) e.maternityStart = "Urlop macierzyński nie może zacząć się po dniu porodu.";
     else if (a.maternityStart < earliest) {
-      e.maternityStart = `Przed porodem można wykorzystać najwyżej ${PARAMS.PRE_BIRTH_MAX_WEEKS} tygodni urlopu — najwcześniej od ${earliest.split("-").reverse().join(".")}.`;
+      e.maternityStart = `Przed porodem można wykorzystać najwyżej ${PARAMS.PRE_BIRTH_MAX_WEEKS} tygodni urlopu - najwcześniej od ${earliest.split("-").reverse().join(".")}.`;
     }
   }
   return e;
 }
 
-/** FE1-10: ostrzeżenia bez blokady „Dalej” — sytuacje możliwe, ale istotne dla wyniku (ocena w silniku). */
+/** FE1-10: ostrzeżenia bez blokady „Dalej” - sytuacje możliwe, ale istotne dla wyniku (ocena w silniku). */
 export function dateWarnings(a: Answers): FieldErrors {
   const w: FieldErrors = {};
   const ev = a.eventDate;
   if (a.title && a.title !== "NONE" && a.insuredFrom && ev && a.insuredFrom > ev && a.role === "MOTHER") {
-    w.insuredFrom = "Ubezpieczenie zaczyna się po dniu porodu — zasiłek macierzyński wymaga ubezpieczenia w dniu porodu. Sprawdzimy to w wyniku.";
+    w.insuredFrom = "Ubezpieczenie zaczyna się po dniu porodu - zasiłek macierzyński wymaga ubezpieczenia w dniu porodu. Sprawdzimy to w wyniku.";
   }
   return w;
 }

@@ -138,7 +138,7 @@ def test_suggest_options_ranked_and_recommended():
     feasible = [o for o in result["options"] if o["feasible"]]
     best = max(feasible, key=lambda o: D(o["best_total_exact"]))
     assert result["recommended"] == best["value"] and best["recommended"] and D(best["loss_vs_best_exact"]) == 0
-    # ojciec z wyższą podstawą — cała wspólna część dla ojca
+    # ojciec z wyższą podstawą - cała wspólna część dla ojca
     assert result["recommended"] == 23
 
 
@@ -154,7 +154,7 @@ def test_backtrack_two_steps_finds_better_earlier_choice():
 
 def test_backtrack_reaches_earlier_step_when_it_matters():
     planner = Planner(profile())
-    # ojciec wziął tylko 1 tydzień ojcowskiego — cofnięcie o 3 kroki to wykrywa
+    # ojciec wziął tylko 1 tydzień ojcowskiego - cofnięcie o 3 kroki to wykrywa
     found = {b["step_id"] for b in planner.suggest([False, 6, 1, 9, 23], lookback=3)["backtrack"]}
     assert "PATERNITY" in found
     assert "PATERNITY" not in {b["step_id"] for b in planner.suggest([False, 6, 1, 9, 23], lookback=2)["backtrack"]}

@@ -4,7 +4,7 @@ import { AppVersion } from "@/components/AppVersion";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { AdminParameters } from "@/features/admin/AdminParameters";
 
-export const metadata: Metadata = { title: "Parametry prawne — panel administratora · Przewodnik Przyszłego Rodzica" };
+export const metadata: Metadata = { title: "Parametry prawne - panel administratora · Przewodnik Przyszłego Rodzica" };
 
 // FE1-03: panel admina parametrów (GET/PUT /api/admin/parameters).
 export default function AdminPage() {
@@ -23,7 +23,7 @@ export default function AdminPage() {
       </main>
       <footer className="border-t border-zinc-200 bg-white">
         <div className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-zinc-600">
-          Prototyp HackNation 2026. Panel administratora — zmiany parametrów działają od razu w kolejnych wyliczeniach.
+          Prototyp HackNation 2026. Panel administratora - zmiany parametrów działają od razu w kolejnych wyliczeniach.
           <AppVersion />
         </div>
       </footer>

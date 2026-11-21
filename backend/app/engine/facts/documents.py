@@ -1,8 +1,8 @@
-"""Fakty — dokumenty, terminy wniosków urlopowych i ryzyka (zus_rules/07 §3, §5, §7; BE2-04).
+"""Fakty - dokumenty, terminy wniosków urlopowych i ryzyka (zus_rules/07 §3, §5, §7; BE2-04).
 
 Reguły: APP-DOC-001…006, SICK-DOC-001/002 (dokumenty), APP-DL-002 (terminy KP), RISK-001/002 (ostrzeżenia).
 Kody dokumentów jak w ``03_rules.yaml`` (``result.documents[].doc``) i mapie ``f_documents_for_segment`` w 07 §7.
-Terminy KP i progi ryzyk wyłącznie z ``ctx.param`` (progi RISK — parametry projektowe, nie prawne; M17).
+Terminy KP i progi ryzyk wyłącznie z ``ctx.param`` (progi RISK - parametry projektowe, nie prawne; M17).
 """
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def documents_for_segment(ctx: Context) -> list[dict[str, Any]] | None:
 
     Stan pomocniczy (ustawia pipeline): ``payer_of_benefit``, ``is_employee``, ``maternity_parent`` (rodzic, który
     korzystał z urlopu macierzyńskiego). Brak płatnika → pomija dokumenty zależne od płatnika. ROZP_WN § 22:
-    dokumenty z akt osobowych pomija się — silnik ich nie zna, więc nie filtruje (informacja w przewodniku).
+    dokumenty z akt osobowych pomija się - silnik ich nie zna, więc nie filtruje (informacja w przewodniku).
     """
     seg = ctx.segment or {}
     leave_type, parent = seg.get("leave_type"), seg.get("parent")
@@ -106,7 +106,7 @@ def documents_for_segment(ctx: Context) -> list[dict[str, Any]] | None:
 
 
 def _child_documents(ctx: Context, event_type: str | None, payer: str | None) -> list[dict[str, Any]]:
-    """Akt urodzenia (płatnik składek) albo dane do pobrania z rejestru (ZUS); przyjęcie — dokumenty sądu."""
+    """Akt urodzenia (płatnik składek) albo dane do pobrania z rejestru (ZUS); przyjęcie - dokumenty sądu."""
     if event_type == "BIRTH":
         if payer == "ZUS":
             return [doc("CHILD_DATA_FOR_ZUS_REGISTRY_LOOKUP", "§ 13 ust. 2", provider="INSURED",
@@ -124,7 +124,7 @@ def _child_documents(ctx: Context, event_type: str | None, payer: str | None) ->
 # ------------------------------------------------------------------------------------------- terminy (KP)
 @fact("f_leave_application_deadlines")
 def leave_application_deadlines(ctx: Context) -> list[dict[str, Any]] | None:
-    """07 §7, APP-DL-002: ostatni dzień złożenia wniosku urlopowego u pracodawcy — per segment planu.
+    """07 §7, APP-DL-002: ostatni dzień złożenia wniosku urlopowego u pracodawcy - per segment planu.
 
     Rodzicielski (także łączenie z pracą) start − 21, część macierzyńskiego dla ojca start − 14, ojcowski
     start − 7, uzupełniający koniec macierzyńskiego − 21, rezygnacja matki powrót − 7, na warunkach
@@ -157,7 +157,7 @@ def leave_application_deadlines(ctx: Context) -> list[dict[str, Any]] | None:
         elif leave_type == SUPPLEMENTARY:
             maternity = [to_date(s["to"]) for s in segments(ctx, MATERNITY_LEAVE, parent)]
             if not maternity:
-                continue  # koniec macierzyńskiego nieznany — terminu nie podajemy (D29)
+                continue  # koniec macierzyńskiego nieznany - terminu nie podajemy (D29)
             maternity_end = max(maternity)
             out.append({"code": "LEAVE_APP_SUPPLEMENTARY",
                         "date": before(maternity_end, "LEAVE_APP_SUPPLEMENTARY_DAYS_BEFORE_MATERNITY_END"),
@@ -168,7 +168,7 @@ def leave_application_deadlines(ctx: Context) -> list[dict[str, Any]] | None:
                         "date": accepted + timedelta(days=int(ctx.param(
                             "LEAVE_APP_MATERNITY_LIKE_DAYS_AFTER_ACCEPTANCE"))), "who": parent})
         if leave_type == MATERNITY_LEAVE and parent == "MOTHER" and birth is not None and start < birth:
-            # BE2-08: część urlopu macierzyńskiego przed porodem — wniosek ≥ 14 dni przed startem (Poradnik ZUS 2026)
+            # BE2-08: część urlopu macierzyńskiego przed porodem - wniosek ≥ 14 dni przed startem (Poradnik ZUS 2026)
             out.append({"code": "LEAVE_APP_MATERNITY_PRE_BIRTH",
                         "date": before(start, "LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE"), "who": parent})
         if leave_type == MATERNITY_LEAVE and parent == "MOTHER" and end is not None \
@@ -186,7 +186,7 @@ def title_started_during_or_shortly_before_pregnancy(ctx: Context) -> bool | Non
     """07 §3, RISK-001: początek któregoś tytułu ≥ pregnancy_start_date − RISK_WINDOW_DAYS (projektowy, M17).
 
     Tytuły zaczęte po porodzie (lub przewidywanej dacie porodu) nie liczą się. Brak tytułów albo daty
-    początku ciąży → None. Treść zadania pkt H.1 — tylko ostrzeżenie, nie ocena pozorności.
+    początku ciąży → None. Treść zadania pkt H.1 - tylko ostrzeżenie, nie ocena pozorności.
     """
     titles = ctx.field("insurance.titles")
     start = to_date(ctx.field("pregnancy.pregnancy_start_date"))
@@ -216,7 +216,7 @@ def contribution_base_increase_during_pregnancy(ctx: Context) -> bool | None:
     """07 §3, RISK-002: średnia podstawa w miesiącach ciąży > średnia z RISK_BASE_MONTHS_BEFORE_PREGNANCY
     miesięcy przed ciążą × RISK_INCREASE_FACTOR (parametry projektowe, M17).
 
-    Brak miesięcy po którejś stronie albo daty początku ciąży → None. Treść zadania pkt H.2 — tylko ostrzeżenie.
+    Brak miesięcy po którejś stronie albo daty początku ciąży → None. Treść zadania pkt H.2 - tylko ostrzeżenie.
     """
     start = to_date(ctx.field("pregnancy.pregnancy_start_date"))
     months = ctx.field("income_history.months")

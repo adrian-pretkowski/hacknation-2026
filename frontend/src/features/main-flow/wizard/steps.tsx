@@ -1,17 +1,18 @@
 "use client";
 
 // Kroki kreatora: najpierw pytania, które wykluczają całe gałęzie (kim jesteś → etap → zdarzenie → ubezpieczenie).
-// Każdy krok ma warunek widoczności — pytanie pojawia się tylko wtedy, gdy ma znaczenie dla wyniku.
+// Każdy krok ma warunek widoczności - pytanie pojawia się tylko wtedy, gdy ma znaczenie dla wyniku.
 import { useId } from "react";
 import { formatDate, formatMoney } from "@/lib/format";
 import { maternityWeeks } from "../preview/engine";
 import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
-import type { Answers } from "./answers";
-import { Check, Choice, DateField, Field, NumberSelect, Slider, TRI_OPTIONS, inputCls } from "./fields";
+import { type Answers, extendableUntilBirth, hasContractEnd } from "./answers";
+import { Check, Choice, DateField, Field, MoneyField, NumberSelect, Slider, TRI_OPTIONS, inputCls, moneyError } from "./fields";
 import { dateErrors, dateWarnings, hasErrors } from "./validation";
 import { Optimizer, optimizerVisible } from "./Optimizer";
-import { todayIso } from "./request";
+import { normalizeMoney } from "./money";
+import { noInsuranceReason, todayIso } from "./request";
 import { ZusFetch } from "./ZusFetch";
 
 const plYears = (n: number) => `${n} ${n === 1 ? "rok" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "lata" : "lat"}`;
@@ -21,7 +22,7 @@ const weeksBefore = (a: Answers): string => {
   return d % PARAMS.WEEK_AS_DAYS === 0 && d >= 0 && d <= PARAMS.PRE_BIRTH_MAX_WEEKS * PARAMS.WEEK_AS_DAYS
     ? String(d / PARAMS.WEEK_AS_DAYS) : "custom";
 };
-// FE1-05: masa urodzeniowa liczy się tylko względem progu (KP art. 180(2) § 1) — pytanie z opcjami zamiast suwaka.
+// FE1-05: masa urodzeniowa liczy się tylko względem progu (KP art. 180(2) § 1) - pytanie z opcjami zamiast suwaka.
 const WEIGHT_LIMIT = `${PARAMS.SUPP_WEIGHT_THRESHOLD_G.toLocaleString("pl-PL")} g`;
 const WEIGHT_OPTIONS = [
   { value: "YES" as const, label: `Do ${WEIGHT_LIMIT}` },
@@ -30,8 +31,15 @@ const WEIGHT_OPTIONS = [
 ];
 /** Przy porodzie przed SUPP_GESTATION_EARLY_WEEK masa nie zmienia wyniku (SUPP-ELIG-001 i tak przysługuje). */
 const weightMatters = (a: Answers) => a.gestationWeeks === "" || Number(a.gestationWeeks) >= PARAMS.SUPP_GESTATION_EARLY_WEEK;
-/** FE1-12: przyjęcie dziecka ponad granicę wieku (KP art. 183 § 3) — rodzicielski 38 / 62 tyg. (PAR-DUR-003); ten sam warunek
+/** FE1-12: przyjęcie dziecka ponad granicę wieku (KP art. 183 § 3) - rodzicielski 38 / 62 tyg. (PAR-DUR-003); ten sam warunek
  * co `kp183Case` w preview/engine.ts. Dotyczy suwaka w kroku „Plany” (krok „Co już wykorzystano” jest tylko dla mamy po porodzie). */
+/** FE1-26: pełne lata między datami ISO (wiek dziecka w dniu przyjęcia). */
+function fullYears(birth: string, on: string): number {
+  const [by, bm, bd] = birth.split("-").map(Number);
+  const [oy, om, od] = on.split("-").map(Number);
+  return Math.max(oy - by - (om < bm || (om === bm && od < bd) ? 1 : 0), 0);
+}
+
 const kp183Case = (a: Answers) => a.role === "GUARDIAN" && a.guardianKind === "FOSTER_NON_PROFESSIONAL" && a.childAgeYears !== ""
   && Number(a.childAgeYears) >= (a.schoolDeferred === "YES" ? PARAMS.FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED : PARAMS.FOSTER_CHILD_AGE_MAX);
 const parentalPool = (a: Answers) => kp183Case(a)
@@ -39,7 +47,7 @@ const parentalPool = (a: Answers) => kp183Case(a)
   : a.zaZyciem
     ? (a.children > 1 ? PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_MULTIPLE : PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_SINGLE)
     : (a.children > 1 ? PARAMS.PARENTAL_WEEKS_MULTIPLE : PARAMS.PARENTAL_WEEKS_SINGLE);
-/** FE1-12: górna granica tygodni rodzica — suma ≤ pula i nie ruszamy tygodni nieprzenoszalnych drugiego rodzica. */
+/** FE1-12: górna granica tygodni rodzica - suma ≤ pula i nie ruszamy tygodni nieprzenoszalnych drugiego rodzica. */
 const parentalMax = (a: Answers, other: string) =>
   Math.max(parentalPool(a) - Math.max(PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS, Number(other || 0)), 0);
 const clampWeeks = (v: string, max: number) => (v === "" ? v : String(Math.min(Number(v), max)));
@@ -56,6 +64,13 @@ export type Step = {
 };
 
 const TRI_TEXT = { YES: "tak", NO: "nie", UNKNOWN: "nie wiem" } as const;
+/** FE1-24: rodzaj umowy w podsumowaniu kroku. */
+const CONTRACT_TEXT: Record<Exclude<Answers["contractType"], null | "INDEFINITE">, string> = {
+  FIXED_TERM: "na czas określony",
+  PROBATION_OVER_1_MONTH: "próbna > 1 mies.",
+  PROBATION_UP_TO_1_MONTH: "próbna do 1 mies.",
+  REPLACEMENT: "na zastępstwo",
+};
 const TITLE_TEXT = { EMPLOYMENT: "Umowa o pracę", MANDATE: "Umowa zlecenia", SELF_EMPLOYED: "Działalność (JDG)", NONE: "Bez ubezpieczenia / nie wiem" } as const;
 const GUARDIAN_TEXT = { ADOPTION: "Adopcja", FOSTER_NON_PROFESSIONAL: "Rodzina zastępcza niezawodowa", FOSTER_PROFESSIONAL: "Zawodowa rodzina zastępcza" } as const;
 const plWeeks = (n: number) => `${n} tyg.`;
@@ -101,7 +116,7 @@ function HospitalDays({ a, set, cap, label, hint }: StepProps & { cap: number; l
           : weeks === null ? null
           : <>
               {plDays(days)} = <strong>{plWeeks(weeks)}</strong>
-              {rest > 0 && ` (${full > 0 ? `${plWeeks(full)} + ` : ""}${plDays(rest)} — niepełny tydzień liczymy jako pełny)`}
+              {rest > 0 && ` (${full > 0 ? `${plWeeks(full)} + ` : ""}${plDays(rest)} - niepełny tydzień liczymy jako pełny)`}
               {weeks > cap && `. Do urlopu uzupełniającego liczy się najwyżej ${plWeeks(cap)}`}
             </>}
       </p>
@@ -111,22 +126,22 @@ function HospitalDays({ a, set, cap, label, hint }: StepProps & { cap: number; l
 /** Pełne tygodnie od porodu do dziś (null, gdy brak daty). */
 export const weeksSinceBirth = (a: Answers): number | null =>
   a.eventDate ? Math.floor(daysBetween(a.eventDate, todayIso()) / PARAMS.WEEK_AS_DAYS) : null;
-/** FE1-09: spójność kroku „Co już wykorzystano” — komunikaty przy polach (pusta lista = można przejść dalej). */
+/** FE1-09: spójność kroku „Co już wykorzystano” - komunikaty przy polach (pusta lista = można przejść dalej). */
 export const usedErrors = (a: Answers): { maternity?: string; parental?: string; parts?: string } => {
   const m = Number(a.usedParentalMotherWeeks || 0);
   const f = Number(a.usedParentalFatherWeeks || 0);
   const pool = parentalPool(a);
   const since = weeksSinceBirth(a);
   const out: { maternity?: string; parental?: string; parts?: string } = {};
-  // macierzyński biegnie bez przerw od porodu — nie da się wykorzystać więcej tygodni, niż minęło
+  // macierzyński biegnie bez przerw od porodu - nie da się wykorzystać więcej tygodni, niż minęło
   if (a.usedMaternityFully === "NO" && a.usedMaternityWeeks !== "" && since !== null && Number(a.usedMaternityWeeks) > since + 1) {
     out.maternity = `Od porodu minęło ${since} tyg., więc nie można było wykorzystać ${a.usedMaternityWeeks} tyg. urlopu macierzyńskiego.`;
   } else if (a.usedMaternityFully === "NO" && m + f > 0) {
     out.maternity = "Urlop rodzicielski zaczyna się dopiero po całym urlopie macierzyńskim (lub po jego przejęciu przez tatę). Zaznacz „Tak” albo ustaw wykorzystany rodzicielski na 0.";
   }
   if (m + f > pool) out.parental = `Razem wykorzystano ${m + f} tyg. rodzicielskiego, a cała pula to ${pool} tyg. Popraw liczby tygodni mamy i taty.`;
-  if (m + f > 0 && Number(a.usedParts || 0) === 0) out.parts = "Wykorzystano już tygodnie rodzicielskiego — podaj, na ile części (wniosków) go podzielono (co najmniej 1).";
-  else if (Number(a.usedParts || 0) > m + f && m + f > 0) out.parts = `Części nie może być więcej niż tygodni (${m + f}) — każda część to co najmniej tydzień.`;
+  if (m + f > 0 && Number(a.usedParts || 0) === 0) out.parts = "Wykorzystano już tygodnie rodzicielskiego - podaj, na ile części (wniosków) go podzielono (co najmniej 1).";
+  else if (Number(a.usedParts || 0) > m + f && m + f > 0) out.parts = `Części nie może być więcej niż tygodni (${m + f}) - każda część to co najmniej tydzień.`;
   return out;
 };
 const FieldError = ({ id, text }: { id: string; text?: string }) => text
@@ -195,6 +210,16 @@ export const STEPS: Step[] = [
           <>
             <NumberSelect label="Wiek dziecka" value={a.childAgeYears} from={0} to={17} unit={plYears} unknownLabel="Wybierz wiek"
               onChange={(childAgeYears) => set({ childAgeYears })} />
+            <DateField label="Data urodzenia dziecka (jeśli znasz)"
+              hint={`Policzymy dokładny koniec urlopu - najpóźniej dzień przed ${a.guardianKind === "ADOPTION" ? PARAMS.ADOPTION_CHILD_AGE_MAX
+                : a.schoolDeferred === "YES" ? PARAMS.FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED : PARAMS.FOSTER_CHILD_AGE_MAX}. urodzinami dziecka.`}
+              value={a.childBirthDate} onChange={(childBirthDate) => set(childBirthDate && a.eventDate
+                ? { childBirthDate, childAgeYears: String(fullYears(childBirthDate, a.eventDate)) } : { childBirthDate })} />
+            {a.guardianKind === "ADOPTION" && (
+              <DateField label="Data uprawomocnienia postanowienia o przysposobieniu (jeśli znasz)"
+                hint={`Od tej daty liczy się ${PARAMS.PATERNITY_ADOPTION_WINDOW_MONTHS} miesięcy na urlop ojcowski.`}
+                value={a.adoptionFinalDate} onChange={(adoptionFinalDate) => set({ adoptionFinalDate })} />
+            )}
             {a.guardianKind !== "ADOPTION" && (
               <Choice legend="Czy dziecku odroczono obowiązek szkolny?" value={a.schoolDeferred} columns={3}
                 onChange={(schoolDeferred) => set({ schoolDeferred })} options={TRI_OPTIONS} />
@@ -264,11 +289,11 @@ export const STEPS: Step[] = [
               )}
               {(() => {
                 const { cap, known } = suppCapWeeks(a);
-                const capHint = `Urlop uzupełniający wynosi najwyżej ${cap} tyg. — dłuższy pobyt go nie wydłuża.${known ? "" : ` Limit ${PARAMS.SUPP_CAP_WEEK_EARLY} tyg. dotyczy porodu przed ${PARAMS.SUPP_GESTATION_EARLY_WEEK}. tygodniem ciąży lub masy do ${PARAMS.SUPP_WEIGHT_THRESHOLD_G} g; w pozostałych przypadkach ${PARAMS.SUPP_CAP_WEEK_PRETERM} tyg.`}`;
+                const capHint = `Urlop uzupełniający wynosi najwyżej ${cap} tyg. - dłuższy pobyt go nie wydłuża.${known ? "" : ` Limit ${PARAMS.SUPP_CAP_WEEK_EARLY} tyg. dotyczy porodu przed ${PARAMS.SUPP_GESTATION_EARLY_WEEK}. tygodniem ciąży lub masy do ${PARAMS.SUPP_WEIGHT_THRESHOLD_G} g; w pozostałych przypadkach ${PARAMS.SUPP_CAP_WEEK_PRETERM} tyg.`}`;
                 const who = a.children > 1 ? " (dziecko najdłużej w szpitalu)" : "";
                 return (
                   <HospitalDays a={a} set={set} cap={cap} label={`Łącznie dni w szpitalu${who}`}
-                    hint={`Liczba dni z zaświadczenia ze szpitala — przeliczymy ją na tygodnie. ${HOSPITAL_EXAMPLE} Kilka pobytów sumuje się; liczą się dni od porodu, w czasie urlopu macierzyńskiego. Puste pole = nie wiem. ${capHint}`} />
+                    hint={`Liczba dni z zaświadczenia ze szpitala - przeliczymy ją na tygodnie. ${HOSPITAL_EXAMPLE} Kilka pobytów sumuje się; liczą się dni od porodu, w czasie urlopu macierzyńskiego. Puste pole = nie wiem. ${capHint}`} />
                 );
               })()}
             </div>
@@ -278,7 +303,7 @@ export const STEPS: Step[] = [
             )}
           </div>
         )}
-        <Check label="Zaświadczenie „Za życiem”" hint="Ciężkie i nieodwracalne upośledzenie lub nieuleczalna choroba — dłuższy urlop rodzicielski."
+        <Check label="Zaświadczenie „Za życiem”" hint="Ciężkie i nieodwracalne upośledzenie lub nieuleczalna choroba - dłuższy urlop rodzicielski."
           checked={a.zaZyciem} onChange={(zaZyciem) => set({ zaZyciem })} />
       </div>
     ),
@@ -287,10 +312,11 @@ export const STEPS: Step[] = [
     id: "insurance",
     title: "Praca i ubezpieczenie",
     visible: (a) => a.role !== null,
-    complete: (a) => a.title !== null && (a.title === "NONE" || !!a.insuredFrom) && !hasErrors(a, "contractEnd")
+    complete: (a) => a.title !== null && (a.title === "NONE" || !!noInsuranceReason(a) || !!a.insuredFrom) && !hasErrors(a, "contractEnd")
       && (a.title !== "EMPLOYMENT" || a.contractType !== null),
     summary: (a) => (a.title ? join([TITLE_TEXT[a.title], a.title !== "NONE" && a.insuredFrom && `od ${formatDate(a.insuredFrom)}`,
-      a.contractType === "FIXED_TERM" && "na czas określony"]) : null),
+      a.contractType && a.contractType !== "INDEFINITE" && CONTRACT_TEXT[a.contractType], a.title === "EMPLOYMENT" && a.fullTime === "NO" && "niepełny etat",
+      noInsuranceReason(a) === "START_RELIEF" && "ulga na start", noInsuranceReason(a) === "STUDENT_UNDER_26" && "student do 26 lat"]) : null),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <Choice legend="Z jakiego tytułu masz ubezpieczenie?" value={a.title} onChange={(title) => set({ title })} options={[
@@ -299,11 +325,21 @@ export const STEPS: Step[] = [
           { value: "SELF_EMPLOYED", label: "Działalność gospodarcza (JDG)" },
           { value: "NONE", label: "Nie pracuję / nie wiem", description: "sprawdzimy inne możliwości" },
         ]} />
-        {(a.title === "MANDATE" || a.title === "SELF_EMPLOYED") && (
+        {a.title === "SELF_EMPLOYED" && (
+          <Choice legend="Czy korzystasz z ulgi na start?" value={a.startRelief} columns={3}
+            hint={`Pierwsze ${PARAMS.START_RELIEF_MONTHS} miesięcy działalności bez składek na ubezpieczenia społeczne - w tym czasie nie ma też chorobowego.`}
+            onChange={(startRelief) => set({ startRelief })} options={TRI_OPTIONS} />
+        )}
+        {a.title === "MANDATE" && (
+          <Choice legend={`Czy jesteś uczniem lub studentem i nie masz jeszcze ${PARAMS.STUDENT_AGE_LIMIT_YEARS} lat?`} value={a.studentUnder26} columns={3}
+            hint={`Uczeń lub student przed ${PARAMS.STUDENT_AGE_LIMIT_YEARS}. urodzinami na umowie zlecenia nie podlega ubezpieczeniom społecznym, także chorobowemu.`}
+            onChange={(studentUnder26) => set({ studentUnder26 })} options={TRI_OPTIONS} />
+        )}
+        {(a.title === "MANDATE" || a.title === "SELF_EMPLOYED") && !noInsuranceReason(a) && (
           <Choice legend="Czy opłacasz dobrowolne ubezpieczenie chorobowe?" hint="Bez niego nie ma zasiłku macierzyńskiego z tego tytułu."
             value={a.voluntarySickness} columns={3} onChange={(voluntarySickness) => set({ voluntarySickness })} options={TRI_OPTIONS} />
         )}
-        {a.title && a.title !== "NONE" && (
+        {a.title && a.title !== "NONE" && !noInsuranceReason(a) && (
           <>
             <ZusFetch source="insurance" a={a} set={set} what="Nie pamiętasz dat? Pobierzemy okres ubezpieczenia i dane płatnika." />
             <DateField label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej."
@@ -314,13 +350,25 @@ export const STEPS: Step[] = [
           <>
             <Choice legend="Rodzaj umowy" value={a.contractType} onChange={(contractType) => set({ contractType })} options={[
               { value: "INDEFINITE", label: "Na czas nieokreślony" },
-              { value: "FIXED_TERM", label: "Na czas określony / próbny" },
+              { value: "FIXED_TERM", label: "Na czas określony" },
+              { value: "PROBATION_OVER_1_MONTH", label: "Na okres próbny dłuższy niż 1 miesiąc" },
+              { value: "PROBATION_UP_TO_1_MONTH", label: "Na okres próbny do 1 miesiąca" },
+              { value: "REPLACEMENT", label: "Na zastępstwo" },
             ]} />
-            {a.contractType === "FIXED_TERM" && (
+            <Choice legend="Czy pracujesz na pełny etat?" value={a.fullTime} columns={3}
+              hint="Przy pełnym etacie podstawa zasiłku nie może być niższa niż minimalna (płaca minimalna po odliczeniu 13,71%)."
+              onChange={(fullTime) => set({ fullTime })} options={TRI_OPTIONS} />
+            {hasContractEnd(a.contractType) && (
               <DateField label="Do kiedy trwa umowa?" value={a.contractEnd} error={dateErrors(a).contractEnd}
                 onChange={(contractEnd) => set({ contractEnd })} />
             )}
-            {a.contractType === "FIXED_TERM" && a.contractEnd && a.eventDate && a.contractEnd < a.eventDate && (
+            {hasContractEnd(a.contractType) && !extendableUntilBirth(a.contractType) && a.contractEnd && a.eventDate && a.contractEnd < a.eventDate && (
+              <p role="note" className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                {a.contractType === "REPLACEMENT" ? "Umowa na zastępstwo" : "Umowa na okres próbny do 1 miesiąca"} nie przedłuża się do dnia porodu
+                (KP art. 177 § 3) - jeśli skończy się przed porodem, bez innego ubezpieczenia nie będzie zasiłku macierzyńskiego.
+              </p>
+            )}
+            {extendableUntilBirth(a.contractType) && a.contractEnd && a.eventDate && a.contractEnd < a.eventDate && (
               <Choice legend="Czy umowa kończy się po upływie 3. miesiąca ciąży?" value={a.contractEndsAfter3rdMonth} columns={3}
                 onChange={(contractEndsAfter3rdMonth) => set({ contractEndsAfter3rdMonth })} options={TRI_OPTIONS} />
             )}
@@ -338,7 +386,7 @@ export const STEPS: Step[] = [
               { value: "GT20", label: "Więcej niż 20" }, { value: "LE20", label: "20 lub mniej" }, { value: "UNKNOWN", label: "Nie wiem" },
             ]} />
         )}
-        {a.title === "SELF_EMPLOYED" && (
+        {a.title === "SELF_EMPLOYED" && !noInsuranceReason(a) && (
           <div className="space-y-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
             <ZusFetch source="debt" a={a} set={set} what="Pobierz zaświadczenie o stanie rozliczeń składek." />
             <Field label="Zaległość w składkach na dzień porodu (zł)" hint="0, jeśli brak.">
@@ -379,7 +427,7 @@ export const STEPS: Step[] = [
           && (weeksSinceBirth(a) ?? 0) > Number(a.usedMaternityWeeks) && Number(a.usedMaternityWeeks) < PARAMS.MOTHER_MIN_WEEKS_BEFORE_TRANSFER && (
           <p role="note" className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
             Urlop macierzyński przerwany przed upływem {PARAMS.MOTHER_MIN_WEEKS_BEFORE_TRANSFER} tyg. to sytuacja szczególna
-            (np. pobyt w szpitalu, orzeczenie o niezdolności do samodzielnej egzystencji) — wynik pokażemy, ale sprawdź ją w ZUS.
+            (np. pobyt w szpitalu, orzeczenie o niezdolności do samodzielnej egzystencji) - wynik pokażemy, ale sprawdź ją w ZUS.
           </p>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
@@ -393,9 +441,9 @@ export const STEPS: Step[] = [
             emptyLabel="0 tyg." onChange={(v) => set({ usedParentalFatherWeeks: clampWeeks(v, parentalMax(a, a.usedParentalMotherWeeks)) })} />
         </div>
         {a.usedMaternityFully !== "YES" ? (
-          <p className="text-sm text-zinc-600">Urlop rodzicielski jest dostępny po wykorzystaniu całego urlopu macierzyńskiego — dlatego suwaki są nieaktywne.</p>
+          <p className="text-sm text-zinc-600">Urlop rodzicielski jest dostępny po wykorzystaniu całego urlopu macierzyńskiego - dlatego suwaki są nieaktywne.</p>
         ) : (
-          <p className="text-sm text-zinc-600">Pula rodzicielskiego: {parentalPool(a)} tyg., z czego po {PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tyg. jest tylko dla mamy i tylko dla taty — suwaki nie pozwalają ich przekroczyć.</p>
+          <p className="text-sm text-zinc-600">Pula rodzicielskiego: {parentalPool(a)} tyg., z czego po {PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tyg. jest tylko dla mamy i tylko dla taty - suwaki nie pozwalają ich przekroczyć.</p>
         )}
         <FieldError id="used-parental-err" text={usedErrors(a).parental} />
         <NumberSelect label="Na ile części (wniosków) podzielono rodzicielski?" hint="Każdy wniosek to osobna część." value={a.usedParts}
@@ -469,7 +517,7 @@ export const STEPS: Step[] = [
         {(a.role !== "FATHER" || a.partnerInsured !== "NO") && (
           <Slider label="Ile tygodni rodzicielskiego weźmie tata?" unit="tyg." min={0}
             max={parentalPool(a) - PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} value={String(a.fatherParentalWeeks)}
-            hint={`${PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tygodni jest tylko dla taty i ${PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tylko dla mamy — nie można ich oddać drugiemu rodzicowi (przepadają, jeśli ich nie wykorzysta). Pozostałe tygodnie rodzice dzielą dowolnie.`}
+            hint={`${PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tygodni jest tylko dla taty i ${PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tylko dla mamy - nie można ich oddać drugiemu rodzicowi (przepadają, jeśli ich nie wykorzysta). Pozostałe tygodnie rodzice dzielą dowolnie.`}
             onChange={(v) => set({ fatherParentalWeeks: v === "" ? 0 : Math.min(Number(v), parentalPool(a) - PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS) })} />
         )}
         {a.role === "MOTHER" && (
@@ -490,17 +538,17 @@ export const STEPS: Step[] = [
     id: "salary",
     title: "Wynagrodzenie",
     visible: (a) => a.role !== null && a.title !== "NONE",
-    complete: () => true,
+    complete: (a) => !moneyError(a.salaryGross),
     summary: (a) => {
-      const v = a.salaryGross.replace(",", ".");
-      return /^\d+(\.\d{1,2})?$/.test(v) ? `${formatMoney(v)} brutto` : "nie podano";
+      const v = normalizeMoney(a.salaryGross);
+      return v ? `${formatMoney(v)} brutto` : "nie podano";
     },
     render: ({ a, set }) => (
       <div className="space-y-4">
         <ZusFetch source="salary" a={a} set={set}
           what={a.title === "SELF_EMPLOYED" ? "Pobierz zadeklarowaną podstawę składek z ostatnich 12 miesięcy." : "Pobierz podstawę wymiaru z ostatnich 12 miesięcy."} />
-        <Slider label={a.title === "SELF_EMPLOYED" ? "Zadeklarowana podstawa składek (zł / miesiąc)" : "Wynagrodzenie brutto (zł / miesiąc)"}
-          unit="zł" money min={0} max={30000} step={100} value={a.salaryGross} emptyLabel="nie podano — bez kwot"
+        <MoneyField label={a.title === "SELF_EMPLOYED" ? "Zadeklarowana podstawa składek (zł / miesiąc)" : "Wynagrodzenie brutto (zł / miesiąc)"}
+          value={a.salaryGross} emptyLabel="nie podano - bez kwot"
           hint="Przyjmujemy kwotę stałą przez 12 miesięcy; od brutto odejmujemy składki społeczne. Puste = pokażemy okresy bez kwot."
           onChange={(salaryGross) => set({ salaryGross })} />
       </div>

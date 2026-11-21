@@ -9,7 +9,7 @@ from app.integrations.simulated.profiles import Certificate
 class EzlaService:
     def list_certificates(self, profile_id: str, *, overlapping: tuple[dt.date, dt.date] | None = None,
                           code: str | None = None) -> dict[str, Any]:
-        """Lista zaświadczeń; filtry: nakładanie na okres `[from, to]` i kod (np. B — ciąża)."""
+        """Lista zaświadczeń; filtry: nakładanie na okres `[from, to]` i kod (np. B - ciąża)."""
         certs = [c for c in get_profile(profile_id).certificates
                  if (overlapping is None or (c.from_ <= overlapping[1] and c.to >= overlapping[0]))
                  and (code is None or code in c.codes)]
@@ -23,7 +23,7 @@ class EzlaService:
 
     @staticmethod
     def pregnancy_days(certs: list[dict[str, Any]]) -> int:
-        """Suma dni (włącznie) zaświadczeń z kodem B — pomocnicza do scenariuszy 270 dni."""
+        """Suma dni (włącznie) zaświadczeń z kodem B - pomocnicza do scenariuszy 270 dni."""
         return sum((to_date(c["to"]) - to_date(c["from"])).days + 1 for c in certs if "B" in c["codes"])
 
     @staticmethod

@@ -74,13 +74,14 @@ export function Wizard() {
         {view.kind === "forms" ? (
           <>
             <p className="mb-6 text-sm text-zinc-700">Kliknij pismo, aby je wypełnić. Nie wiesz, które wybrać?{" "}
-              <button type="button" onClick={start} className="font-semibold text-zus-navy underline underline-offset-2">Sprawdź w kreatorze, co Ci przysługuje</button> — na końcu podpowiemy pisma.</p>
+              <button type="button" onClick={start} className="font-semibold text-zus-navy underline underline-offset-2">Sprawdź w kreatorze, co Ci przysługuje</button> - na końcu podpowiemy pisma.</p>
             <FormPicker onOpen={(c) => openForm(c, "forms")} />
           </>
         ) : (
           <div className="mt-4">
             <FormDetail code={view.code} onBack={() => show(view.from === "result" ? { kind: "result" } : { kind: "forms" })}
-              backLabel={view.from === "result" ? "Wróć do planu" : "Wróć do listy pism"} />
+              backLabel={view.from === "result" ? "Wróć do planu" : "Wróć do listy pism"}
+              answers={view.from === "result" ? a : null} />
           </div>
         )}
       </div>

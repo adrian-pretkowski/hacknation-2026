@@ -1,4 +1,4 @@
-"""BE1-01: DSL — tabele prawdy Kleene (C9), liście (C10), loader, rejestr faktów (I2), money/dates (C1–C11)."""
+"""BE1-01: DSL - tabele prawdy Kleene (C9), liście (C10), loader, rejestr faktów (I2), money/dates (C1–C11)."""
 from datetime import date
 from decimal import Decimal
 from itertools import product

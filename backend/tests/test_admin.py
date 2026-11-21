@@ -1,4 +1,4 @@
-"""BE2-05: panel admina parametrów — GET/PUT /api/admin/parameters (kontrakt ParameterList / ParameterUpdate).
+"""BE2-05: panel admina parametrów - GET/PUT /api/admin/parameters (kontrakt ParameterList / ParameterUpdate).
 
 Kryterium akceptacji: zmiana MAT_RATE_COMBINED zmienia wynik /api/evaluate bez restartu. Dodatkowo: dostęp bez
 tokenu (demo), konflikt wersji (409), walidacja (422), valid_from (wartość obowiązuje od daty), trwałość w pliku JSON.
@@ -11,8 +11,6 @@ import pytest
 from app.core.params import STORE, param
 from tests.test_contract import _validator
 
-AUTH: dict[str, str] = {}  # panel admina bez tokenu (demo)
-
 
 @pytest.fixture(autouse=True)
 def _admin(tmp_path):
@@ -22,9 +20,9 @@ def _admin(tmp_path):
 
 
 def _put(client, *changes, base=None):
-    body = {"base_parameters_version": base or client.get("/api/admin/parameters", headers=AUTH).json()[
+    body = {"base_parameters_version": base or client.get("/api/admin/parameters").json()[
         "parameters_version"], "changes": list(changes)}
-    return client.put("/api/admin/parameters", json=body, headers=AUTH)
+    return client.put("/api/admin/parameters", json=body)
 
 
 def _by_name(body: dict) -> dict:
@@ -32,7 +30,7 @@ def _by_name(body: dict) -> dict:
 
 
 def test_list_parameters_matches_contract(client):
-    response = client.get("/api/admin/parameters", headers=AUTH)
+    response = client.get("/api/admin/parameters")
     assert response.status_code == 200
     body = response.json()
     assert not list(_validator("ParameterList").iter_errors(body))
@@ -43,7 +41,7 @@ def test_list_parameters_matches_contract(client):
 
 
 def test_admin_open_without_token(client):
-    """Demo: panel admina dostępny bezpośrednio — bez nagłówka X-Admin-Token."""
+    """Demo: panel admina dostępny bezpośrednio - bez nagłówka X-Admin-Token."""
     assert client.get("/api/admin/parameters").status_code == 200
     response = client.put("/api/admin/parameters", json={"base_parameters_version": 1, "changes": []})
     assert response.status_code == 422  # walidacja treści, nie 401
@@ -53,7 +51,7 @@ def test_BE2_05_rate_change_changes_evaluation_without_restart(client, demo_payl
     before = client.post("/api/evaluate", json=demo_payload).json()["benefits"][0]
     assert (before["rate"], before["daily_amount_exact"]) == ("0.815", "163")
     response = _put(client, {"name": "MAT_RATE_COMBINED", "value": "0.9", "valid_from": None,
-                             "reason": "Demo — zmiana stawki (test BE2-05)"})
+                             "reason": "Demo - zmiana stawki (test BE2-05)"})
     assert response.status_code == 200
     body = response.json()
     assert not list(_validator("ParameterList").iter_errors(body))
@@ -98,7 +96,7 @@ def test_invalid_change_422_and_nothing_saved(client, change, field):
     assert response.status_code == 422
     body = response.json()
     assert body["errors"][0]["field"] == field
-    assert client.get("/api/admin/parameters", headers=AUTH).json()["parameters_version"] == 1
+    assert client.get("/api/admin/parameters").json()["parameters_version"] == 1
 
 
 def test_batch_is_atomic(client):

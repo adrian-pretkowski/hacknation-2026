@@ -1,0 +1,597 @@
+{
+ "APP-DL-001": {
+  "basis": "USTAWA art. 30a ust. 1-2",
+  "description": "Wniosek o wypłatę zasiłku za pełny wymiar macierzyńskiego i rodzicielskiego składa się nie później niż 21 dni po porodzie (przy przyjęciu dziecka - po przyjęciu i wystąpieniu do sądu / przyjęciu jako rodzina zastępcza).",
+  "name": "Termin 21 dni na wniosek o zasiłek 81,5%"
+ },
+ "APP-DL-002": {
+  "basis": "KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6",
+  "description": "Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026, UNCONFIRMED - GAP-025, M19); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego - w 7 dni od przyjęcia, start ≤21 dni.",
+  "name": "Terminy wniosków urlopowych pracownika (KP)"
+ },
+ "APP-DOC-001": {
+  "basis": "ROZP_DOK § 13 ust. 1 pkt 1; USTAWA art. 53 ust. 2; ROZP_WN § 2",
+  "description": "Za okres przed porodem - zaświadczenie lekarskie o przewidywanej dacie porodu (zwykły druk; od wejścia w życie § 39 - także elektronicznie).",
+  "name": "Dokumenty - urlop macierzyński przed porodem"
+ },
+ "APP-DOC-002": {
+  "basis": "ROZP_DOK § 13 ust. 1 pkt 2, ust. 2-4",
+  "description": "Od dnia porodu - odpis skrócony aktu urodzenia (nie przedstawia się, gdy płaci ZUS - ZUS pobiera z rejestru; wezwanie z terminem ≥14 dni, gdy nie może pobrać); przy martwym urodzeniu bez aktu - zaświadczenie lekarza/położnej o martwym urodzeniu.",
+  "name": "Dokumenty - urodzenie dziecka (akt urodzenia / martwe urodzenie)"
+ },
+ "APP-DOC-003": {
+  "basis": "ROZP_DOK § 12, § 3 ust. 2, zał. 6; USTAWA art. 61b ust. 4a",
+  "description": "Gdy płaci ZUS - dokument z danymi z zał. 6 (wniosek) lub zaświadczenie płatnika (Z-3/Z-3a); do wniosku przy dziecku „Za życiem” - oświadczenie o zaświadczeniu.",
+  "name": "Dokumenty - wniosek o zasiłek macierzyński do ZUS (zał. 6) / zaświadczenie płatnika"
+ },
+ "APP-DOC-004": {
+  "basis": "ROZP_DOK § 15 ust. 1-3, § 17",
+  "description": "Zaświadczenie lekarskie o ciąży w okresie zatrudnienia, świadectwo pracy lub dokument o wygaśnięciu/rozwiązaniu (śmierć, upadłość, likwidacja) albo prawomocne orzeczenie sądu; przy zasiłku w wysokości macierzyńskiego - oświadczenie o braku innego zatrudnienia.",
+  "name": "Dokumenty - macierzyński po ustaniu ubezpieczenia / zasiłek w wysokości macierzyńskiego"
+ },
+ "APP-DOC-005": {
+  "basis": "ROZP_DOK § 16 ust. 1-2; ROZP_WN § 18",
+  "description": "Przysposobienie - oświadczenie o dacie przyjęcia + zaświadczenie sądu o dacie wystąpienia (z datą urodzenia dziecka) lub kopia wniosku z poświadczeniem sądu; rodzina zastępcza - orzeczenie sądu lub umowa ze starostą, dokument o wieku dziecka, decyzja o odroczeniu obowiązku szkolnego (gdy dotyczy).",
+  "name": "Dokumenty - przyjęcie dziecka (przysposobienie / rodzina zastępcza)"
+ },
+ "APP-DOC-006": {
+  "basis": "ROZP_DOK § 20, § 26-27, § 29-30, § 32-33; ROZP_WN § 5, § 14, § 15, § 17",
+  "description": "Rodzicielski - oświadczenia o planach drugiego rodzica, zaświadczenia pracodawcy o urlopie i wymiarze pracy, oświadczenie o wcześniejszych częściach i stawkach; ojcowski - akt urodzenia/postanowienie o przysposobieniu, oświadczenie o pobraniu z innego tytułu; uzupełniający - zaświadczenie szpitala; przejęcie przez ojca - zaświadczenie płatnika o okresie i stawce zasiłku matki.",
+  "name": "Dokumenty - rodzicielski, ojcowski, uzupełniający, przejęcie przez ojca"
+ },
+ "BASE-EMP-001": {
+  "basis": "USTAWA art. 36 ust. 1, 4; art. 38 ust. 1; art. 47",
+  "description": "Przeciętne miesięczne wynagrodzenie wypłacone za 12 miesięcy kalendarzowych poprzedzających miesiąc powstania niezdolności (dla macierzyńskiego - miesiąc powstania prawa), z wynagrodzenia u płatnika w okresie nieprzerwanego ubezpieczenia.",
+  "name": "Podstawa pracownika - średnia z 12 miesięcy kalendarzowych"
+ },
+ "BASE-EMP-002": {
+  "basis": "USTAWA art. 36 ust. 2",
+  "description": "Gdy niezdolność powstała przed upływem 12 miesięcy - przeciętne wynagrodzenie za pełne miesiące kalendarzowe ubezpieczenia.",
+  "name": "Podstawa pracownika - ubezpieczenie krótsze niż 12 miesięcy"
+ },
+ "BASE-EMP-003": {
+  "basis": "USTAWA art. 37 ust. 1-2",
+  "description": "Wynagrodzenie, które pracownik osiągnąłby za pełny miesiąc - stałe z umowy; albo przeliczone z dni przepracowanych; albo przeciętne składniki zmienne pracowników na podobnym stanowisku.",
+  "name": "Podstawa pracownika - niezdolność w pierwszym miesiącu ubezpieczenia"
+ },
+ "BASE-EMP-004": {
+  "basis": "USTAWA art. 38 ust. 2-3",
+  "description": "Przy nieobecności usprawiedliwionej - wyłącza się miesiące, w których przepracowano mniej niż połowę obowiązującego czasu; miesiące z ≥½ uzupełnia się (art. 37 ust. 2); jeśli w każdym miesiącu <½ - uwzględnia się wszystkie po uzupełnieniu.",
+  "name": "Miesiące z nieobecnością - wyłączenie (<½ czasu) lub uzupełnienie (≥½ czasu)"
+ },
+ "BASE-EMP-005": {
+  "basis": "USTAWA art. 40",
+  "description": "Gdy zmiana wymiaru etatu nastąpiła w miesiącu powstania niezdolności lub w okresie 12 miesięcy - podstawą jest wynagrodzenie ustalone dla nowego wymiaru.",
+  "name": "Zmiana wymiaru czasu pracy"
+ },
+ "BASE-EMP-006": {
+  "basis": "USTAWA art. 42 ust. 1-5",
+  "description": "Składniki za okresy miesięczne - w kwocie wypłaconej; kwartalne - 1/12 kwot wypłaconych za 4 kwartały poprzedzające; roczne - 1/12 kwoty za rok poprzedzający.",
+  "name": "Składniki kwartalne i roczne - 1/12"
+ },
+ "BASE-EMP-007": {
+  "basis": "USTAWA art. 41 ust. 1-3",
+  "description": "Nie uwzględnia się składników, do których pracownik zachowuje prawo w okresie zasiłku (gdy wypłacane za ten okres), ani składników przysługujących do określonego terminu / zaprzestanych - za okres po tym terminie.",
+  "name": "Składniki wyłączone z podstawy"
+ },
+ "BASE-EMP-008": {
+  "basis": "USTAWA art. 45 ust. 1-2; art. 47",
+  "description": "Podstawa z tytułu pracy w pełnym wymiarze nie może być niższa niż minimalne wynagrodzenie po odliczeniu 13,71%.",
+  "name": "Minimalna podstawa - płaca minimalna minus 13,71% (pełny etat)"
+ },
+ "BASE-GEN-001": {
+  "basis": "USTAWA art. 43; art. 48 ust. 2; art. 52",
+  "description": "Podstawy nie ustala się na nowo, jeżeli między okresami pobierania zasiłków (tego samego lub innego rodzaju) nie było przerwy albo była krótsza niż miesiąc kalendarzowy.",
+  "name": "Brak ponownego ustalania podstawy przy przerwie < miesiąca kalendarzowego"
+ },
+ "BASE-GEN-002": {
+  "basis": "USTAWA art. 46",
+  "description": "Podstawa zasiłku chorobowego za okres po ustaniu tytułu nie może przekraczać 100% przeciętnego wynagrodzenia (kwota kwartalna).",
+  "name": "Maksymalna podstawa zasiłku chorobowego po ustaniu tytułu"
+ },
+ "BASE-NEMP-001": {
+  "basis": "USTAWA art. 48 ust. 1-2; art. 3 pkt 4; art. 52",
+  "description": "Przeciętny miesięczny przychód (podstawa wymiaru składek − 13,71%) za 12 miesięcy kalendarzowych poprzedzających miesiąc powstania niezdolności/prawa; krócej - za pełne miesiące.",
+  "name": "Podstawa niepracownika - średni przychód z 12 miesięcy"
+ },
+ "BASE-NEMP-002": {
+  "basis": "USTAWA art. 48a ust. 1-5",
+  "description": "Suma: przeciętnej najniższej podstawy (po odliczeniu 13,71%) za pełne miesiące oraz 1/12 przeciętnej nadwyżki zadeklarowanej kwoty ponad najniższą podstawę × liczba pełnych miesięcy.",
+  "name": "Podstawa przy zadeklarowanej kwocie i ubezpieczeniu <12 miesięcy (art. 48a)"
+ },
+ "BASE-NEMP-003": {
+  "basis": "USTAWA art. 49 ust. 1-3",
+  "description": "Najniższa podstawa składek po odliczeniu 13,71% (gdy określona) albo kwota przychodu z umowy (zlecenie/agencyjna) za miesiąc powstania prawa.",
+  "name": "Podstawa niepracownika - niezdolność w pierwszym miesiącu"
+ },
+ "BASE-NEMP-004": {
+  "basis": "USTAWA art. 50 ust. 1-2",
+  "description": "Gdy przychód zmalał wskutek pobierania zasiłku/świadczenia - wyłącza się miesiące, w których wykonywano działalność przez <½ miesiąca; jeśli każdy miesiąc taki - przyjmuje się wszystkie.",
+  "name": "Niepracownik - miesiące z zasiłkiem <½ miesiąca wyłączone"
+ },
+ "CALC-MAT-001": {
+  "basis": "USTAWA art. 31 ust. 1-3, 4a, 5 (→ art. 11 ust. 4); art. 47 (→ art. 36 ust. 3)",
+  "description": "Kwota = podstawa × stawka × (1 − wymiar pracy) / 30 × liczba dni kalendarzowych segmentu; zasiłek przysługuje za każdy dzień, łącznie z wolnymi.",
+  "name": "Kwota zasiłku macierzyńskiego za segment"
+ },
+ "GEN-CLS-001": {
+  "basis": "USTAWA - art. 61 ust. 1 pkt 1, ust. 2",
+  "description": "Zasiłki ustala i wypłaca płatnik składek, który zgłasza do ubezpieczenia chorobowego więcej niż 20 ubezpieczonych (stan na 30 listopada poprzedniego roku), chyba że świadczenie przysługuje po ustaniu ubezpieczenia.",
+  "name": "Płatnik zasiłku - płatnik składek (>20 ubezpieczonych)"
+ },
+ "GEN-CLS-002": {
+  "basis": "USTAWA - art. 61 ust. 1 pkt 2 lit. a-e",
+  "description": "ZUS ustala i wypłaca zasiłki gdy płatnik zgłasza ≤20 ubezpieczonych, dla prowadzących pozarolniczą działalność i współpracujących, duchownych, po ustaniu ubezpieczenia oraz przy pracodawcy zagranicznym.",
+  "name": "Płatnik zasiłku - ZUS"
+ },
+ "GEN-DL-001": {
+  "basis": "USTAWA - art. 67 ust. 1, 3, 4",
+  "description": "Roszczenie o wypłatę zasiłku chorobowego, macierzyńskiego (i opiekuńczego, wyrównawczego) przedawnia się po 6 miesiącach od ostatniego dnia okresu, za który zasiłek przysługuje; 3 lata przy błędzie płatnika/ZUS.",
+  "name": "Przedawnienie roszczenia o wypłatę zasiłku"
+ },
+ "GEN-DL-002": {
+  "basis": "USTAWA - art. 64 ust. 1, 3",
+  "description": "Płatnik wypłaca w terminach wypłaty wynagrodzeń, ZUS na bieżąco; nie później niż 30 dni od wyjaśnienia ostatniej okoliczności; przy zadłużeniu (art. 2a) nie później niż 60 dni od spłaty.",
+  "name": "Termin wypłaty zasiłku"
+ },
+ "GEN-EXCL-001": {
+  "basis": "USTAWA - art. 2a ust. 1",
+  "description": "Zasiłek chorobowy, świadczenie rehabilitacyjne, macierzyński i opiekuńczy nie przysługują prowadzącym pozarolniczą działalność, współpracującym, duchownym-płatnikom i marynarzom, jeżeli w dniu powstania prawa zadłużenie składkowe przekracza 1% minimalnego wynagrodzenia - do czasu spłaty całości.",
+  "name": "Zadłużenie składkowe >1% minimalnego wynagrodzenia (osoby z art. 2a)"
+ },
+ "GEN-EXCL-002": {
+  "basis": "USTAWA - art. 2a ust. 2",
+  "description": "Prawo do świadczeń z art. 2a przedawnia się, jeśli zadłużenie nie zostanie uregulowane w ciągu 6 miesięcy od dnia powstania prawa.",
+  "name": "Przedawnienie prawa przy niespłaceniu zadłużenia w 6 miesięcy"
+ },
+ "MAT-CLS-001": {
+  "basis": "USTAWA - art. 4 ust. 1 (zasiłek chorobowy); art. 29-31",
+  "description": "Przepisy o okresie wyczekiwania (art. 4) dotyczą zasiłku chorobowego; rozdział o zasiłku macierzyńskim nie przewiduje okresu wyczekiwania.",
+  "name": "Brak okresu wyczekiwania dla zasiłku macierzyńskiego"
+ },
+ "MAT-CLS-002": {
+  "basis": "KP - art. 177 § 3, § 3(1)",
+  "description": "Umowa na czas określony lub na okres próbny >1 miesiąc, która rozwiązałaby się po upływie 3. miesiąca ciąży, ulega przedłużeniu do dnia porodu - nie dotyczy umowy na zastępstwo.",
+  "name": "Przedłużenie umowy terminowej do dnia porodu (KP 177 § 3)"
+ },
+ "MAT-DUR-001": {
+  "basis": "KP art. 180 § 1; USTAWA art. 29a ust. 1",
+  "description": "20 tygodni (1 dziecko), 31 (2), 33 (3), 35 (4), 37 (5 i więcej) przy jednym porodzie.",
+  "name": "Wymiar urlopu macierzyńskiego wg liczby dzieci"
+ },
+ "MAT-DUR-002": {
+  "basis": "KP art. 180 § 2-3; art. 183(1) § 2",
+  "description": "Przed przewidywaną datą porodu można wykorzystać nie więcej niż 6 tygodni; niewykorzystaną część - po porodzie do wyczerpania wymiaru. Bez części przedporodowej pierwszym dniem jest dzień porodu.",
+  "name": "Do 6 tygodni urlopu przed przewidywaną datą porodu"
+ },
+ "MAT-DUR-003": {
+  "basis": "KP art. 180(1) § 1",
+  "description": "Przysługuje urlop/zasiłek w wymiarze 8 tygodni po porodzie, nie krócej niż 7 dni od dnia zgonu; przy kilkorgu dzieci - wymiar stosowny do liczby dzieci pozostałych przy życiu.",
+  "name": "Martwe urodzenie lub zgon dziecka przed 8. tygodniem życia"
+ },
+ "MAT-DUR-004": {
+  "basis": "KP art. 180(1) § 2",
+  "description": "W razie zgonu dziecka po upływie 8 tygodni życia prawo do urlopu/zasiłku zachowuje się przez 7 dni od dnia zgonu.",
+  "name": "Zgon dziecka po 8. tygodniu życia - 7 dni"
+ },
+ "MAT-DUR-005": {
+  "basis": "KP art. 180(1) § 1 zd. 2, § 2 zd. 2",
+  "description": "Gdy przy jednym porodzie urodziło się więcej dzieci, a część zmarła/urodziła się martwa - wymiar stosowny do liczby dzieci pozostałych przy życiu (nie krócej niż 7 dni od zgonu).",
+  "name": "Wieloraczki - zgon części dzieci"
+ },
+ "MAT-DUR-006": {
+  "basis": "KP art. 182; ROZP_DOK § 19",
+  "description": "W razie porzucenia dziecka lub umieszczenia go na podstawie orzeczenia sądu w pieczy zastępczej lub zakładzie - nie przysługuje część urlopu po tym dniu, jednak urlop po porodzie nie może wynosić mniej niż 8 tygodni.",
+  "name": "Porzucenie dziecka / umieszczenie w pieczy - utrata dalszej części, minimum 8 tygodni"
+ },
+ "MAT-DUR-007": {
+  "basis": "KP art. 183 § 1, § 1(1)",
+  "description": "Przy przyjęciu dziecka (rodzina zastępcza niezawodowa / przysposobienie) - 20/31/33/35/37 tygodni wg liczby jednocześnie przyjętych dzieci, nie dłużej niż do ukończenia przez dziecko 7 lat (10 przy odroczeniu obowiązku szkolnego) albo 14 lat przy przysposobieniu.",
+  "name": "Urlop na warunkach urlopu macierzyńskiego - wymiar i limit wieku dziecka"
+ },
+ "MAT-DUR-008": {
+  "basis": "KP art. 183 § 3",
+  "description": "Pracownik, który przyjął dziecko do 7 (10) lat jako rodzina zastępcza lub do 14 lat przy przysposobieniu, ma prawo do 9 tygodni urlopu na warunkach urlopu macierzyńskiego.",
+  "name": "9 tygodni urlopu na warunkach urlopu macierzyńskiego (KP 183 § 3) - bez minimum ponad limit wieku"
+ },
+ "MAT-DUR-009": {
+  "basis": "KP art. 183(1) § 1-2",
+  "description": "Przy urlopie macierzyńskim i na warunkach macierzyńskiego tydzień = 7 dni kalendarzowych; jeśli nie korzystano z urlopu przed porodem, pierwszym dniem jest dzień porodu.",
+  "name": "Tydzień urlopu = 7 dni kalendarzowych; dzień porodu jako pierwszy dzień"
+ },
+ "MAT-ELIG-001": {
+  "basis": "USTAWA - art. 29 ust. 1 pkt 1",
+  "description": "Przysługuje ubezpieczonej, która urodziła dziecko w okresie ubezpieczenia chorobowego albo w okresie urlopu wychowawczego.",
+  "name": "Zasiłek macierzyński - urodzenie dziecka w czasie ubezpieczenia lub urlopu wychowawczego"
+ },
+ "MAT-ELIG-002": {
+  "basis": "USTAWA - art. 29 ust. 1 pkt 2, ust. 2",
+  "description": "Przysługuje ubezpieczonej/ubezpieczonemu, który w okresie ubezpieczenia (lub urlopu wychowawczego) przyjął na wychowanie dziecko do 14 roku życia i wystąpił do sądu opiekuńczego o przysposobienie.",
+  "name": "Zasiłek macierzyński - przyjęcie dziecka do 14 lat i wniosek o przysposobienie"
+ },
+ "MAT-ELIG-003": {
+  "basis": "USTAWA - art. 29 ust. 1 pkt 3, ust. 2",
+  "description": "Przysługuje ubezpieczonemu, który przyjął na wychowanie w ramach rodziny zastępczej (z wyjątkiem zawodowej) dziecko do 7 roku życia, a przy odroczonym obowiązku szkolnym do 10.",
+  "name": "Zasiłek macierzyński - rodzina zastępcza niezawodowa (dziecko do 7/10 lat)"
+ },
+ "MAT-ELIG-004": {
+  "basis": "USTAWA - art. 30 ust. 1 pkt 1",
+  "description": "Przysługuje w razie urodzenia dziecka po ustaniu ubezpieczenia, jeżeli ubezpieczenie ustało w okresie ciąży wskutek śmierci, ogłoszenia upadłości lub likwidacji pracodawcy.",
+  "name": "Zasiłek macierzyński po ustaniu ubezpieczenia - śmierć, upadłość, likwidacja pracodawcy"
+ },
+ "MAT-ELIG-005": {
+  "basis": "USTAWA - art. 30 ust. 1 pkt 2",
+  "description": "Przysługuje, jeżeli ubezpieczenie ustało w okresie ciąży z naruszeniem przepisów prawa stwierdzonym prawomocnym orzeczeniem sądu.",
+  "name": "Zasiłek macierzyński po ustaniu ubezpieczenia - rozwiązanie z naruszeniem prawa"
+ },
+ "MAT-ELIG-006": {
+  "basis": "USTAWA art. 30 ust. 4; KP art. 177 § 3, § 3(1)",
+  "description": "Pracownicy na umowie na czas określony przedłużonej do dnia porodu (KP art. 177 § 3) przysługuje zasiłek macierzyński po ustaniu ubezpieczenia.",
+  "name": "Zasiłek macierzyński po ustaniu - umowa terminowa przedłużona do dnia porodu"
+ },
+ "MAT-ELIG-007": {
+  "basis": "USTAWA - art. 30 ust. 3; KP art. 177 § 4; treść zadania (CONF-001, M16 a)",
+  "description": "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd (treść zadania, M16 a) i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu - zasiłek macierzyński).",
+  "name": "Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu"
+ },
+ "MAT-EXCL-001": {
+  "basis": "USTAWA - art. 29 ust. 1 pkt 3; KP art. 183 § 1",
+  "description": "Zasiłek macierzyński z tytułu przyjęcia dziecka nie przysługuje rodzinie zastępczej zawodowej.",
+  "name": "Rodzina zastępcza zawodowa - brak prawa"
+ },
+ "MAT-NEG-001": {
+  "basis": "USTAWA - art. 29 ust. 1 a contrario; art. 30",
+  "description": "Jeśli w dniu porodu osoba nie podlega ubezpieczeniu chorobowemu, nie jest na urlopie wychowawczym i nie zachodzi żaden przypadek z art. 30 - zasiłek macierzyński nie przysługuje.",
+  "name": "Brak ubezpieczenia na dzień porodu - brak prawa"
+ },
+ "MAT-SHARE-001": {
+  "basis": "USTAWA art. 29 ust. 3; KP art. 180 § 4-5",
+  "description": "Po rezygnacji matki z zasiłku po wykorzystaniu co najmniej 14 tygodni po porodzie, zasiłek za pozostałą część przysługuje ubezpieczonemu ojcu, który uzyskał prawo do urlopu macierzyńskiego lub przerwał działalność zarobkową dla opieki.",
+  "name": "Ojciec przejmuje zasiłek macierzyński po ≥14 tygodniach matki"
+ },
+ "MAT-SHARE-002": {
+  "basis": "USTAWA art. 29 ust. 5; KP art. 180 § 6-7",
+  "description": "Gdy matka legitymuje się orzeczeniem o niezdolności do samodzielnej egzystencji, może zrezygnować po wykorzystaniu co najmniej 8 tygodni; zasiłek przysługuje ojcu albo innemu członkowi najbliższej rodziny.",
+  "name": "Przejęcie po ≥8 tygodniach - matka niezdolna do samodzielnej egzystencji"
+ },
+ "MAT-SHARE-003": {
+  "basis": "USTAWA art. 29 ust. 6; KP art. 180 § 10-11; ROZP_DOK § 23-24",
+  "description": "Po wykorzystaniu przez matkę ≥8 tygodni - ojcu/członkowi rodziny przysługuje zasiłek za okres pobytu matki w szpitalu uniemożliwiającego opiekę; zasiłek matki się przerywa.",
+  "name": "Zasiłek dla ojca na czas hospitalizacji matki (po ≥8 tygodniach)"
+ },
+ "MAT-SHARE-004": {
+  "basis": "USTAWA art. 29 ust. 7; KP art. 180 § 12-13",
+  "description": "W razie zgonu matki lub porzucenia przez nią dziecka zasiłek przysługuje ojcu lub innemu członkowi rodziny; przy porzuceniu - za okres po porzuceniu, nie wcześniej niż po 8 tygodniach zasiłku matki.",
+  "name": "Zgon lub porzucenie dziecka przez ubezpieczoną matkę"
+ },
+ "MAT-SHARE-005": {
+  "basis": "USTAWA art. 29 ust. 9; KP art. 180 § 15",
+  "description": "Gdy matka nie podlega ubezpieczeniu chorobowemu, w razie jej zgonu, porzucenia dziecka lub niezdolności do samodzielnej egzystencji, zasiłek przysługuje ubezpieczonemu ojcu/członkowi rodziny za okres po tym zdarzeniu.",
+  "name": "Matka nieubezpieczona - zgon, porzucenie, niezdolność do samodzielnej egzystencji"
+ },
+ "MAT-SHARE-006": {
+  "basis": "USTAWA art. 29 ust. 10; KP art. 180 § 17",
+  "description": "Gdy matka bez tytułu do ubezpieczenia podejmie zatrudnienie co najmniej na ½ etatu, zasiłek przysługuje ubezpieczonemu ojcu do wyczerpania wymiaru, nie dłużej niż przez okres zatrudnienia matki.",
+  "name": "Matka nieubezpieczona podejmuje zatrudnienie ≥½ etatu"
+ },
+ "MAT-SHARE-007": {
+  "basis": "USTAWA art. 29a ust. 2; KP art. 180 § 14",
+  "description": "Okres wypłaty zasiłku dla ojca/członka rodziny zmniejsza się o okres wypłaty matce; łączny wymiar nie może przekroczyć wymiaru z KP art. 180 § 1.",
+  "name": "Łączny limit - wymiar macierzyńskiego nie może być przekroczony przy przejęciu"
+ },
+ "PAR-COND-001": {
+  "basis": "KP art. 182(1c); art. 182(1d) § 2; art. 183 § 4(6)",
+  "description": "Udzielany jednorazowo albo w maks. 5 częściach, nie później niż do końca roku kalendarzowego, w którym dziecko kończy 6 lat; do liczby części wlicza się wnioski o zasiłek niepracowników.",
+  "name": "Urlop rodzicielski - maks. 5 części, do końca roku, w którym dziecko kończy 6 lat"
+ },
+ "PAR-DUR-001": {
+  "basis": "KP art. 182(1a) § 1, § 3",
+  "description": "Łącznie dla obojga rodziców 41 tygodni (1 dziecko) lub 43 tygodnie (2+ dzieci przy jednym porodzie).",
+  "name": "Wymiar urlopu rodzicielskiego - 41/43 tygodnie"
+ },
+ "PAR-DUR-002": {
+  "basis": "KP art. 182(1a) § 2; USTAWA art. 61b ust. 4a",
+  "description": "Dla dziecka z zaświadczeniem „Za życiem” - 65 tygodni (1 dziecko) lub 67 (2+).",
+  "name": "Wymiar urlopu rodzicielskiego - „Za życiem” 65/67 tygodni"
+ },
+ "PAR-DUR-003": {
+  "basis": "KP art. 183 § 4, § 4(1), § 4(2), § 4(3), § 4(4), § 4(5)",
+  "description": "41/43 tygodnie; 38 tygodni w przypadku z art. 183 § 3 (dziecko w granicznym wieku); „Za życiem” 65/67, a w przypadku § 3 - 62 tygodnie; przy przysposobieniu nie dłużej niż do 14 lat.",
+  "name": "Wymiar urlopu rodzicielskiego - przyjęcie dziecka (zastępcza / przysposobienie)"
+ },
+ "PAR-ELIG-001": {
+  "basis": "USTAWA art. 29a ust. 1, 3; KP art. 184",
+  "description": "Za okres urlopu rodzicielskiego (u niepracowników - okres odpowiadający) przysługuje zasiłek macierzyński ubezpieczonemu rodzicowi, jeśli ustalono prawo do zasiłku macierzyńskiego z tytułu urodzenia/przyjęcia dziecka i rodzic jest ubezpieczony w okresie korzystania.",
+  "name": "Zasiłek za okres urlopu rodzicielskiego - ubezpieczony rodzic"
+ },
+ "PAR-SHARE-001": {
+  "basis": "KP art. 182(1a) § 4-5; USTAWA art. 30a ust. 1, 31 ust. 3f",
+  "description": "Każdemu z rodziców przysługuje wyłączne prawo do 9 tygodni z puli; nie można go przenieść na drugiego rodzica.",
+  "name": "9 tygodni urlopu rodzicielskiego nieprzenoszalne dla każdego rodzica"
+ },
+ "PAR-SHARE-002": {
+  "basis": "USTAWA art. 29a ust. 3-4; KP art. 182(1a) § 6-7",
+  "description": "Rodzice mogą jednocześnie korzystać z urlopu/zasiłku rodzicielskiego; łączny okres nie może przekroczyć wymiaru z KP.",
+  "name": "Jednoczesne korzystanie - łączny wymiar nie może przekroczyć puli"
+ },
+ "PAR-SHARE-003": {
+  "basis": "USTAWA art. 31 ust. 3h; treść zadania pkt B",
+  "description": "Zasiłek za okres urlopu rodzicielskiego przysługuje ojcu także wtedy, gdy matka w dniu porodu nie była ubezpieczona i nie korzystała z zasiłku za okres urlopu macierzyńskiego (finansowanie z budżetu).",
+  "name": "Ojciec - rodzicielski, gdy matka nie była ubezpieczona w dniu porodu"
+ },
+ "PAR-WORK-001": {
+  "basis": "KP art. 182(1e) § 1-2",
+  "description": "Pracownik może łączyć urlop rodzicielski z pracą u pracodawcy udzielającego urlopu w wymiarze nie wyższym niż połowa etatu; wniosek ≥21 dni wcześniej.",
+  "name": "Łączenie urlopu rodzicielskiego z pracą do ½ etatu"
+ },
+ "PAR-WORK-002": {
+  "basis": "KP art. 182(1f) § 1, § 1(1), § 2-7",
+  "description": "Wymiar wydłuża się o iloczyn liczby tygodni łączenia i wymiaru pracy; limity 82/86 tygodni (130/134 „Za życiem”); część wydłużona nie będąca wielokrotnością tygodnia - w dniach, niepełny dzień pomija się.",
+  "name": "Proporcjonalne wydłużenie urlopu rodzicielskiego przy pracy"
+ },
+ "PAR-WORK-003": {
+  "basis": "USTAWA art. 31 ust. 4a",
+  "description": "Wysokość zasiłku zmniejsza się proporcjonalnie do wymiaru czasu pracy, w jakim pracownik łączy urlop rodzicielski z pracą.",
+  "name": "Zasiłek zmniejszony proporcjonalnie do wymiaru pracy"
+ },
+ "PAT-DUR-001": {
+  "basis": "KP art. 182(3) § 1, § 1(1)",
+  "description": "Do 2 tygodni, jednorazowo lub w 2 częściach po min. 1 tygodniu, do ukończenia przez dziecko 12 miesięcy (adopcja - 12 miesięcy od uprawomocnienia przysposobienia, nie dłużej niż do 14 lat); liczba dzieci nie wydłuża.",
+  "name": "Urlop ojcowski - 2 tygodnie, maks. 2 części ≥1 tydz., do 12 miesięcy życia dziecka"
+ },
+ "PAT-ELIG-001": {
+  "basis": "USTAWA art. 29a ust. 1, art. 31 ust. 1; KP art. 182(3), art. 184; ROZP_DOK § 33",
+  "description": "Ojcu (pracownikowi - urlop ojcowski; niepracownikowi - okres odpowiadający) przysługuje zasiłek macierzyński za okres urlopu ojcowskiego.",
+  "name": "Zasiłek za okres urlopu ojcowskiego - ubezpieczony ojciec"
+ },
+ "RATE-MAT-001": {
+  "basis": "USTAWA art. 31 ust. 1",
+  "description": "Miesięczny zasiłek za okres urlopu macierzyńskiego, na warunkach macierzyńskiego, uzupełniającego oraz ojcowskiego wynosi 100% podstawy.",
+  "name": "100% - macierzyński, na warunkach macierzyńskiego, uzupełniający, ojcowski"
+ },
+ "RATE-MAT-002": {
+  "basis": "USTAWA art. 31 ust. 2",
+  "description": "Miesięczny zasiłek za okres urlopu rodzicielskiego wynosi 70% podstawy.",
+  "name": "70% - urlop rodzicielski (wariant standardowy)"
+ },
+ "RATE-MAT-003": {
+  "basis": "USTAWA art. 31 ust. 3; art. 30a ust. 1-2",
+  "description": "Gdy matka (przy przyjęciu dziecka - ubezpieczony) w ciągu 21 dni od porodu/przyjęcia złoży wniosek o zasiłek za pełny wymiar macierzyńskiego/na warunkach i rodzicielskiego, zasiłek za cały ten okres wynosi 81,5% podstawy, z zastrzeżeniem ust. 3f i 3g.",
+  "name": "81,5% - wniosek o łączny zasiłek złożony w 21 dni"
+ },
+ "RATE-MAT-004": {
+  "basis": "USTAWA art. 31 ust. 3f; art. 30a ust. 1 (wyłączenie okresu z KP 182(1a) § 4)",
+  "description": "Zasiłek za część urlopu rodzicielskiego przysługującą drugiemu rodzicowi (9 tygodni nieprzenoszalnych) wynosi 70%.",
+  "name": "70% - 9 tygodni drugiego rodzica przy wniosku 81,5%"
+ },
+ "RATE-MAT-005": {
+  "basis": "USTAWA art. 31 ust. 3g",
+  "description": "Jeśli w pierwszym roku życia dziecka nie wykorzystano ani jednego dnia zasiłku za okres urlopu rodzicielskiego, zasiłek za rodzicielski wynosi 70%.",
+  "name": "70% za rodzicielski, gdy w 1. roku życia nie wykorzystano ani dnia"
+ },
+ "RATE-MAT-006": {
+  "basis": "USTAWA art. 31 ust. 4",
+  "description": "Gdy w 1. roku życia nie wykorzystano żadnego dnia rodzicielskiego przy wniosku 81,5%, na wniosek przysługuje jednorazowe wyrównanie zasiłku za okres urlopu macierzyńskiego do 100%.",
+  "name": "Jednorazowe wyrównanie macierzyńskiego do 100%"
+ },
+ "RATE-MAT-007": {
+  "basis": "USTAWA art. 31 ust. 3a-3c; art. 62 ust. 4-6; ROZP_DOK § 28",
+  "description": "Jeżeli miesięczna kwota zasiłku jest niższa niż świadczenie rodzicielskie (ustawa o świadczeniach rodzinnych), podwyższa się ją do tej kwoty (proporcjonalnie za część miesiąca).",
+  "name": "Podwyższenie do kwoty świadczenia rodzicielskiego"
+ },
+ "RATE-MAT-008": {
+  "basis": "USTAWA art. 30a ust. 3; art. 31 ust. 3",
+  "description": "Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5% (ustalenie z mentorem M11).",
+  "name": "Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki"
+ },
+ "REHAB-DOC-001": {
+  "basis": "ROZP_DOK - § 11 ust. 1-3",
+  "description": "Wniosek (zał. 5), zaświadczenie o stanie zdrowia (nie starsze niż miesiąc), wywiad zawodowy (nie dla przedsiębiorców/po ustaniu), dokumenty wypadkowe; po ustaniu tytułu także oświadczenie z zał. 4.",
+  "name": "Dokumenty - świadczenie rehabilitacyjne"
+ },
+ "REHAB-DUR-001": {
+  "basis": "USTAWA - art. 18 ust. 2",
+  "description": "Przez okres niezbędny do przywrócenia zdolności do pracy, nie dłużej niż 12 miesięcy.",
+  "name": "Świadczenie rehabilitacyjne - maksymalnie 12 miesięcy"
+ },
+ "REHAB-ELIG-001": {
+  "basis": "USTAWA - art. 18 ust. 1, 3, 6",
+  "description": "Przysługuje ubezpieczonemu, który po wyczerpaniu zasiłku chorobowego jest nadal niezdolny do pracy, a dalsze leczenie/rehabilitacja rokują odzyskanie zdolności - o czym orzeka lekarz orzecznik ZUS.",
+  "name": "Świadczenie rehabilitacyjne po wyczerpaniu zasiłku"
+ },
+ "REHAB-EXCL-001": {
+  "basis": "USTAWA - art. 18 ust. 7-8",
+  "description": "Nie przysługuje osobie uprawnionej do emerytury/renty, zasiłku dla bezrobotnych, przedemerytalnego, rodzicielskiego świadczenia uzupełniającego, nauczycielskiego świadczenia kompensacyjnego, urlopu dla poratowania zdrowia.",
+  "name": "Wyłączenia świadczenia rehabilitacyjnego"
+ },
+ "REHAB-RATE-001": {
+  "basis": "USTAWA - art. 19 ust. 1",
+  "description": "90% podstawy przez pierwsze 3 miesiące, 75% za pozostały okres; jeśli niezdolność przypada w okresie ciąży - 100%.",
+  "name": "Wysokość świadczenia rehabilitacyjnego (90% / 75% / 100% w ciąży)"
+ },
+ "RISK-001": {
+  "basis": "ZALACZNIK - Treść zadania, pkt H.1 (brak przepisu w wyciągach)",
+  "description": "ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzję o niepodleganiu - skutek: brak prawa do zasiłków. Silnik sygnalizuje sytuacje podwyższonego ryzyka, nie ocenia pozorności.",
+  "name": "Ryzyko - umowa / działalność zawarta dla pozoru krótko przed ciążą lub w ciąży"
+ },
+ "RISK-002": {
+  "basis": "ZALACZNIK - Treść zadania, pkt H.2",
+  "description": "ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w ciąży miało wyłącznie na celu uzyskanie wyższych świadczeń. Silnik sygnalizuje istotny wzrost podstawy w okresie ciąży.",
+  "name": "Ryzyko - podwyższenie podstawy wymiaru składek w ciąży"
+ },
+ "RISK-003": {
+  "basis": "USTAWA art. 29 ust. 1, art. 30; treść zadania pkt H.3",
+  "description": "Ostrzeżenie, gdy planowany koniec umowy/działalności/dobrowolnego ubezpieczenia przypada przed przewidywaną datą porodu, a nie zachodzi przypadek z art. 30 ani przedłużenie z KP 177 § 3.",
+  "name": "Ryzyko - ustanie ubezpieczenia przed porodem"
+ },
+ "SICK-CALC-001": {
+  "basis": "USTAWA - art. 36 ust. 3; art. 11 ust. 4",
+  "description": "Dzienna podstawa = 1/30 podstawy wymiaru; zasiłek przysługuje za każdy dzień niezdolności, łącznie z dniami wolnymi.",
+  "name": "Kwota zasiłku chorobowego za dzień i okres"
+ },
+ "SICK-DL-001": {
+  "basis": "USTAWA - art. 61b ust. 5",
+  "description": "Płatnik zgłaszający ≤20 ubezpieczonych przekazuje do ZUS wniosek/zaświadczenia z dokumentami niezwłocznie, nie później niż w 7 dni od otrzymania.",
+  "name": "Termin przekazania dokumentów przez małego płatnika do ZUS"
+ },
+ "SICK-DOC-001": {
+  "basis": "ROZP_DOK - § 2, § 3 ust. 1, zał. 1-3; USTAWA art. 53, 61b ust. 2",
+  "description": "Podstawą jest e-ZLA (lub wydruk/papierowe ZLA); gdy płaci ZUS - dodatkowo zaświadczenie płatnika składek (Z-3 pracownik / Z-3a niepracownik) albo wniosek z danymi z zał. 1 (np. dla przedsiębiorcy).",
+  "name": "Dokumenty - zasiłek chorobowy (e-ZLA, zaświadczenie płatnika)"
+ },
+ "SICK-DOC-002": {
+  "basis": "ROZP_DOK - § 4, zał. 4",
+  "description": "Dla zasiłku za okres po ustaniu tytułu wymagane jest oświadczenie z danymi z zał. 4 (emerytura/renta, zasiłek dla bezrobotnych, działalność zarobkowa itd.).",
+  "name": "Dokumenty - zasiłek chorobowy po ustaniu tytułu"
+ },
+ "SICK-DUR-001": {
+  "basis": "USTAWA - art. 8 ust. 1",
+  "description": "Zasiłek przysługuje przez okres niezdolności, nie dłużej niż 182 dni; gdy niezdolność spowodowana gruźlicą lub występuje w trakcie ciąży - nie dłużej niż 270 dni.",
+  "name": "Okres zasiłkowy - 182 dni, w ciąży 270 dni"
+ },
+ "SICK-DUR-002": {
+  "basis": "USTAWA - art. 8 ust. 2",
+  "description": "Za okres niezdolności po ustaniu tytułu zasiłek przysługuje nie dłużej niż 91 dni - nie dotyczy niezdolności w trakcie ciąży, gruźlicy i dawstwa.",
+  "name": "Limit 91 dni po ustaniu tytułu (nie dotyczy ciąży)"
+ },
+ "SICK-DUR-003": {
+  "basis": "USTAWA - art. 9 ust. 1-2",
+  "description": "Do okresu zasiłkowego wlicza się okresy nieprzerwanej niezdolności i poprzednie niezdolności, jeśli przerwa nie przekraczała 60 dni; nie wlicza się okresów sprzed przerwy ≤60 dni, jeśli po przerwie niezdolność wystąpiła w trakcie ciąży.",
+  "name": "Sumowanie okresów niezdolności do jednego okresu zasiłkowego"
+ },
+ "SICK-DUR-004": {
+  "basis": "USTAWA - art. 9 ust. 3; art. 12 ust. 3",
+  "description": "Do okresu zasiłkowego nie wlicza się niezdolności w okresie wyczekiwania (art. 4 ust. 1) ani okresów z art. 12 ust. 2.",
+  "name": "Dni okresu wyczekiwania i okresy wyłączone nie wliczają się do okresu zasiłkowego"
+ },
+ "SICK-DUR-005": {
+  "basis": "USTAWA - art. 9 ust. 4 (przypis 3: dodany ustawą z 18.12.2025, Dz.U. 2026 poz. 26, wchodzi w życie 1.01.2027)",
+  "description": "Niezależnie od liczby tytułów ubezpieczenia ustala się jeden okres zasiłkowy (również przy niewystawieniu zwolnienia z jednego tytułu).",
+  "name": "Jeden okres zasiłkowy niezależnie od liczby tytułów (od 2027-01-01)"
+ },
+ "SICK-ELIG-001": {
+  "basis": "USTAWA - art. 6 ust. 1",
+  "description": "Zasiłek chorobowy przysługuje ubezpieczonemu, który stał się niezdolny do pracy z powodu choroby w czasie trwania ubezpieczenia chorobowego.",
+  "name": "Niezdolność do pracy powstała w czasie ubezpieczenia chorobowego"
+ },
+ "SICK-ELIG-002": {
+  "basis": "USTAWA - art. 4 ust. 1 pkt 1",
+  "description": "Przy obowiązkowym ubezpieczeniu chorobowym prawo do zasiłku powstaje po 30 dniach nieprzerwanego ubezpieczenia.",
+  "name": "Okres wyczekiwania 30 dni - ubezpieczenie obowiązkowe"
+ },
+ "SICK-ELIG-003": {
+  "basis": "USTAWA - art. 4 ust. 1 pkt 2",
+  "description": "Przy dobrowolnym ubezpieczeniu chorobowym (np. JDG, zlecenie) prawo do zasiłku powstaje po 90 dniach nieprzerwanego ubezpieczenia.",
+  "name": "Okres wyczekiwania 90 dni - ubezpieczenie dobrowolne"
+ },
+ "SICK-ELIG-004": {
+  "basis": "USTAWA - art. 4 ust. 2",
+  "description": "Do okresu wyczekiwania wlicza się poprzednie okresy ubezpieczenia chorobowego, jeśli przerwa nie przekroczyła 30 dni lub była spowodowana urlopem wychowawczym, bezpłatnym albo czynną służbą wojskową żołnierza niezawodowego.",
+  "name": "Doliczanie poprzednich okresów ubezpieczenia"
+ },
+ "SICK-ELIG-005": {
+  "basis": "USTAWA - art. 4 ust. 3",
+  "description": "Bez okresu wyczekiwania - absolwenci objęci ubezpieczeniem w 90 dni od ukończenia szkoły/uczelni/szkoły doktorskiej; niezdolność wskutek wypadku w drodze do/z pracy; ubezpieczeni obowiązkowo z wcześniejszym ≥10-letnim okresem obowiązkowego ubezpieczenia (oraz posłowie/senatorowie, funkcjonariusze SC).",
+  "name": "Zasiłek od pierwszego dnia ubezpieczenia (wyjątki od okresu wyczekiwania)"
+ },
+ "SICK-ELIG-006": {
+  "basis": "USTAWA - art. 7 pkt 1-2",
+  "description": "Zasiłek przysługuje też, gdy niezdolność powstała po ustaniu tytułu, jeżeli trwała bez przerwy ≥30 dni i powstała ≤14 dni od ustania tytułu (≤3 miesiące przy chorobie zakaźnej / kod E).",
+  "name": "Zasiłek chorobowy po ustaniu tytułu ubezpieczenia"
+ },
+ "SICK-EXCL-001": {
+  "basis": "USTAWA - art. 12 ust. 1",
+  "description": "Zasiłek nie przysługuje za okresy, w których ubezpieczony zachowuje prawo do wynagrodzenia (np. wynagrodzenie chorobowe); okresy te wlicza się do okresu zasiłkowego.",
+  "name": "Brak zasiłku za okres zachowania prawa do wynagrodzenia"
+ },
+ "SICK-EXCL-002": {
+  "basis": "USTAWA - art. 12 ust. 2, 2a, 3",
+  "description": "Zasiłek nie przysługuje za niezdolność przypadającą w czasie urlopu bezpłatnego, wychowawczego, tymczasowego aresztowania/kary (z wyjątkami), usprawiedliwionej nieobecności z art. 63(2) § 8 KP, urlopu opiekuńczego; okresów tych nie wlicza się do okresu zasiłkowego.",
+  "name": "Brak zasiłku w czasie urlopu bezpłatnego, wychowawczego, aresztu, opiekuńczego"
+ },
+ "SICK-EXCL-003": {
+  "basis": "USTAWA - art. 13 ust. 1, 1a",
+  "description": "Za okres po ustaniu tytułu zasiłek nie przysługuje, jeśli osoba ma ustalone prawo do emerytury/renty, kontynuuje lub podjęła działalność zarobkową dającą tytuł do ubezpieczenia chorobowego, nie nabyła prawa w czasie ubezpieczenia (art. 4 ust. 1), jest uprawniona do zasiłku dla bezrobotnych/przedemerytalnego itp., podlega obowiązkowo KRUS.",
+  "name": "Wyłączenia zasiłku za okres po ustaniu tytułu"
+ },
+ "SICK-EXCL-004": {
+  "basis": "USTAWA - art. 13 ust. 2",
+  "description": "Zasiłek po ustaniu tytułu nie przysługuje, jeśli ubezpieczenie ustało po wyczerpaniu prawa do zasiłku chorobowego.",
+  "name": "Brak zasiłku po ustaniu tytułu, gdy ubezpieczenie ustało po wyczerpaniu zasiłku"
+ },
+ "SICK-EXCL-005": {
+  "basis": "USTAWA - art. 15",
+  "description": "Zasiłek nie przysługuje za cały okres niezdolności spowodowanej umyślnym przestępstwem lub wykroczeniem ubezpieczonego, stwierdzonym prawomocnym orzeczeniem sądu.",
+  "name": "Niezdolność spowodowana umyślnym przestępstwem/wykroczeniem"
+ },
+ "SICK-EXCL-006": {
+  "basis": "USTAWA - art. 16; art. 57 ust. 1 pkt 3",
+  "description": "Gdy niezdolność spowodowana została nadużyciem alkoholu (kod C), zasiłek nie przysługuje za pierwsze 5 dni.",
+  "name": "Nadużycie alkoholu - brak zasiłku za pierwsze 5 dni (kod C)"
+ },
+ "SICK-EXCL-007": {
+  "basis": "USTAWA - art. 17 ust. 1, 1a, 1b, 2, 4",
+  "description": "Ubezpieczony traci prawo do zasiłku za cały okres zwolnienia, jeśli wykonuje pracę zarobkową lub podejmuje aktywność niezgodną z celem zwolnienia; zasiłek nie przysługuje przy sfałszowanym zaświadczeniu.",
+  "name": "Utrata zasiłku - praca zarobkowa lub aktywność niezgodna z celem zwolnienia"
+ },
+ "SICK-RATE-001": {
+  "basis": "USTAWA - art. 11 ust. 1",
+  "description": "Miesięczny zasiłek chorobowy wynosi 80% podstawy wymiaru, z zastrzeżeniem stawki 100%.",
+  "name": "Zasiłek chorobowy 80%"
+ },
+ "SICK-RATE-002": {
+  "basis": "USTAWA - art. 11 ust. 2 pkt 1-3",
+  "description": "Zasiłek wynosi 100% podstawy, jeśli niezdolność przypada w okresie ciąży, powstała wskutek badań/zabiegu dawcy albo wypadku w drodze do/z pracy.",
+  "name": "Zasiłek chorobowy 100% - ciąża, wypadek w drodze, dawstwo"
+ },
+ "SICKPAY-ELIG-001": {
+  "basis": "KP - art. 92 § 1 pkt 1, § 5",
+  "description": "Za czas niezdolności do pracy wskutek choroby pracownik zachowuje prawo do wynagrodzenia od pracodawcy - łącznie do 33 dni w roku kalendarzowym (14 dni po roku, w którym ukończył 50 lat).",
+  "name": "Wynagrodzenie chorobowe przysługuje pracownikowi"
+ },
+ "SICKPAY-EXCL-001": {
+  "basis": "KP - art. 92 § 3 pkt 2",
+  "description": "Wynagrodzenie chorobowe nie przysługuje w przypadkach, w których pracownik nie ma prawa do zasiłku chorobowego.",
+  "name": "Brak wynagrodzenia chorobowego, gdy brak prawa do zasiłku"
+ },
+ "SICKPAY-RATE-001": {
+  "basis": "KP - art. 92 § 1 pkt 1",
+  "description": "Wynagrodzenie chorobowe wynosi 80% wynagrodzenia, chyba że przepisy u pracodawcy przewidują więcej.",
+  "name": "Wynagrodzenie chorobowe 80%"
+ },
+ "SICKPAY-RATE-002": {
+  "basis": "KP - art. 92 § 1 pkt 2-3",
+  "description": "Za niezdolność przypadającą w czasie ciąży (oraz wypadek w drodze do/z pracy, dawstwo) pracownik zachowuje 100% wynagrodzenia.",
+  "name": "Wynagrodzenie chorobowe 100% w ciąży"
+ },
+ "SICKPAY-TRN-001": {
+  "basis": "KP art. 92 § 4; USTAWA art. 12 ust. 1",
+  "description": "Po wyczerpaniu 33 (14) dni w roku kalendarzowym pracownikowi przysługuje zasiłek chorobowy; okresy wynagrodzenia chorobowego wlicza się do okresu zasiłkowego.",
+  "name": "Przejście z wynagrodzenia chorobowego na zasiłek chorobowy"
+ },
+ "SUPP-CALC-001": {
+  "basis": "KP art. 180(2) § 2-3",
+  "description": "Przy kilkorgu dzieciach - masa najlżejszego dziecka i pobyt najdłużej hospitalizowanego; okresy pobytu w oknie sumuje się; niepełny tydzień zaokrągla się w górę.",
+  "name": "Uzupełniający urlop - wieloraczki, sumowanie, zaokrąglenie w górę"
+ },
+ "SUPP-COND-001": {
+  "basis": "KP art. 180(2) § 1, § 4-5; art. 183 § 3(1); ROZP_DOK § 26-27",
+  "description": "Udzielany bezpośrednio po urlopie macierzyńskim, jednorazowo, matce albo ojcu (jednemu z nich), na wniosek ≥21 dni przed końcem urlopu macierzyńskiego, z zaświadczeniem szpitala; przy przyjęciu dziecka - gdy pobyt w szpitalu nastąpił po przyjęciu.",
+  "name": "Uzupełniający urlop - warunki udzielenia"
+ },
+ "SUPP-ELIG-001": {
+  "basis": "KP art. 180(2) § 1 pkt 1",
+  "description": "Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 15. tygodnia po porodzie.",
+  "name": "Uzupełniający urlop - poród przed 28. tyg. lub masa ≤1000 g"
+ },
+ "SUPP-ELIG-002": {
+  "basis": "KP art. 180(2) § 1 pkt 2",
+  "description": "Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 8. tygodnia po porodzie.",
+  "name": "Uzupełniający urlop - poród 28–37 tydz. i masa >1000 g"
+ },
+ "SUPP-ELIG-003": {
+  "basis": "KP art. 180(2) § 1 pkt 3",
+  "description": "Tydzień urlopu za każdy tydzień pobytu w szpitalu od 5. dnia do upływu 8. tygodnia po porodzie, jeśli pobyt trwał ≥2 kolejne dni, a pierwszy z nich przypadał między 5. a 28. dniem po porodzie.",
+  "name": "Uzupełniający urlop - poród po 37. tyg. i hospitalizacja ≥2 dni od 5.–28. dnia"
+ }
+}

@@ -2,7 +2,7 @@
   "case_id": "synthetic-pregnant-sick-employee",
   "title": "Pracownica w ciąży na zwolnieniu lekarskim",
   "source": "SYNTHETIC",
-  "note": "Dane syntetyczne (fixture 08 pregnant_sick_employee). Zasiłek chorobowy w ciąży — 100% podstawy (art. 11 ust. 2 pkt 2).",
+  "note": "Dane syntetyczne (fixture 08 pregnant_sick_employee). Zasiłek chorobowy w ciąży - 100% podstawy (art. 11 ust. 2 pkt 2).",
   "input": {
     "evaluation": {
       "as_of_date": "2026-11-21",

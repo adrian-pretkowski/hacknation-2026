@@ -1,4 +1,4 @@
-"""INT-03: serwisy symulacji — scenariusze zależne od wejścia (profil + parametry)."""
+"""INT-03: serwisy symulacji - scenariusze zależne od wejścia (profil + parametry)."""
 import datetime as dt
 from decimal import Decimal
 

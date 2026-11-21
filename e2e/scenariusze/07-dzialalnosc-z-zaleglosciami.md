@@ -11,12 +11,12 @@
 9. Przejdź dalej.
 10. Wybierz „Działalność gospodarcza (JDG)”.
 11. Sprawdź, że widać „Czy opłacasz dobrowolne ubezpieczenie chorobowe?”.
-12. Wybierz „Tak”.
+12. W pytaniu „Czy opłacasz dobrowolne” wybierz „Tak”.
 13. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „2025-01-01”.
 14. W polu „Zaległość w składkach na dzień porodu (zł)” wpisz „120,00”.
 15. Przejdź dalej.
 16. Przejdź dalej.
-17. Ustaw suwak „Zadeklarowana podstawa składek (zł / miesiąc)” na „5000”.
+17. W polu „Zadeklarowana podstawa składek (zł / miesiąc)” wpisz „5000”.
 18. Przejdź dalej.
 19. Sprawdź, że nagłówek to „Optymalizacja”.
 20. Przejdź dalej.

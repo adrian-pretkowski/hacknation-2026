@@ -1,4 +1,4 @@
-"""BE1-05: fakty i kroki zasiłku chorobowego — okres zasiłkowy (art. 8–9), po ustaniu tytułu (art. 7, 13),
+"""BE1-05: fakty i kroki zasiłku chorobowego - okres zasiłkowy (art. 8–9), po ustaniu tytułu (art. 7, 13),
 podział wynagrodzenie/zasiłek (KP art. 92), dni bez świadczenia (art. 12 ust. 2, art. 16), kwoty.
 
 Każdy fakt: przypadek typowy, graniczny i brak danych. Scenariusze pipeline'u na fixture ``pregnant_sick_employee``
@@ -112,7 +112,7 @@ def test_f_months_since_title_end(day, expected):
 
 
 def test_after_title_end_code_e_within_3_months_is_eligible():
-    # SICK-ELIG-006: kod E (gruźlica) — niezdolność do 3 miesięcy od ustania tytułu
+    # SICK-ELIG-006: kod E (gruźlica) - niezdolność do 3 miesięcy od ustania tytułu
     payload = _case("T-SICK-011")
     payload["incapacity"].update(start_date="2027-01-20", end_date="2027-03-20", codes=["B", "E"])
     assert _benefit(pipeline.evaluate(payload), "SICKNESS_BENEFIT")["status"] == "ELIGIBLE"
@@ -127,7 +127,7 @@ def test_after_title_end_with_pension_is_not_eligible():
 
 
 def test_after_title_end_not_pregnant_limited_to_91_days():
-    # SICK-DUR-002: po ustaniu tytułu poza ciążą okres zasiłkowy 91 dni (w ciąży — 270, T-SICK-011)
+    # SICK-DUR-002: po ustaniu tytułu poza ciążą okres zasiłkowy 91 dni (w ciąży - 270, T-SICK-011)
     payload = _case("T-SICK-011")
     payload["incapacity"]["codes"] = []
     payload["pregnancy"]["is_pregnant_during_incapacity"] = False

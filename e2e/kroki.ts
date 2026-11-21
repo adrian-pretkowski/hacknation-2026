@@ -1,6 +1,6 @@
 // Interpreter kroków scenariuszy pisanych po polsku. Każdy krok to jedno zdanie z wartościami w cudzysłowie:
 //   „Kliknij „Zaczynamy””, „Wybierz „Mamą””, „W polu „Planowana data porodu” wpisz „za 60 dni””.
-// Słownik kroków: e2e/README.md (generowany ręcznie z listy KROKI poniżej — przy nowym kroku dopisz go tam).
+// Słownik kroków: e2e/README.md (generowany ręcznie z listy KROKI poniżej - przy nowym kroku dopisz go tam).
 import { expect, type Locator, type Page, type TestInfo } from "@playwright/test";
 
 export type Kontekst = { page: Page; info: TestInfo };
@@ -38,7 +38,7 @@ export function data(tekst: string): string {
 }
 
 // ---------- wyszukiwanie elementów ----------
-/** Otwarte okno (symulowane logowanie, konto) blokuje resztę strony — wtedy szukamy w nim. */
+/** Otwarte okno (symulowane logowanie, konto) blokuje resztę strony - wtedy szukamy w nim. */
 async function obszar(page: Page): Promise<Page | Locator> {
   const dlg = page.locator("dialog[open]");
   return (await dlg.count()) > 0 ? dlg.last() : page;
@@ -155,7 +155,13 @@ export const KROKI: Krok[] = [
   { opis: "Wpisz „7800” w pole „Wynagrodzenie brutto”", wzorce: [re("wpisz «Q» (w|do) pol(e|a) «Q»")],
     wykonaj: (k, w, e) => wpisz(k, e, w) },
   { opis: "Ustaw suwak „Ile tygodni rodzicielskiego weźmie tata?” na „9”", wzorce: [re("ustaw suwak «Q» na «Q»")],
-    wykonaj: (k, e, w) => wpisz(k, `${e} — wpisz wartość`, w) },
+    wykonaj: (k, e, w) => wpisz(k, `${e} - wpisz wartość`, w) },
+  { opis: "W pytaniu „Czy pracujesz na pełny etat?” wybierz „Tak”  (opcja w grupie o tej etykiecie)",
+    wzorce: [re("w pytaniu «Q» wybierz «Q»")],
+    wykonaj: async ({ page }, pytanie, t) => {
+      const grupa = await znajdz(page, `pytanie „${pytanie}”`, (s) => [s.getByRole("group", { name: zawiera(pytanie) })]);
+      await grupa.getByRole("radio", { name: t, exact: true }).check();
+    } },
   { opis: "Wybierz „Mamą”  (opcja, pole wyboru albo zakładka)", wzorce: [re("wybierz( opcję)? «Q»")], wykonaj: wybierz },
   { opis: "Zaznacz „Wcześniak”  (pole wyboru; wystarczy początek etykiety)",wzorce: [re("zaznacz «Q»")],
     wykonaj: async ({ page }, t) => { await (await znajdz(page, `pole wyboru „${t}”`, (s) => [s.getByRole("checkbox", { name: zawiera(t) })])).check(); } },

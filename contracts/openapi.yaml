@@ -1,18 +1,18 @@
-# contracts/openapi.yaml — kontrakt BE/FE. Właściciel: INT. Zmiany przez PR (akceptacja BE + FE). Po zmianie: cd frontend; npm run gen:api
+# contracts/openapi.yaml - kontrakt BE/FE. Właściciel: INT. Zmiany przez PR (akceptacja BE + FE). Po zmianie: cd frontend; npm run gen:api
 openapi: 3.1.0
 info:
-  title: Przewodnik Przyszłego Rodzica — API
+  title: Przewodnik Przyszłego Rodzica - API
   version: 1.0.0
   description: 'Kontrakt v1. Właściciel: Integrator (INT). Zmiany tylko przez PR z akceptacją BE i FE; wyłącznie addytywne w ramach
     v1.
 
-    Modele danych: zus_rules/04_INPUT_DATA_SCHEMA.json (In*) i 05_OUTPUT_DATA_SCHEMA.json (Out*) — przeniesione do components.
+    Modele danych: zus_rules/04_INPUT_DATA_SCHEMA.json (In*) i 05_OUTPUT_DATA_SCHEMA.json (Out*) - przeniesione do components.
 
     Status operacji: `x-status: implemented` (działa, sprawdzane testem kontraktu) albo `planned` (zadeklarowane, zadanie w `x-task`).
 
-    Endpointy `/api/sim/*` są WYŁĄCZNIE symulacjami (każda odpowiedź ma `simulated: true`) — wymóg zadania.
+    Endpointy `/api/sim/*` są WYŁĄCZNIE symulacjami (każda odpowiedź ma `simulated: true`) - wymóg zadania.
 
-    Kwoty: string dziesiętny (dokładny Decimal, bez zaokrągleń — GAP-001). Daty: ISO 8601. Błędy: application/problem+json.'
+    Kwoty: string dziesiętny (dokładny Decimal, bez zaokrągleń - GAP-001). Daty: ISO 8601. Błędy: application/problem+json.'
 servers:
 - url: http://localhost:8000
 paths:
@@ -70,7 +70,7 @@ paths:
                     combined_815_filed_date: '2027-04-05'
       responses:
         '200':
-          description: Wynik ewaluacji (także NEEDS_DATA / NEEDS_REVIEW — to nie są błędy HTTP)
+          description: Wynik ewaluacji (także NEEDS_DATA / NEEDS_REVIEW - to nie są błędy HTTP)
           content:
             application/json:
               schema:
@@ -99,7 +99,7 @@ paths:
                       reasons:
                       - code: RATE_COMBINED_815
                         rule_id: RATE-MAT-003
-                        message: Wniosek o łączny zasiłek złożony w 21 dni od porodu — 81,5% podstawy.
+                        message: Wniosek o łączny zasiłek złożony w 21 dni od porodu - 81,5% podstawy.
                         legal_basis:
                         - document: USTAWA
                           location: art. 31 ust. 3; art. 30a ust. 1
@@ -113,7 +113,7 @@ paths:
                     missing_data: []
                     assumptions:
                     - code: ROUNDING_UNCONFIRMED
-                      text: Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001).
+                      text: Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001).
                     not_evaluated_rules:
                     - MAT-ELIG-004
                     - MAT-ELIG-005
@@ -189,7 +189,7 @@ paths:
       x-status: implemented
       x-owner: BE-2
       x-task: BE2-06
-      summary: Ewaluacja sprawy i porównanie z decyzją ZUS (weryfikacja ubezpieczenia + kalkulator — wymóg § 4 i § 6 zadania)
+      summary: Ewaluacja sprawy i porównanie z decyzją ZUS (weryfikacja ubezpieczenia + kalkulator - wymóg § 4 i § 6 zadania)
       parameters:
       - name: case_id
         in: path
@@ -212,7 +212,7 @@ paths:
       x-status: implemented
       x-owner: BE-2
       x-task: BE2-06
-      summary: Upload wniosku (PDF) — rozpoznanie i mapowanie do modelu wejścia
+      summary: Upload wniosku (PDF) - rozpoznanie i mapowanie do modelu wejścia
       description: 'Plik nie jest zapisywany trwale ani logowany (poufność). Bez zgody M16e brak ekstrakcji AI: znane formularze → FIXTURE_MATCH,
         inne → MANUAL_REQUIRED.'
       requestBody:
@@ -273,7 +273,7 @@ paths:
               - name: MAT_RATE_COMBINED
                 value: '0.815'
                 valid_from: '2027-01-01'
-                reason: Demo — zmiana stawki (docs/mentors.md M10)
+                reason: Demo - zmiana stawki (docs/mentors.md M10)
       responses:
         '200':
           description: OK
@@ -452,7 +452,7 @@ paths:
       x-owner: INT
       x-task: INT-03
       x-simulation: true
-      summary: SYMULACJA wniosku o odpis aktu urodzenia (gov.pl — rejestr stanu cywilnego)
+      summary: SYMULACJA wniosku o odpis aktu urodzenia (gov.pl - rejestr stanu cywilnego)
       requestBody:
         required: true
         content:
@@ -479,7 +479,7 @@ paths:
       summary: Najlepszy następny wybór w planie urlopów obojga rodziców (+ cofanie o N kroków)
       description: 'Graf decyzji z 03_rules.yaml (kroki: wniosek 81,5%, przejęcie macierzyńskiego, ojcowski, 9 tygodni
         ojca, podział wspólnej części rodzicielskiego, praca na rodzicielskim). Dla bieżącego kroku (po `choices`)
-        zwraca każdą opcję z najlepszym osiągalnym wynikiem, rekomendację, najlepszy plan oraz `backtrack` — lepsze
+        zwraca każdą opcję z najlepszym osiągalnym wynikiem, rekomendację, najlepszy plan oraz `backtrack` - lepsze
         wybory 1..`lookback` kroków wstecz. Kwoty deterministyczne (Decimal), bez LLM. Błędny wybór → status
         INVALID_CHOICE (HTTP 200) z regułą, która go wyklucza.'
       requestBody:
@@ -500,7 +500,7 @@ paths:
                       base_monthly: '9000.00'
                   choices: []
               after_split:
-                summary: Po 5 krokach — z cofaniem o 2 kroki
+                summary: Po 5 krokach - z cofaniem o 2 kroki
                 value:
                   profile:
                     mother:
@@ -517,7 +517,7 @@ paths:
                   lookback: 2
       responses:
         '200':
-          description: Sugestia (także NEEDS_DATA / OUT_OF_SCOPE / INVALID_CHOICE — to nie są błędy HTTP)
+          description: Sugestia (także NEEDS_DATA / OUT_OF_SCOPE / INVALID_CHOICE - to nie są błędy HTTP)
           content:
             application/json:
               schema:
@@ -536,7 +536,7 @@ paths:
       operationId: plannerGraph
       summary: Graf wszystkich opcji planu urlopów (węzły, krawędzie, opcje zablokowane regułami)
       description: 'Warstwowy DAG: węzeł = (krok, stan), krawędź = opcja z zyskiem `gain_exact`; opcje niedozwolone mają
-        `feasible: false`, `to: null` i `blocked_by_rule`. `depth` ogranicza liczbę kroków (pełny graf: 7 — ok. 2 MB).'
+        `feasible: false`, `to: null` i `blocked_by_rule`. `depth` ogranicza liczbę kroków (pełny graf: 7 - ok. 2 MB).'
       requestBody:
         required: true
         content:
@@ -634,7 +634,7 @@ components:
     EvaluateRequest:
       type: object
       description: Model wejścia = zus_rules/04_INPUT_DATA_SCHEMA.json (pełny). Kontrakt v1 wymaga tylko `event`; brak pozostałych pól
-        silnik traktuje jako UNKNOWN → NEEDS_DATA. Docelowo 04 wymaga też `evaluation` i `person` — zaostrzenie tylko przez zmianę wersji
+        silnik traktuje jako UNKNOWN → NEEDS_DATA. Docelowo 04 wymaga też `evaluation` i `person` - zaostrzenie tylko przez zmianę wersji
         kontraktu.
       required:
       - event
@@ -650,7 +650,7 @@ components:
               enum:
               - DECISION_SUPPORT
               - FORECAST
-              description: FORECAST — zdarzenie przyszłe (planowany poród); wynik jest prognozą.
+              description: FORECAST - zdarzenie przyszłe (planowany poród); wynik jest prognozą.
             ruleset_version:
               type: string
           x-required-in-04:
@@ -862,7 +862,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/InDate'
-              description: Skrót — gdy items nie podano.
+              description: Skrót - gdy items nie podano.
             za_zyciem_certificate:
               $ref: '#/components/schemas/InTriBool'
               x-legal-basis: KP art. 182(1a) § 2; USTAWA art. 61b ust. 4a
@@ -879,7 +879,7 @@ components:
               x-legal-basis: KP art. 182
         incapacity:
           type: object
-          description: Bieżąca niezdolność do pracy (e-ZLA) — dla zasiłku chorobowego w ciąży.
+          description: Bieżąca niezdolność do pracy (e-ZLA) - dla zasiłku chorobowego w ciąży.
           properties:
             start_date:
               $ref: '#/components/schemas/InDate'
@@ -976,10 +976,10 @@ components:
               patternProperties:
                 ^[0-9]{4}-[0-9]{2}$:
                   $ref: '#/components/schemas/InMoney'
-              x-legal-basis: USTAWA art. 48a, 49 (wartości — ustawa o s.u.s., niezałączona)
+              x-legal-basis: USTAWA art. 48a, 49 (wartości - ustawa o s.u.s., niezałączona)
             manual_base_override:
               $ref: '#/components/schemas/InMoney'
-              description: Podstawa podana wprost (np. z poświadczenia ZUS). Gdy podana — f_benefit_base ją zwraca z flagą source=MANUAL.
+              description: Podstawa podana wprost (np. z poświadczenia ZUS). Gdy podana - f_benefit_base ją zwraca z flagą source=MANUAL.
         applications:
           type: object
           properties:
@@ -1008,7 +1008,7 @@ components:
               $ref: '#/components/schemas/InTriBool'
         debt:
           type: object
-          description: Zadłużenie składkowe (zaświadczenie — symulacja).
+          description: Zadłużenie składkowe (zaświadczenie - symulacja).
           properties:
             amount_on_right_date:
               $ref: '#/components/schemas/InMoney'
@@ -1319,7 +1319,7 @@ components:
                 type: string
         plan_errors:
           type: array
-          description: Błędy walidacji planu (validation_error) — nie zmieniają statusu prawa.
+          description: Błędy walidacji planu (validation_error) - nie zmieniają statusu prawa.
           items:
             type: object
             required:
@@ -1415,7 +1415,7 @@ components:
                 type: string
                 format: date
       description: Model wyjścia = zus_rules/05_OUTPUT_DATA_SCHEMA.json + pola kontraktu (engine, not_evaluated_rules). Pola spoza `required`
-        są opcjonalne w v1 — wypełnia je pełny silnik (BE1-02) i kolejne zadania.
+        są opcjonalne w v1 - wypełnia je pełny silnik (BE1-02) i kolejne zadania.
     Problem:
       type: object
       required:
@@ -1503,7 +1503,7 @@ components:
           - VOLUNTARY
           - NONE
           x-legal-basis: USTAWA art. 4 ust. 1
-          description: Pobierane z danych ZUS/zaświadczenia — NIE wywodzone z rodzaju umowy.
+          description: Pobierane z danych ZUS/zaświadczenia - NIE wywodzone z rodzaju umowy.
         from:
           $ref: '#/components/schemas/InDate'
         to:
@@ -1692,7 +1692,7 @@ components:
           x-legal-basis: KP art. 182(1e); USTAWA art. 31 ust. 4a
         is_other_parent_reserved_9w:
           $ref: '#/components/schemas/InTriBool'
-          description: Segment z 9 nieprzenoszalnych tygodni drugiego rodzica (USTAWA art. 31 ust. 3f). Jeśli null — wyznacza f_segment_is_other_parent_reserved_9w.
+          description: Segment z 9 nieprzenoszalnych tygodni drugiego rodzica (USTAWA art. 31 ust. 3f). Jeśli null - wyznacza f_segment_is_other_parent_reserved_9w.
     InDocument:
       type: object
       required:
@@ -1751,7 +1751,7 @@ components:
           type: string
         message:
           type: string
-          description: Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły — bez LLM.
+          description: Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły - bez LLM.
         legal_basis:
           type: array
           items:
@@ -2074,7 +2074,7 @@ components:
           - FIXTURE_MATCH
           - MANUAL_REQUIRED
           - AI_EXTRACTION
-          description: AI_EXTRACTION tylko po zgodzie mentora (M16e) — funkcja oznaczona jako AI
+          description: AI_EXTRACTION tylko po zgodzie mentora (M16e) - funkcja oznaczona jako AI
         warnings:
           type: array
           items:
@@ -2137,7 +2137,7 @@ components:
         base_parameters_version:
           type: integer
           minimum: 1
-          description: Wersja, na której opiera się zmiana — konflikt → 409
+          description: Wersja, na której opiera się zmiana - konflikt → 409
         changes:
           type: array
           minItems: 1
@@ -2177,7 +2177,7 @@ components:
       properties:
         simulated: &id003
           const: true
-          description: Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+          description: Zawsze true - dane symulowane, nie pochodzą z systemów ZUS/gov
         session_token:
           type: string
         profile_id:
@@ -2317,7 +2317,7 @@ components:
           - LEAVE_PARENTAL_PART_TIME_WORK
           - LEAVE_PATERNITY
           - LEAVE_MATERNITY_LIKE
-          description: Wnioski urlopowe wg rozporządzenia z 11.03.2025 (ROZP_WN § 2–18); ZAM — wniosek o zasiłek
+          description: Wnioski urlopowe wg rozporządzenia z 11.03.2025 (ROZP_WN § 2–18); ZAM - wniosek o zasiłek
         recipient:
           enum:
           - EMPLOYER
@@ -2411,7 +2411,7 @@ components:
       - kind
       - title
       - body_md
-      description: Treść przewodnika (frontend/src/content/*.json — właściciel BA, interfejs I4)
+      description: Treść przewodnika (frontend/src/content/*.json - właściciel BA, interfejs I4)
       properties:
         id:
           type: string
@@ -2501,7 +2501,7 @@ components:
         father:
           $ref: '#/components/schemas/PlannerParent'
     PlannerChoice:
-      description: Wartość opcji kroku (bool — wniosek 81,5%; liczba tygodni; ułamek etatu jako string).
+      description: Wartość opcji kroku (bool - wniosek 81,5%; liczba tygodni; ułamek etatu jako string).
       type:
       - boolean
       - integer

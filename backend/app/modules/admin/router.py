@@ -1,7 +1,7 @@
 """Panel admina parametrów (BE2-05): GET/PUT /api/admin/parameters (kontrakt: ParameterList, ParameterUpdate).
 
-Dostęp bez uwierzytelnienia (D: demo — wejście bezpośrednio z przycisku „Panel admina” na stronie głównej);
-produkcyjnie: SSO. Zmiana działa bez restartu — silnik czyta ``app.core.params.param()`` przy każdej ewaluacji.
+Dostęp bez uwierzytelnienia (D36: demo - wejście bezpośrednio z przycisku „Panel admina” na stronie głównej);
+produkcyjnie: SSO. Zmiana działa bez restartu - silnik czyta ``app.core.params.param()`` przy każdej ewaluacji.
 Logi bez wartości.
 """
 from __future__ import annotations
@@ -46,7 +46,7 @@ async def update_parameters(request: Request) -> Any:
         STORE.apply(base, changes)
     except VersionConflict as exc:
         return _problem(409, "Konflikt wersji parametrów",
-                        f"Zmiana oparta na wersji {base}, bieżąca wersja to {exc.current} — odśwież listę.")
+                        f"Zmiana oparta na wersji {base}, bieżąca wersja to {exc.current} - odśwież listę.")
     except ParameterError as exc:
         return _problem(422, "Nieznany parametr lub zła wartość", exc.message,
                         [{"field": exc.field, "code": exc.code, "message": exc.message}])

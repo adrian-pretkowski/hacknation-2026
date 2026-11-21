@@ -81,7 +81,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Ewaluacja sprawy i porównanie z decyzją ZUS (weryfikacja ubezpieczenia + kalkulator — wymóg § 4 i § 6 zadania) */
+        /** Ewaluacja sprawy i porównanie z decyzją ZUS (weryfikacja ubezpieczenia + kalkulator - wymóg § 4 i § 6 zadania) */
         post: operations["evaluateCase"];
         delete?: never;
         options?: never;
@@ -99,7 +99,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Upload wniosku (PDF) — rozpoznanie i mapowanie do modelu wejścia
+         * Upload wniosku (PDF) - rozpoznanie i mapowanie do modelu wejścia
          * @description Plik nie jest zapisywany trwale ani logowany (poufność). Bez zgody M16e brak ekstrakcji AI: znane formularze → FIXTURE_MATCH, inne → MANUAL_REQUIRED.
          */
         post: operations["uploadCase"];
@@ -241,7 +241,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** SYMULACJA wniosku o odpis aktu urodzenia (gov.pl — rejestr stanu cywilnego) */
+        /** SYMULACJA wniosku o odpis aktu urodzenia (gov.pl - rejestr stanu cywilnego) */
         post: operations["simBirthCertificate"];
         delete?: never;
         options?: never;
@@ -260,7 +260,7 @@ export interface paths {
         put?: never;
         /**
          * Najlepszy następny wybór w planie urlopów obojga rodziców (+ cofanie o N kroków)
-         * @description Graf decyzji z 03_rules.yaml (kroki: wniosek 81,5%, przejęcie macierzyńskiego, ojcowski, 9 tygodni ojca, podział wspólnej części rodzicielskiego, praca na rodzicielskim). Dla bieżącego kroku (po `choices`) zwraca każdą opcję z najlepszym osiągalnym wynikiem, rekomendację, najlepszy plan oraz `backtrack` — lepsze wybory 1..`lookback` kroków wstecz. Kwoty deterministyczne (Decimal), bez LLM. Błędny wybór → status INVALID_CHOICE (HTTP 200) z regułą, która go wyklucza.
+         * @description Graf decyzji z 03_rules.yaml (kroki: wniosek 81,5%, przejęcie macierzyńskiego, ojcowski, 9 tygodni ojca, podział wspólnej części rodzicielskiego, praca na rodzicielskim). Dla bieżącego kroku (po `choices`) zwraca każdą opcję z najlepszym osiągalnym wynikiem, rekomendację, najlepszy plan oraz `backtrack` - lepsze wybory 1..`lookback` kroków wstecz. Kwoty deterministyczne (Decimal), bez LLM. Błędny wybór → status INVALID_CHOICE (HTTP 200) z regułą, która go wyklucza.
          */
         post: operations["plannerSuggest"];
         delete?: never;
@@ -280,7 +280,7 @@ export interface paths {
         put?: never;
         /**
          * Graf wszystkich opcji planu urlopów (węzły, krawędzie, opcje zablokowane regułami)
-         * @description Warstwowy DAG: węzeł = (krok, stan), krawędź = opcja z zyskiem `gain_exact`; opcje niedozwolone mają `feasible: false`, `to: null` i `blocked_by_rule`. `depth` ogranicza liczbę kroków (pełny graf: 7 — ok. 2 MB).
+         * @description Warstwowy DAG: węzeł = (krok, stan), krawędź = opcja z zyskiem `gain_exact`; opcje niedozwolone mają `feasible: false`, `to: null` i `blocked_by_rule`. `depth` ogranicza liczbę kroków (pełny graf: 7 - ok. 2 MB).
          */
         post: operations["plannerGraph"];
         delete?: never;
@@ -316,13 +316,13 @@ export interface components {
             /** Format: date */
             to?: string | null;
         };
-        /** @description Model wejścia = zus_rules/04_INPUT_DATA_SCHEMA.json (pełny). Kontrakt v1 wymaga tylko `event`; brak pozostałych pól silnik traktuje jako UNKNOWN → NEEDS_DATA. Docelowo 04 wymaga też `evaluation` i `person` — zaostrzenie tylko przez zmianę wersji kontraktu. */
+        /** @description Model wejścia = zus_rules/04_INPUT_DATA_SCHEMA.json (pełny). Kontrakt v1 wymaga tylko `event`; brak pozostałych pól silnik traktuje jako UNKNOWN → NEEDS_DATA. Docelowo 04 wymaga też `evaluation` i `person` - zaostrzenie tylko przez zmianę wersji kontraktu. */
         EvaluateRequest: {
             evaluation?: {
                 /** @description Data, wg której ocenia się obowiązywanie przepisów (domyślnie 2026-11-21). */
                 as_of_date?: components["schemas"]["InDate"];
                 /**
-                 * @description FORECAST — zdarzenie przyszłe (planowany poród); wynik jest prognozą.
+                 * @description FORECAST - zdarzenie przyszłe (planowany poród); wynik jest prognozą.
                  * @enum {unknown}
                  */
                 mode?: "DECISION_SUPPORT" | "FORECAST";
@@ -401,14 +401,14 @@ export interface components {
                 count_at_birth?: number | null;
                 count_at_event?: number | null;
                 items?: components["schemas"]["InChild"][];
-                /** @description Skrót — gdy items nie podano. */
+                /** @description Skrót - gdy items nie podano. */
                 birth_dates?: components["schemas"]["InDate"][];
                 za_zyciem_certificate?: components["schemas"]["InTriBool"];
                 school_obligation_deferred?: components["schemas"]["InTriBool"];
                 hospital_stays?: components["schemas"]["InHospitalStay"][];
                 abandoned_or_placed_date?: components["schemas"]["InDate"];
             };
-            /** @description Bieżąca niezdolność do pracy (e-ZLA) — dla zasiłku chorobowego w ciąży. */
+            /** @description Bieżąca niezdolność do pracy (e-ZLA) - dla zasiłku chorobowego w ciąży. */
             incapacity?: {
                 start_date?: components["schemas"]["InDate"];
                 end_date?: components["schemas"]["InDate"];
@@ -439,7 +439,7 @@ export interface components {
                 minimum_contribution_base_by_month?: {
                     [key: string]: components["schemas"]["InMoney"];
                 };
-                /** @description Podstawa podana wprost (np. z poświadczenia ZUS). Gdy podana — f_benefit_base ją zwraca z flagą source=MANUAL. */
+                /** @description Podstawa podana wprost (np. z poświadczenia ZUS). Gdy podana - f_benefit_base ją zwraca z flagą source=MANUAL. */
                 manual_base_override?: components["schemas"]["InMoney"];
             };
             applications?: {
@@ -455,7 +455,7 @@ export interface components {
                 transfer_start_date?: components["schemas"]["InDate"];
                 mother_resigns_remaining_maternity?: components["schemas"]["InTriBool"];
             };
-            /** @description Zadłużenie składkowe (zaświadczenie — symulacja). */
+            /** @description Zadłużenie składkowe (zaświadczenie - symulacja). */
             debt?: {
                 amount_on_right_date?: components["schemas"]["InMoney"];
                 repaid_in_full_date?: components["schemas"]["InDate"];
@@ -531,7 +531,7 @@ export interface components {
             code: string;
             text: string;
         };
-        /** @description Model wyjścia = zus_rules/05_OUTPUT_DATA_SCHEMA.json + pola kontraktu (engine, not_evaluated_rules). Pola spoza `required` są opcjonalne w v1 — wypełnia je pełny silnik (BE1-02) i kolejne zadania. */
+        /** @description Model wyjścia = zus_rules/05_OUTPUT_DATA_SCHEMA.json + pola kontraktu (engine, not_evaluated_rules). Pola spoza `required` są opcjonalne w v1 - wypełnia je pełny silnik (BE1-02) i kolejne zadania. */
         EvaluateResponse: {
             /** Format: uuid */
             evaluation_id: string;
@@ -573,7 +573,7 @@ export interface components {
                 rule_id: string;
                 message?: string;
             }[];
-            /** @description Błędy walidacji planu (validation_error) — nie zmieniają statusu prawa. */
+            /** @description Błędy walidacji planu (validation_error) - nie zmieniają statusu prawa. */
             plan_errors?: {
                 code: string;
                 rule_id: string;
@@ -637,7 +637,7 @@ export interface components {
             /** @enum {unknown} */
             title_type: "EMPLOYMENT_CONTRACT" | "CIVIL_CONTRACT_MANDATE" | "AGENCY_CONTRACT" | "SELF_EMPLOYED" | "SELF_EMPLOYED_COLLABORATOR" | "CLERGY" | "CLERGY_SELF_PAYER" | "SEAFARER_ART6_24" | "FOREIGN_EMPLOYER" | "OTHER";
             /**
-             * @description Pobierane z danych ZUS/zaświadczenia — NIE wywodzone z rodzaju umowy.
+             * @description Pobierane z danych ZUS/zaświadczenia - NIE wywodzone z rodzaju umowy.
              * @enum {unknown}
              */
             sickness_insurance_mode: "MANDATORY" | "VOLUNTARY" | "NONE";
@@ -706,7 +706,7 @@ export interface components {
             to: components["schemas"]["InDate"];
             /** @default 0 */
             work_fraction?: components["schemas"]["InFraction"];
-            /** @description Segment z 9 nieprzenoszalnych tygodni drugiego rodzica (USTAWA art. 31 ust. 3f). Jeśli null — wyznacza f_segment_is_other_parent_reserved_9w. */
+            /** @description Segment z 9 nieprzenoszalnych tygodni drugiego rodzica (USTAWA art. 31 ust. 3f). Jeśli null - wyznacza f_segment_is_other_parent_reserved_9w. */
             is_other_parent_reserved_9w?: components["schemas"]["InTriBool"];
         };
         InDocument: {
@@ -728,7 +728,7 @@ export interface components {
         OutReason: {
             code: string;
             rule_id: string;
-            /** @description Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły — bez LLM. */
+            /** @description Wyjaśnienie w języku prostym (PL), generowane z szablonu reguły - bez LLM. */
             message: string;
             legal_basis?: components["schemas"]["OutLegalRef"][];
             /** @enum {unknown} */
@@ -854,7 +854,7 @@ export interface components {
             extracted_input: components["schemas"]["EvaluateRequest"];
             missing_fields: string[];
             /**
-             * @description AI_EXTRACTION tylko po zgodzie mentora (M16e) — funkcja oznaczona jako AI
+             * @description AI_EXTRACTION tylko po zgodzie mentora (M16e) - funkcja oznaczona jako AI
              * @enum {unknown}
              */
             extraction_method: "FIXTURE_MATCH" | "MANUAL_REQUIRED" | "AI_EXTRACTION";
@@ -879,7 +879,7 @@ export interface components {
             parameters: components["schemas"]["Parameter"][];
         };
         ParameterUpdate: {
-            /** @description Wersja, na której opiera się zmiana — konflikt → 409 */
+            /** @description Wersja, na której opiera się zmiana - konflikt → 409 */
             base_parameters_version: number;
             changes: {
                 name: string;
@@ -895,7 +895,7 @@ export interface components {
         };
         SimLoginResponse: {
             /**
-             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @description Zawsze true - dane symulowane, nie pochodzą z systemów ZUS/gov
              * @constant
              */
             simulated: true;
@@ -907,7 +907,7 @@ export interface components {
         };
         SimZusProfile: {
             /**
-             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @description Zawsze true - dane symulowane, nie pochodzą z systemów ZUS/gov
              * @constant
              */
             simulated: true;
@@ -927,7 +927,7 @@ export interface components {
         };
         SimEzlaList: {
             /**
-             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @description Zawsze true - dane symulowane, nie pochodzą z systemów ZUS/gov
              * @constant
              */
             simulated: true;
@@ -935,7 +935,7 @@ export interface components {
         };
         SimDebtCertificate: {
             /**
-             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @description Zawsze true - dane symulowane, nie pochodzą z systemów ZUS/gov
              * @constant
              */
             simulated: true;
@@ -956,7 +956,7 @@ export interface components {
         };
         SimPueTicket: {
             /**
-             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @description Zawsze true - dane symulowane, nie pochodzą z systemów ZUS/gov
              * @constant
              */
             simulated: true;
@@ -968,7 +968,7 @@ export interface components {
         SimApplicationRequest: {
             profile_id: components["schemas"]["ProfileId"];
             /**
-             * @description Wnioski urlopowe wg rozporządzenia z 11.03.2025 (ROZP_WN § 2–18); ZAM — wniosek o zasiłek
+             * @description Wnioski urlopowe wg rozporządzenia z 11.03.2025 (ROZP_WN § 2–18); ZAM - wniosek o zasiłek
              * @enum {unknown}
              */
             application_type: "ZAM" | "LEAVE_MATERNITY_PRE_BIRTH" | "LEAVE_MATERNITY_RESIGNATION" | "LEAVE_MATERNITY_TRANSFER" | "LEAVE_SUPPLEMENTARY_MATERNITY" | "LEAVE_PARENTAL" | "LEAVE_PARENTAL_PART_TIME_WORK" | "LEAVE_PATERNITY" | "LEAVE_MATERNITY_LIKE";
@@ -984,7 +984,7 @@ export interface components {
         };
         SimApplicationResult: {
             /**
-             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @description Zawsze true - dane symulowane, nie pochodzą z systemów ZUS/gov
              * @constant
              */
             simulated: true;
@@ -1011,7 +1011,7 @@ export interface components {
         };
         SimBirthCertificateResult: {
             /**
-             * @description Zawsze true — dane symulowane, nie pochodzą z systemów ZUS/gov
+             * @description Zawsze true - dane symulowane, nie pochodzą z systemów ZUS/gov
              * @constant
              */
             simulated: true;
@@ -1022,7 +1022,7 @@ export interface components {
             info_url: string;
             note?: string;
         };
-        /** @description Treść przewodnika (frontend/src/content/*.json — właściciel BA, interfejs I4) */
+        /** @description Treść przewodnika (frontend/src/content/*.json - właściciel BA, interfejs I4) */
         ContentBlock: {
             id: string;
             /** @enum {unknown} */
@@ -1060,7 +1060,7 @@ export interface components {
             mother: components["schemas"]["PlannerParent"];
             father: components["schemas"]["PlannerParent"];
         };
-        /** @description Wartość opcji kroku (bool — wniosek 81,5%; liczba tygodni; ułamek etatu jako string). */
+        /** @description Wartość opcji kroku (bool - wniosek 81,5%; liczba tygodni; ułamek etatu jako string). */
         PlannerChoice: boolean | number | string;
         /** @enum {unknown} */
         PlannerObjective: "MAX_MONEY" | "MAX_TIME";
@@ -1263,7 +1263,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Wynik ewaluacji (także NEEDS_DATA / NEEDS_REVIEW — to nie są błędy HTTP) */
+            /** @description Wynik ewaluacji (także NEEDS_DATA / NEEDS_REVIEW - to nie są błędy HTTP) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1474,7 +1474,7 @@ export interface operations {
                  *           "name": "MAT_RATE_COMBINED",
                  *           "value": "0.815",
                  *           "valid_from": "2027-01-01",
-                 *           "reason": "Demo — zmiana stawki (docs/mentors.md M10)"
+                 *           "reason": "Demo - zmiana stawki (docs/mentors.md M10)"
                  *         }
                  *       ]
                  *     }
@@ -1784,7 +1784,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Sugestia (także NEEDS_DATA / OUT_OF_SCOPE / INVALID_CHOICE — to nie są błędy HTTP) */
+            /** @description Sugestia (także NEEDS_DATA / OUT_OF_SCOPE / INVALID_CHOICE - to nie są błędy HTTP) */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -1,15 +1,15 @@
-# 10 — MVP IMPLEMENTATION PLAN (Python)
+# 10 - MVP IMPLEMENTATION PLAN (Python)
 
 Specyfikacja jest gotowa do implementacji. Ten plan **nie** zawiera kodu produkcyjnego.
 
 ## 1. Rekomendowany zakres MVP (Krok 7)
 
-Najmniejszy zestaw dający wiarygodne demo end-to-end — **70 reguł P0** (lista: `11_CONSISTENCY_AUDIT.md` → statystyki / `02` → indeks):
+Najmniejszy zestaw dający wiarygodne demo end-to-end - **70 reguł P0** (lista: `11_CONSISTENCY_AUDIT.md` → statystyki / `02` → indeks):
 
 | Obszar | Reguły P0 | Co pokazuje demo |
 |---|---|---|
 | Płatnik + zadłużenie | GEN-CLS-001/002, GEN-EXCL-001 | „Kto wypłaci” + JDG z długiem |
-| Ciąża — L4 | SICKPAY-ELIG/RATE/EXCL/TRN, SICK-ELIG-001..004, SICK-EXCL-001, SICK-DUR-001..003, SICK-RATE-001/002, SICK-CALC-001, SICK-DOC-001 | 100% w ciąży, 270 dni, przejście z wynagrodzenia na zasiłek |
+| Ciąża - L4 | SICKPAY-ELIG/RATE/EXCL/TRN, SICK-ELIG-001..004, SICK-EXCL-001, SICK-DUR-001..003, SICK-RATE-001/002, SICK-CALC-001, SICK-DOC-001 | 100% w ciąży, 270 dni, przejście z wynagrodzenia na zasiłek |
 | Macierzyński | MAT-ELIG-001..003, -006, MAT-EXCL-001, MAT-NEG-001, MAT-CLS-001, MAT-DUR-001..003, -007, -009, MAT-SHARE-001, -007 | Prawo, wymiar, martwe urodzenie, adopcja/rodzina zastępcza, przejęcie przez ojca |
 | Uzupełniający | SUPP-ELIG-001/002, SUPP-CALC-001, SUPP-COND-001 | Wcześniak |
 | Rodzicielski + praca | PAR-DUR-001/002, PAR-ELIG-001, PAR-SHARE-001/002, PAR-COND-001, PAR-WORK-001..003 | Planer obojga rodziców, ½ etatu |
@@ -18,7 +18,7 @@ Najmniejszy zestaw dający wiarygodne demo end-to-end — **70 reguł P0** (list
 | Podstawa | BASE-EMP-001/002/004/008, BASE-NEMP-001/002/004, BASE-GEN-001, CALC-MAT-001 | Kwoty ze spraw ZUS |
 | Dokumenty/terminy/ryzyka | APP-DL-001/002, APP-DOC-001/002/003/005, RISK-003 | „Co, gdzie, do kiedy” |
 
-**Świadomie poza MVP:** świadczenie rehabilitacyjne (tylko informacja), przypadki szczególne art. 29 ust. 5–10, art. 48a ust. 2–4, art. 37 ust. 2 pkt 3, waloryzacja, reguły BLOCKED (zwracają NEEDS_REVIEW — to jest funkcja, nie brak).
+**Świadomie poza MVP:** świadczenie rehabilitacyjne (tylko informacja), przypadki szczególne art. 29 ust. 5–10, art. 48a ust. 2–4, art. 37 ust. 2 pkt 3, waloryzacja, reguły BLOCKED (zwracają NEEDS_REVIEW - to jest funkcja, nie brak).
 
 ## 2. Moduły
 
@@ -34,7 +34,7 @@ zus_engine/
   explain/      templates.pl.yaml (rule_id → szablon zdania), renderer.py
   params/       store.py (parametry z meta.parameters + nadpisania admina z wersją i valid_from)
 tests/
-  test_rules_catalog.py   (uruchamia tools/build_catalog.py — CI gate)
+  test_rules_catalog.py   (uruchamia tools/build_catalog.py - CI gate)
   test_cases.py           (parametryzacja z 08_TEST_CASES.json: fixture + patch → expected)
   test_facts_*.py         (testy jednostkowe funkcji granicznych: daty, przerwy, wiek)
 ```
@@ -45,14 +45,14 @@ Rejestr faktów jest **jedynym** miejscem kodu domenowego poza DSL; każda funkc
 
 1. `load(rules.yaml)` → walidacja (te same kontrole co audyt) → odrzucenie startu przy błędzie.
 2. Filtr obowiązywania: `valid_from ≤ as_of < valid_to`; FUTURE → `applied_rules: FUTURE_SKIPPED` + `future_changes`.
-3. Iteracja po **kandydatach świadczeń** wynikających z `event.type` i `plan.segments` (dla planu — per segment z kontekstem `segment.*`).
+3. Iteracja po **kandydatach świadczeń** wynikających z `event.type` i `plan.segments` (dla planu - per segment z kontekstem `segment.*`).
 4. Dla każdego kandydata: GEN-CLS → GEN-EXCL → ELIGIBILITY/EXCLUSION (graf zależności, sortowanie topologiczne po `dependencies`) → DURATION → BASE → RATE → CALCULATION → VALIDATION → DOCUMENTS/DEADLINES/RISK.
-5. Rozstrzyganie konfliktów: reguła z `overrides` wygrywa, jeśli jej warunek = TRUE; jeśli UNKNOWN — wynik zależny UNKNOWN (propagacja). BLOCKED z warunkiem TRUE/UNKNOWN → NEEDS_REVIEW.
+5. Rozstrzyganie konfliktów: reguła z `overrides` wygrywa, jeśli jej warunek = TRUE; jeśli UNKNOWN - wynik zależny UNKNOWN (propagacja). BLOCKED z warunkiem TRUE/UNKNOWN → NEEDS_REVIEW.
 6. Agregacja statusu wg DT-9; zebranie `missing_data` (pola z `required_inputs` reguł, których warunki dały UNKNOWN z powodu null).
 
 ## 4. Operatory DSL (komplet)
 
-`eq, ne, gt, gte, lt, lte, in, exists, all, any, not` — zgodnie z `meta.dsl`; porównania Decimal/date/str/int; `in` dla listy = część wspólna niepusta; `value: {param}` / `value: {fact}`. Brak `eval`, brak wyrażeń w YAML.
+`eq, ne, gt, gte, lt, lte, in, exists, all, any, not` - zgodnie z `meta.dsl`; porównania Decimal/date/str/int; `in` dla listy = część wspólna niepusta; `value: {param}` / `value: {fact}`. Brak `eval`, brak wyrażeń w YAML.
 
 ## 5. Obsługa wyjątków i braków
 
@@ -62,17 +62,17 @@ Rejestr faktów jest **jedynym** miejscem kodu domenowego poza DSL; każda funkc
 | Reguła BLOCKED/HUMAN_REVIEW może zmienić wynik | NEEDS_REVIEW + `reason_code` |
 | Parametr z `status: MISSING` | reguła zależna → NEEDS_REVIEW |
 | Parametr UNCONFIRMED | wynik + `assumptions[]` |
-| Wyjątek w funkcji faktu | błąd ewaluacji (500) — nie wolno zamienić na FALSE |
+| Wyjątek w funkcji faktu | błąd ewaluacji (500) - nie wolno zamienić na FALSE |
 | Błąd planu (validation_error) | `plan_errors[]`, status bez zmian |
 
 ## 6. Wyjaśnienia
 
-Szablony per `rule_id` (bez LLM), np. `SICK-RATE-002: "Zasiłek wynosi 100% podstawy, bo niezdolność do pracy przypada w okresie ciąży (art. 11 ust. 2 pkt 1 ustawy zasiłkowej)."` Renderer składa uzasadnienie w kolejności topologicznej zastosowanych reguł; każde zdanie z `legal_basis`. Opcjonalna parafraza LLM — tylko warstwa prezentacji, oznaczona „AI”, nigdy źródło liczb.
+Szablony per `rule_id` (bez LLM), np. `SICK-RATE-002: "Zasiłek wynosi 100% podstawy, bo niezdolność do pracy przypada w okresie ciąży (art. 11 ust. 2 pkt 1 ustawy zasiłkowej)."` Renderer składa uzasadnienie w kolejności topologicznej zastosowanych reguł; każde zdanie z `legal_basis`. Opcjonalna parafraza LLM - tylko warstwa prezentacji, oznaczona „AI”, nigdy źródło liczb.
 
 ## 7. Testowanie
 
 1. **CI gate:** `python tools/build_catalog.py` (0 błędów) → `pytest`.
-2. `08_TEST_CASES.json` — niezależne oczekiwania z przepisów; porównanie częściowe; kwoty Decimal dokładnie (10 miejsc dla dzieleń nieskończonych).
+2. `08_TEST_CASES.json` - niezależne oczekiwania z przepisów; porównanie częściowe; kwoty Decimal dokładnie (10 miejsc dla dzieleń nieskończonych).
 3. Testy własności (hypothesis, opcjonalnie): suma tygodni planu ≤ pula; stawka ∈ {0,70; 0,815; 0,80; 0,90; 0,75; 1,00} × (1 − wf); brak NOT_ELIGIBLE przy samych null.
 4. **Złoty zestaw spraw ZUS** (gdy dostępny): fixture per sprawa + oczekiwana decyzja/kwota z dokumentów → raport zgodności X/N dla jury.
 
@@ -90,6 +90,6 @@ Szablony per `rule_id` (bez LLM), np. `SICK-RATE-002: "Zasiłek wynosi 100% pods
 
 ## 9. Ryzyka implementacyjne
 
-1. **Zaokrąglenia** (GAP-001) — bez potwierdzenia u mentora kwoty mogą różnić się o grosze od decyzji ZUS → raport zgodności z tolerancją ±0,01 zł/dzień, oznaczony.
-2. **Art. 43** (CONF-006) — najczęstszy scenariusz demo; uzyskać odpowiedź Q-LEG-04 w pierwszych godzinach.
-3. **Dane wejściowe ze spraw** — Z-3 zawiera składniki netto-składkowe; mapowanie formularz → `IncomeMonth` wymaga ręcznej weryfikacji przez analityka.
+1. **Zaokrąglenia** (GAP-001) - bez potwierdzenia u mentora kwoty mogą różnić się o grosze od decyzji ZUS → raport zgodności z tolerancją ±0,01 zł/dzień, oznaczony.
+2. **Art. 43** (CONF-006) - najczęstszy scenariusz demo; uzyskać odpowiedź Q-LEG-04 w pierwszych godzinach.
+3. **Dane wejściowe ze spraw** - Z-3 zawiera składniki netto-składkowe; mapowanie formularz → `IncomeMonth` wymaga ręcznej weryfikacji przez analityka.

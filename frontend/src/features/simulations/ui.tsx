@@ -1,14 +1,14 @@
 "use client";
 
 // Wspólne elementy ekranów symulacji: stały baner „SYMULACJA”, okno modalne (natywny <dialog>), poglądowy kod QR.
-// Własny, neutralny wygląd (szarości + bursztyn) — bez logotypów, kolorów i znaków ZUS ani aplikacji rządowych.
+// Własny, neutralny wygląd (szarości + bursztyn) - bez logotypów, kolorów i znaków ZUS ani aplikacji rządowych.
 import { useEffect, useRef } from "react";
 
 export function SimBanner({ integration }: { integration: string }) {
   return (
     <p role="note" className="flex items-start gap-2 bg-amber-100 px-4 py-2 text-xs font-medium text-amber-950 sm:text-sm">
       <span className="shrink-0 rounded bg-amber-900 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-white">SYMULACJA</span>
-      <span>W wersji produkcyjnej: integracja z {integration}. Tu wszystko jest fikcyjne — bez połączenia z żadnym systemem.</span>
+      <span>W wersji produkcyjnej: integracja z {integration}. Tu wszystko jest fikcyjne - bez połączenia z żadnym systemem.</span>
     </p>
   );
 }
@@ -45,7 +45,7 @@ export function SimModal({ title, integration, onClose, children, wide = false }
   );
 }
 
-/** Kod QR poglądowy: deterministyczny wzór z wzorcami pozycjonującymi — nie koduje żadnych danych i nie da się go zeskanować. */
+/** Kod QR poglądowy: deterministyczny wzór z wzorcami pozycjonującymi - nie koduje żadnych danych i nie da się go zeskanować. */
 export function PseudoQr({ seed, size = 176 }: { seed: string; size?: number }) {
   const n = 25;
   let h = 2166136261;

@@ -1,4 +1,4 @@
-# SUBMISSION — kontrola materiałów zgłoszenia (Hacktribe, deadline niedziela 11:00)
+# SUBMISSION - kontrola materiałów zgłoszenia (Hacktribe, deadline niedziela 11:00)
 
 Wymagania: `docs/CHALLENGE.md` § 4. Status: ⬜ / 🟨 / ✅.
 
@@ -11,7 +11,7 @@ Wymagania: `docs/CHALLENGE.md` § 4. Status: ⬜ / 🟨 / ✅.
 | Zrzuty ekranu desktop + mobile | zalecany | FE-2 | 8–10 ekranów | `docs/screenshots/` | ⬜ |
 | Link do demo www (wybór przykładów, weryfikacja ubezpieczenia, kalkulator) | zalecany, **sprawdzany przez jury** | Integrator | publiczny URL, rozgrzany | incognito + telefon | ⬜ |
 | RWD | zalecany | FE-2 | 375 / 768 / 1440 px | ui-verifier | 🟨 (slice sprawdzony 375 px) |
-| Materiały graficzne | zalecany | FE-2 | logo projektu (własne), diagram | — | ⬜ |
+| Materiały graficzne | zalecany | FE-2 | logo projektu (własne), diagram | - | ⬜ |
 | Wskazanie funkcji z AI | zalecany | BA | `docs/AI_USAGE.md` (dziś: AI tylko w procesie tworzenia; aplikacja bez AI) | review | ⬜ |
 | Rozwiązania zewnętrzne w prezentacji | **TAK** (regulamin § 4 ust. 1) | Integrator | `docs/THIRD_PARTY.md` z lockfile'ów | review | ⬜ |
 | Ograniczenia prototypu | rekomendacja | BA | `zus_rules/09`, `not_evaluated_rules`, symulacje | review | ⬜ |

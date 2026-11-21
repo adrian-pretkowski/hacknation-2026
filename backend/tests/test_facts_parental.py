@@ -82,7 +82,7 @@ def test_par_dur_003_adoption_boundary_last_allowed_day_equals_regular_end():
 
 
 def test_adoption_age_cap_38_weeks_is_needs_review_m14b():
-    # M14b / CONF-003: przesłanka KP 183 § 3 nieustalona — 38 tygodni tylko jako informacja, status NEEDS_REVIEW
+    # M14b / CONF-003: przesłanka KP 183 § 3 nieustalona - 38 tygodni tylko jako informacja, status NEEDS_REVIEW
     parental = _benefit(pipeline.evaluate(_adoption("2013-03-01")), "PARENTAL_LEAVE")
     assert parental["status"] == "NEEDS_REVIEW" and parental["period"]["max_weeks"] == 38
     assert "PARENTAL_ADOPTION_38_WEEKS_UNCONFIRMED" in [r["code"] for r in parental["reasons"]]
