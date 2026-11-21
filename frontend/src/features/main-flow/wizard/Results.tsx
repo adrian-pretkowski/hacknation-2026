@@ -43,9 +43,9 @@ export function Results({ answers, onEdit, canEdit = () => true }: {
       {(current.summary.segments.length > 0 || (r.plan_errors ?? []).length > 0) && (sensitive ? (
         <details className={card}>
           <summary className="cursor-pointer text-base font-semibold">Pokaż okresy i kwoty</summary>
-          <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />
+          <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} returnToWork={r.return_to_work ?? []} />
         </details>
-      ) : <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />)}
+      ) : <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} returnToWork={r.return_to_work ?? []} />)}
       {/* porównanie wariantów tylko gdy zasiłek przysługuje i jest kwota w obu wariantach */}
       {current.summary.combinedEligible && hasPayout(pA) && hasPayout(pB) && cmp && (
         <VariantComparison pA={pA} pB={pB} variant={variant} recommended={recommended} onChoose={setChosen} />
@@ -130,58 +130,115 @@ function Remaining({ p }: { p: PreviewResult }) {
   );
 }
 
-function Timeline({ segments, planErrors }: { segments: Seg[]; planErrors: NonNullable<EvaluateResponse["plan_errors"]> }) {
+type PlanErrors = NonNullable<EvaluateResponse["plan_errors"]>;
+type ReturnToWork = NonNullable<EvaluateResponse["return_to_work"]>;
+
+/** FE1-02: błąd planu → rodzaj urlopu, przy którym go pokazujemy (reguły PAR-*, PAT-*, MAT-DUR-008/009). */
+const errorLeave = (ruleId: string): string | null => ruleId.startsWith("PAR-") ? "PARENTAL_LEAVE"
+  : ruleId.startsWith("PAT-") ? "PATERNITY_LEAVE" : ruleId.startsWith("MAT-DUR-") ? "MATERNITY_LEAVE" : null;
+const workText = (s: Seg) => s.work_fraction !== "0" ? ` + praca ${s.work_fraction === "0.5" ? "½" : "¼"} etatu` : "";
+const segLabel = (s: Seg) => `${PARENT_LABEL[s.parent]}: ${LEAVE_LABEL[s.leave_type]}${s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}`
+  + `${s.history ? " — wykorzystany" : ""}${workText(s)}`;
+const amountText = (s: Seg) => s.history ? "—" : s.own ? formatMoney(s.amount) : "zależy od zarobków drugiego rodzica";
+
+function Timeline({ segments, planErrors, returnToWork = [] }: {
+  segments: Seg[]; planErrors: PlanErrors; returnToWork?: ReturnToWork;
+}) {
+  const [active, setActive] = useState<number | null>(null);
   if (segments.length === 0) return null;
   const start = segments.map((s) => s.from).sort()[0];
   const end = segments.map((s) => s.to).sort().at(-1)!;
   const span = Math.max(daysBetween(start, end) + 1, 1);
   const lanes = (["MOTHER", "FATHER"] as const).filter((p) => segments.some((s) => s.parent === p));
   const today = todayIso();
-  const todayPos = today >= start && today <= end ? (daysBetween(start, today) / span) * 100 : null;
+  const pos = (d: string) => (daysBetween(start, d) / span) * 100;
+  const todayPos = today >= start && today <= end ? pos(today) : null;
   const legend = [...new Set(segments.map((s) => s.leave_type))];
+  const errorsOf = (s: Seg) => s.history ? [] : planErrors.filter((e) => errorLeave(e.rule_id) === s.leave_type);
+  const unplaced = planErrors.filter((e) => !segments.some((s) => !s.history && errorLeave(e.rule_id) === s.leave_type));
+  // klawiatura: Tab po paskach, ← → do sąsiedniego paska (kolejność jak w tabeli), Escape zamyka szczegóły
+  const onKey = (e: React.KeyboardEvent<HTMLButtonElement>, i: number) => {
+    if (e.key === "Escape") { setActive(null); return; }
+    const next = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : null;
+    if (next === null || next < 0 || next >= segments.length) return;
+    e.preventDefault();
+    setActive(next);
+    document.getElementById(`tl-bar-${next}`)?.focus();
+  };
+  const detail = active !== null ? segments[active] : null;
+  const errorLine = (e: PlanErrors[number]) => `Plan do poprawy: ${PLAN_ERROR[e.code] ?? e.code} (${e.rule_id})`;
   return (
     <section className={card} aria-labelledby="tl-h">
       <h3 id="tl-h" className="text-lg font-semibold">Oś czasu</h3>
-      <p className="text-sm text-zinc-600">{formatDate(start)} – {formatDate(end)}. Paski jasne = już wykorzystane, kreskowane = do weryfikacji.</p>
-      <div className="mt-4 space-y-3" aria-hidden="true">
-        {lanes.map((lane) => (
-          <div key={lane} className="flex items-center gap-2">
-            <span className="w-10 shrink-0 text-xs font-medium text-zinc-700">{PARENT_LABEL[lane]}</span>
-            <div className="relative h-8 flex-1 overflow-hidden rounded bg-zinc-100">
-              {segments.filter((s) => s.parent === lane).map((s, i) => (
-                <div key={i} title={`${LEAVE_LABEL[s.leave_type]} ${formatDate(s.from)}–${formatDate(s.to)}`}
-                  className={`absolute top-1 bottom-1 rounded-sm ${LEAVE_COLOR[s.leave_type]} ${s.history ? "opacity-35" : ""} ${s.work_fraction !== "0" ? "bg-[repeating-linear-gradient(45deg,transparent_0_4px,rgba(255,255,255,.45)_4px_8px)]" : ""} ${s.needs_review ? "outline-2 outline-dashed outline-zus-yellow" : ""}`}
-                  style={{ left: `${(daysBetween(start, s.from) / span) * 100}%`, width: `max(${(s.days / span) * 100}%, 3px)` }} />
-              ))}
-              {todayPos !== null && <div className="absolute inset-y-0 w-0.5 bg-zinc-900" style={{ left: `${todayPos}%` }} />}
+      <p className="text-sm text-zinc-600">{formatDate(start)} – {formatDate(end)}. Paski jasne = już wykorzystane, kreskowane = do weryfikacji.
+        <span className="sr-only"> Paski można przeglądać klawiszem Tab oraz strzałkami w lewo i w prawo.</span></p>
+      <div className="mt-4 space-y-3" role="group" aria-label="Oś czasu urlopów">
+        {lanes.map((lane) => {
+          const rtw = returnToWork.find((r) => r.parent === lane);
+          return (
+            <div key={lane} className="flex items-center gap-2">
+              <span className="w-10 shrink-0 text-xs font-medium text-zinc-700">{PARENT_LABEL[lane]}</span>
+              <div className="relative h-8 min-w-0 flex-1 rounded bg-zinc-100">
+                {segments.map((s, i) => s.parent !== lane ? null : (
+                  <button key={i} id={`tl-bar-${i}`} type="button"
+                    aria-label={`${segLabel(s)}, ${formatDate(s.from)} – ${formatDate(s.to)}, ${s.days} dni${errorsOf(s).length ? ", plan do poprawy" : ""}`}
+                    aria-pressed={active === i} aria-controls="tl-detail"
+                    onClick={() => setActive(i)} onFocus={() => setActive(i)} onKeyDown={(e) => onKey(e, i)}
+                    title={`${LEAVE_LABEL[s.leave_type]} ${formatDate(s.from)}–${formatDate(s.to)}`}
+                    className={`absolute top-1 bottom-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy ${LEAVE_COLOR[s.leave_type]} ${s.history ? "opacity-35" : ""} ${s.work_fraction !== "0" ? "bg-[repeating-linear-gradient(45deg,transparent_0_4px,rgba(255,255,255,.45)_4px_8px)]" : ""} ${s.needs_review ? "outline-2 outline-dashed outline-zus-yellow" : ""} ${errorsOf(s).length ? "ring-2 ring-zus-red" : ""} ${active === i ? "ring-2 ring-zinc-900" : ""}`}
+                    style={{ left: `${pos(s.from)}%`, width: `max(${(s.days / span) * 100}%, 6px)` }} />
+                ))}
+                {todayPos !== null && <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-zinc-900" style={{ left: `${todayPos}%` }} />}
+                {rtw && rtw.date <= end && (
+                  <div aria-hidden="true" className="absolute -inset-y-1 w-0.5 bg-zus-red" style={{ left: `${Math.min(pos(rtw.date), 100)}%` }} />
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-700" aria-hidden="true">
+      <p id="tl-detail" aria-live="polite" className="mt-2 min-h-5 text-sm text-zinc-800">
+        {detail && <>{segLabel(detail)}: {formatDate(detail.from)} – {formatDate(detail.to)} ({detail.days} dni), stawka {pct(detail.rate, detail.work_fraction)}, {amountText(detail)}.</>}
+      </p>
+      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-700" aria-hidden="true">
         {legend.map((l) => <li key={l} className="flex items-center gap-1"><span className={`inline-block h-3 w-3 rounded-sm ${LEAVE_COLOR[l]}`} />{LEAVE_LABEL[l]}</li>)}
         {todayPos !== null && <li className="flex items-center gap-1"><span className="inline-block h-3 w-0.5 bg-zinc-900" />dziś</li>}
+        {returnToWork.length > 0 && <li className="flex items-center gap-1"><span className="inline-block h-3 w-0.5 bg-zus-red" />powrót do pracy</li>}
       </ul>
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[34rem] text-left text-sm">
-          <caption className="sr-only">Okresy urlopów i zasiłków</caption>
-          <thead className="text-xs text-zinc-600"><tr><th className="py-1 pr-2">Kto</th><th className="pr-2">Okres</th><th className="pr-2">Od – do</th><th className="pr-2">Stawka</th><th className="text-right">Kwota</th></tr></thead>
-          <tbody>
-            {segments.map((s, i) => (
-              <tr key={i} className={`border-t border-zinc-100 ${s.history ? "text-zinc-500" : ""}`}>
-                <td className="py-1.5 pr-2">{PARENT_LABEL[s.parent]}</td>
-                <td className="pr-2">{LEAVE_LABEL[s.leave_type]}{s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}{s.history ? " — wykorzystany" : ""}{s.work_fraction !== "0" ? ` + praca ${s.work_fraction === "0.5" ? "½" : "¼"} etatu` : ""}</td>
-                <td className="whitespace-nowrap pr-2">{formatDate(s.from)} – {formatDate(s.to)} <span className="text-zinc-500">({s.days} dni)</span></td>
-                <td className="whitespace-nowrap pr-2">{pct(s.rate, s.work_fraction)}{s.needs_review ? " ?" : ""}</td>
-                <td className="whitespace-nowrap text-right">{s.history ? "—" : s.own ? formatMoney(s.amount) : "zależy od zarobków drugiego rodzica"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {planErrors.length > 0 && (
+      {/* telefon: karty zamiast tabeli — bez przewijania w poziomie przy 375 px */}
+      <ul className="mt-4 space-y-2 sm:hidden">
+        {segments.map((s, i) => (
+          <li key={i} className={`rounded border px-3 py-2 text-sm ${errorsOf(s).length ? "border-zus-red" : "border-zinc-200"} ${s.history ? "text-zinc-500" : ""} ${active === i ? "bg-zinc-50" : ""}`}>
+            <p className="font-medium">{segLabel(s)}</p>
+            <p>{formatDate(s.from)} – {formatDate(s.to)} <span className="text-zinc-500">({s.days} dni)</span></p>
+            <p className="flex justify-between gap-2"><span>{pct(s.rate, s.work_fraction)}{s.needs_review ? " ?" : ""}</span>
+              <span className="text-right">{amountText(s)}</span></p>
+            {errorsOf(s).map((e, k) => <p key={k} className="mt-1 text-zus-red">{errorLine(e)}</p>)}
+          </li>
+        ))}
+      </ul>
+      <table className="mt-4 hidden w-full text-left text-sm sm:table">
+        <caption className="sr-only">Okresy urlopów i zasiłków</caption>
+        <thead className="text-xs text-zinc-600"><tr><th className="py-1 pr-2">Kto</th><th className="pr-2">Okres</th><th className="pr-2">Od – do</th><th className="pr-2">Stawka</th><th className="text-right">Kwota</th></tr></thead>
+        <tbody>
+          {segments.map((s, i) => (
+            <tr key={i} className={`border-t border-zinc-100 ${s.history ? "text-zinc-500" : ""} ${active === i ? "bg-zinc-50" : ""}`}>
+              <td className="py-1.5 pr-2">{PARENT_LABEL[s.parent]}</td>
+              <td className="pr-2">{LEAVE_LABEL[s.leave_type]}{s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}{s.history ? " — wykorzystany" : ""}{workText(s)}
+                {errorsOf(s).map((e, k) => <span key={k} className="block text-zus-red">{errorLine(e)}</span>)}</td>
+              <td className="whitespace-nowrap pr-2">{formatDate(s.from)} – {formatDate(s.to)} <span className="text-zinc-500">({s.days} dni)</span></td>
+              <td className="whitespace-nowrap pr-2">{pct(s.rate, s.work_fraction)}{s.needs_review ? " ?" : ""}</td>
+              <td className="whitespace-nowrap text-right">{amountText(s)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {returnToWork.length > 0 && (
+        <p className="mt-3 text-sm">Powrót do pracy: {returnToWork.map((r) => `${PARENT_LABEL[r.parent] ?? r.parent} ${formatDate(r.date)}${r.part_time_fraction ? ` (${r.part_time_fraction} etatu)` : ""}`).join(" · ")}.</p>
+      )}
+      {unplaced.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm text-zus-red" role="alert">
-          {planErrors.map((e, i) => <li key={i}>Plan do poprawy: {PLAN_ERROR[e.code] ?? e.code} ({e.rule_id})</li>)}
+          {unplaced.map((e, i) => <li key={i}>{errorLine(e)}</li>)}
         </ul>
       )}
     </section>
