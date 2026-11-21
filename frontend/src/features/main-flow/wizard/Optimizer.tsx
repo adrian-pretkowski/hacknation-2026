@@ -184,7 +184,7 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
             Mama {formatMoney(plan.totals.mother_preview)} · Tata {formatMoney(plan.totals.father_preview)} · {plan.totals.covered_weeks} tyg. opieki nad dzieckiem
           </p>
           {plan.needs_review && <div className="mt-2 text-xs">Część planu wymaga weryfikacji:<RuleList ids={plan.review_rules} /></div>}
-          {/* D19: każda kwota z blokiem wyjaśnienia - kroki, dni × stawka, przepisy, założenia (FE1-40 w raporcie INT-15) */}
+          {/* D19: każda kwota z blokiem wyjaśnienia - kroki, dni × stawka, przepisy, założenia (FE1-42 w raporcie INT-15) */}
           <details className="mt-2 text-sm">
             <summary className="cursor-pointer font-medium">Pokaż, jak to policzyliśmy</summary>
             <p className="mt-2 text-xs text-zinc-600">Każda pozycja: podstawa wymiaru × stawka ÷ {PARAMS.MONTH_AS_DAYS} × liczba dni

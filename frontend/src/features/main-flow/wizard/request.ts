@@ -118,7 +118,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       foster_family_type: eventType === "FOSTER"
         ? (a.guardianKind === "FOSTER_PROFESSIONAL" ? "PROFESSIONAL" : "NON_PROFESSIONAL") : null,
       adoption_final_date: eventType === "ADOPTION" ? a.adoptionFinalDate || null : null, // FE1-26
-      court_adoption_application_date: eventType === "ADOPTION" ? a.courtApplicationDate || null : null, // FE1-39
+      court_adoption_application_date: eventType === "ADOPTION" ? a.courtApplicationDate || null : null, // FE1-41
     },
     // FE1-05: masa jako odpowiedź względem progu (birth.weight_at_most_threshold), bez dokładnej wagi
     birth: a.preterm
@@ -162,7 +162,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
   };
 }
 
-/** FE1-39: zwolnienie lekarskie w ciąży → osobne żądanie do silnika (event PREGNANCY_INCAPACITY, wymaganie a).
+/** FE1-41: zwolnienie lekarskie w ciąży → osobne żądanie do silnika (event PREGNANCY_INCAPACITY, wymaganie a).
  * Ubezpieczenie, płatnik i podstawa jak w planie urlopów; brak daty końca → silnik liczy do daty oceny / pyta. */
 export function toSickLeaveRequest(a: Answers): EvaluateRequest | null {
   if (a.role !== "MOTHER" || a.stage !== "PREGNANT" || a.sickLeave !== "YES" || !a.sickLeaveFrom) return null;

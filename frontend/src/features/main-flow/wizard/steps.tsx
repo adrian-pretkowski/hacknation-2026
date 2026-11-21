@@ -201,7 +201,7 @@ export const STEPS: Step[] = [
         <DateField label={a.role === "GUARDIAN" ? "Data przyjęcia dziecka" : a.stage === "BORN" ? "Data porodu" : "Planowana data porodu"}
           hint={a.stage === "PREGNANT" ? "Z karty ciąży; wynik będzie prognozą." : undefined}
           value={a.eventDate} error={dateErrors(a).eventDate} onChange={(eventDate) => set({ eventDate })} />
-        {/* FE1-39: świadczenia w ciąży (wymaganie a) - L4 w ciąży ocenia silnik reguł (PREGNANCY_INCAPACITY) */}
+        {/* FE1-41: świadczenia w ciąży (wymaganie a) - L4 w ciąży ocenia silnik reguł (PREGNANCY_INCAPACITY) */}
         {a.role === "MOTHER" && a.stage === "PREGNANT" && (
           <>
             <Choice legend="Czy jesteś teraz (albo byłaś) na zwolnieniu lekarskim w ciąży (L4)?" value={a.sickLeave} columns={3}

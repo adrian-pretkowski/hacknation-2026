@@ -1,6 +1,6 @@
 "use client";
 
-// FE1-38: wybór przykładowego wniosku (GET /api/cases) albo upload PDF (POST /api/cases/upload), wynik silnika reguł
+// FE1-40: wybór przykładowego wniosku (GET /api/cases) albo upload PDF (POST /api/cases/upload), wynik silnika reguł
 // z weryfikacją ubezpieczenia (insurance_verification) i porównaniem z decyzją (POST /api/cases/{id}/evaluate).
 // Wymóg zadania § 4 i § 6. Dane spraw są syntetyczne; upload nie zapisuje pliku i nie używa AI (M16e, D22).
 import { useEffect, useRef, useState } from "react";

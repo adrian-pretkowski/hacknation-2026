@@ -22,7 +22,7 @@ type Props = { segments: Seg[]; returnToWork?: ReturnToWork };
  * MAT-DUR-* → macierzyński); inne (np. MAT-SHARE-007) - lista pod osią czasu. */
 const errorLeave = (ruleId: string): string | null => ruleId.startsWith("PAR-") ? "PARENTAL_LEAVE"
   : ruleId.startsWith("PAT-") ? "PATERNITY_LEAVE" : ruleId.startsWith("MAT-DUR-") ? "MATERNITY_LEAVE" : null;
-// liczby z parametrów (panel admina, FE1-37), nie wpisane w tekst - funkcja, bo PARAMS wczytują się z API po starcie
+// liczby z parametrów (panel admina, FE1-39), nie wpisane w tekst - funkcja, bo PARAMS wczytują się z API po starcie
 const planErrorText = (): Record<string, string> => ({
   PRE_BIRTH_TOO_EARLY: `urlop przed porodem może zacząć się najwcześniej ${PARAMS.PRE_BIRTH_MAX_WEEKS} tygodni przed porodem - przyjęto dzień porodu.`,
   MATERNITY_START_AFTER_BIRTH: "urlop macierzyński nie może zacząć się po porodzie - przyjęto dzień porodu.",

@@ -28,7 +28,7 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
   /** FE1-11: klik w kafelek pisma na podsumowaniu (etap 2) */
   onOpenForm?: (code: FormCode) => void;
 }) {
-  // FE1-37: parametry z API (panel admina) - po ich wczytaniu plan liczy się od nowa
+  // FE1-39: parametry z API (panel admina) - po ich wczytaniu plan liczy się od nowa
   const { version: paramsVersion } = useApiParams();
   // paramsVersion jest kluczem odświeżenia: PARAMS (moduł) zmieniają się po wczytaniu z API, odpowiedzi - nie
   const reqA = useMemo(() => ({ ...toEvaluateRequest(answers, "COMBINED_815"), params_version: paramsVersion }), [answers, paramsVersion]);
@@ -346,7 +346,7 @@ function CalcDetails({ p }: { p: PreviewResult }) {
   );
 }
 
-/** FE1-37: wynik silnika reguł (POST /api/evaluate) dla tych samych odpowiedzi. Plan obojga rodziców liczy się
+/** FE1-39: wynik silnika reguł (POST /api/evaluate) dla tych samych odpowiedzi. Plan obojga rodziców liczy się
  * w przeglądarce na parametrach z API; urlop macierzyński, status i braki danych sprawdza silnik. Przy rozbieżności
  * rozstrzyga silnik - karta jest wtedy wyróżniona i pokazuje jego uzasadnienie. */
 function EngineCrossCheck({ answers, variant, preview }: { answers: Answers; variant: Variant; preview: PreviewResult }) {
@@ -385,7 +385,7 @@ const BENEFIT_TYPE_LABEL: Record<string, string> = {
   REHABILITATION_BENEFIT: "Świadczenie rehabilitacyjne",
 };
 
-/** FE1-39: wynik silnika reguł dla zwolnienia lekarskiego w ciąży (wymaganie a): wynagrodzenie lub zasiłek chorobowy
+/** FE1-41: wynik silnika reguł dla zwolnienia lekarskiego w ciąży (wymaganie a): wynagrodzenie lub zasiłek chorobowy
  * 100% podstawy, płatnik, okres; blok „Pokaż, jak to policzyliśmy” (D19). Kwoty wyłącznie z API. */
 function SickLeaveCard({ answers }: { answers: Answers }) {
   const request = useMemo(() => toSickLeaveRequest(answers), [answers]);
