@@ -3,9 +3,9 @@
 Na dzień zdarzenia (poród / przyjęcie dziecka: ``event.date``; niezdolność: ``incapacity.start_date``):
 ubezpieczenie chorobowe (``f_sickness_insured_on``, USTAWA art. 29 ust. 1 / art. 6), tryb
 (``f_sickness_insurance_mode_on``), dni nieprzerwanego ubezpieczenia (``f_continuous_sickness_insurance_days``)
-i okres wyczekiwania: zasiłek chorobowy — SICK-ELIG-002/003 wg trybu (art. 4 ust. 1), macierzyński — nie dotyczy
-(MAT-CLS-001). Bez wpływu na status świadczeń; brak danych → UNKNOWN (nigdy FALSE).
-``source_documents`` = dokumenty z ``evidence`` (PROVIDED) i źródło tytułów.
+i okres wyczekiwania: zasiłek chorobowy — SICK-ELIG-002/003 wg trybu (art. 4 ust. 1; wyjątki SICK-ELIG-005
+→ NOT_REQUIRED), macierzyński — nie dotyczy (MAT-CLS-001). Bez wpływu na status świadczeń;
+brak danych → UNKNOWN (nigdy FALSE). ``source_documents`` = dokumenty z ``evidence`` (PROVIDED) i źródło tytułów.
 """
 from __future__ import annotations
 
@@ -47,6 +47,10 @@ def insurance_verification(eng: Engine) -> dict[str, Any] | None:
             rule_ids.append(rule_id)
             outcome = eng.eval(rule_id)
             waiting = _tri(outcome.value)
+        if waiting != "TRUE" and eng.eval("SICK-ELIG-005").fired:
+            # art. 4 ust. 3: zasiłek od pierwszego dnia ubezpieczenia (absolwent, wypadek w drodze do pracy …)
+            rule_ids.append("SICK-ELIG-005")
+            waiting = "NOT_REQUIRED"
     titles = ctx.field("insurance.titles") or []
     sources = [d["doc_type"] for d in ctx.field("evidence.documents") or []
                if d.get("status") == "PROVIDED" and d.get("doc_type")]

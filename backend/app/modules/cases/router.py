@@ -44,7 +44,13 @@ async def upload_case(request: Request) -> Any:
     declared = request.headers.get("content-length")
     if declared and declared.isdigit() and int(declared) > MAX_UPLOAD_BYTES + 64 * 1024:
         return _problem(413, "Plik za duży", f"Maksymalnie {MAX_UPLOAD_BYTES // (1024 * 1024)} MB.", "file")
-    body = await request.body()
+    chunks, size = [], 0
+    async for chunk in request.stream():  # licznik bajtów także bez Content-Length (chunked)
+        size += len(chunk)
+        if size > MAX_UPLOAD_BYTES + 64 * 1024:
+            return _problem(413, "Plik za duży", f"Maksymalnie {MAX_UPLOAD_BYTES // (1024 * 1024)} MB.", "file")
+        chunks.append(chunk)
+    body = b"".join(chunks)
     message = BytesParser(policy=HTTP).parsebytes(b"Content-Type: " + content_type.encode() + b"\r\n\r\n" + body)
     part = next((p for p in message.iter_parts() if p.get_param("name", header="content-disposition") == "file"),
                 None) if message.is_multipart() else None

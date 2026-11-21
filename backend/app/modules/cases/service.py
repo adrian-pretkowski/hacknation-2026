@@ -146,6 +146,7 @@ def upload(content: bytes) -> dict[str, Any]:
         for field in ("event.date",):
             if field not in missing:
                 missing.insert(0, field)
-        warnings.append(f"Status: NEEDS_DATA — do oceny brakuje danych ({len(missing)} pól, lista w missing_fields).")
+        warnings.append(f"Status: {result.get('overall_status')} — do oceny brakuje danych ({len(missing)} pól, "
+                        f"lista w missing_fields).")
     return {"upload_id": upload_id, "extracted_input": extracted, "missing_fields": missing,
             "extraction_method": method, "warnings": warnings}

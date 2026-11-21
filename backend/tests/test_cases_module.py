@@ -89,7 +89,7 @@ def test_BE2_06_upload_unknown_pdf_returns_missing_fields(client):
     assert body["extracted_input"]["event"]["type"] == "BIRTH"
     assert body["extracted_input"]["person"]["role"] == "MOTHER"
     assert {"event.date", "insurance.titles"} <= set(body["missing_fields"])
-    assert any("NEEDS_DATA" in w for w in body["warnings"])
+    assert any("Status: NEEDS_DATA" in w for w in body["warnings"])
 
 
 def test_upload_known_pdf_fixture_match(client, monkeypatch):
@@ -103,7 +103,7 @@ def test_upload_known_pdf_fixture_match(client, monkeypatch):
 
 @pytest.mark.parametrize(("content", "mime", "status"), [
     (b"to nie jest PDF", "text/plain", 415),
-    (b"%PDF-" + b"0" * (service_limit := 10 * 1024 * 1024), "application/pdf", 413),
+    (b"%PDF-" + b"0" * (10 * 1024 * 1024), "application/pdf", 413),
 ])
 def test_upload_rejects_non_pdf_and_too_large(client, content, mime, status):
     response = _upload(client, content, mime=mime)
@@ -140,3 +140,6 @@ def test_insurance_verification_sickness_waiting_period_boundary():
     from datetime import date, timedelta
     data["insurance"]["titles"][0]["from"] = (date.fromisoformat(start) - timedelta(days=10)).isoformat()
     assert pipeline.evaluate(data)["insurance_verification"]["waiting_period_met"] == "FALSE"
+    data["incapacity"]["cause"] = "COMMUTE_ACCIDENT"  # art. 4 ust. 3 — bez okresu wyczekiwania (SICK-ELIG-005)
+    body = pipeline.evaluate(data)["insurance_verification"]
+    assert body["waiting_period_met"] == "NOT_REQUIRED" and "SICK-ELIG-005" in body["rule_ids"]
