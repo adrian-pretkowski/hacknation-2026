@@ -80,9 +80,9 @@ function StatusHeader({ result, onEdit, canEdit }: {
       <p className="text-xs font-medium uppercase tracking-wide text-zinc-600">{r.mode === "FORECAST" ? "Prognoza" : "Wynik"} · podgląd</p>
       <h2 id="status-h" className="mt-1 text-xl font-semibold">{STATUS_HEADLINE[r.overall_status]}</h2>
       {result.summary.ownTotal && r.overall_status !== "NOT_ELIGIBLE" && (
-        <p className="mt-2 text-sm">Łącznie {result.summary.applicant === "MOTHER" ? "dla Ciebie" : "dla Ciebie (tata)"}:{" "}
-          <strong className="text-lg">{formatMoney(result.summary.ownTotal)}</strong> brutto za {ownBenefits.reduce((n, b) => n + (b.days ?? 0), 0)} dni
-          {" "}({ownBenefits.map((b) => LEAVE_LABEL[b.leave_type ?? ""]?.toLowerCase()).join(", ")}).</p>
+        <OwnTotal applicant={result.summary.applicant} total={result.summary.ownTotal}
+          days={ownBenefits.reduce((n, b) => n + (b.days ?? 0), 0)}
+          leaves={ownBenefits.map((b) => LEAVE_LABEL[b.leave_type ?? ""]).filter(Boolean)} />
       )}
       {reasons.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm">
@@ -109,6 +109,35 @@ function StatusHeader({ result, onEdit, canEdit }: {
         </div>
       )}
     </section>
+  );
+}
+
+/** FE1-33: wyrazista suma dla wnioskodawcy - duża kwota, dni i rodzaje świadczeń. */
+function OwnTotal({ applicant, total, days, leaves }: {
+  applicant: string; total: string; days: number; leaves: string[];
+}) {
+  return (
+    <div className="mt-4 rounded-lg border border-zus-green-100 bg-zus-green-50 p-4 sm:flex sm:items-end sm:justify-between sm:gap-6 sm:p-5" data-testid="own-total">
+      <div>
+        <p className="text-sm font-medium text-zus-green-dark">
+          Łącznie {applicant === "MOTHER" ? "dla Ciebie" : "dla Ciebie (tata)"}
+        </p>
+        <p className="mt-1 text-3xl font-bold tracking-tight text-zus-ink sm:text-4xl">
+          {formatMoney(total)}
+          <span className="ml-2 align-middle text-base font-medium text-zinc-700">brutto</span>
+        </p>
+      </div>
+      <div className="mt-3 sm:mt-0 sm:text-right">
+        <p className="text-sm text-zinc-700">za <strong className="text-lg text-zus-ink">{days}</strong> dni</p>
+        {leaves.length > 0 && (
+          <ul className="mt-2 flex flex-wrap gap-2 sm:justify-end" aria-label="Rodzaje świadczeń">
+            {leaves.map((l) => (
+              <li key={l} className="rounded-full border border-zus-green-100 bg-white px-3 py-1 text-xs font-medium text-zus-green-dark">{l}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }
 
