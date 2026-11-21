@@ -1,3 +1,6 @@
+// FE1-05: progi w treści pytań z parametrów (nie wpisujemy liczb z przepisów).
+import { PARAMS } from "../preview/params";
+
 export const LEAVE_LABEL: Record<string, string> = {
   MATERNITY_LEAVE: "Urlop macierzyński",
   MATERNITY_LEAVE_TRANSFERRED: "Macierzyński przejęty przez tatę",
@@ -77,6 +80,7 @@ export const FIELD_QUESTION: Record<string, string> = {
   "employment.extended_until_birth_kp177": "Czy umowa kończy się po upływie 3. miesiąca ciąży?",
   "mother.sickness_insured": "Czy partnerka ma ubezpieczenie chorobowe?",
   "birth.completed_gestation_weeks": "Podaj tydzień ciąży lub masę urodzeniową dziecka.",
+  "birth.weight_at_most_threshold": `Czy masa urodzeniowa dziecka wynosiła najwyżej ${PARAMS.SUPP_WEIGHT_THRESHOLD_G.toLocaleString("pl-PL")} g?`,
   "children.hospital_stays": "Ile tygodni dziecko było w szpitalu?",
   "payer.insured_count_on_nov30_prev_year": "Ile osób zgłasza do ubezpieczenia Twój pracodawca? (ustala, kto wypłaca)",
   "children.items[].birth_date": "Podaj wiek dziecka.",
@@ -87,5 +91,5 @@ export const FIELD_STEP: Record<string, string> = {
   "insurance.titles": "insurance", "insurance.titles[0].sickness_insurance_mode": "insurance", "debt.amount_on_right_date": "insurance",
   "employment.extended_until_birth_kp177": "insurance", "payer.insured_count_on_nov30_prev_year": "insurance",
   "income_history.manual_base_override": "salary", "mother.sickness_insured": "partner",
-  "birth.completed_gestation_weeks": "special", "children.hospital_stays": "special",
+  "birth.completed_gestation_weeks": "special", "birth.weight_at_most_threshold": "special", "children.hospital_stays": "special",
 };

@@ -158,6 +158,29 @@ def test_f_min_birth_weight_g():
     assert ctx.fact("f_min_birth_weight_g") is None and ctx.missing == ["children.items"]
 
 
+@pytest.mark.parametrize(("weights", "expected"), [
+    ((1000,), True),        # granica: ≤ 1000 g
+    ((1001,), False),       # > 1000 g
+    ((1200, 950), True),    # wieloraczki: najlżejsze dziecko
+])
+def test_f_weight_at_most_threshold_from_exact_weight(weights, expected):
+    assert _ctx(_supp([], weights)).fact("f_weight_at_most_threshold") is expected
+
+
+@pytest.mark.parametrize("answer", [True, False])
+def test_f_weight_at_most_threshold_answer_wins(answer):
+    """FE1-05: odpowiedź z kreatora ma pierwszeństwo przed dokładną masą (i działa bez niej)."""
+    data = _supp([], (None,))
+    data["birth"] = {"weight_at_most_threshold": answer}
+    ctx = _ctx(data)
+    assert ctx.fact("f_weight_at_most_threshold") is answer and ctx.missing == []
+
+
+def test_f_weight_at_most_threshold_missing():
+    ctx = _ctx(_supp([], (None,)))
+    assert ctx.fact("f_weight_at_most_threshold") is None and ctx.missing == ["birth.weight_at_most_threshold"]
+
+
 @pytest.mark.parametrize(("start", "end", "expected"), [
     ("2027-01-13", "2027-01-14", False),  # dzień 4
     ("2027-01-14", "2027-01-15", True),   # dzień 5 (dzień porodu = 1, M15 a)
@@ -328,3 +351,22 @@ def test_pipeline_no_allowance_when_title_ends_day_before_birth():
     body = pipeline.evaluate(_payload(insurance=_ins(_title("2027-03-14", "EMPLOYER_LIQUIDATION")),
                                       employment={"other_employment_provided": False, "leaves": []}))
     assert "MATERNITY_EQUIVALENT_ALLOWANCE" not in [b["benefit_type"] for b in body["benefits"]]
+
+
+# ------------------------------------------------------------ FE1-05: masa jako odpowiedź z opcjami
+@pytest.mark.parametrize(("answer", "rule_id", "weeks"), [
+    (True, "SUPP-ELIG-001", 12),   # ≤ próg → okno 15 tyg., pobyt 12 tyg. w całości
+    (False, "SUPP-ELIG-002", 8),   # > próg (30. tydz.) → okno 8 tyg.
+])
+def test_pipeline_supplementary_weight_answer_selects_variant(answer, rule_id, weeks):
+    payload = _preterm([{"child_index": 0, "from": "2027-01-10", "to": "2027-04-03"}], weeks=30, weight=None)
+    payload["birth"]["weight_at_most_threshold"] = answer
+    supp = _supp_benefit(pipeline.evaluate(payload))
+    assert rule_id in supp["applied_rules"] and supp["period"]["max_weeks"] == weeks
+
+
+def test_pipeline_supplementary_weight_unknown_asks_for_answer():
+    payload = _preterm([{"child_index": 0, "from": "2027-01-10", "to": "2027-04-03"}], weeks=30, weight=None)
+    body = pipeline.evaluate(payload)
+    assert _supp_benefit(body)["status"] == "NEEDS_DATA"
+    assert "birth.weight_at_most_threshold" in {item["field"] for item in body["missing_data"]}

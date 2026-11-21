@@ -17,6 +17,15 @@ const weeksBefore = (a: Answers): string => {
   return d % PARAMS.WEEK_AS_DAYS === 0 && d >= 0 && d <= PARAMS.PRE_BIRTH_MAX_WEEKS * PARAMS.WEEK_AS_DAYS
     ? String(d / PARAMS.WEEK_AS_DAYS) : "custom";
 };
+// FE1-05: masa urodzeniowa liczy się tylko względem progu (KP art. 180(2) § 1) — pytanie z opcjami zamiast suwaka.
+const WEIGHT_LIMIT = `${PARAMS.SUPP_WEIGHT_THRESHOLD_G.toLocaleString("pl-PL")} g`;
+const WEIGHT_OPTIONS = [
+  { value: "YES" as const, label: `Do ${WEIGHT_LIMIT}` },
+  { value: "NO" as const, label: `Powyżej ${WEIGHT_LIMIT}` },
+  { value: "UNKNOWN" as const, label: "Nie wiem" },
+];
+/** Przy porodzie przed SUPP_GESTATION_EARLY_WEEK masa nie zmienia wyniku (SUPP-ELIG-001 i tak przysługuje). */
+const weightMatters = (a: Answers) => a.gestationWeeks === "" || Number(a.gestationWeeks) >= PARAMS.SUPP_GESTATION_EARLY_WEEK;
 const parentalPool = (a: Answers) => a.zaZyciem
   ? (a.children > 1 ? PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_MULTIPLE : PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_SINGLE)
   : (a.children > 1 ? PARAMS.PARENTAL_WEEKS_MULTIPLE : PARAMS.PARENTAL_WEEKS_SINGLE);
@@ -139,11 +148,11 @@ export const STEPS: Step[] = [
     id: "special",
     title: "Okoliczności szczególne",
     visible: (a) => isBirth(a) && !a.sensitive && a.role !== null,
-    complete: (a) => !a.preterm || (a.gestationWeeks !== "" || a.birthWeightG !== ""),
+    complete: (a) => !a.preterm || (a.gestationWeeks !== "" || a.lowBirthWeight !== "UNKNOWN"),
     summary: (a) => join([
       a.preterm && "Wcześniak / szpital",
       a.preterm && a.gestationWeeks !== "" && `${a.gestationWeeks}. tydz.`,
-      a.preterm && a.birthWeightG !== "" && `${Number(a.birthWeightG).toLocaleString("pl-PL")} g`,
+      a.preterm && weightMatters(a) && a.lowBirthWeight !== "UNKNOWN" && `${a.lowBirthWeight === "YES" ? "do" : "powyżej"} ${WEIGHT_LIMIT}`,
       a.preterm && a.hospitalWeeks !== "" && `szpital ${plWeeks(Number(a.hospitalWeeks))}`,
       a.zaZyciem && "„Za życiem”",
     ]) ?? "Brak",
@@ -156,8 +165,12 @@ export const STEPS: Step[] = [
           <div className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 sm:grid-cols-2">
             <NumberSelect label="Ukończony tydzień ciąży przy porodzie" value={a.gestationWeeks} from={20} to={42}
               unit={(n) => `${n}. tydzień`} onChange={(gestationWeeks) => set({ gestationWeeks })} />
-            <Slider label="Masa urodzeniowa" unit="g" min={300} max={5000} step={50} value={a.birthWeightG}
-              hint="Przy kilkorgu dzieci: najniższa." onChange={(birthWeightG) => set({ birthWeightG })} />
+            {weightMatters(a) && (
+              <div className="sm:col-span-2">
+                <Choice legend="Masa urodzeniowa" hint="Przy kilkorgu dzieci: najlżejszego. Dokładna waga nie jest potrzebna."
+                  value={a.lowBirthWeight} columns={3} onChange={(lowBirthWeight) => set({ lowBirthWeight })} options={WEIGHT_OPTIONS} />
+              </div>
+            )}
             <div className="sm:col-span-2">
               <Slider label="Łącznie tygodni w szpitalu" unit="tyg." min={0} max={26} value={a.hospitalWeeks}
                 hint="Kilka pobytów sumuje się; niepełny tydzień liczy się jako pełny. Przy kilkorgu dzieci: najdłuższy pobyt."

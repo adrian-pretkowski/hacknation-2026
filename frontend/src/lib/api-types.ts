@@ -391,6 +391,8 @@ export interface components {
             };
             birth?: {
                 completed_gestation_weeks?: number | null;
+                /** @description Masa urodzeniowa (przy wieloraczkach najlżejszego dziecka) nie większa niż próg SUPP_WEIGHT_THRESHOLD_G. Odpowiedź z kreatora zamiast dokładnej masy; gdy null, silnik wylicza ją z children.items[].birth_weight_g. */
+                weight_at_most_threshold?: components["schemas"]["InTriBool"];
             };
             children?: {
                 count_at_birth?: number | null;

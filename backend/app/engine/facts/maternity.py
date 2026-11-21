@@ -501,6 +501,22 @@ def min_birth_weight_g(ctx: Context) -> int | None:
     return min(int(w) for w in weights)
 
 
+@fact("f_weight_at_most_threshold")
+def weight_at_most_threshold(ctx: Context) -> bool | None:
+    """07 §5, SUPP-ELIG-001/002: masa urodzeniowa (wieloraczki: najlżejszego) ≤ SUPP_WEIGHT_THRESHOLD_G.
+
+    Odpowiedź ``birth.weight_at_most_threshold`` (kreator, FE1-05) ma pierwszeństwo; bez niej — z dokładnych mas
+    ``children.items[].birth_weight_g``. Brak obu → NEEDS_DATA o odpowiedź. KP art. 180(2) § 1 pkt 1, § 2.
+    """
+    answer = ctx.field("birth.weight_at_most_threshold")
+    if answer is not None:
+        return bool(answer)
+    items = ctx.field("children.items")
+    if not items or any(c.get("birth_weight_g") is None for c in items):
+        return ctx.need("birth.weight_at_most_threshold")
+    return ctx.fact("f_min_birth_weight_g") <= int(ctx.param("SUPP_WEIGHT_THRESHOLD_G"))
+
+
 def _hospital_stays(ctx: Context) -> list[dict[str, Any]] | None:
     stays = ctx.field("children.hospital_stays")
     if stays is None:

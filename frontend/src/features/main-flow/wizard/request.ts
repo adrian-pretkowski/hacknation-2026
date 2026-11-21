@@ -74,11 +74,8 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
         birth_date: eventDate,
         stillborn: a.lossKind === "STILLBORN" && (a.allStillborn || i === 0),
         death_date: a.lossKind === "DIED" && (a.allStillborn || i === 0) ? a.deathDate || null : null,
-        birth_weight_g: num(a.birthWeightG),
       }))
-    : a.preterm && eventDate && a.birthWeightG
-      ? [{ birth_date: eventDate, stillborn: false, birth_weight_g: num(a.birthWeightG) }]
-      : undefined;
+    : undefined;
 
   return {
     evaluation: { as_of_date: today, mode: forecast ? "FORECAST" : "DECISION_SUPPORT" },
@@ -100,7 +97,10 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       foster_family_type: eventType === "FOSTER"
         ? (a.guardianKind === "FOSTER_PROFESSIONAL" ? "PROFESSIONAL" : "NON_PROFESSIONAL") : null,
     },
-    birth: a.preterm ? { completed_gestation_weeks: num(a.gestationWeeks) } : undefined,
+    // FE1-05: masa jako odpowiedź względem progu (birth.weight_at_most_threshold), bez dokładnej wagi
+    birth: a.preterm
+      ? { completed_gestation_weeks: num(a.gestationWeeks), weight_at_most_threshold: tri(a.lowBirthWeight ?? "UNKNOWN") }
+      : undefined,
     children: {
       count_at_birth: isGuardian ? null : childCount,
       count_at_event: isGuardian ? childCount : null,
