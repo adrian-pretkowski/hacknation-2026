@@ -98,9 +98,13 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           hint="Potrzebne, żeby porównać, komu bardziej opłaca się wziąć część urlopu."
           onChange={(partnerSalaryGross) => set({ partnerSalaryGross, plannerChoices: [] })} />
       )}
-      <Choice legend="Co jest dla Was ważniejsze?" value={a.plannerObjective} columns={2}
+      <Choice legend="Jak chcecie ułożyć ten czas?" value={a.plannerObjective} columns={2}
+        hint="Każdy wybór jest dobry — to tylko podpowiedź dla planera. Możesz go zmienić w dowolnej chwili."
         onChange={(plannerObjective) => set({ plannerObjective, plannerChoices: [] })}
-        options={[{ value: "MAX_MONEY", label: "Jak najwięcej pieniędzy" }, { value: "MAX_TIME", label: "Jak najdłużej z dzieckiem" }]} />
+        options={[
+          { value: "MAX_TIME", label: "Więcej wspólnego czasu", description: "Podział, w którym urlop z dzieckiem trwa najdłużej." },
+          { value: "MAX_MONEY", label: "Spokojniejszy domowy budżet", description: "Podział, w którym rodzina otrzyma łącznie najwyższe świadczenie." },
+        ]} />
 
       {missing && <p className="rounded-lg bg-zus-yellow-50 px-3 py-2 text-sm">{missing}</p>}
       {error && <p className="rounded-lg bg-zus-red-50 px-3 py-2 text-sm text-zus-red" role="alert">{error}</p>}
