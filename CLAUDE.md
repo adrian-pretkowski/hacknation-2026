@@ -21,7 +21,7 @@ RWD · demo www z wyborem/uploadem przykładowych wniosków i weryfikacją ubezp
 - Systemy trzecie (mObywatel, konto ZUS/PUE, e-ZLA, zadłużenie, USC, wnioski) = **mocki** w `backend/app/integrations/simulated/` (serwis per system, fasada `SimulatedSystems`, profile w `profiles.py`) wystawione jako `/api/sim/*` z `simulated: true`. Nowy scenariusz: nadpisanie w metodzie serwisu lub nowy profil + test w `tests/test_sim_services.py`; progi z `param()`. Opis: `docs/ARCHITECTURE.md` § Symulowane systemy trzecie.
 - Mock ≠ integracja: nie oznaczaj symulacji ani mocka jako działającej funkcji. `slice_v0` zwraca `not_evaluated_rules`.
 - Edytuj tylko pliki ze swojego zakresu w `docs/TASKS.md`; inne → zgłoś właścicielowi.
-- Bez sekretów w repo, bez `git push` i deployu bez polecenia lidera, bez destrukcyjnych operacji git.
+- Bez sekretów w repo, bez `git push` i deployu bez polecenia lidera, bez destrukcyjnych operacji git. Wyjątek: rezerwacja zadania `/claim` (D19) sama commituje i pushuje status na `main` — za zgodą w oknie uprawnień.
 
 ## Struktura
 `backend/app/` (FastAPI: `main.py`, `core/`, `engine/` silnik, `modules/<domena>/router.py`, `integrations/`) · `backend/tests/` · `frontend/src/` (Next.js 16: `app/`, `features/<domena>/`, `components/`, `lib/api.ts`, `lib/api-types.ts` generowany) · `contracts/openapi.yaml` · `zus_rules/` · `demo/` (dane syntetyczne) · `scripts/` · `docs/`.
@@ -32,6 +32,7 @@ RWD · demo www z wyborem/uploadem przykładowych wniosków i weryfikacją ubezp
 - Backend testy: `cd backend; .\.venv\Scripts\python -m pytest -p no:warnings` · lint: `.\.venv\Scripts\python -m ruff check .`
 - Audyt reguł: `backend\.venv\Scripts\python zus_rules\tools\build_catalog.py` (musi dać `errors=0`)
 - Frontend: `cd frontend; npm run lint; npm run typecheck; npm run build` · typy z kontraktu: `npm run gen:api`
+- Rezerwacja zadania: `python scripts\claim_task.py <ID> --branch <gałąź>` · testy skryptu: `backend\.venv\Scripts\python -m pytest scripts/tests -p no:warnings`
 - Smoke: `python scripts\smoke.py` (Docker: `--wait 90`)
 - Docker/Linux: `docker compose up --build`; backend `.venv/bin/python -m pytest`
 
@@ -52,6 +53,8 @@ Przed rozpoczęciem pracy znajdź pasujące zadanie w `docs/TASKS.md` § Zadania
 - **nie istnieje** → dopisz nowy wiersz w formacie tabeli: kolejne ID z prefiksem roli (najwyższe istniejące ID roli + 1, np. `INT-08`, `BE2-07`, `FE2-06`), Owner, Prio, Zakres / pliki, Zależności, Kryteria akceptacji, Weryfikacja, Status `IN_PROGRESS (rola)`.
 ID zadania trafia do nazwy gałęzi, commitów i wpisu w PROGRESS.
 
+**Rezerwacja przed pracą (synchronizacja zespołu):** zanim zaczniesz zadanie, zajmij je komendą **`/claim <ID> [gałąź]`** = `python scripts/claim_task.py <ID> --branch <gałąź>` (nowe zadanie: `--next <PREFIKS>` daje ID, `--new-row "| <ID> | … |"` dopisuje wiersz). Skrypt czyta TASKS z `origin/main`, ustawia `IN_PROGRESS (<rola> · <kto>)` i linię roli w PROGRESS § 3, i od razu wypycha osobny commit `chore(<ID>): claim` na `main` (bez przełączania gałęzi; wyścig → ponowna próba na świeżym `main`). Kod 2 = zajęte przez kogoś innego / DONE / BLOCKED → **nie zaczynaj**, zapytaj lidera (`--force` tylko za jego zgodą). Rezerwuj przed `git switch -c`, a na istniejącej gałęzi zrób potem `git merge origin/main`. Hook `UserPromptSubmit` (`.claude/hooks/claim_reminder.py`) przypomina o rezerwacji, gdy polecenie wymienia niezajęte ID. Commit rezerwacji nie wymaga `/review`.
+
 ## Aktualizacja PROGRESS.md (obowiązkowa, każdy użytkownik i każda sesja)
 Po zakończeniu, zablokowaniu lub przekazaniu zadania z `docs/TASKS.md` — **w tym samym commicie co zmiana kodu**:
 1. `docs/TASKS.md`: zmień status swojego wiersza (`IN_PROGRESS (rola)` → `DONE` / `BLOCKED (powód)`).
@@ -67,4 +70,4 @@ Na początku pracy nad zadaniem wpisz się w § 3 i ustaw `IN_PROGRESS (rola)` w
 - Przy `READY_TO_MERGE` Claude pyta o PR, merge do `main` i push `main` — wykonuje tylko to, na co lider się zgodzi; nigdy force push. Przy `CHANGES_REQUIRED` popraw i zrób kolejny commit (kolejne review).
 
 ## Claude Code w repo
-Hook po edycji `zus_rules/` lub `backend/app/engine|core|modules|tests`: audyt + pytest (`.claude/hooks/rules_gate.py`). Hook review: `.claude/hooks/review_trigger.py`. Subagenci: `reviewer`, `legal-checker`, `case-extractor`, `ui-verifier`. Komendy: `/review`, `/implement-fact`, `/implement-rule-group`, `/run-golden`, `/screen`, `/pre-pr` (sprawdza też aktualizację PROGRESS).
+Hook po edycji `zus_rules/` lub `backend/app/engine|core|modules|tests`: audyt + pytest (`.claude/hooks/rules_gate.py`). Hook review: `.claude/hooks/review_trigger.py`. Hook rezerwacji: `.claude/hooks/claim_reminder.py`. Subagenci: `reviewer`, `legal-checker`, `case-extractor`, `ui-verifier`. Komendy: `/claim`, `/review`, `/implement-fact`, `/implement-rule-group`, `/run-golden`, `/screen`, `/pre-pr` (sprawdza też aktualizację PROGRESS).

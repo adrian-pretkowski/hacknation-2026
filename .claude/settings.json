@@ -101,6 +101,11 @@
             "type": "command",
             "command": "python \"$(git rev-parse --show-toplevel)/.claude/hooks/review_trigger.py\" hook",
             "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "python \"$(git rev-parse --show-toplevel)/.claude/hooks/claim_reminder.py\"",
+            "timeout": 15
           }
         ]
       }
