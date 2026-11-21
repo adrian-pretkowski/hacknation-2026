@@ -35,3 +35,33 @@ def test_BA_02_block_matches_contract_and_rules(file, block):
 def test_content_ids_unique():
     ids = [block["id"] for _, block in _blocks()]
     assert len(ids) == len(set(ids))
+
+
+# ------------------------------------------------------------ szablony wyjaśnień (I5, templates.pl.yaml)
+def test_BA_02_templates_reference_existing_rules_and_placeholders():
+    import string
+
+    from app.core.params import load_ruleset
+    from app.engine.explain import load_templates
+
+    allowed = {"rate_pct", "days", "period_from", "period_to", "max_days", "max_weeks", "daily_amount",
+               "total_amount", "payer"}
+    params = set(load_ruleset()["meta"]["parameters"])
+    templates = load_templates()
+    assert templates
+    for rule_id, text in templates.items():
+        assert rule_id in RULE_IDS, rule_id
+        for _, name, _, _ in string.Formatter().parse(text):
+            if name:
+                assert name in allowed or name.removeprefix("param_") in params, (rule_id, name)
+
+
+def test_BA_02_explanation_has_no_raw_decimals():
+    import re
+
+    from app.engine import pipeline
+
+    for path in sorted((ROOT / "demo" / "cases").glob("*.json")):
+        body = pipeline.evaluate(json.loads(path.read_text(encoding="utf-8"))["input"])
+        for benefit in body["benefits"]:
+            assert not re.search(r"\d\.\d{3,}", benefit.get("explanation") or ""), (path.name, benefit["explanation"])

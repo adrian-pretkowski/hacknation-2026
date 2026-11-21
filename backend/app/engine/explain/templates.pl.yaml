@@ -3,16 +3,16 @@
 # oraz param_NAZWA (wartość z zus_rules/03 meta.parameters — bez liczb z przepisów w treści).
 # Brak wartości placeholdera → zdanie z nazwy reguły (fallback rendera). Język prosty, bez obietnic decyzji ZUS.
 
-MAT-ELIG-001: "W dniu porodu podlegasz ubezpieczeniu chorobowemu, więc przysługuje Ci zasiłek macierzyński."
+MAT-ELIG-001: "W dniu porodu podlegasz ubezpieczeniu chorobowemu (albo jesteś na urlopie wychowawczym), więc przysługuje Ci zasiłek macierzyński."
 MAT-ELIG-002: "Przyjęłaś (przyjąłeś) dziecko na wychowanie i wystąpiłaś (wystąpiłeś) do sądu o przysposobienie — zasiłek przysługuje na warunkach urlopu macierzyńskiego."
 MAT-ELIG-003: "Przyjęłaś (przyjąłeś) dziecko jako rodzina zastępcza niezawodowa — zasiłek przysługuje na warunkach urlopu macierzyńskiego."
-MAT-ELIG-007: "Ubezpieczenie ustało w ciąży z przyczyn niezależnych od Ciebie — do porodu przysługuje zasiłek w wysokości zasiłku macierzyńskiego."
-MAT-DUR-001: "Urlop macierzyński trwa {max_weeks} tygodni ({days} dni): od {period_from} do {period_to}."
+MAT-ELIG-007: "Umowa o pracę ustała w ciąży z powodu śmierci, upadłości lub likwidacji pracodawcy albo z naruszeniem prawa stwierdzonym przez sąd — do porodu przysługuje zasiłek w wysokości zasiłku macierzyńskiego."
+MAT-DUR-001: "Wymiar urlopu macierzyńskiego: {max_weeks} tyg.; okres zasiłku: {period_from} – {period_to} ({days} dni)."
 MAT-DUR-009: "Pierwszym dniem urlopu macierzyńskiego jest dzień porodu, chyba że część urlopu wykorzystano przed porodem."
-RATE-MAT-001: "Za okres urlopu macierzyńskiego zasiłek wynosi {rate_pct} podstawy wymiaru."
+RATE-MAT-001: "Za ten okres urlopu zasiłek wynosi {rate_pct} podstawy wymiaru."
 RATE-MAT-002: "Za okres urlopu rodzicielskiego zasiłek wynosi {rate_pct} podstawy wymiaru."
 RATE-MAT-003: "Wniosek o zasiłek za cały okres urlopu złożony w {param_APP_COMBINED_DEADLINE_DAYS} dni od porodu — zasiłek wynosi {rate_pct} podstawy przez cały okres."
-CALC-MAT-001: "Zasiłek dzienny {daily_amount} zł × {days} dni = {total_amount} zł brutto."
+CALC-MAT-001: "Kwota = podstawa × stawka / liczba dni miesiąca ({param_MONTH_AS_DAYS}) × liczba dni zasiłku, bez zaokrągleń pośrednich."
 RATE-MAT-007: "Miesięczna kwota zasiłku była niższa niż kwota świadczenia rodzicielskiego — zasiłek podwyższono do tej kwoty."
 PAT-DUR-001: "Urlop ojcowski trwa do {param_PATERNITY_WEEKS} tygodni i trzeba go wykorzystać do ukończenia przez dziecko {param_PATERNITY_CHILD_AGE_MONTHS} miesięcy."
 SICK-ELIG-001: "Niezdolność do pracy powstała w czasie ubezpieczenia chorobowego."
