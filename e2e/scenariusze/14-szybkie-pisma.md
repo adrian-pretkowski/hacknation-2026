@@ -19,8 +19,11 @@
 15. Kliknij „JDG w ciąży, zaległość w składkach”.
 16. Sprawdź, że nagłówek to „Twój plan”.
 17. Sprawdź, że widać „Pisma do wypełnienia”.
-18. Kliknij „Wypełnij ZAM →”.
-19. Sprawdź, że nagłówek to „Wniosek o zasiłek macierzyński”.
-20. Kliknij „← Wróć do planu”.
-21. Sprawdź, że nagłówek to „Twój plan”.
-22. Sprawdź, że strona nie przewija się w poziomie.
+18. Sprawdź, że widać „nie pasuje żadne z tych pism”.
+19. Sprawdź, że nie widać „Wypełnij ZAM →”.
+20. Kliknij „Pokaż pozostałe pisma (5)”.
+21. Kliknij „Wypełnij ZAM →”.
+22. Sprawdź, że nagłówek to „Wniosek o zasiłek macierzyński”.
+23. Kliknij „← Wróć do planu”.
+24. Sprawdź, że nagłówek to „Twój plan”.
+25. Sprawdź, że strona nie przewija się w poziomie.

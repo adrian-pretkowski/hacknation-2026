@@ -102,6 +102,21 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
             points={["bez wypełniania kreatora", "opis każdego pisma w jednym miejscu", "od razu do wypełnienia"]}
             cta="Wybierz pismo →" onClick={onForms} />
         </ul>
+
+        {/* FE1-12: ścieżka dla rodziców po stracie — tuż pod wyborem drogi, wyraźna i ciepła, nie na dole strony */}
+        <section aria-labelledby="loss-h" className="mt-4 flex flex-col gap-4 rounded-2xl border border-zus-blue/30 bg-zus-blue-50 p-5 text-zus-navy sm:flex-row sm:items-center sm:p-6">
+          <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-zus-blue">
+            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" /></svg>
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 id="loss-h" className="text-lg font-semibold">Gdy ciąża nie zakończyła się szczęśliwie</h3>
+            <p className="mt-1 text-sm">Bardzo nam przykro. Przygotowaliśmy spokojniejszą ścieżkę: mniej pytań, najpierw wsparcie i kontakty do osób, które pomagają po stracie dziecka, a kwoty tylko wtedy, gdy zechcesz je zobaczyć.</p>
+          </div>
+          <button type="button" onClick={onSensitive}
+            className="shrink-0 self-start rounded-full bg-zus-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-zus-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy sm:self-center">
+            Przejdź do trybu spokojnego
+          </button>
+        </section>
       </section>
 
       <section id="jak-to-dziala" aria-labelledby="how-h" className="scroll-mt-4">
@@ -130,12 +145,6 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
             </li>
           ))}
         </ul>
-      </section>
-
-      <section className="rounded-2xl bg-zus-gray-50 p-5 text-sm">
-        <h2 className="font-semibold text-zus-navy">Gdy ciąża nie zakończyła się szczęśliwie</h2>
-        <p className="mt-1 text-zinc-700">Przygotowaliśmy spokojniejszą ścieżkę: mniej pytań, najpierw informacje o wsparciu, kwoty tylko na życzenie.</p>
-        <button type="button" onClick={onSensitive} className="mt-3 font-medium text-zus-navy underline underline-offset-2">Przejdź do trybu spokojnego</button>
       </section>
     </div>
   );

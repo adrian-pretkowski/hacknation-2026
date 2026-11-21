@@ -2,7 +2,8 @@
 
 // Kafelki pism (FE1-11): ten sam komponent na ścieżce „Szybkie pisma” i na podsumowaniu wyniku.
 // Klik → onOpen(kod) — ekran pisma (etap 3: wypełnianie formularzem, osobne zadanie).
-import { FORM_GROUPS, FORMS, type FormCode } from "./forms";
+import { useId, useState } from "react";
+import { FORM_CODES, FORM_GROUPS, FORMS, type FormCode } from "./forms";
 
 const TONE = {
   YOU: { badge: "bg-zus-green-dark text-white", fold: "fill-zus-green-100", label: "Wypełniasz Ty" },
@@ -59,24 +60,57 @@ function FormTile({ code, recommended, onOpen, level }: { code: FormCode; recomm
 }
 
 /** headingLevel = poziom nagłówków grup (tytuły kafelków o jeden niżej). */
-export function FormPicker({ onOpen, recommended = [], headingLevel = 3 }: {
+export function FormPicker({ onOpen, recommended = [], headingLevel = 3, codes, showLegend = true }: {
   onOpen: (code: FormCode) => void;
   recommended?: FormCode[];
   headingLevel?: 3 | 4;
+  /** tylko te pisma (domyślnie wszystkie); puste grupy są pomijane */
+  codes?: FormCode[];
+  showLegend?: boolean;
 }) {
   const H = headingLevel === 3 ? "h3" : "h4";
+  const idp = useId();
   return (
     <div className="space-y-6">
-      {FORM_GROUPS.map((g) => (
-        <section key={g.id} aria-labelledby={`fg-${g.id}`}>
-          <H id={`fg-${g.id}`} className="text-base font-semibold text-zus-navy">{g.title}</H>
+      {FORM_GROUPS.map((g) => ({ ...g, codes: g.codes.filter((c) => !codes || codes.includes(c)) })).filter((g) => g.codes.length > 0).map((g) => (
+        <section key={g.id} aria-labelledby={`${idp}-${g.id}`}>
+          <H id={`${idp}-${g.id}`} className="text-base font-semibold text-zus-navy">{g.title}</H>
           <p className="text-sm text-zinc-600">{g.text}</p>
           <ul className="mt-3 grid gap-3 md:grid-cols-2">
             {g.codes.map((c) => <FormTile key={c} code={c} recommended={recommended.includes(c)} onOpen={onOpen} level={headingLevel === 3 ? 4 : 5} />)}
           </ul>
         </section>
       ))}
-      <p className="text-xs text-zinc-600">Symbole i nazwy formularzy wg informacji ZUS. Kolor ikony: zielony — wypełniasz Ty, granatowy — wypełnia płatnik składek.</p>
+      {showLegend && <p className="text-xs text-zinc-600">Symbole i nazwy formularzy wg informacji ZUS. Kolor ikony: zielony — wypełniasz Ty, granatowy — wypełnia płatnik składek.</p>}
+    </div>
+  );
+}
+
+/** Na wyniku (FE1-12): widać tylko pisma dopasowane do planu, pozostałe po kliknięciu „Pokaż pozostałe pisma”.
+ *  Bez dopasowania — informacja, że nic nie pasuje, i ten sam przycisk (wszystkie pisma zwinięte). */
+export function MatchedFormPicker({ onOpen, recommended, headingLevel = 4 }: {
+  onOpen: (code: FormCode) => void; recommended: FormCode[]; headingLevel?: 3 | 4;
+}) {
+  const [open, setOpen] = useState(false);
+  const restId = useId();
+  const rest = FORM_CODES.filter((c) => !recommended.includes(c));
+  return (
+    <div className="space-y-5">
+      {recommended.length > 0
+        ? <FormPicker onOpen={onOpen} recommended={recommended} codes={recommended} headingLevel={headingLevel} showLegend={false} />
+        : <p role="status" className="rounded-xl bg-zus-gray-50 p-4 text-sm text-zinc-700">Do Twojego aktualnego planu nie pasuje żadne z tych pism. Możesz je przejrzeć poniżej, jeśli Twoja sytuacja się zmieni.</p>}
+      {rest.length > 0 && (
+        <div className={recommended.length > 0 ? "border-t border-zinc-100 pt-4" : ""}>
+          <button type="button" aria-expanded={open} aria-controls={restId} onClick={() => setOpen((o) => !o)}
+            className="inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
+            <span aria-hidden="true" className={`transition-transform ${open ? "rotate-90" : ""}`}>›</span>
+            {open ? "Ukryj pozostałe pisma" : `Pokaż pozostałe pisma (${rest.length})`}
+          </button>
+          <div id={restId} hidden={!open} className="mt-4">
+            {open && <FormPicker onOpen={onOpen} codes={rest} headingLevel={headingLevel} />}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { FormPicker } from "@/features/documents/FormPicker";
+import { MatchedFormPicker } from "@/features/documents/FormPicker";
 import { type FormCode, formsForDocTypes } from "@/features/documents/forms";
 import { API_MODE, type EvaluateResponse, evaluate } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -40,7 +40,9 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
 
   return (
     <div className="space-y-5" aria-live="polite">
+      {/* FE1-12: wsparcie zawsze na samej górze wyniku — najpierw człowiek, potem kwoty */}
       {sensitive && <SupportBlock kind="loss" />}
+      {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
       <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} />
       {current.summary.remaining && <Remaining p={current} />}
       {/* bez okresów i błędów planu (np. brak prawa) nie pokazujemy pustego panelu */}
@@ -58,7 +60,6 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
       <RiskRadar response={r} />
       <Documents response={r} payer={current.summary.payer} />
       {onOpenForm && <FormsToFill response={r} onOpen={onOpenForm} />}
-      {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
       <CalcDetails p={current} />
       {!sensitive && <EngineCrossCheck answers={answers} variant={variant} preview={current} />}
     </div>
@@ -380,11 +381,19 @@ function FormsToFill({ response, onOpen }: { response: EvaluateResponse; onOpen:
       <h3 id="forms-h" className="text-lg font-semibold">Pisma do wypełnienia</h3>
       <p className="mt-1 mb-4 text-sm text-zinc-700">
         {recommended.length > 0
-          ? `Do Twojego planu pasuje: ${recommended.join(", ")}. Pozostałe pisma też możesz otworzyć.`
-          : "Kliknij pismo, aby je wypełnić."}
+          ? `Do Twojego planu pasuje: ${recommended.join(", ")}.`
+          : "Pisma dobieramy do Twojego planu."}
       </p>
-      <FormPicker onOpen={onOpen} recommended={recommended} headingLevel={4} />
+      <MatchedFormPicker onOpen={onOpen} recommended={recommended} headingLevel={4} />
     </section>
+  );
+}
+
+function HeartIcon() {
+  return (
+    <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-zus-blue">
+      <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" /></svg>
+    </span>
   );
 }
 
@@ -395,10 +404,13 @@ function SupportBlock({ kind }: { kind: "loss" | "preterm" | "zazyciem" }) {
     zazyciem: { h: "Program „Za życiem”", p: "Asystent rodziny i koordynowana opieka — informacje w gminie lub ośrodku pomocy społecznej." },
   }[kind];
   return (
-    <section className="rounded-lg border-l-8 border-l-zus-blue bg-zus-blue-50 p-4 text-sm text-zus-navy sm:p-5" aria-labelledby={`sup-${kind}`}>
-      <h3 id={`sup-${kind}`} className="text-base font-semibold">{text.h}</h3>
-      <p className="mt-1">{text.p}</p>
-      <p className="mt-2 text-xs">Lista organizacji: przewodnik w zakładce Wsparcie (w przygotowaniu). Rzecznik Praw Pacjenta: 800 190 590.</p>
+    <section className="flex gap-4 rounded-2xl border border-zus-blue/30 bg-zus-blue-50 p-5 text-zus-navy sm:p-6" aria-labelledby={`sup-${kind}`}>
+      <HeartIcon />
+      <div className="min-w-0">
+        <h3 id={`sup-${kind}`} className="text-lg font-semibold">{text.h}</h3>
+        <p className="mt-1 text-base">{text.p}</p>
+        <p className="mt-3 text-sm">Lista organizacji: przewodnik w zakładce Wsparcie (w przygotowaniu). Rzecznik Praw Pacjenta: <a href="tel:800190590" className="font-semibold underline underline-offset-2">800 190 590</a>.</p>
+      </div>
     </section>
   );
 }
