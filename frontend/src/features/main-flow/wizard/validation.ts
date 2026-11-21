@@ -7,8 +7,8 @@ import { addDays } from "../preview/exact";
 import type { Answers } from "./answers";
 import { todayIso } from "./request";
 
-export type DateField = "eventDate" | "deathDate" | "insuredFrom" | "contractEnd" | "maternityStart";
-export type FieldErrors = Partial<Record<DateField, string>>;
+export type DateFieldKey = "eventDate" | "deathDate" | "insuredFrom" | "contractEnd" | "maternityStart";
+export type FieldErrors = Partial<Record<DateFieldKey, string>>;
 
 /** Daty z kreatora (ISO RRRR-MM-DD) porównywane leksykalnie; puste pole = brak błędu (UNKNOWN). */
 export function dateErrors(a: Answers, today = todayIso()): FieldErrors {
@@ -25,8 +25,14 @@ export function dateErrors(a: Answers, today = todayIso()): FieldErrors {
     if (ev && a.deathDate < ev) e.deathDate = "Data śmierci dziecka nie może być wcześniejsza niż data porodu.";
     else if (a.deathDate > today) e.deathDate = "Data śmierci dziecka jest w przyszłości.";
   }
+  // ubezpieczenie zaczynające się w przyszłości jest możliwe w ciąży (np. nowa umowa przed porodem) — ocenia silnik;
+  // błąd tylko, gdy zaczyna się po zdarzeniu (porodzie / przyjęciu dziecka) albo — gdy zdarzenie już było — po dziś
   if (a.title && a.title !== "NONE" && a.insuredFrom) {
-    if (a.insuredFrom > today) e.insuredFrom = "Data początku ubezpieczenia jest w przyszłości — podaj dzień, od którego już podlegasz ubezpieczeniu.";
+    if (a.stage === "PREGNANT" && ev && a.insuredFrom > ev) {
+      e.insuredFrom = "Ubezpieczenie zaczyna się po planowanej dacie porodu — podaj ubezpieczenie, które trwa w dniu porodu.";
+    } else if (a.stage !== "PREGNANT" && a.insuredFrom > today) {
+      e.insuredFrom = "Data początku ubezpieczenia jest w przyszłości — podaj dzień, od którego już podlegasz ubezpieczeniu.";
+    }
   }
   if (a.title === "EMPLOYMENT" && a.contractType === "FIXED_TERM" && a.contractEnd && a.insuredFrom && a.contractEnd < a.insuredFrom) {
     e.contractEnd = "Umowa nie może kończyć się przed dniem, od którego podlegasz ubezpieczeniu.";
@@ -41,7 +47,7 @@ export function dateErrors(a: Answers, today = todayIso()): FieldErrors {
   return e;
 }
 
-export const hasErrors = (a: Answers, ...fields: DateField[]) => {
+export const hasErrors = (a: Answers, ...fields: DateFieldKey[]) => {
   const e = dateErrors(a);
   return fields.some((f) => !!e[f]);
 };

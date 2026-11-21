@@ -373,15 +373,16 @@ export const STEPS: Step[] = [
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <Slider label="Rodzicielski wykorzystany przez mamę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalMotherWeeks}
-            describedBy={usedErrors(a).parental || usedErrors(a).maternity ? "used-parental-err used-maternity-err" : undefined}
+            describedBy={[usedErrors(a).parental && "used-parental-err", usedErrors(a).maternity && "used-maternity-err"].filter(Boolean).join(" ") || undefined}
             emptyLabel="0 tyg." onChange={(usedParentalMotherWeeks) => set({ usedParentalMotherWeeks })} />
           <Slider label="Rodzicielski wykorzystany przez tatę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalFatherWeeks}
-            describedBy={usedErrors(a).parental || usedErrors(a).maternity ? "used-parental-err used-maternity-err" : undefined}
+            describedBy={[usedErrors(a).parental && "used-parental-err", usedErrors(a).maternity && "used-maternity-err"].filter(Boolean).join(" ") || undefined}
             emptyLabel="0 tyg." onChange={(usedParentalFatherWeeks) => set({ usedParentalFatherWeeks })} />
         </div>
         <FieldError id="used-parental-err" text={usedErrors(a).parental} />
         <NumberSelect label="Na ile części (wniosków) podzielono rodzicielski?" hint="Każdy wniosek to osobna część." value={a.usedParts}
           from={0} to={PARAMS.PARENTAL_MAX_PARTS} unknownLabel={null} unit={(n) => (n === 0 ? "Jeszcze nie korzystaliśmy" : `${n}`)}
+          describedBy={usedErrors(a).parts ? "used-parts-err" : undefined}
           onChange={(usedParts) => set({ usedParts })} />
         <FieldError id="used-parts-err" text={usedErrors(a).parts} />
         <Choice legend="Jaki wariant wypłaty wybrano?" value={a.usedVariant} columns={3} onChange={(usedVariant) => set({ usedVariant })} options={[
