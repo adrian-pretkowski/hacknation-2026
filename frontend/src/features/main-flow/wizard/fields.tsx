@@ -100,11 +100,13 @@ export const TRI_OPTIONS = [
 ];
 
 /** Suwak z polem liczbowym obok (precyzyjna wartość). Pusta wartość = „nie podano” (UNKNOWN w silniku). */
-export function Slider({ label, hint, value, onChange, min, max, step = 1, unit, emptyLabel = "nie podano", money = false, describedBy }: {
+export function Slider({ label, hint, value, onChange, min, max, step = 1, unit, emptyLabel = "nie podano", money = false, describedBy, disabled = false }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void;
   min: number; max: number; step?: number; unit: string; emptyLabel?: string;
   /** FE1-10: id komunikatu walidacji (dokładany do aria-describedby). */
   describedBy?: string;
+  /** FE1-14: pole nieaktywne (np. rodzicielski przed wykorzystaniem całego macierzyńskiego). */
+  disabled?: boolean;
   /** Kwota w zł: pole tekstowe przyjmuje grosze (przecinek lub kropka), wyświetlanie przez lib/format. */
   money?: boolean;
 }) {
@@ -125,11 +127,11 @@ export function Slider({ label, hint, value, onChange, min, max, step = 1, unit,
         </span>
       </div>
       <div className="mt-2 flex items-center gap-3">
-        <input id={id} type="range" min={min} max={max} step={step} value={num ?? min}
+        <input id={id} type="range" min={min} max={max} step={step} value={num ?? min} disabled={disabled}
           aria-valuetext={num === null ? emptyLabel : show(normalized)} aria-describedby={described} aria-invalid={describedBy ? true : undefined}
           className={`h-2 w-full cursor-pointer accent-zus-green-dark ${num === null ? "opacity-50" : ""}`}
           onChange={(e) => onChange(e.target.value)} />
-        <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} — wpisz wartość`} placeholder="—"
+        <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} — wpisz wartość`} placeholder="—" disabled={disabled}
           aria-describedby={described} aria-invalid={describedBy ? true : undefined}
           className={`${money ? "w-28" : "w-20"} shrink-0 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-right text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark`}
           value={value} onChange={(e) => onChange(clean(e.target.value))} />

@@ -30,9 +30,18 @@ const WEIGHT_OPTIONS = [
 ];
 /** Przy porodzie przed SUPP_GESTATION_EARLY_WEEK masa nie zmienia wyniku (SUPP-ELIG-001 i tak przysługuje). */
 const weightMatters = (a: Answers) => a.gestationWeeks === "" || Number(a.gestationWeeks) >= PARAMS.SUPP_GESTATION_EARLY_WEEK;
-const parentalPool = (a: Answers) => a.zaZyciem
-  ? (a.children > 1 ? PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_MULTIPLE : PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_SINGLE)
-  : (a.children > 1 ? PARAMS.PARENTAL_WEEKS_MULTIPLE : PARAMS.PARENTAL_WEEKS_SINGLE);
+/** FE1-12: przyjęcie dziecka ponad granicę wieku (KP art. 183 § 3) — rodzicielski 38 / 62 tyg. (PAR-DUR-003), jak w podglądzie. */
+const kp183Case = (a: Answers) => a.role === "GUARDIAN" && a.guardianKind === "FOSTER_NON_PROFESSIONAL" && a.childAgeYears !== ""
+  && Number(a.childAgeYears) >= (a.schoolDeferred === "YES" ? PARAMS.FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED : PARAMS.FOSTER_CHILD_AGE_MAX);
+const parentalPool = (a: Answers) => kp183Case(a)
+  ? (a.zaZyciem ? PARAMS.PARENTAL_WEEKS_ADOPT_GUARANTEED_ZA_ZYCIEM : PARAMS.PARENTAL_WEEKS_ADOPT_GUARANTEED)
+  : a.zaZyciem
+    ? (a.children > 1 ? PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_MULTIPLE : PARAMS.PARENTAL_WEEKS_ZA_ZYCIEM_SINGLE)
+    : (a.children > 1 ? PARAMS.PARENTAL_WEEKS_MULTIPLE : PARAMS.PARENTAL_WEEKS_SINGLE);
+/** FE1-12: górna granica tygodni rodzica — suma ≤ pula i nie ruszamy tygodni nieprzenoszalnych drugiego rodzica. */
+const parentalMax = (a: Answers, other: string) =>
+  Math.max(parentalPool(a) - Math.max(PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS, Number(other || 0)), 0);
+const clampWeeks = (v: string, max: number) => (v === "" ? v : String(Math.min(Number(v), max)));
 
 export type StepProps = { a: Answers; set: (patch: Partial<Answers>) => void };
 export type Step = {
@@ -355,13 +364,14 @@ export const STEPS: Step[] = [
       <div className="space-y-4">
         <ZusFetch source="usedLeave" a={a} set={set} what="Pobierz wykorzystane już urlopy i wypłacone zasiłki." />
         <Choice legend="Czy urlop macierzyński został wykorzystany w całości?" value={a.usedMaternityFully} columns={3}
-          onChange={(usedMaternityFully) => set({ usedMaternityFully })} options={TRI_OPTIONS} />
+          onChange={(usedMaternityFully) => set(usedMaternityFully === "YES" ? { usedMaternityFully }
+            : { usedMaternityFully, usedParentalMotherWeeks: "0", usedParentalFatherWeeks: "0" })} options={TRI_OPTIONS} />
         {a.usedMaternityFully === "NO" && (
-          <NumberSelect label="Ile tygodni urlopu macierzyńskiego wykorzystano?" value={a.usedMaternityWeeks} from={0}
-            to={maternityWeeks(a.children) - 1} unit={(n) => `${n} tyg.`} unknownLabel="Nie wiem"
+          <Slider label="Macierzyński wykorzystany" unit="tyg." min={0} max={maternityWeeks(a.children) - 1}
+            value={a.usedMaternityWeeks} emptyLabel="nie wiem"
             describedBy={usedErrors(a).maternity ? "used-maternity-err" : undefined}
-            hint={`Pełny wymiar: ${maternityWeeks(a.children)} tyg. Policzymy, ile zostało.`}
-            onChange={(usedMaternityWeeks) => set({ usedMaternityWeeks })} />
+            hint={`Pełny wymiar: ${maternityWeeks(a.children)} tyg. (wtedy wybierz „Tak”). Policzymy, ile zostało i do kiedy.`}
+            onChange={(v) => set({ usedMaternityWeeks: clampWeeks(v, maternityWeeks(a.children) - 1) })} />
         )}
         <FieldError id="used-maternity-err" text={usedErrors(a).maternity} />
         {a.usedMaternityFully === "NO" && a.usedMaternityWeeks !== "" && !usedErrors(a).maternity
@@ -372,13 +382,20 @@ export const STEPS: Step[] = [
           </p>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
-          <Slider label="Rodzicielski wykorzystany przez mamę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalMotherWeeks}
+          <Slider label="Rodzicielski wykorzystany przez mamę" unit="tyg." min={0} max={parentalMax(a, a.usedParentalFatherWeeks)}
+            value={a.usedParentalMotherWeeks} disabled={a.usedMaternityFully !== "YES"}
             describedBy={[usedErrors(a).parental && "used-parental-err", usedErrors(a).maternity && "used-maternity-err"].filter(Boolean).join(" ") || undefined}
-            emptyLabel="0 tyg." onChange={(usedParentalMotherWeeks) => set({ usedParentalMotherWeeks })} />
-          <Slider label="Rodzicielski wykorzystany przez tatę" unit="tyg." min={0} max={parentalPool(a)} value={a.usedParentalFatherWeeks}
+            emptyLabel="0 tyg." onChange={(v) => set({ usedParentalMotherWeeks: clampWeeks(v, parentalMax(a, a.usedParentalFatherWeeks)) })} />
+          <Slider label="Rodzicielski wykorzystany przez tatę" unit="tyg." min={0} max={parentalMax(a, a.usedParentalMotherWeeks)}
+            value={a.usedParentalFatherWeeks} disabled={a.usedMaternityFully !== "YES"}
             describedBy={[usedErrors(a).parental && "used-parental-err", usedErrors(a).maternity && "used-maternity-err"].filter(Boolean).join(" ") || undefined}
-            emptyLabel="0 tyg." onChange={(usedParentalFatherWeeks) => set({ usedParentalFatherWeeks })} />
+            emptyLabel="0 tyg." onChange={(v) => set({ usedParentalFatherWeeks: clampWeeks(v, parentalMax(a, a.usedParentalMotherWeeks)) })} />
         </div>
+        {a.usedMaternityFully !== "YES" ? (
+          <p className="text-sm text-zinc-600">Urlop rodzicielski jest dostępny po wykorzystaniu całego urlopu macierzyńskiego — dlatego suwaki są nieaktywne.</p>
+        ) : (
+          <p className="text-sm text-zinc-600">Pula rodzicielskiego: {parentalPool(a)} tyg., z czego po {PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tyg. jest tylko dla mamy i tylko dla taty — suwaki nie pozwalają ich przekroczyć.</p>
+        )}
         <FieldError id="used-parental-err" text={usedErrors(a).parental} />
         <NumberSelect label="Na ile części (wniosków) podzielono rodzicielski?" hint="Każdy wniosek to osobna część." value={a.usedParts}
           from={0} to={PARAMS.PARENTAL_MAX_PARTS} unknownLabel={null} unit={(n) => (n === 0 ? "Jeszcze nie korzystaliśmy" : `${n}`)}
@@ -451,7 +468,7 @@ export const STEPS: Step[] = [
         {(a.role !== "FATHER" || a.partnerInsured !== "NO") && (
           <Slider label="Ile tygodni rodzicielskiego weźmie tata?" unit="tyg." min={0}
             max={parentalPool(a) - PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} value={String(a.fatherParentalWeeks)}
-            hint={`${PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tygodni jest tylko dla taty (przepadają, jeśli ich nie weźmie). Reszta to pula mamy.`}
+            hint={`${PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tygodni jest tylko dla taty i ${PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS} tylko dla mamy — nie można ich oddać drugiemu rodzicowi (przepadają, jeśli ich nie wykorzysta). Pozostałe tygodnie rodzice dzielą dowolnie.`}
             onChange={(v) => set({ fatherParentalWeeks: v === "" ? 0 : Math.min(Number(v), parentalPool(a) - PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS) })} />
         )}
         {a.role === "MOTHER" && (

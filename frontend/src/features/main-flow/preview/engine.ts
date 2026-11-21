@@ -57,6 +57,7 @@ export type PreviewSummary = {
     latestContinuousStart: string;
     latestApplication: string;
     maternityWeeks: number | null; // FE1-09: niewykorzystany macierzyński (null = wykorzystany w całości / nieznany)
+    maternityEnd: string | null; // FE1-14: koniec trwającego macierzyńskiego (null = przerwany albo brak)
   };
   ownTotal: string | null;
   segments: Seg[];
@@ -345,7 +346,8 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       const latestStart = addDays(finalDate, -(total * W) + 1);
       const latestApplication = addDays(latestStart, -PO.PARENTAL_APP_DAYS_BEFORE);
       remaining = { totalWeeks: total, motherWeeks: motherCan, fatherWeeks: fatherCan, partsLeft, finalDate,
-        latestContinuousStart: latestStart, latestApplication, maternityWeeks: maternityLeft };
+        latestContinuousStart: latestStart, latestApplication, maternityWeeks: maternityLeft,
+        maternityEnd: maternityLeft !== null && maternityLeft > 0 && usedMat! >= sinceWeeks ? addDays(ev, matDays - 1) : null };
       // stawka dla dalszej części
       let rate: string = wp.used_variant === "COMBINED_815" ? P.MAT_RATE_COMBINED : P.MAT_RATE_PARENTAL;
       const firstBirthday = addMonths(ev, 12);
