@@ -3,6 +3,7 @@
 Zakres dziś: zasiłek macierzyński matki po porodzie (``maternity.py``) — ten sam zakres co slice_v0,
 ale na regułach z 03_rules.yaml (tryby, wyjątki, overrides, DT-9, ślad ``applied_rules``, ``future_changes``).
 Kolejne świadczenia (chorobowy, rodzicielski, ojcowski, uzupełniający) dopisują swoje moduły kroków.
+Każde świadczenie dostaje ``explanation`` i ``legal_basis`` z renderera ``app.engine.explain`` (BE1-06).
 """
 from __future__ import annotations
 
@@ -14,6 +15,7 @@ from app.core.config import get_settings
 from app.core.dates import to_date
 from app.core.params import ruleset_version
 from app.engine.dsl import Ruleset, load_ruleset
+from app.engine.explain import explain_benefit
 from app.engine.facts import Context
 from app.engine.pipeline.engine import STATUS_ORDER, Engine
 from app.engine.pipeline.maternity import evaluate_maternity
@@ -45,6 +47,8 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
         return _response(eng, [], [{"code": "OUT_OF_SCOPE_SLICE",
                                     "text": "Silnik reguł obsługuje na razie tylko event.type=BIRTH."}], "OUT_OF_SCOPE")
     benefits = [evaluate_maternity(eng)]
+    for benefit in benefits:
+        benefit.update(explain_benefit(eng, benefit))  # BE1-06: explanation + legal_basis (kontrakt Benefit)
     assumptions = [ROUNDING] + [PARAM_ASSUMPTIONS[p] for p in eng.unconfirmed_params() if p in PARAM_ASSUMPTIONS]
     overall = next((s for s in STATUS_ORDER if any(b["status"] == s for b in benefits)), "NEEDS_DATA")
     return _response(eng, benefits, assumptions, overall)

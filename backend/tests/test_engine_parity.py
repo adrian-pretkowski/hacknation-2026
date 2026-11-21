@@ -67,6 +67,8 @@ def _comparable(body: dict) -> dict:
     for benefit in body["benefits"]:
         benefit.pop("applied_rules")
         benefit.pop("base", None)  # obiekt podstawy (kontrakt Benefit.base) zwraca tylko pipeline (M05, BASE-GEN-001)
+        benefit.pop("explanation", None)  # wyjaśnienie z renderera (BE1-06) zwraca tylko pipeline
+        benefit.pop("legal_basis", None)
     return body
 
 
