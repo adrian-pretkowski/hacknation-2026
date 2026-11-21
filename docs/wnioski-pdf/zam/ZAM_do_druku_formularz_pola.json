@@ -1,0 +1,1022 @@
+[
+ {
+  "name": "p1_00_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   289.0,
+   435.2,
+   306.2
+  ]
+ },
+ {
+  "name": "p1_01_txt_data_urodzenia",
+  "page": 1,
+  "type": "comb(8)",
+  "label_guess": "Data urodzenia",
+  "rect": [
+   239.2,
+   315.8,
+   381.5,
+   333.0
+  ]
+ },
+ {
+  "name": "p1_02_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   360.5,
+   552.2,
+   377.8
+  ]
+ },
+ {
+  "name": "p1_03_txt_imie",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Imię",
+  "rect": [
+   239.2,
+   396.2,
+   552.2,
+   413.5
+  ]
+ },
+ {
+  "name": "p1_04_txt_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwisko",
+  "rect": [
+   239.2,
+   423.0,
+   552.2,
+   440.2
+  ]
+ },
+ {
+  "name": "p1_05_txt_ulica",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Ulica",
+  "rect": [
+   239.2,
+   449.8,
+   552.2,
+   467.0
+  ]
+ },
+ {
+  "name": "p1_06_txt_numer_domu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer domu",
+  "rect": [
+   239.2,
+   476.5,
+   310.2,
+   493.8
+  ]
+ },
+ {
+  "name": "p1_07_txt_numer_lokalu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer lokalu",
+  "rect": [
+   400.0,
+   476.5,
+   470.8,
+   493.8
+  ]
+ },
+ {
+  "name": "p1_08_txt_kod_pocztowy",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Kod pocztowy",
+  "rect": [
+   239.2,
+   503.2,
+   310.2,
+   520.5
+  ]
+ },
+ {
+  "name": "p1_09_txt_miejscowosc",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Miejscowość",
+  "rect": [
+   400.0,
+   503.2,
+   552.2,
+   520.5
+  ]
+ },
+ {
+  "name": "p1_10_txt_nazwa_panstwa",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa państwa",
+  "rect": [
+   239.2,
+   530.2,
+   552.2,
+   547.5
+  ]
+ },
+ {
+  "name": "p1_11_txt_numer_telefonu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Numer telefonu",
+  "rect": [
+   239.2,
+   566.0,
+   552.2,
+   583.0
+  ]
+ },
+ {
+  "name": "p1_12_txt_nip",
+  "page": 1,
+  "type": "comb(10)",
+  "label_guess": "NIP",
+  "rect": [
+   239.2,
+   630.8,
+   417.2,
+   648.0
+  ]
+ },
+ {
+  "name": "p1_13_txt_regon",
+  "page": 1,
+  "type": "comb(14)",
+  "label_guess": "REGON",
+  "rect": [
+   239.2,
+   657.5,
+   488.8,
+   674.8
+  ]
+ },
+ {
+  "name": "p1_14_txt_pesel",
+  "page": 1,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   693.2,
+   435.0,
+   710.5
+  ]
+ },
+ {
+  "name": "p1_15_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   729.0,
+   552.2,
+   746.2
+  ]
+ },
+ {
+  "name": "p1_16_txt_nazwa_albo_imie_i_nazwisko",
+  "page": 1,
+  "type": "text",
+  "label_guess": "Nazwa albo imię i nazwisko",
+  "rect": [
+   239.2,
+   764.8,
+   552.2,
+   782.0
+  ]
+ },
+ {
+  "name": "p2_17_txt_rachunek_bankowy",
+  "page": 2,
+  "type": "comb(26)",
+  "label_guess": "Rachunek bankowy",
+  "rect": [
+   43.0,
+   114.8,
+   506.8,
+   131.8
+  ]
+ },
+ {
+  "name": "p2_18_chk_urlopu_macierzynskiego",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "urlopu macierzyńskiego",
+  "rect": [
+   43.0,
+   208.0,
+   60.2,
+   225.2
+  ]
+ },
+ {
+  "name": "p2_19_txt_urlopu_na_warunkach_urlopu_macierzynskie",
+  "page": 2,
+  "type": "multiline",
+  "label_guess": "urlopu na warunkach urlopu macierzyńskiego",
+  "rect": [
+   275.2,
+   208.0,
+   552.5,
+   252.0
+  ]
+ },
+ {
+  "name": "p2_20_chk_urlopu_na_warunkach_urlopu_macierzynskie",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "urlopu na warunkach urlopu macierzyńskiego",
+  "rect": [
+   43.0,
+   234.8,
+   60.2,
+   252.0
+  ]
+ },
+ {
+  "name": "p2_21_chk_urlopu_rodzicielskiego",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "urlopu rodzicielskiego",
+  "rect": [
+   43.0,
+   270.8,
+   60.2,
+   288.0
+  ]
+ },
+ {
+  "name": "p2_22_txt_urlopu_rodzicielskiego",
+  "page": 2,
+  "type": "multiline",
+  "label_guess": "urlopu rodzicielskiego",
+  "rect": [
+   186.0,
+   270.8,
+   552.5,
+   306.0
+  ]
+ },
+ {
+  "name": "p2_23_txt_podaj_ktora_to_czesc_urlopu_rodzicielski",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Podaj, która to część urlopu rodzicielskiego",
+  "rect": [
+   221.8,
+   324.2,
+   256.8,
+   341.5
+  ]
+ },
+ {
+  "name": "p2_24_chk_uzupelniajacego_urlopu_macierzynskiego",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "uzupełniającego urlopu macierzyńskiego",
+  "rect": [
+   43.0,
+   351.2,
+   60.2,
+   368.5
+  ]
+ },
+ {
+  "name": "p2_25_txt_uzupelniajacego_urlopu_macierzynskiego",
+  "page": 2,
+  "type": "multiline",
+  "label_guess": "uzupełniającego urlopu macierzyńskiego",
+  "rect": [
+   257.2,
+   351.2,
+   552.5,
+   386.2
+  ]
+ },
+ {
+  "name": "p2_26_chk_urlopu_ojcowskiego",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "urlopu ojcowskiego",
+  "rect": [
+   43.0,
+   404.8,
+   60.2,
+   422.0
+  ]
+ },
+ {
+  "name": "p2_27_txt_urlopu_ojcowskiego",
+  "page": 2,
+  "type": "multiline",
+  "label_guess": "urlopu ojcowskiego",
+  "rect": [
+   186.0,
+   404.8,
+   552.5,
+   439.8
+  ]
+ },
+ {
+  "name": "p2_28_txt_podaj_ktora_to_czesc_urlopu_ojcowskiego",
+  "page": 2,
+  "type": "text",
+  "label_guess": "Podaj, która to część urlopu ojcowskiego",
+  "rect": [
+   221.8,
+   458.2,
+   256.8,
+   475.5
+  ]
+ },
+ {
+  "name": "p2_29_txt_podaj_date_zakonczenia_okresu_pobierania",
+  "page": 2,
+  "type": "comb(8)",
+  "label_guess": "Podaj datę zakończenia okresu pobierania zasiłku macierzyńskiego za okres urlopu",
+  "rect": [
+   400.2,
+   485.0,
+   542.5,
+   502.2
+  ]
+ },
+ {
+  "name": "p2_30_chk_informuje_ze_zamierzam_skorzystac_z_peln",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "Informuję, że zamierzam skorzystać z pełnego wymiaru urlopu macierzyńskiego / urlopu na warunkach urlopu",
+  "rect": [
+   43.0,
+   521.2,
+   60.2,
+   538.5
+  ]
+ },
+ {
+  "name": "p2_31_chk_tak",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   43.0,
+   617.2,
+   60.2,
+   634.5
+  ]
+ },
+ {
+  "name": "p2_32_chk_nie",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   96.8,
+   617.2,
+   114.0,
+   634.5
+  ]
+ },
+ {
+  "name": "p2_33_chk_urodzeniem_dziecka_dzieci",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "urodzeniem dziecka/dzieci",
+  "rect": [
+   60.8,
+   674.2,
+   78.0,
+   691.5
+  ]
+ },
+ {
+  "name": "p2_34_chk_do_sadu_opiekunczego_w_sprawie_jego_przy",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "do sądu opiekuńczego w sprawie jego przysposobienia",
+  "rect": [
+   60.8,
+   701.0,
+   78.0,
+   718.2
+  ]
+ },
+ {
+  "name": "p2_35_txt_podaj_date_przyjecia_na_wychowanie_dziec",
+  "page": 2,
+  "type": "comb(8)",
+  "label_guess": "Podaj datę przyjęcia na wychowanie dziecka/dzieci",
+  "rect": [
+   364.2,
+   719.0,
+   506.5,
+   736.0
+  ]
+ },
+ {
+  "name": "p2_36_chk_przyjeciem_na_wychowanie_dziecka_dzieci",
+  "page": 2,
+  "type": "checkbox",
+  "label_guess": "przyjęciem na wychowanie dziecka/dzieci w ramach",
+  "rect": [
+   60.8,
+   745.8,
+   78.0,
+   763.0
+  ]
+ },
+ {
+  "name": "p3_37_txt_dane_dziecka_dzieci",
+  "page": 3,
+  "type": "multiline",
+  "label_guess": "Dane dziecka/dzieci:",
+  "rect": [
+   60.8,
+   113.2,
+   552.0,
+   172.5
+  ]
+ },
+ {
+  "name": "p3_38_chk_oswiadczam_ze_dziecko_dzieci",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "Oświadczam, że dziecko/dzieci",
+  "rect": [
+   60.8,
+   188.0,
+   78.0,
+   205.2
+  ]
+ },
+ {
+  "name": "p3_39_txt_oswiadczam_ze_dziecko_dzieci",
+  "page": 3,
+  "type": "text",
+  "label_guess": "Oświadczam, że dziecko/dzieci",
+  "rect": [
+   221.5,
+   188.0,
+   552.0,
+   205.2
+  ]
+ },
+ {
+  "name": "p3_40_chk_przewidywana_data_porodu",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "przewidywaną datą porodu",
+  "rect": [
+   60.8,
+   250.5,
+   78.0,
+   267.8
+  ]
+ },
+ {
+  "name": "p3_41_txt_przewidywana_data_porodu",
+  "page": 3,
+  "type": "comb(8)",
+  "label_guess": "przewidywaną datą porodu",
+  "rect": [
+   221.5,
+   250.5,
+   363.8,
+   267.8
+  ]
+ },
+ {
+  "name": "p3_42_chk_urodzeniem_dziecka_dzieci_po_ustaniu_zat",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "urodzeniem dziecka/dzieci po ustaniu zatrudnienia; mój pracodawca:",
+  "rect": [
+   60.8,
+   286.5,
+   78.0,
+   303.5
+  ]
+ },
+ {
+  "name": "p3_43_chk_oglosil_upadlosc",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "ogłosił upadłość",
+  "rect": [
+   96.5,
+   313.2,
+   113.8,
+   330.5
+  ]
+ },
+ {
+  "name": "p3_44_chk_oglosil_likwidacje",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "ogłosił likwidację",
+  "rect": [
+   96.5,
+   340.0,
+   113.8,
+   357.2
+  ]
+ },
+ {
+  "name": "p3_45_chk_rozwiazal_ze_mna_umowe_o_prace_z_narusze",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "rozwiązał ze mną umowę o pracę z naruszeniem przepisów prawa, stwierdzonym prawomocnym",
+  "rect": [
+   96.5,
+   366.8,
+   113.8,
+   384.0
+  ]
+ },
+ {
+  "name": "p3_46_chk_zmarl",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "zmarł",
+  "rect": [
+   96.5,
+   393.5,
+   113.8,
+   410.8
+  ]
+ },
+ {
+  "name": "p3_47_txt_dane_dziecka_dzieci",
+  "page": 3,
+  "type": "multiline",
+  "label_guess": "Dane dziecka/dzieci:",
+  "rect": [
+   60.8,
+   435.2,
+   552.0,
+   494.5
+  ]
+ },
+ {
+  "name": "p3_48_chk_oswiadczam_ze_dziecko_dzieci",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "Oświadczam, że dziecko/dzieci",
+  "rect": [
+   60.8,
+   513.0,
+   78.0,
+   530.2
+  ]
+ },
+ {
+  "name": "p3_49_txt_oswiadczam_ze_dziecko_dzieci",
+  "page": 3,
+  "type": "text",
+  "label_guess": "Oświadczam, że dziecko/dzieci",
+  "rect": [
+   221.5,
+   513.0,
+   552.0,
+   530.2
+  ]
+ },
+ {
+  "name": "p3_50_chk_urodzeniem_dziecka_i_jego_pobytem_w_szpi",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "urodzeniem dziecka i jego pobytem w szpitalu (uzupełniający urlop macierzyński)",
+  "rect": [
+   60.8,
+   573.0,
+   78.0,
+   590.2
+  ]
+ },
+ {
+  "name": "p3_51_chk_urodzenie_dziecka_przed_ukonczeniem_28_t",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "urodzenie dziecka przed ukończeniem 28 tygodnia ciąży",
+  "rect": [
+   96.5,
+   599.8,
+   113.8,
+   617.0
+  ]
+ },
+ {
+  "name": "p3_52_chk_masa_urodzeniowa_dziecka_nie_wieksza_niz",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "masa urodzeniowa dziecka nie większa niż 1000 g",
+  "rect": [
+   96.5,
+   626.5,
+   113.8,
+   643.8
+  ]
+ },
+ {
+  "name": "p3_53_chk_urodzenie_dziecka_po_ukonczeniu_28_tygod",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "urodzenie dziecka po ukończeniu 28. tygodnia ciąży i przed ukończeniem 37 tygodnia ciąży i z masą",
+  "rect": [
+   96.5,
+   653.2,
+   113.8,
+   670.5
+  ]
+ },
+ {
+  "name": "p3_54_chk_urodzenie_dziecka_po_ukonczeniu_37_tygod",
+  "page": 3,
+  "type": "checkbox",
+  "label_guess": "urodzenie dziecka po ukończeniu 37 tygodnia ciąży i pobyt dziecka w szpitalu co najmniej 2 kolejne dni przy",
+  "rect": [
+   96.5,
+   680.0,
+   113.8,
+   697.2
+  ]
+ },
+ {
+  "name": "p3_55_txt_okres_pobytu_dziecka_w_szpitalu",
+  "page": 3,
+  "type": "multiline",
+  "label_guess": "Okres pobytu dziecka w szpitalu",
+  "rect": [
+   60.8,
+   717.5,
+   552.5,
+   773.8
+  ]
+ },
+ {
+  "name": "p4_56_txt_dane_dziecka_dzieci",
+  "page": 4,
+  "type": "multiline",
+  "label_guess": "Dane dziecka/dzieci:",
+  "rect": [
+   60.8,
+   113.2,
+   552.0,
+   200.5
+  ]
+ },
+ {
+  "name": "p4_57_chk_sytuacja_matki_dziecka_dzieci",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "sytuacją matki dziecka/dzieci:",
+  "rect": [
+   60.8,
+   218.8,
+   78.0,
+   236.0
+  ]
+ },
+ {
+  "name": "p4_58_chk_skroceniem_przez_matke_okresu_wyplaty_za",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "skróceniem przez matkę okresu wypłaty zasiłku macierzyńskiego po wykorzystaniu co najmniej 14 tygodni",
+  "rect": [
+   96.5,
+   245.8,
+   113.8,
+   263.0
+  ]
+ },
+ {
+  "name": "p4_59_chk_przerwaniem_na_wniosek_matki_okresu_wypl",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "przerwaniem na wniosek matki okresu wypłaty zasiłku macierzyńskiego z powodu jej pobytu w szpitalu",
+  "rect": [
+   96.5,
+   273.0,
+   113.8,
+   290.2
+  ]
+ },
+ {
+  "name": "p4_60_chk_przerwaniem_przez_matke_okresu_wyplaty_z",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "przerwaniem przez matkę okresu wypłaty zasiłku macierzyńskiego z powodu posiadania orzeczenia",
+  "rect": [
+   96.5,
+   310.5,
+   113.8,
+   327.8
+  ]
+ },
+ {
+  "name": "p4_61_chk_podjeciem_pracy_przez_matke_w_wymiarze_n",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "podjęciem pracy przez matkę w wymiarze nie niższym niż połowa pełnego etatu; o ustaniu zatrudnienia",
+  "rect": [
+   96.5,
+   348.0,
+   113.8,
+   365.2
+  ]
+ },
+ {
+  "name": "p4_62_chk_porzuceniem_dziecka_dzieci_przez_matke",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "porzuceniem dziecka/dzieci przez matkę",
+  "rect": [
+   96.5,
+   374.8,
+   113.8,
+   392.0
+  ]
+ },
+ {
+  "name": "p4_63_chk_smiercia_matki",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "śmiercią matki",
+  "rect": [
+   96.5,
+   401.8,
+   113.8,
+   418.8
+  ]
+ },
+ {
+  "name": "p4_64_txt_smiercia_matki",
+  "page": 4,
+  "type": "comb(8)",
+  "label_guess": "śmiercią matki",
+  "rect": [
+   60.8,
+   428.5,
+   203.0,
+   445.8
+  ]
+ },
+ {
+  "name": "p4_65_txt_dane_dziecka_dzieci",
+  "page": 4,
+  "type": "multiline",
+  "label_guess": "Dane dziecka/dzieci:",
+  "rect": [
+   60.8,
+   491.0,
+   552.0,
+   578.2
+  ]
+ },
+ {
+  "name": "p4_66_chk_oswiadczam_ze_dziecko_dzieci",
+  "page": 4,
+  "type": "checkbox",
+  "label_guess": "Oświadczam, że dziecko/dzieci",
+  "rect": [
+   60.8,
+   596.8,
+   78.0,
+   614.2
+  ]
+ },
+ {
+  "name": "p4_67_txt_oswiadczam_ze_dziecko_dzieci",
+  "page": 4,
+  "type": "text",
+  "label_guess": "Oświadczam, że dziecko/dzieci",
+  "rect": [
+   221.5,
+   596.8,
+   552.0,
+   614.2
+  ]
+ },
+ {
+  "name": "p4_68_txt_dane_matki_dziecka_dzieci",
+  "page": 4,
+  "type": "multiline",
+  "label_guess": "Dane matki dziecka/dzieci:",
+  "rect": [
+   60.8,
+   686.2,
+   552.2,
+   745.8
+  ]
+ },
+ {
+  "name": "p5_69_chk_wypisaniem_ze_szpitala",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "wypisaniem ze szpitala:",
+  "rect": [
+   60.8,
+   95.5,
+   78.0,
+   112.8
+  ]
+ },
+ {
+  "name": "p5_70_chk_mnie",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "mnie",
+  "rect": [
+   78.5,
+   122.2,
+   95.8,
+   139.5
+  ]
+ },
+ {
+  "name": "p5_71_chk_dziecka",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "dziecka",
+  "rect": [
+   167.8,
+   122.2,
+   185.0,
+   139.5
+  ]
+ },
+ {
+  "name": "p5_72_txt_dziecka",
+  "page": 5,
+  "type": "comb(8)",
+  "label_guess": "dziecka",
+  "rect": [
+   292.8,
+   122.2,
+   435.0,
+   139.5
+  ]
+ },
+ {
+  "name": "p5_73_chk_tak",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   43.0,
+   216.8,
+   60.2,
+   234.0
+  ]
+ },
+ {
+  "name": "p5_74_chk_nie",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   96.8,
+   216.8,
+   114.0,
+   234.0
+  ]
+ },
+ {
+  "name": "p5_75_txt_jesli_tak",
+  "page": 5,
+  "type": "text",
+  "label_guess": "Jeśli TAK",
+  "rect": [
+   96.8,
+   243.0,
+   552.5,
+   260.2
+  ]
+ },
+ {
+  "name": "p5_76_chk_tak",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "TAK",
+  "rect": [
+   43.0,
+   354.8,
+   60.2,
+   372.0
+  ]
+ },
+ {
+  "name": "p5_77_chk_nie",
+  "page": 5,
+  "type": "checkbox",
+  "label_guess": "NIE",
+  "rect": [
+   96.8,
+   354.8,
+   114.0,
+   372.0
+  ]
+ },
+ {
+  "name": "p5_78_txt_jesli_tak",
+  "page": 5,
+  "type": "text",
+  "label_guess": "Jeśli TAK",
+  "rect": [
+   96.8,
+   381.8,
+   552.5,
+   398.8
+  ]
+ },
+ {
+  "name": "p5_79_txt_pesel",
+  "page": 5,
+  "type": "comb(11)",
+  "label_guess": "PESEL",
+  "rect": [
+   239.2,
+   437.5,
+   435.2,
+   454.8
+  ]
+ },
+ {
+  "name": "p5_80_txt_data_urodzenia",
+  "page": 5,
+  "type": "comb(8)",
+  "label_guess": "Data urodzenia",
+  "rect": [
+   239.2,
+   464.5,
+   381.5,
+   481.5
+  ]
+ },
+ {
+  "name": "p5_81_txt_rodzaj_seria_i_numer_dokumentu",
+  "page": 5,
+  "type": "text",
+  "label_guess": "Rodzaj, seria i numer dokumentu",
+  "rect": [
+   239.2,
+   509.0,
+   552.2,
+   526.2
+  ]
+ },
+ {
+  "name": "p5_82_txt_imie",
+  "page": 5,
+  "type": "text",
+  "label_guess": "Imię",
+  "rect": [
+   239.2,
+   544.8,
+   552.2,
+   562.0
+  ]
+ },
+ {
+  "name": "p5_83_txt_nazwisko",
+  "page": 5,
+  "type": "text",
+  "label_guess": "Nazwisko",
+  "rect": [
+   239.2,
+   571.5,
+   552.2,
+   588.8
+  ]
+ },
+ {
+  "name": "p5_84_txt_data",
+  "page": 5,
+  "type": "comb(8)",
+  "label_guess": "Data",
+  "rect": [
+   78.5,
+   640.2,
+   220.8,
+   657.5
+  ]
+ }
+]
