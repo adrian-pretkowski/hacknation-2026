@@ -6,20 +6,20 @@ import { type FormCode, formsForDocTypes } from "@/features/documents/forms";
 import { API_MODE, type EvaluateResponse, evaluate } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
-import { type PreviewResult, type Seg, compareTotals, negligible, previewEvaluate } from "../preview/engine";
+import { type PreviewResult, compareTotals, negligible, previewEvaluate } from "../preview/engine";
 import { daysBetween } from "../preview/exact";
 import type { Answers, Variant } from "./answers";
 import {
-  DEADLINE_LABEL, DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_COLOR, LEAVE_LABEL, PARENT_LABEL, PAYER_LABEL,
+  DEADLINE_LABEL, DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, PARENT_LABEL, PAYER_LABEL,
   STATUS_HEADLINE, SUBMIT_LABEL,
 } from "./labels";
 import { todayIso, toEvaluateRequest } from "./request";
+import { TimelineView } from "./TimelineView";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 /** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania - test tekstu kwoty). */
 const hasPayout = (p: PreviewResult) => p.response.overall_status !== "NOT_ELIGIBLE"
   && !!p.summary.ownTotal && !/^0+(\.0*)?$/.test(p.summary.ownTotal);
-const pct = (rate: string, work = "0") => `${(Number(rate) * 100).toLocaleString("pl-PL")}%${work !== "0" ? ` × ${(1 - Number(work)).toLocaleString("pl-PL")}` : ""}`;
 
 export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
   answers: Answers; onEdit: (stepId: string) => void; canEdit?: (stepId: string) => boolean;
@@ -50,9 +50,9 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
       {(current.summary.segments.length > 0 || (r.plan_errors ?? []).length > 0) && (sensitive ? (
         <details className={card}>
           <summary className="cursor-pointer text-base font-semibold">Pokaż okresy i kwoty</summary>
-          <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} returnToWork={r.return_to_work ?? []} />
+          <TimelineView segments={current.summary.segments} planErrors={r.plan_errors ?? []} returnToWork={r.return_to_work ?? []} />
         </details>
-      ) : <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} returnToWork={r.return_to_work ?? []} />)}
+      ) : <TimelineView segments={current.summary.segments} planErrors={r.plan_errors ?? []} returnToWork={r.return_to_work ?? []} />)}
       {/* porównanie wariantów tylko gdy zasiłek przysługuje i jest kwota w obu wariantach */}
       {current.summary.combinedEligible && hasPayout(pA) && hasPayout(pB) && cmp && (
         <VariantComparison pA={pA} pB={pB} variant={variant} recommended={recommended} onChoose={setChosen} />
@@ -80,9 +80,9 @@ function StatusHeader({ result, onEdit, canEdit }: {
       <p className="text-xs font-medium uppercase tracking-wide text-zinc-600">{r.mode === "FORECAST" ? "Prognoza" : "Wynik"} · podgląd</p>
       <h2 id="status-h" className="mt-1 text-xl font-semibold">{STATUS_HEADLINE[r.overall_status]}</h2>
       {result.summary.ownTotal && r.overall_status !== "NOT_ELIGIBLE" && (
-        <p className="mt-2 text-sm">Łącznie {result.summary.applicant === "MOTHER" ? "dla Ciebie" : "dla Ciebie (tata)"}:{" "}
-          <strong className="text-lg">{formatMoney(result.summary.ownTotal)}</strong> brutto za {ownBenefits.reduce((n, b) => n + (b.days ?? 0), 0)} dni
-          {" "}({ownBenefits.map((b) => LEAVE_LABEL[b.leave_type ?? ""]?.toLowerCase()).join(", ")}).</p>
+        <OwnTotal applicant={result.summary.applicant} total={result.summary.ownTotal}
+          days={ownBenefits.reduce((n, b) => n + (b.days ?? 0), 0)}
+          leaves={[...new Set(ownBenefits.map((b) => LEAVE_LABEL[b.leave_type ?? ""]).filter(Boolean))]} />
       )}
       {reasons.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm">
@@ -112,6 +112,35 @@ function StatusHeader({ result, onEdit, canEdit }: {
   );
 }
 
+/** FE1-33: wyrazista suma dla wnioskodawcy - duża kwota, dni i rodzaje świadczeń. */
+function OwnTotal({ applicant, total, days, leaves }: {
+  applicant: string; total: string; days: number; leaves: string[];
+}) {
+  return (
+    <div className="mt-4 rounded-lg border border-zus-green-100 bg-zus-green-50 p-4 sm:flex sm:items-end sm:justify-between sm:gap-6 sm:p-5" data-testid="own-total">
+      <div>
+        <p className="text-sm font-medium text-zus-green-dark">
+          Łącznie {applicant === "MOTHER" ? "dla Ciebie" : "dla Ciebie (tata)"}
+        </p>
+        <p className="mt-1 text-3xl font-bold tracking-tight text-zus-ink sm:text-4xl">
+          {formatMoney(total)}
+          <span className="ml-2 align-middle text-base font-medium text-zinc-700">brutto</span>
+        </p>
+      </div>
+      <div className="mt-3 sm:mt-0 sm:text-right">
+        <p className="text-sm text-zinc-700">za <strong className="text-lg text-zus-ink">{days}</strong> dni</p>
+        {leaves.length > 0 && (
+          <ul className="mt-2 flex flex-wrap gap-2 sm:justify-end" aria-label="Rodzaje świadczeń">
+            {leaves.map((l) => (
+              <li key={l} className="rounded-full border border-zus-green-100 bg-white px-3 py-1 text-xs font-medium text-zus-green-dark">{l}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Remaining({ p }: { p: PreviewResult }) {
   const rem = p.summary.remaining!;
   const rows: [string, string][] = [
@@ -138,138 +167,6 @@ function Remaining({ p }: { p: PreviewResult }) {
     </section>
   );
 }
-
-type PlanErrors = NonNullable<EvaluateResponse["plan_errors"]>;
-type ReturnToWork = NonNullable<EvaluateResponse["return_to_work"]>;
-
-/** FE1-02: błąd planu → rodzaj urlopu, przy którym go pokazujemy (PAR-* → rodzicielski, PAT-* → ojcowski,
- * MAT-DUR-* → macierzyński); inne (np. MAT-SHARE-007) - lista pod osią czasu. */
-const errorLeave = (ruleId: string): string | null => ruleId.startsWith("PAR-") ? "PARENTAL_LEAVE"
-  : ruleId.startsWith("PAT-") ? "PATERNITY_LEAVE" : ruleId.startsWith("MAT-DUR-") ? "MATERNITY_LEAVE" : null;
-const fractionText = (f: string) => f === "0.5" ? "½" : f === "0.25" ? "¼" : f.replace(".", ",");
-const workText = (s: Seg) => s.work_fraction !== "0" ? ` + praca ${fractionText(s.work_fraction)} etatu` : "";
-const segLabel = (s: Seg) => `${PARENT_LABEL[s.parent]}: ${LEAVE_LABEL[s.leave_type]}${s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}`
-  + `${s.history ? " - wykorzystany" : ""}${workText(s)}`;
-const amountText = (s: Seg) => s.history ? "-" : s.own ? formatMoney(s.amount) : "zależy od zarobków drugiego rodzica";
-
-function Timeline({ segments, planErrors, returnToWork = [] }: {
-  segments: Seg[]; planErrors: PlanErrors; returnToWork?: ReturnToWork;
-}) {
-  const [active, setActive] = useState<number | null>(null);
-  if (segments.length === 0) return null;
-  const start = segments.map((s) => s.from).sort()[0];
-  const end = segments.map((s) => s.to).sort().at(-1)!;
-  const span = Math.max(daysBetween(start, end) + 1, 1);
-  const lanes = (["MOTHER", "FATHER"] as const).filter((p) => segments.some((s) => s.parent === p));
-  const today = todayIso();
-  const pos = (d: string) => (daysBetween(start, d) / span) * 100;
-  const todayPos = today >= start && today <= end ? pos(today) : null;
-  const legend = [...new Set(segments.map((s) => s.leave_type))];
-  // każdy błąd przy jednym okresie: pierwszym (nie historycznym) okresie danego rodzaju urlopu
-  const owner = (e: PlanErrors[number]) => segments.findIndex((s) => !s.history && errorLeave(e.rule_id) === s.leave_type);
-  const errorsOf = (s: Seg) => planErrors.filter((e) => owner(e) === segments.indexOf(s));
-  const unplaced = planErrors.filter((e) => owner(e) < 0);
-  // klawiatura: Tab po paskach, ← → do sąsiedniego paska (kolejność jak w tabeli), Escape zamyka szczegóły
-  const onKey = (e: React.KeyboardEvent<HTMLButtonElement>, i: number) => {
-    if (e.key === "Escape") { setActive(null); return; }
-    const next = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : null;
-    if (next === null || next < 0 || next >= segments.length) return;
-    e.preventDefault();
-    setActive(next);
-    document.getElementById(`tl-bar-${next}`)?.focus();
-  };
-  const detail = active !== null ? segments[active] : null;
-  const errorLine = (e: PlanErrors[number]) => <>Plan do poprawy: {PLAN_ERROR[e.code] ?? e.code}<RuleText entry={e.rule_id} className="block text-xs" /></>;
-  return (
-    <section className={card} aria-labelledby="tl-h">
-      <h3 id="tl-h" className="text-lg font-semibold">Oś czasu</h3>
-      <p className="text-sm text-zinc-600">{formatDate(start)} – {formatDate(end)}. Paski jasne = już wykorzystane, kreskowane = do weryfikacji.
-        <span className="sr-only"> Paski można przeglądać klawiszem Tab oraz strzałkami w lewo i w prawo.</span></p>
-      <div className="mt-4 space-y-3" role="group" aria-label="Oś czasu urlopów">
-        {lanes.map((lane) => {
-          const rtw = returnToWork.find((r) => r.parent === lane);
-          return (
-            <div key={lane} className="flex items-center gap-2">
-              <span className="w-10 shrink-0 text-xs font-medium text-zinc-700">{PARENT_LABEL[lane]}</span>
-              <div className="relative isolate h-8 min-w-0 flex-1 rounded bg-zinc-100">
-                {segments.map((s, i) => s.parent !== lane ? null : (
-                  <button key={i} id={`tl-bar-${i}`} type="button"
-                    aria-label={`${segLabel(s)}, ${formatDate(s.from)} – ${formatDate(s.to)}, ${s.days} dni${errorsOf(s).length ? ", plan do poprawy" : ""}`}
-                    aria-pressed={active === i} aria-controls="tl-detail"
-                    onClick={() => setActive(i)} onFocus={() => setActive(i)} onKeyDown={(e) => onKey(e, i)}
-                    title={`${LEAVE_LABEL[s.leave_type]} ${formatDate(s.from)}–${formatDate(s.to)}`}
-                    className={`absolute top-1 bottom-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy ${LEAVE_COLOR[s.leave_type]} ${s.history ? "opacity-35" : ""} ${s.work_fraction !== "0" ? "bg-[repeating-linear-gradient(45deg,transparent_0_4px,rgba(255,255,255,.45)_4px_8px)]" : ""} ${s.needs_review ? "outline-2 outline-dashed outline-zus-yellow" : ""} ${errorsOf(s).length ? "ring-2 ring-zus-red" : ""} ${active === i ? "ring-2 ring-zinc-900" : ""}`}
-                    style={{ left: `min(${pos(s.from)}%, calc(100% - 24px))`, width: `max(${(s.days / span) * 100}%, 24px)`, zIndex: 1000 - Math.min(s.days, 999) }} />
-                ))}
-                {todayPos !== null && <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-zinc-900" style={{ left: `${todayPos}%` }} />}
-                {/* powrót do pracy = dzień po ostatnim okresie; przy końcu osi znacznik na prawej krawędzi */}
-                {rtw && rtw.date >= start && (
-                  <div aria-hidden="true" className="absolute -inset-y-1 w-0.5 bg-zus-red" style={{ left: `min(${Math.min(pos(rtw.date), 100)}%, calc(100% - 2px))` }} />
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <p id="tl-detail" aria-live="polite" className="mt-2 min-h-5 text-sm text-zinc-800">
-        {detail && <>{segLabel(detail)}: {formatDate(detail.from)} – {formatDate(detail.to)} ({detail.days} dni), stawka {pct(detail.rate, detail.work_fraction)}, {amountText(detail)}.</>}
-      </p>
-      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-700" aria-hidden="true">
-        {legend.map((l) => <li key={l} className="flex items-center gap-1"><span className={`inline-block h-3 w-3 rounded-sm ${LEAVE_COLOR[l]}`} />{LEAVE_LABEL[l]}</li>)}
-        {todayPos !== null && <li className="flex items-center gap-1"><span className="inline-block h-3 w-0.5 bg-zinc-900" />dziś</li>}
-        {returnToWork.length > 0 && <li className="flex items-center gap-1"><span className="inline-block h-3 w-0.5 bg-zus-red" />powrót do pracy</li>}
-      </ul>
-      {/* telefon i wąski tablet: karty zamiast tabeli - bez przewijania w poziomie */}
-      <ul className="mt-4 space-y-2 md:hidden">
-        {segments.map((s, i) => (
-          <li key={i} className={`rounded border px-3 py-2 text-sm ${errorsOf(s).length ? "border-zus-red" : "border-zinc-200"} ${s.history ? "text-zinc-500" : ""} ${active === i ? "bg-zinc-50" : ""}`}>
-            <p className="font-medium">{segLabel(s)}</p>
-            <p>{formatDate(s.from)} – {formatDate(s.to)} <span className="text-zinc-500">({s.days} dni)</span></p>
-            <p className="flex justify-between gap-2"><span>{pct(s.rate, s.work_fraction)}{s.needs_review ? " ?" : ""}</span>
-              <span className="text-right">{amountText(s)}</span></p>
-            {errorsOf(s).map((e, k) => <p key={k} className="mt-1 text-zus-red">{errorLine(e)}</p>)}
-          </li>
-        ))}
-      </ul>
-      <div className="mt-4 hidden overflow-x-auto md:block">
-      <table className="w-full text-left text-sm">
-        <caption className="sr-only">Okresy urlopów i zasiłków</caption>
-        <thead className="text-xs text-zinc-600"><tr><th className="py-1 pr-2">Kto</th><th className="pr-2">Okres</th><th className="pr-2">Od – do</th><th className="pr-2">Stawka</th><th className="text-right">Kwota</th></tr></thead>
-        <tbody>
-          {segments.map((s, i) => (
-            <tr key={i} className={`border-t border-zinc-100 ${s.history ? "text-zinc-500" : ""} ${active === i ? "bg-zinc-50" : ""}`}>
-              <td className="py-1.5 pr-2">{PARENT_LABEL[s.parent]}</td>
-              <td className="pr-2">{LEAVE_LABEL[s.leave_type]}{s.reserved_9w ? " (9 tyg. tylko dla taty)" : ""}{s.history ? " - wykorzystany" : ""}{workText(s)}
-                {errorsOf(s).map((e, k) => <span key={k} className="block text-zus-red">{errorLine(e)}</span>)}</td>
-              <td className="whitespace-nowrap pr-2">{formatDate(s.from)} – {formatDate(s.to)} <span className="text-zinc-500">({s.days} dni)</span></td>
-              <td className="whitespace-nowrap pr-2">{pct(s.rate, s.work_fraction)}{s.needs_review ? " ?" : ""}</td>
-              <td className="whitespace-nowrap text-right">{amountText(s)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
-      {returnToWork.length > 0 && (
-        <p className="mt-3 text-sm">Powrót do pracy: {returnToWork.map((r) => `${PARENT_LABEL[r.parent] ?? r.parent} ${formatDate(r.date)}${r.part_time_fraction ? ` (${fractionText(r.part_time_fraction)} etatu)` : ""}`).join(" · ")}.</p>
-      )}
-      {unplaced.length > 0 && (
-        <ul className="mt-3 space-y-1 text-sm text-zus-red" role="alert">
-          {unplaced.map((e, i) => <li key={i}>{errorLine(e)}</li>)}
-        </ul>
-      )}
-    </section>
-  );
-}
-
-const PLAN_ERROR: Record<string, string> = {
-  PRE_BIRTH_TOO_EARLY: "urlop przed porodem może zacząć się najwcześniej 6 tygodni przed porodem - przyjęto dzień porodu.",
-  MATERNITY_START_AFTER_BIRTH: "urlop macierzyński nie może zacząć się po porodzie - przyjęto dzień porodu.",
-  WORK_WEEKS_EXCEED_POOL: "za dużo tygodni pracy w stosunku do puli urlopu.",
-  WORK_FRACTION_TOO_HIGH: "praca w czasie rodzicielskiego najwyżej na ½ etatu.",
-  PARENTAL_EXT_CAP_EXCEEDED: "łączny wymiar rodzicielskiego z pracą przekracza limit.",
-  PARENTAL_PARTS_EXHAUSTED: "wykorzystano wszystkie części urlopu rodzicielskiego.",
-  PATERNITY_AFTER_12_MONTHS: "ojcowski musi skończyć się przed ukończeniem przez dziecko 12 miesięcy.",
-};
 
 function VariantComparison({ pA, pB, variant, recommended, onChoose }: {
   pA: PreviewResult; pB: PreviewResult; variant: Variant; recommended: Variant; onChoose: (v: Variant) => void;
