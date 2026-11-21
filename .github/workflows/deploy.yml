@@ -94,4 +94,9 @@ jobs:
             sleep 5
           done
           [ "$v" = "$APP_VERSION" ] || { echo "::error::backend zwraca '$v', oczekiwano $APP_VERSION"; exit 1; }
-          curl -sf "$FE_URL" > /dev/null && echo "frontend OK"
+          # Frontend po release dopiero startuje — ponawiamy zamiast jednego strzału.
+          for i in $(seq 1 30); do
+            curl -sf "$FE_URL" > /dev/null && echo "frontend OK" && exit 0
+            sleep 5
+          done
+          echo "::error::frontend nie odpowiada 2xx pod $FE_URL"; exit 1

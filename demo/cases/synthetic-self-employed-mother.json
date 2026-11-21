@@ -1,0 +1,69 @@
+{
+  "case_id": "synthetic-self-employed-mother",
+  "title": "Przedsiębiorczyni (dobrowolne chorobowe), 1 dziecko, 100%",
+  "source": "SYNTHETIC",
+  "note": "Dane syntetyczne (fixture 08 self_employed_mother). Kwota w „decyzji” zaokrąglona do groszy — porównanie z tolerancją ±0,01 zł/dzień (GAP-001).",
+  "input": {
+    "evaluation": {
+      "as_of_date": "2026-11-21",
+      "mode": "FORECAST"
+    },
+    "person": {
+      "role": "MOTHER",
+      "birth_date": "1991-09-12"
+    },
+    "insurance": {
+      "titles": [
+        {
+          "title_type": "SELF_EMPLOYED",
+          "sickness_insurance_mode": "VOLUNTARY",
+          "from": "2024-01-01",
+          "to": null,
+          "contribution_base_is_declared": true
+        }
+      ],
+      "titles_confirmed_complete": true
+    },
+    "employment": {
+      "leaves": []
+    },
+    "pregnancy": {
+      "expected_due_date": "2027-03-15",
+      "pregnancy_start_date": "2026-06-08"
+    },
+    "event": {
+      "type": "BIRTH",
+      "date": "2027-03-15"
+    },
+    "children": {
+      "count_at_birth": 1,
+      "items": [
+        {
+          "birth_date": "2027-03-15",
+          "birth_weight_g": 3300,
+          "za_zyciem_certificate": false
+        }
+      ],
+      "za_zyciem_certificate": false
+    },
+    "income_history": {
+      "manual_base_override": "4314.50"
+    },
+    "debt": {
+      "amount_on_right_date": "0.00"
+    },
+    "applications": {
+      "combined_815_planned": false
+    }
+  },
+  "expected": {
+    "status": "ELIGIBLE",
+    "benefit_type": "MATERNITY_BENEFIT",
+    "leave_type": "MATERNITY_LEAVE",
+    "period_from": "2027-03-15",
+    "period_to": "2027-08-01",
+    "base_amount": "4314.50",
+    "rate": "1.00",
+    "total_amount": "20134.33"
+  }
+}

@@ -273,7 +273,7 @@ Płatnik zgłaszający ≤20 ubezpieczonych przekazuje do ZUS wniosek/zaświadcz
 
 **Terminy wniosków urlopowych pracownika (KP)** — `DEADLINE` · P0 · AUTOMATABLE · eval: **INFORMATIONAL**
 
-Rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego — w 7 dni od przyjęcia, start ≤21 dni.
+Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026, UNCONFIRMED — GAP-025, M19); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego — w 7 dni od przyjęcia, start ≤21 dni.
 
 - **Podstawa:** KP — KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6
 - **Fragment:** „na wniosek ... składany przez pracownika rodzica dziecka w terminie niekrótszym niż 21 dni przed rozpoczęciem korzystania z urlopu”

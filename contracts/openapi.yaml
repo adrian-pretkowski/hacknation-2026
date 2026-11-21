@@ -139,7 +139,7 @@ paths:
   /api/cases:
     get:
       operationId: listCases
-      x-status: planned
+      x-status: implemented
       x-owner: BE-2
       x-task: BE2-06
       summary: Lista przykładowych spraw do wyboru (syntetyczne; ZUS_SAMPLE po zgodzie M02)
@@ -160,7 +160,7 @@ paths:
   /api/cases/{case_id}:
     get:
       operationId: getCase
-      x-status: planned
+      x-status: implemented
       x-owner: BE-2
       x-task: BE2-06
       summary: 'Szczegóły sprawy: dane wejściowe i oczekiwany wynik'
@@ -186,7 +186,7 @@ paths:
   /api/cases/{case_id}/evaluate:
     post:
       operationId: evaluateCase
-      x-status: planned
+      x-status: implemented
       x-owner: BE-2
       x-task: BE2-06
       summary: Ewaluacja sprawy i porównanie z decyzją ZUS (weryfikacja ubezpieczenia + kalkulator — wymóg § 4 i § 6 zadania)
@@ -209,7 +209,7 @@ paths:
   /api/cases/upload:
     post:
       operationId: uploadCase
-      x-status: planned
+      x-status: implemented
       x-owner: BE-2
       x-task: BE2-06
       summary: Upload wniosku (PDF) — rozpoznanie i mapowanie do modelu wejścia

@@ -402,7 +402,10 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
         const cap = early ? P.SUPP_CAP_WEEK_EARLY : preterm ? P.SUPP_CAP_WEEK_PRETERM
           : wp.late_hospital_qualifies ? P.SUPP_CAP_WEEK_PRETERM : 0;
         if (gw == null && lowWeight == null) need("birth.completed_gestation_weeks", "SUPP-ELIG-001");
-        else if (!early && preterm && lowWeight == null) need("birth.weight_at_most_threshold", "SUPP-ELIG-002");
+        // jak backend: bez odpowiedzi o masie SUPP-ELIG-001 jest UNKNOWN przy każdym tygodniu ≥ 28 — pytamy,
+        // chyba że wynik daje już SUPP-ELIG-003 (≥ 37 tydz. i kwalifikujący pobyt)
+        else if (!early && lowWeight == null && !(!preterm && wp.late_hospital_qualifies))
+          need("birth.weight_at_most_threshold", preterm ? "SUPP-ELIG-002" : "SUPP-ELIG-001");
         else if (wp.hospital_weeks == null) need("children.hospital_stays", "SUPP-CALC-001");
         else if (cap > 0 && wp.hospital_weeks > 0) {
           const weeks = Math.min(wp.hospital_weeks, cap);

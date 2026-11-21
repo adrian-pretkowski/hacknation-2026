@@ -38,6 +38,7 @@ from app.engine.pipeline.parental import (
     return_to_work,
 )
 from app.engine.pipeline.sickness import evaluate_sickness
+from app.engine.pipeline.verification import insurance_verification
 
 ENGINE_NAME = "rules-engine"
 ROUNDING = {"code": "ROUNDING_UNCONFIRMED",
@@ -98,6 +99,9 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     if plan:
         reserved_weeks_review(eng, benefits, plan["plan_errors"])  # GAP-016
     guide = guidance(eng, benefits)  # BE2-04: missing_documents, deadlines, RISK-001/002/003 → warnings
+    verification = insurance_verification(eng)  # BE2-06: weryfikacja ubezpieczenia (wymóg § 4)
+    if verification is not None:
+        guide["insurance_verification"] = verification
     for benefit in benefits:
         benefit.update(explain_benefit(eng, benefit))  # BE1-06: explanation + legal_basis (kontrakt Benefit)
     assumptions = [ROUNDING] + [PARAM_ASSUMPTIONS[p] for p in eng.unconfirmed_params() if p in PARAM_ASSUMPTIONS]

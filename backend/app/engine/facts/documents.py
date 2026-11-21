@@ -128,7 +128,8 @@ def leave_application_deadlines(ctx: Context) -> list[dict[str, Any]] | None:
 
     Rodzicielski (także łączenie z pracą) start − 21, część macierzyńskiego dla ojca start − 14, ojcowski
     start − 7, uzupełniający koniec macierzyńskiego − 21, rezygnacja matki powrót − 7, na warunkach
-    macierzyńskiego przyjęcie + 7 (uzupełniający bez segmentu MATERNITY_LEAVE w planie → bez terminu).
+    macierzyńskiego przyjęcie + 7, część macierzyńskiego przed porodem start − 14 (BE2-08, Poradnik ZUS 2026;
+    data porodu albo przewidywana data porodu) (uzupełniający bez segmentu MATERNITY_LEAVE w planie → bez terminu).
     „Nie krócej niż N dni przed” → bez przesuwania na dzień roboczy (DERIVED, D29).
     Brak segmentów → None. KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6.
     """
@@ -139,6 +140,7 @@ def leave_application_deadlines(ctx: Context) -> list[dict[str, Any]] | None:
     def before(day: date, param: str) -> date:
         return day - timedelta(days=int(ctx.param(param)))
 
+    birth = _event_or_due(ctx) if ctx.field("event.type") == "BIRTH" else None
     out: list[dict[str, Any]] = []
     for seg in plan:
         start, end, parent, leave_type = to_date(seg["from"]), to_date(seg["to"]), seg.get("parent"), \
@@ -165,7 +167,11 @@ def leave_application_deadlines(ctx: Context) -> list[dict[str, Any]] | None:
             out.append({"code": "LEAVE_APP_MATERNITY_LIKE",
                         "date": accepted + timedelta(days=int(ctx.param(
                             "LEAVE_APP_MATERNITY_LIKE_DAYS_AFTER_ACCEPTANCE"))), "who": parent})
-        elif leave_type == MATERNITY_LEAVE and parent == "MOTHER" and end is not None \
+        if leave_type == MATERNITY_LEAVE and parent == "MOTHER" and birth is not None and start < birth:
+            # BE2-08: część urlopu macierzyńskiego przed porodem — wniosek ≥ 14 dni przed startem (Poradnik ZUS 2026)
+            out.append({"code": "LEAVE_APP_MATERNITY_PRE_BIRTH",
+                        "date": before(start, "LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE"), "who": parent})
+        if leave_type == MATERNITY_LEAVE and parent == "MOTHER" and end is not None \
                 and ctx.field("plan.mother_resigns_remaining_maternity") is True:
             # rezygnacja z pozostałej części macierzyńskiego: powrót do pracy dzień po końcu segmentu matki
             out.append({"code": "LEAVE_APP_MATERNITY_RESIGNATION",

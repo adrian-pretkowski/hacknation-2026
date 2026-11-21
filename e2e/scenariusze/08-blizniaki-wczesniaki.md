@@ -11,7 +11,7 @@
 9. Przejdź dalej.
 10. Zaznacz „Wcześniak lub pobyt dziecka w szpitalu”.
 11. Z listy „Ukończony tydzień ciąży przy porodzie” wybierz „30. tydzień”.
-12. Ustaw suwak „Masa urodzeniowa” na „1400”.
+12. Wybierz „Powyżej 1000 g”.
 13. Ustaw suwak „Łącznie tygodni w szpitalu” na „6”.
 14. Przejdź dalej.
 15. Wybierz „Umowa o pracę”.

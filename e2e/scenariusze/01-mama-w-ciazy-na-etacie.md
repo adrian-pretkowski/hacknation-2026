@@ -27,9 +27,11 @@
 23. Przejdź dalej.
 24. Ustaw suwak „Wynagrodzenie brutto (zł / miesiąc)” na „7800”.
 25. Przejdź dalej.
-26. Sprawdź, że nagłówek to „Twój plan”.
-27. Sprawdź, że widać „Oś czasu”.
-28. Sprawdź, że widać „Co i gdzie złożyć”.
-29. Sprawdź, że widać „Kalendarz terminów”.
-30. Sprawdź, że strona nie przewija się w poziomie.
-31. Zrób zrzut ekranu „plan-mamy-na-etacie”.
+26. Sprawdź, że nagłówek to „Optymalizacja”.
+27. Przejdź dalej.
+28. Sprawdź, że nagłówek to „Twój plan”.
+29. Sprawdź, że widać „Oś czasu”.
+30. Sprawdź, że widać „Co i gdzie złożyć”.
+31. Sprawdź, że widać „Kalendarz terminów”.
+32. Sprawdź, że strona nie przewija się w poziomie.
+33. Zrób zrzut ekranu „plan-mamy-na-etacie”.

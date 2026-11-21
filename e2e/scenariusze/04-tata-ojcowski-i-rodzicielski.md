@@ -22,6 +22,8 @@
 20. Przejdź dalej.
 21. Ustaw suwak „Wynagrodzenie brutto (zł / miesiąc)” na „6500”.
 22. Przejdź dalej.
-23. Sprawdź, że nagłówek to „Twój plan”.
-24. Sprawdź, że widać „ojcowski”.
-25. Sprawdź, że strona nie przewija się w poziomie.
+23. Sprawdź, że nagłówek to „Optymalizacja”.
+24. Przejdź dalej.
+25. Sprawdź, że nagłówek to „Twój plan”.
+26. Sprawdź, że widać „ojcowski”.
+27. Sprawdź, że strona nie przewija się w poziomie.
