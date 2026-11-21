@@ -25,15 +25,9 @@ export function dateErrors(a: Answers, today = todayIso()): FieldErrors {
     if (ev && a.deathDate < ev) e.deathDate = "Data śmierci dziecka nie może być wcześniejsza niż data porodu.";
     else if (a.deathDate > today) e.deathDate = "Data śmierci dziecka jest w przyszłości.";
   }
-  // ubezpieczenie zaczynające się w przyszłości jest możliwe w ciąży (np. nowa umowa przed porodem) — ocenia silnik;
-  // błąd tylko, gdy zaczyna się po zdarzeniu (porodzie / przyjęciu dziecka) albo — gdy zdarzenie już było — po dziś
-  if (a.title && a.title !== "NONE" && a.insuredFrom) {
-    if (a.stage === "PREGNANT" && ev && a.insuredFrom > ev) {
-      e.insuredFrom = "Ubezpieczenie zaczyna się po planowanej dacie porodu — podaj ubezpieczenie, które trwa w dniu porodu.";
-    } else if (a.stage !== "PREGNANT" && a.insuredFrom > today) {
-      e.insuredFrom = "Data początku ubezpieczenia jest w przyszłości — podaj dzień, od którego już podlegasz ubezpieczeniu.";
-    }
-  }
+  // Początek ubezpieczenia NIE jest blokowany: przyszła data bywa prawdziwa (nowa umowa), a skutek prawny zależy od
+  // świadczenia (macierzyński — dzień porodu, art. 29; ojcowski — dzień startu urlopu, PAT-ELIG-001). Ocenia silnik;
+  // kreator pokazuje tylko ostrzeżenie (dateWarnings).
   if (a.title === "EMPLOYMENT" && a.contractType === "FIXED_TERM" && a.contractEnd && a.insuredFrom && a.contractEnd < a.insuredFrom) {
     e.contractEnd = "Umowa nie może kończyć się przed dniem, od którego podlegasz ubezpieczeniu.";
   }
@@ -45,6 +39,16 @@ export function dateErrors(a: Answers, today = todayIso()): FieldErrors {
     }
   }
   return e;
+}
+
+/** FE1-10: ostrzeżenia bez blokady „Dalej” — sytuacje możliwe, ale istotne dla wyniku (ocena w silniku). */
+export function dateWarnings(a: Answers): FieldErrors {
+  const w: FieldErrors = {};
+  const ev = a.eventDate;
+  if (a.title && a.title !== "NONE" && a.insuredFrom && ev && a.insuredFrom > ev && a.role === "MOTHER") {
+    w.insuredFrom = "Ubezpieczenie zaczyna się po dniu porodu — zasiłek macierzyński wymaga ubezpieczenia w dniu porodu. Sprawdzimy to w wyniku.";
+  }
+  return w;
 }
 
 export const hasErrors = (a: Answers, ...fields: DateFieldKey[]) => {

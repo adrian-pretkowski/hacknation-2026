@@ -1,7 +1,7 @@
 # Gotowy przykład z ekranu startowego, powrót i historia przeglądarki
 
 1. Otwórz stronę główną.
-2. Kliknij „Mama na etacie, poród 1 grudnia”.
+2. Kliknij „Mama na etacie, poród za 10 dni”.
 3. Sprawdź, że nagłówek to „Twój plan”.
 4. Kliknij „← Wstecz”.
 5. Sprawdź, że nagłówek to „Optymalizacja”.

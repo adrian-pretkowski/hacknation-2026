@@ -124,13 +124,13 @@ export const EMPTY_ANSWERS: Answers = {
 export const PRESETS: { id: string; label: string; answers: Partial<Answers> }[] = [
   {
     id: "s1",
-    label: "Mama na etacie, poród 1 grudnia",
+    label: "Mama na etacie, poród za 10 dni",
     answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", payerSize: "GT20",
       insuredFrom: "2021-03-01", eventDate: inDays(10), children: 1, salaryGross: "8000" },
   },
   {
     id: "s2",
-    label: "Bliźnięta, poród 1 grudnia",
+    label: "Bliźnięta, poród za 10 dni",
     answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", payerSize: "GT20",
       insuredFrom: "2021-03-01", eventDate: inDays(10), children: 2, salaryGross: "8000" },
   },

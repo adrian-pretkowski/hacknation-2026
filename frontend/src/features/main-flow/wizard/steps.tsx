@@ -9,7 +9,7 @@ import { PARAMS } from "../preview/params";
 import { addDays, daysBetween } from "../preview/exact";
 import type { Answers } from "./answers";
 import { Check, Choice, DateField, Field, NumberSelect, Slider, TRI_OPTIONS, inputCls } from "./fields";
-import { dateErrors, hasErrors } from "./validation";
+import { dateErrors, dateWarnings, hasErrors } from "./validation";
 import { Optimizer, optimizerVisible } from "./Optimizer";
 import { todayIso } from "./request";
 import { ZusFetch } from "./ZusFetch";
@@ -277,7 +277,7 @@ export const STEPS: Step[] = [
     id: "insurance",
     title: "Praca i ubezpieczenie",
     visible: (a) => a.role !== null,
-    complete: (a) => a.title !== null && (a.title === "NONE" || !!a.insuredFrom) && !hasErrors(a, "insuredFrom", "contractEnd")
+    complete: (a) => a.title !== null && (a.title === "NONE" || !!a.insuredFrom) && !hasErrors(a, "contractEnd")
       && (a.title !== "EMPLOYMENT" || a.contractType !== null),
     summary: (a) => (a.title ? join([TITLE_TEXT[a.title], a.title !== "NONE" && a.insuredFrom && `od ${formatDate(a.insuredFrom)}`,
       a.contractType === "FIXED_TERM" && "na czas określony"]) : null),
@@ -297,7 +297,7 @@ export const STEPS: Step[] = [
           <>
             <ZusFetch source="insurance" a={a} set={set} what="Nie pamiętasz dat? Pobierzemy okres ubezpieczenia i dane płatnika." />
             <DateField label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej."
-              value={a.insuredFrom} error={dateErrors(a).insuredFrom} onChange={(insuredFrom) => set({ insuredFrom })} />
+              value={a.insuredFrom} warning={dateWarnings(a).insuredFrom} onChange={(insuredFrom) => set({ insuredFrom })} />
           </>
         )}
         {a.title === "EMPLOYMENT" && (

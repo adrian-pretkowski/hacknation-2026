@@ -15,9 +15,10 @@
 13. Przejdź dalej.
 14. Wybierz „Umowa o pracę”.
 15. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „za 90 dni”.
-16. Sprawdź, że widać „Ubezpieczenie zaczyna się po planowanej dacie porodu”.
-17. Sprawdź, że nie można przejść dalej.
-18. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „za 10 dni”.
-19. Sprawdź, że nie widać „Ubezpieczenie zaczyna się po planowanej dacie porodu”.
-20. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „2020-01-01”.
-21. Sprawdź, że strona nie przewija się w poziomie.
+16. Sprawdź, że widać „Ubezpieczenie zaczyna się po dniu porodu”.
+17. Wybierz „Na czas nieokreślony”.
+18. Sprawdź, że można przejść dalej.
+19. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „za 10 dni”.
+20. Sprawdź, że nie widać „Ubezpieczenie zaczyna się po dniu porodu”.
+21. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „2020-01-01”.
+22. Sprawdź, że strona nie przewija się w poziomie.

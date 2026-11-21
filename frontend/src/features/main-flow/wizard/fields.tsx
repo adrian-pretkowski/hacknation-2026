@@ -59,16 +59,23 @@ export function Field({ label, hint, children, error, errorId }: {
 }
 
 /** FE1-10: pole daty z walidacją — aria-invalid i aria-describedby wskazują komunikat pod polem. */
-export function DateField({ label, hint, value, onChange, error }: {
+export function DateField({ label, hint, value, onChange, error, warning }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void; error?: string;
+  /** Ostrzeżenie bez blokady (np. sytuacja prawnie istotna, którą ocenia silnik). */
+  warning?: string;
 }) {
   const errorId = useId();
+  const warnId = useId();
+  const describedBy = error ? errorId : warning ? warnId : undefined;
   return (
-    <Field label={label} hint={hint} error={error} errorId={errorId}>
-      <input type="date" className={`${inputCls} ${error ? "border-zus-red" : ""}`} value={value}
-        aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined}
-        onChange={(e) => onChange(e.target.value)} />
-    </Field>
+    <div>
+      <Field label={label} hint={hint} error={error} errorId={errorId}>
+        <input type="date" className={`${inputCls} ${error ? "border-zus-red" : ""}`} value={value}
+          aria-invalid={error ? true : undefined} aria-describedby={describedBy}
+          onChange={(e) => onChange(e.target.value)} />
+      </Field>
+      {!error && warning && <p id={warnId} role="status" className="mt-1 text-sm text-amber-800">{warning}</p>}
+    </div>
   );
 }
 
