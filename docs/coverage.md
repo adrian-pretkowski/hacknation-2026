@@ -21,7 +21,7 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 | Wnioski o urlopy i świadczenia (symulacja, projekt wniosków urlopowych) | APP-*, ROZP_WN | Dokumenty | ui-verifier | ⬜ |
 | Wniosek o odpis aktu urodzenia (symulacja) | — | Dokumenty | ui-verifier | ⬜ |
 | Linki zus.pl / gov.pl / PIP | treść | Dokumenty | — | ⬜ |
-| Panel admina parametrów | `core/params.py` (OverrideStore), `modules/admin/router.py` | Admin | `test_admin.py` (zmiana 0.815 → wynik bez restartu) | 🟨 API `GET/PUT /api/admin/parameters` (BE2-05): wersje, `valid_from`, 401/409/422, zapis JSON; ekran FE — do zrobienia |
+| Panel admina parametrów | `core/params.py` (OverrideStore), `modules/admin/router.py` | Admin | `test_admin.py` (zmiana 0.815 → wynik bez restartu) | 🟨 API `GET/PUT /api/admin/parameters` (BE2-05): wersje, `valid_from`, 401/409/422, zapis JSON; ekran FE `/admin` (FE1-03): lista, edycja z `valid_from`, podgląd skutku na przykładzie |
 | Upload/wybór przykładowych wniosków, weryfikacja ubezpieczenia | cases + insurance_verification | Sprawy | `test_cases_module.py`, /run-golden | 🟨 API BE2-06: `/api/cases` (4 sprawy syntetyczne `demo/cases/`, porównanie z oczekiwanym wynikiem MATCH / MATCH_WITH_TOLERANCE / MISMATCH), upload PDF → MANUAL_REQUIRED + lista brakujących pól (bez AI, M16e; plik nie jest zapisywany), `insurance_verification` w wyniku `/api/evaluate`; ekran FE — do zrobienia |
 | RWD | frontend | wszystkie | ui-verifier 375/1440 | ⬜ |
 | Wskazanie funkcji z AI | docs/AI_USAGE.md | — | — | ⬜ |
