@@ -57,7 +57,7 @@ Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez zn
 | 9 | F | F | F | F | F | – | NOT_ELIGIBLE + ostrzeżenie | – | MAT-NEG-001, RISK-003 |
 
 **Brak okresu wyczekiwania** dla zasiłku macierzyńskiego (MAT-CLS-001, DERIVED).
-**Przed porodem** (wiersz 4, przyczyny śmierć/upadłość/likwidacja + brak innego zatrudnienia): **zasiłek w wysokości zasiłku macierzyńskiego (100%) do dnia porodu** — MAT-ELIG-007. Naruszenie prawa NIE daje tego świadczenia (CONF-001).
+**Przed porodem** (wiersz 4, przyczyny śmierć/upadłość/likwidacja + brak innego zatrudnienia): **zasiłek w wysokości zasiłku macierzyńskiego (100%) do dnia porodu** — MAT-ELIG-007. Także rozwiązanie umowy w ciąży z naruszeniem prawa stwierdzonym przez sąd (UNLAWFUL_TERMINATION_COURT_CONFIRMED) — wg treści zadania (M16 a, CONF-001 rozstrzygnięty); sprawa w toku → brak tego świadczenia.
 
 ## DT-5. Wymiar zasiłku za okres urlopu macierzyńskiego
 

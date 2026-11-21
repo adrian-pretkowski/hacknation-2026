@@ -35,4 +35,4 @@ Prawdziwe integracje, konta z hasłami, zasiłek opiekuńczy, świadczenia rodzi
 | Potencjał wdrożeniowy (15%) | Stack preferowany przez ZUS, OpenAPI, parametry z wersjonowaniem, testy reguł, adaptery integracji | repo, CI, `docs/ARCHITECTURE.md` |
 
 ## Kolejność cięcia zakresu przy opóźnieniu
-F13 → P2 → F16 → F10 (tylko podgląd) → F15 (fallback: podstawa wpisywana ręcznie). Nigdy nie tniemy: F1–F3, F6, F12.
+P2 → F16 → F10 (tylko podgląd) → F15 (fallback: podstawa wpisywana ręcznie); F13 odrzucony (D20). Nigdy nie tniemy: F1–F3, F6, F12.

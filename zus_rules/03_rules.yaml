@@ -75,8 +75,8 @@ meta:
     WEEK_AS_DAYS: {value: 7, unit: days, source: "KP art. 183(1) § 1"}
     SUPP_CAP_WEEK_EARLY: {value: 15, unit: weeks_after_birth, source: "KP art. 180(2) § 1 pkt 1"}
     SUPP_CAP_WEEK_PRETERM: {value: 8, unit: weeks_after_birth, source: "KP art. 180(2) § 1 pkt 2-3"}
-    SUPP_TERM_WINDOW_FIRST_DAY: {value: 5, unit: day_after_birth, source: "KP art. 180(2) § 1 pkt 3"}
-    SUPP_TERM_WINDOW_LAST_DAY: {value: 28, unit: day_after_birth, source: "KP art. 180(2) § 1 pkt 3"}
+    SUPP_TERM_WINDOW_FIRST_DAY: {value: 5, unit: day_number_birth_is_1, source: "KP art. 180(2) § 1 pkt 3"}
+    SUPP_TERM_WINDOW_LAST_DAY: {value: 28, unit: day_number_birth_is_1, source: "KP art. 180(2) § 1 pkt 3"}
     SUPP_TERM_MIN_CONSECUTIVE_DAYS: {value: 2, unit: days, source: "KP art. 180(2) § 1 pkt 3"}
     SUPP_WEIGHT_THRESHOLD_G: {value: 1000, unit: grams, source: "KP art. 180(2) § 1"}
     SUPP_GESTATION_EARLY_WEEK: {value: 28, unit: gestation_week, source: "KP art. 180(2) § 1"}
@@ -1470,12 +1470,12 @@ rules:
 
 - id: MAT-ELIG-007
   name: "Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu"
-  description: "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu — zasiłek macierzyński)."
+  description: "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd (treść zadania, M16 a) i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu — zasiłek macierzyński)."
   category: MATERNITY_EQUIVALENT
   rule_type: ELIGIBILITY
   legal_basis: {document: USTAWA, article: "30", paragraph: "3", point: null}
   source_document: USTAWA
-  source_location: "art. 30 ust. 3; KP art. 177 § 4"
+  source_location: "art. 30 ust. 3; KP art. 177 § 4; treść zadania (CONF-001, M16 a)"
   source_excerpt: "przysługuje do dnia porodu zasiłek w wysokości zasiłku macierzyńskiego"
   valid_from: null
   valid_to: null
@@ -2031,7 +2031,7 @@ rules:
   interpretation_status: DIRECT
   implementation_priority: P0
   automation_status: AUTOMATABLE
-  notes: "'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=0)."
+  notes: "'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=1, dzień porodu = dzień 1, M15 a)."
 
 - id: SUPP-ELIG-002
   name: "Uzupełniający urlop — poród 28–37 tydz. i masa >1000 g"
@@ -3343,7 +3343,7 @@ rules:
   interpretation_status: INCOMPLETE_SOURCE
   implementation_priority: P1
   automation_status: HUMAN_REVIEW
-  notes: "Próg 'istotnego wzrostu' (≥50%) — parametr projektowy zespołu. M17 (2026-11-21, mentor fachowy): pokazujemy jako ostrzeżenie — bez wpływu na status."
+  notes: "Próg 'istotnego wzrostu' (> 50%, jak f_contribution_base_increase_during_pregnancy w 07) — parametr projektowy zespołu. M17 (2026-11-21, mentor fachowy): pokazujemy jako ostrzeżenie — bez wpływu na status."
 
 - id: RISK-003
   name: "Ryzyko — ustanie ubezpieczenia przed porodem"

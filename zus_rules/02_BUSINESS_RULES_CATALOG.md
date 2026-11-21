@@ -1748,9 +1748,9 @@ Kwota = podstawa × stawka × (1 − wymiar pracy) / 30 × liczba dni kalendarzo
 
 **Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu** — `ELIGIBILITY` · P1 · AUTOMATABLE · eval: **ACTIVE**
 
-Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu — zasiłek macierzyński).
+Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd (treść zadania, M16 a) i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu — zasiłek macierzyński).
 
-- **Podstawa:** USTAWA — art. 30 ust. 3; KP art. 177 § 4
+- **Podstawa:** USTAWA — art. 30 ust. 3; KP art. 177 § 4; treść zadania (CONF-001, M16 a)
 - **Fragment:** „przysługuje do dnia porodu zasiłek w wysokości zasiłku macierzyńskiego”
 - **Obowiązuje:** od — do —
 - **Warunki:**
@@ -1787,7 +1787,7 @@ Tydzień urlopu za każdy tydzień pobytu dziecka w szpitalu do upływu 15. tygo
 - **Dane:** `birth.completed_gestation_weeks`, `children.items`, `children.hospital_stays` · brak danych → `NEEDS_DATA`
 - **Jakość:** pewność HIGH, interpretacja DIRECT
 - **Testy:** T-SUPP-001, T-SUPP-002
-- **Uwagi:** 'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=0).
+- **Uwagi:** 'Przed ukończeniem 28. tygodnia' = completed_gestation_weeks < 28 (DERIVED: ukończone tygodnie). Okno liczone od dnia porodu (window_start_day=1, dzień porodu = dzień 1, M15 a).
 
 ### SUPP-ELIG-002
 
@@ -2524,7 +2524,7 @@ ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w 
 - **Dane:** `income_history.months`, `pregnancy.pregnancy_start_date` · brak danych → `NOT_APPLICABLE`
 - **Jakość:** pewność LOW, interpretacja INCOMPLETE_SOURCE
 - **Testy:** —
-- **Uwagi:** Próg 'istotnego wzrostu' (≥50%) — parametr projektowy zespołu. M17 (2026-11-21, mentor fachowy): pokazujemy jako ostrzeżenie — bez wpływu na status.
+- **Uwagi:** Próg 'istotnego wzrostu' (> 50%, jak f_contribution_base_increase_during_pregnancy w 07) — parametr projektowy zespołu. M17 (2026-11-21, mentor fachowy): pokazujemy jako ostrzeżenie — bez wpływu na status.
 
 ### RISK-003
 
