@@ -62,4 +62,4 @@ Otwórz http://localhost:3000 → „Przykłady” → np. „Bliźnięta, poró
 Next.js 16 + React 19 + TypeScript + Tailwind 4 · Python 3.12 + FastAPI + Pydantic · REST (OpenAPI 3.1) · deterministyczny silnik reguł (YAML) · Docker Compose · GitHub Actions.
 
 ## Ograniczenia prototypu
-Integracje symulowane; silnik `slice_v0` ocenia na razie tylko zasiłek macierzyński matki i jawnie zwraca listę nieocenianych reguł; kwoty bez zaokrągleń (zasady ZUS do potwierdzenia); luki prawne: [zus_rules/09_LEGAL_GAPS_AND_CONFLICTS.md](zus_rules/09_LEGAL_GAPS_AND_CONFLICTS.md).
+Integracje symulowane (mocki jako serwisy Pythona w `backend/app/integrations/simulated/`, endpointy `/api/sim/*`; opis w [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)); silnik `slice_v0` ocenia na razie tylko zasiłek macierzyński matki i jawnie zwraca listę nieocenianych reguł; kwoty bez zaokrągleń (zasady ZUS do potwierdzenia); luki prawne: [zus_rules/09_LEGAL_GAPS_AND_CONFLICTS.md](zus_rules/09_LEGAL_GAPS_AND_CONFLICTS.md).
