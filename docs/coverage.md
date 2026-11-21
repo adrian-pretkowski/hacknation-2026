@@ -26,3 +26,22 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 | Upload/wybór przykładowych wniosków, weryfikacja ubezpieczenia | cases + insurance_verification | Sprawy | `test_cases_module.py`, /run-golden | 🟨 API BE2-06: `/api/cases` (4 sprawy syntetyczne `demo/cases/`, porównanie z oczekiwanym wynikiem MATCH / MATCH_WITH_TOLERANCE / MISMATCH), upload PDF → MANUAL_REQUIRED + lista brakujących pól (bez AI, M16e; plik nie jest zapisywany), `insurance_verification` w wyniku `/api/evaluate`; ekran FE - do zrobienia |
 | RWD | frontend | wszystkie | ui-verifier 375/1440 | ⬜ |
 | Wskazanie funkcji z AI | docs/AI_USAGE.md | - | - | ⬜ |
+
+## Raport luk: kod vs słownik pojęć (2026-11-21)
+
+Raport z porównania słownika pojęć zespołu z `03_rules.yaml`, silnikiem i podglądem kreatora (commit bd10e52). Stan po FE1-19…FE1-26, BE2-12, BA-06:
+
+| Luka | Co | Zadanie | Status |
+|---|---|---|---|
+| A1 | Minimalna podstawa przy pełnym etacie (4147,10 zł) | FE1-20 (podgląd), BE2-12 (silnik, `f_apply_minimum_base`) | ✅ |
+| A2 | Limit podstawy przy dobrowolnym chorobowym (20 321,295 zł) | FE1-20, BE2-12 (BASE-NEMP-005) | ✅ |
+| A3 | Podwyższenie do kwoty świadczenia rodzicielskiego (1000 zł, M10c) w podglądzie | FE1-21 | ✅ |
+| A4 | Urlop na warunkach macierzyńskiego do dnia przed 14. / 7. / 10. urodzinami | FE1-26 | ✅ (KP 183 § 3 - BE2-10, M14b) |
+| A5 | Ojcowski przy adopcji od uprawomocnienia, najpóźniej przed 14. urodzinami | FE1-26 | ✅ |
+| A6 | Uzupełniający: poród w 37. tyg. - kod (< 37 / ≥ 37) zgodny z 03; niejednoznaczny jest słownik | - | ⚠️ poprawka słownika (poza repo) |
+| A7 | Umowa na zastępstwo i próbna ≤ 1 mies. bez przedłużenia do porodu | FE1-24 | ✅ |
+| B | Terminy: przed porodem (14 dni, UNCONFIRMED), rezygnacja (7), przejęcie przez ojca (14), na warunkach macierzyńskiego (7); `PREVIEW_ONLY` → nazwy z 03 | FE1-25 | ✅ (21 dni na rozpoczęcie - M20 c) |
+| C | Błędne ID reguł w podglądzie | FE1-19 (`scripts/check_preview_rule_ids.py`) | ✅ |
+| D | Ulga na start, student do 26 lat | FE1-22, BA-06 (parametry UNCONFIRMED, M20) | ✅ |
+| D | Zasiłek chorobowy w ciąży - backend liczy (`pipeline/sickness.py`), brak ekranu | - | ⬜ |
+| E | Słownik bez `LEAVE_APP_MATERNITY_FOR_FATHER_DAYS_BEFORE` i `MOTHER_MIN_WEEKS_SPECIAL` | uzupełnione w słowniku (poza repo) | ⚠️ do sprawdzenia z wyciągiem KP |

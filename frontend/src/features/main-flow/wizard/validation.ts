@@ -4,7 +4,7 @@
 // Granice z PARAMS (PRE_BIRTH_MAX_WEEKS, WEEK_AS_DAYS) - bez liczb z przepisów w kodzie.
 import { PARAMS } from "../preview/params";
 import { addDays } from "../preview/exact";
-import type { Answers } from "./answers";
+import { type Answers, hasContractEnd } from "./answers";
 import { todayIso } from "./request";
 
 export type DateFieldKey = "eventDate" | "deathDate" | "insuredFrom" | "contractEnd" | "maternityStart";
@@ -28,7 +28,7 @@ export function dateErrors(a: Answers, today = todayIso()): FieldErrors {
   // Początek ubezpieczenia NIE jest blokowany: przyszła data bywa prawdziwa (nowa umowa), a skutek prawny zależy od
   // świadczenia (macierzyński - dzień porodu, art. 29; ojcowski - dzień startu urlopu, PAT-ELIG-001). Ocenia silnik;
   // kreator pokazuje tylko ostrzeżenie (dateWarnings).
-  if (a.title === "EMPLOYMENT" && a.contractType === "FIXED_TERM" && a.contractEnd && a.insuredFrom && a.contractEnd < a.insuredFrom) {
+  if (a.title === "EMPLOYMENT" && hasContractEnd(a.contractType) && a.contractEnd && a.insuredFrom && a.contractEnd < a.insuredFrom) {
     e.contractEnd = "Umowa nie może kończyć się przed dniem, od którego podlegasz ubezpieczeniu.";
   }
   if (a.maternityStart && ev && a.role === "MOTHER") {

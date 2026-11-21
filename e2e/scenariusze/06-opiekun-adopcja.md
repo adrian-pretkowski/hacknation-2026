@@ -12,7 +12,7 @@
 10. Wybierz „Umowa o pracę”.
 11. W polu „Od kiedy podlegasz ubezpieczeniu chorobowemu?” wpisz „2020-01-01”.
 12. Wybierz „Na czas nieokreślony”.
-13. Wybierz „Nie”.
+13. W pytaniu „Czy umowa ustała” wybierz „Nie”.
 14. Wybierz „Więcej niż 20”.
 15. Przejdź dalej.
 16. Przejdź dalej.
