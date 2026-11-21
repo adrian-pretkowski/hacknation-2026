@@ -1,6 +1,6 @@
 """Sprawy (BE2-06): GET /api/cases, GET /api/cases/{id}, POST /api/cases/{id}/evaluate, POST /api/cases/upload.
 
-Upload ``multipart/form-data`` (pole ``file``) parsowany biblioteką standardową (``email``) — bez nowej zależności
+Upload ``multipart/form-data`` (pole ``file``) parsowany biblioteką standardową (``email``) - bez nowej zależności
 (python-multipart). Plik tylko w pamięci: nie jest zapisywany ani logowany (poufność, kontrakt uploadCase).
 """
 from __future__ import annotations

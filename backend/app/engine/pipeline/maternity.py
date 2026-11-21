@@ -1,19 +1,19 @@
-"""Zasiłek macierzyński — kroki 07 §1 na regułach z 03_rules.yaml (BE1-02, BE2-01).
+"""Zasiłek macierzyński - kroki 07 §1 na regułach z 03_rules.yaml (BE1-02, BE2-01).
 
 Kroki: 3–4 prawo (MAT-ELIG-001 + alternatywne podstawy z ``exceptions``: art. 30 MAT-ELIG-004/005/006, KP 177
 MAT-CLS-002; wykluczenia EXCLUSION, w tym MAT-NEG-001; reguły BLOCKED grupy), 5 okres (MAT-DUR-001 z ``overrides``
 MAT-DUR-00x, MAT-DUR-009), 7 stawka segmentu (RATE-MAT-001/003 przez ``overrides``, zależność APP-DL-001),
 8 kwota (CALC-MAT-001), status wg DT-9. BE1-04: płatnik (GEN-CLS-*) i zadłużenie (GEN-EXCL-001/002) z ``general.py``.
 
-BE2-01 — kolejne świadczenia z tej samej ścieżki:
+BE2-01 - kolejne świadczenia z tej samej ścieżki:
 - ``evaluate_equivalent_allowance``: zasiłek w wysokości macierzyńskiego do dnia przed porodem
   (MAT-ELIG-007, art. 30 ust. 3),
-- ``evaluate_maternity_like``: urlop na warunkach macierzyńskiego — przysposobienie / rodzina zastępcza
+- ``evaluate_maternity_like``: urlop na warunkach macierzyńskiego - przysposobienie / rodzina zastępcza
   (MAT-ELIG-002/003, MAT-EXCL-001, MAT-DUR-007/008),
 - ``evaluate_supplementary``: urlop uzupełniający przy wcześniaku / hospitalizacji
   (SUPP-ELIG-001/002/003, SUPP-CALC-001).
 Ostrzeżenia (RISK-003, MAT-DUR-008) → ``warnings``. Przejęcie urlopu przez ojca i walidacje planu
-(MAT-DUR-002, MAT-SHARE-007 → ``plan_errors``) — ``parental.py`` (BE2-02).
+(MAT-DUR-002, MAT-SHARE-007 → ``plan_errors``) - ``parental.py`` (BE2-02).
 Reguły z faktami spoza rejestru są raportowane w ``not_evaluated_rules`` (jawne ograniczenia).
 """
 from __future__ import annotations
@@ -27,7 +27,7 @@ from app.core.money import dec_str
 from app.engine.pipeline.engine import Engine, aggregate_status
 from app.engine.pipeline.general import debt_exclusion, payer_of_benefit, pct
 
-# Reguły istotne dla macierzyńskiego, których przebieg nie uruchomił — raportowane jak w slice_v0;
+# Reguły istotne dla macierzyńskiego, których przebieg nie uruchomił - raportowane jak w slice_v0;
 # Engine sam dopisuje reguły z faktami spoza rejestru
 NOT_RUN = ["BASE-EMP-001", "BASE-NEMP-001", "BASE-GEN-001"]
 # Reguły BLOCKED/HUMAN_REVIEW, które mogą zmienić wynik macierzyńskiego po porodzie (DT-9 wiersz 3)
@@ -75,18 +75,18 @@ def _rate_base_amount(eng: Engine, segment: dict[str, Any], days: int | None, re
             applied.append(winner.rule_id)
             if winner.rule_id == "RATE-MAT-003":
                 reason("RATE_COMBINED_815", "RATE-MAT-003",
-                       f"Wniosek o łączny zasiłek złożony w {ctx.param('APP_COMBINED_DEADLINE_DAYS')} dni od porodu — "
+                       f"Wniosek o łączny zasiłek złożony w {ctx.param('APP_COMBINED_DEADLINE_DAYS')} dni od porodu - "
                        f"{pct(rate)} podstawy.",
                        "art. 31 ust. 3; art. 30a ust. 1")
             elif winner.rule_id == "RATE-MAT-001":
-                # urlop uzupełniający: 81,5% go nie obejmuje (M15 c) — bez podpowiedzi o wniosku łącznym
+                # urlop uzupełniający: 81,5% go nie obejmuje (M15 c) - bez podpowiedzi o wniosku łącznym
                 hint = (f" Wniosek o {pct(ctx.param('MAT_RATE_COMBINED'))} można złożyć do {deadline.isoformat()}."
                         if combined_hint else "")
-                reason("RATE_FULL_100", "RATE-MAT-001", f"Zasiłek za okres {what} — {pct(rate)} podstawy.{hint}",
+                reason("RATE_FULL_100", "RATE-MAT-001", f"Zasiłek za okres {what} - {pct(rate)} podstawy.{hint}",
                        "art. 31 ust. 1; art. 30a ust. 1")
     ctx.state["rate"] = rate
 
-    # Krok 6: podstawa — art. 43 (BASE-GEN-001): ta sama podstawa, gdy przerwa nie obejmuje pełnego miesiąca
+    # Krok 6: podstawa - art. 43 (BASE-GEN-001): ta sama podstawa, gdy przerwa nie obejmuje pełnego miesiąca
     # kalendarzowego (M05); ręczna podstawa ma pierwszeństwo, bez historii zasiłków reguła nie dotyczy
     manual = ctx.field("income_history.manual_base_override") is not None
     base_source = "MANUAL" if manual else None
@@ -101,7 +101,7 @@ def _rate_base_amount(eng: Engine, segment: dict[str, Any], days: int | None, re
             base_source = "REUSED_PREVIOUS"
             reason("BASE_REUSED_NO_FULL_MONTH_GAP", "BASE-GEN-001",
                    "Między poprzednim zasiłkiem a zasiłkiem macierzyńskim nie było przerwy obejmującej pełny miesiąc "
-                   "kalendarzowy — podstawa wymiaru jest taka sama jak poprzedniego zasiłku.", "art. 43")
+                   "kalendarzowy - podstawa wymiaru jest taka sama jak poprzedniego zasiłku.", "art. 43")
 
     # Krok 8: kwota
     daily = total = None
@@ -123,11 +123,11 @@ def _rate_base_amount(eng: Engine, segment: dict[str, Any], days: int | None, re
                 applied.append("RATE-MAT-007")
                 reason("RAISED_TO_PARENTAL_BENEFIT_FLOOR", "RATE-MAT-007",
                        f"Miesięczna kwota zasiłku ({dec_str(monthly)} zł) jest niższa niż kwota świadczenia "
-                       f"rodzicielskiego — zasiłek podwyższony do {dec_str(raised['monthly'])} zł miesięcznie "
+                       f"rodzicielskiego - zasiłek podwyższony do {dec_str(raised['monthly'])} zł miesięcznie "
                        f"(za niepełny miesiąc proporcjonalnie do liczby dni miesiąca).",
                        "art. 31 ust. 3a-3c")
 
-    # obiekt base (kontrakt Benefit.base) — tylko gdy podstawa jest znana i jej źródło rozstrzygnięte
+    # obiekt base (kontrakt Benefit.base) - tylko gdy podstawa jest znana i jej źródło rozstrzygnięte
     base_amount = ctx.fact("f_benefit_base") if base_source else None
     base = None
     if base_amount is not None:
@@ -162,7 +162,7 @@ def _report_not_run(eng: Engine) -> None:
 
 
 def _payer(eng: Engine, applied: list[str], art30_payer: str | None) -> str | None:
-    """Płatnik (GEN-CLS-*) — nie zmienia statusu prawa (T-GEN-005). Art. 30 (zasiłek po ustaniu) → ZUS."""
+    """Płatnik (GEN-CLS-*) - nie zmienia statusu prawa (T-GEN-005). Art. 30 (zasiłek po ustaniu) → ZUS."""
     if art30_payer is not None:
         return art30_payer
     payer, payer_rule = payer_of_benefit(eng)
@@ -171,7 +171,7 @@ def _payer(eng: Engine, applied: list[str], art30_payer: str | None) -> str | No
     return payer
 
 
-# ================================================================== matka — urlop macierzyński po porodzie
+# ================================================================== matka - urlop macierzyński po porodzie
 def evaluate_maternity(eng: Engine) -> dict[str, Any]:
     ctx = eng.ctx
     ctx.state["benefit"] = "MATERNITY_BENEFIT"
@@ -204,7 +204,7 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                 basis = basis or result_set.get("entitlement_basis")
     if elig.value is not True:
         # Przedłużenie umowy terminowej do dnia porodu (MAT-CLS-002, M13). Braki danych art. 30 nie trafiają do
-        # missing_data, dopóki rozstrzyga MAT-ELIG-001; wyjątek: umowa terminowa — pytamy o datę początku ciąży
+        # missing_data, dopóki rozstrzyga MAT-ELIG-001; wyjątek: umowa terminowa - pytamy o datę początku ciąży
         # i koniec umowy (MAT-CLS-002).
         kp177 = eng.eval("MAT-CLS-002")
         fixed_term = ctx.field("employment.contract_type") in ("FIXED_TERM", "PROBATION_OVER_1_MONTH")
@@ -217,7 +217,7 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
             eligible = True
             applied.append("MAT-CLS-002")
             reason("KP177_EXTENDED_UNTIL_BIRTH", "MAT-CLS-002",
-                   "Umowa terminowa rozwiązałaby się po upływie trzeciego miesiąca ciąży — ulega przedłużeniu do "
+                   "Umowa terminowa rozwiązałaby się po upływie trzeciego miesiąca ciąży - ulega przedłużeniu do "
                    "dnia porodu (data początku ciąży z zaświadczenia lekarskiego). Przedłużenie potwierdza "
                    "dokument od pracodawcy (np. aneks lub świadectwo pracy).", "KP art. 177 § 3")
         elif elig.value is False:
@@ -229,7 +229,7 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                 reason(eng.rules.rule("MAT-NEG-001")["result"]["reason_code"], "MAT-NEG-001",
                        "W dniu porodu nie było ubezpieczenia chorobowego ani urlopu wychowawczego, a ubezpieczenie "
                        "nie ustało z przyczyn z art. 30 (likwidacja lub upadłość pracodawcy, rozwiązanie umowy z "
-                       "naruszeniem prawa, umowa przedłużona do porodu) — zasiłek macierzyński nie przysługuje.",
+                       "naruszeniem prawa, umowa przedłużona do porodu) - zasiłek macierzyński nie przysługuje.",
                        "art. 29 ust. 1; art. 30")
             elif neg.unknown:
                 eng.need_from(neg)
@@ -239,18 +239,18 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                 # DT-9 w. 3: podstawa, której silnik nie rozstrzyga, może zmienić wynik → NEEDS_REVIEW
                 review = True
                 reason("NOT_INSURED_ON_BIRTH_ART30_NOT_EVALUATED", "MAT-ELIG-001",
-                       "Brak ubezpieczenia chorobowego w dniu porodu — podstawy z art. 30 (zasiłek po ustaniu "
+                       "Brak ubezpieczenia chorobowego w dniu porodu - podstawy z art. 30 (zasiłek po ustaniu "
                        "ubezpieczenia) wymagają weryfikacji.", "art. 29 ust. 1 pkt 1; art. 30")
     if art30_payer is not None and not elig.fired:
         reason("ART30_AFTER_TITLE_END", next(a.rule_id for a in alternatives if a.fired),
-               "Ubezpieczenie ustało w czasie ciąży z przyczyny z art. 30 (albo umowa przedłużona do dnia porodu) — "
+               "Ubezpieczenie ustało w czasie ciąży z przyczyny z art. 30 (albo umowa przedłużona do dnia porodu) - "
                "zasiłek macierzyński przysługuje po ustaniu ubezpieczenia i wypłaca go ZUS.",
                "art. 30 ust. 1, 4; art. 61 ust. 1 pkt 2")
     suspended = None
     if eligible is True:
         for exc in eng.exclusions("MAT-ELIG-001"):
             if exc.rule_id == "GEN-EXCL-001":
-                continue  # zadłużenie (GEN-EXCL-001/002) — general.debt_exclusion
+                continue  # zadłużenie (GEN-EXCL-001/002) - general.debt_exclusion
             if exc.decided or exc.unknown:
                 applied.append(exc.rule_id)
             if exc.unknown:
@@ -296,7 +296,7 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
             period = {"from": birth.isoformat(), "to": computed.isoformat(), "max_weeks": days // week_days}
             reason("CHILD_DEATH_SHORTENED" if duration.rule_id == "MAT-DUR-004" else "STILLBIRTH_8_WEEKS",
                    duration.rule_id,
-                   f"Martwe urodzenie albo zgon dziecka — urlop i zasiłek macierzyński do {computed.isoformat()} "
+                   f"Martwe urodzenie albo zgon dziecka - urlop i zasiłek macierzyński do {computed.isoformat()} "
                    f"(nie krócej niż {ctx.param('STILLBIRTH_LEAVE_WEEKS')} tyg. po porodzie przy martwym urodzeniu "
                    f"lub zgonie przed ukończeniem 8 tyg. życia i nie krócej niż {ctx.param('CHILD_DEATH_MIN_DAYS')} "
                    f"dni od zgonu).", "KP art. 180(1) § 1-2")
@@ -316,7 +316,7 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
                     suspended, basis)
 
 
-# ================================================================== art. 30 ust. 3 — zasiłek do dnia przed porodem
+# ================================================================== art. 30 ust. 3 - zasiłek do dnia przed porodem
 def evaluate_equivalent_allowance(eng: Engine) -> dict[str, Any] | None:
     """MAT-ELIG-007: ustanie umowy o pracę w ciąży (likwidacja/upadłość/śmierć pracodawcy, rozwiązanie z naruszeniem
     prawa stwierdzone przez sąd, M16 a) i brak innego zatrudnienia → zasiłek w wysokości zasiłku macierzyńskiego
@@ -352,14 +352,14 @@ def evaluate_equivalent_allowance(eng: Engine) -> dict[str, Any] | None:
     period = days = None
     money: dict[str, Any] = {"rate": ctx.param(result_set["rate"]["param"])}
     if title_end is not None and birth is not None and title_end + timedelta(days=1) > birth - timedelta(days=1):
-        return None  # tytuł ustał dzień przed porodem — brak okresu do wypłaty (od porodu: art. 30 ust. 1)
+        return None  # tytuł ustał dzień przed porodem - brak okresu do wypłaty (od porodu: art. 30 ust. 1)
     if title_end is not None and birth is not None:
         start, end = title_end + timedelta(days=1), birth - timedelta(days=1)
         days = days_in(start, end)
         period = {"from": start.isoformat(), "to": end.isoformat()}
         reason("ALLOWANCE_UNTIL_BIRTH", "MAT-ELIG-007",
                f"Umowa o pracę ustała w czasie ciąży z przyczyny niezależnej od pracownicy, a pracodawca nie zapewnił "
-               f"innego zatrudnienia — do dnia poprzedzającego poród ({end.isoformat()}) przysługuje zasiłek w "
+               f"innego zatrudnienia - do dnia poprzedzającego poród ({end.isoformat()}) przysługuje zasiłek w "
                f"wysokości zasiłku macierzyńskiego ({pct(money['rate'])} podstawy), wypłaca ZUS.", "art. 30 ust. 3")
         ctx.segment = {"leave_type": None, "parent": "MOTHER", "from": period["from"], "to": period["to"]}
         previous_rate = ctx.state.get("rate")
@@ -414,7 +414,7 @@ def evaluate_maternity_like(eng: Engine) -> dict[str, Any]:
                f"Zasiłek za okres urlopu na warunkach macierzyńskiego przysługuje, gdy w dniu przyjęcia dziecko nie "
                f"ukończyło {limit} lat (rodzina zastępcza: {ctx.param('FOSTER_CHILD_AGE_MAX')} lat, "
                f"{ctx.param('FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED')} przy odroczonym obowiązku szkolnym), a "
-               f"wnioskodawca jest ubezpieczony — warunki nie są spełnione.",
+               f"wnioskodawca jest ubezpieczony - warunki nie są spełnione.",
                "art. 29 ust. 1 pkt 2-3")
     if eligible is True and not excluded:
         debt = debt_exclusion(eng)
@@ -441,7 +441,7 @@ def evaluate_maternity_like(eng: Engine) -> dict[str, Any]:
             if eng.check("MAT-DUR-008"):
                 applied.append("MAT-DUR-008")
                 reason("AGE_LIMIT_SHORTENS_LEAVE", "MAT-DUR-008",
-                       f"Urlop kończy się {computed['to'].isoformat()} — dzień przed osiągnięciem przez dziecko "
+                       f"Urlop kończy się {computed['to'].isoformat()} - dzień przed osiągnięciem przez dziecko "
                        f"granicznego wieku; niewykorzystana część urlopu przepada (bez podwyższenia do "
                        f"{ctx.param('MATERNITY_LIKE_GUARANTEED_WEEKS')} tyg.).", "KP art. 183 § 1, § 3")
 
@@ -466,7 +466,7 @@ def evaluate_supplementary(eng: Engine, maternity: dict[str, Any]) -> dict[str, 
 
     Bez ``children.hospital_stays`` (null) pytamy o pobyty tylko, gdy tydzień ciąży lub masa kwalifikują
     (SUPP-ELIG-001/002 FIRED); pusta lista = brak pobytów → brak urlopu. SUPP-COND-001 (jeden uprawniony rodzic)
-    — fakty spoza rejestru → ``not_evaluated_rules``; status jak macierzyńskiego (DERIVED, D26).
+    - fakty spoza rejestru → ``not_evaluated_rules``; status jak macierzyńskiego (DERIVED, D26).
     """
     ctx = eng.ctx
     stays = ctx.field("children.hospital_stays")
@@ -500,7 +500,7 @@ def evaluate_supplementary(eng: Engine, maternity: dict[str, Any]) -> dict[str, 
     applied.append(fired.rule_id)
     if eng.eval("SUPP-CALC-001").fired:
         applied.append("SUPP-CALC-001")
-    if weeks is None:  # np. trwający pobyt bez daty końca — dopytać, nie pomijać urlopu
+    if weeks is None:  # np. trwający pobyt bez daty końca - dopytać, nie pomijać urlopu
         eng.need("children.hospital_stays", fired.rule_id)
         return _benefit("MATERNITY_BENEFIT", "SUPPLEMENTARY_MATERNITY_LEAVE", "NEEDS_DATA", {}, None, None, None,
                         reasons, applied)
@@ -516,7 +516,7 @@ def evaluate_supplementary(eng: Engine, maternity: dict[str, Any]) -> dict[str, 
     else:
         period = {"max_weeks": weeks}
     reason("SUPPLEMENTARY_WEEKS", fired.rule_id,
-           f"Dziecko urodzone przedwcześnie lub hospitalizowane po porodzie — urlop uzupełniający {weeks} tyg. "
+           f"Dziecko urodzone przedwcześnie lub hospitalizowane po porodzie - urlop uzupełniający {weeks} tyg. "
            f"(tydzień za każdy rozpoczęty tydzień pobytu w szpitalu w oknie {args.get('cap_week')} tyg. po porodzie), "
            f"bezpośrednio po urlopie macierzyńskim.", "KP art. 180(2) § 1-3")
     money: dict[str, Any] = {"needs_data": False}

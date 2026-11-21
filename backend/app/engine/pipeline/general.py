@@ -70,7 +70,7 @@ def debt_exclusion(eng: Engine) -> DebtCheck:
         check.reasons.append(make_reason(
             eng, result["reason_code"], "GEN-EXCL-002",
             f"Zadłużenie składkowe nie zostało spłacone w ciągu {ctx.param('DEBT_REPAYMENT_LIMIT_MONTHS')} "
-            f"miesięcy od dnia powstania prawa — prawo do świadczenia przedawniło się.", "art. 2a ust. 2"))
+            f"miesięcy od dnia powstania prawa - prawo do świadczenia przedawniło się.", "art. 2a ust. 2"))
         return check
     if expired.unknown:
         eng.need_from(expired)
@@ -80,5 +80,5 @@ def debt_exclusion(eng: Engine) -> DebtCheck:
     check.reasons.append(make_reason(
         eng, result["reason_code"], "GEN-EXCL-001",
         f"Zadłużenie składkowe przekracza {pct(ctx.param('DEBT_THRESHOLD_MIN_WAGE_RATIO'))} minimalnego "
-        f"wynagrodzenia ({dec_str(threshold)} zł) — zasiłek nie przysługuje do czasu spłaty.", "art. 2a ust. 1"))
+        f"wynagrodzenia ({dec_str(threshold)} zł) - zasiłek nie przysługuje do czasu spłaty.", "art. 2a ust. 1"))
     return check

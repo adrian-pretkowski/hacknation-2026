@@ -67,7 +67,7 @@ export function CalculatorForm() {
         </label>
         <label className="block text-sm font-medium">Podstawa wymiaru zasiłku (zł / miesiąc)
           <input inputMode="decimal" className={field} value={base} onChange={(e) => setBase(e.target.value.replace(",", "."))} name="base" />
-          <span className="text-xs font-normal text-zinc-500">Na razie wpisywana ręcznie; wyliczanie z historii wynagrodzeń — w kolejnym etapie.</span>
+          <span className="text-xs font-normal text-zinc-500">Na razie wpisywana ręcznie; wyliczanie z historii wynagrodzeń - w kolejnym etapie.</span>
         </label>
         {title.startsWith("SELF_EMPLOYED") && (
           <label className="block text-sm font-medium">Zadłużenie składkowe w dniu porodu (zł)
@@ -76,7 +76,7 @@ export function CalculatorForm() {
         )}
         <label className="flex items-start gap-2 text-sm">
           <input type="checkbox" className="mt-1 h-4 w-4" checked={combined} onChange={(e) => setCombined(e.target.checked)} name="combined" />
-          <span>Złożę wniosek o łączny zasiłek (macierzyński + rodzicielski) w ciągu 21 dni od porodu — 81,5%</span>
+          <span>Złożę wniosek o łączny zasiłek (macierzyński + rodzicielski) w ciągu 21 dni od porodu - 81,5%</span>
         </label>
         <button type="submit" disabled={loading} className="w-full rounded bg-sky-700 px-4 py-2 font-medium text-white hover:bg-sky-800 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700">
           {loading ? "Liczę…" : "Oblicz"}

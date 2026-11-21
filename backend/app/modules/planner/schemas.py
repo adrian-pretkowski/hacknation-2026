@@ -1,4 +1,4 @@
-"""Modele żądań planera (BE2-07) — zgodne z contracts/openapi.yaml (PlannerSuggestRequest, PlannerGraphRequest)."""
+"""Modele żądań planera (BE2-07) - zgodne z contracts/openapi.yaml (PlannerSuggestRequest, PlannerGraphRequest)."""
 from decimal import Decimal
 from typing import Literal
 

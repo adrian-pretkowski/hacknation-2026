@@ -1,8 +1,8 @@
-# 06 — DECISION TABLES
+# 06 - DECISION TABLES
 
 Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez znaczenia. Wiersze są rozłączne i czytane **od góry** (pierwszeństwo). Każdy wiersz wskazuje regułę, która rozstrzyga.
 
-## DT-1. Pracownik niezdolny do pracy — wynagrodzenie czy zasiłek chorobowy (i stawka)
+## DT-1. Pracownik niezdolny do pracy - wynagrodzenie czy zasiłek chorobowy (i stawka)
 
 | # | Prawo do zasiłku (SICK-ELIG/EXCL) | Pracownik w dniu niezdolności | Dni wyn. chor. w roku < limit (33 / 14 po roku 50. urodzin) | Ciąża (kod B / deklaracja) | Wynik | Reguły |
 |---|---|---|---|---|---|---|
@@ -57,7 +57,7 @@ Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez zn
 | 9 | F | F | F | F | F | – | NOT_ELIGIBLE + ostrzeżenie | – | MAT-NEG-001, RISK-003 |
 
 **Brak okresu wyczekiwania** dla zasiłku macierzyńskiego (MAT-CLS-001, DERIVED).
-**Przed porodem** (wiersz 4, przyczyny śmierć/upadłość/likwidacja + brak innego zatrudnienia): **zasiłek w wysokości zasiłku macierzyńskiego (100%) do dnia porodu** — MAT-ELIG-007. Także rozwiązanie umowy w ciąży z naruszeniem prawa stwierdzonym przez sąd (UNLAWFUL_TERMINATION_COURT_CONFIRMED) — wg treści zadania (M16 a, CONF-001 rozstrzygnięty); sprawa w toku → brak tego świadczenia.
+**Przed porodem** (wiersz 4, przyczyny śmierć/upadłość/likwidacja + brak innego zatrudnienia): **zasiłek w wysokości zasiłku macierzyńskiego (100%) do dnia porodu** - MAT-ELIG-007. Także rozwiązanie umowy w ciąży z naruszeniem prawa stwierdzonym przez sąd (UNLAWFUL_TERMINATION_COURT_CONFIRMED) - wg treści zadania (M16 a, CONF-001 rozstrzygnięty); sprawa w toku → brak tego świadczenia.
 
 ## DT-5. Wymiar zasiłku za okres urlopu macierzyńskiego
 
@@ -66,7 +66,7 @@ Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez zn
 | 1 | Wszystkie dzieci żyją | 20 / 31 / 33 / 35 / 37 tyg. (1/2/3/4/5+ dzieci) | MAT-DUR-001 |
 | 2 | Martwe urodzenie / zgon przed 8. tyg. życia, brak żyjących dzieci | 8 tyg. po porodzie, nie krócej niż 7 dni od zgonu | MAT-DUR-003 |
 | 3 | Zgon po 8. tyg. życia, brak żyjących dzieci | do 7 dni od zgonu | MAT-DUR-004 |
-| 4 | Wieloraczki, część dzieci zmarła | wymiar wg liczby żyjących (moment zmiany — NEEDS_REVIEW) | MAT-DUR-005 (BLOCKED) |
+| 4 | Wieloraczki, część dzieci zmarła | wymiar wg liczby żyjących (moment zmiany - NEEDS_REVIEW) | MAT-DUR-005 (BLOCKED) |
 | 5 | Porzucenie / umieszczenie w pieczy | do dnia porzucenia, min. 8 tyg. po porodzie | MAT-DUR-006 |
 | 6 | Przed porodem | maks. 6 tyg. (wliczane do wymiaru) | MAT-DUR-002 |
 
@@ -83,7 +83,7 @@ Oznaczenia: `T` = prawda, `F` = fałsz, `?` = nieznane (UNKNOWN), `–` = bez zn
 | 7 | rodzicielski | T | F | F | wnioskodawca | **70%** | RATE-MAT-005 |
 | 8 | rodzicielski | T | F | – | ojciec (część dzielona) | **81,5%** (M11) | RATE-MAT-008 |
 | 9 | dowolny z pracą ≤½ etatu | – | – | – | – | stawka × (1 − wymiar pracy) | PAR-WORK-003 |
-| 10 | kwota < świadczenie rodzicielskie | – | – | – | – | podwyższenie do 1000 zł/mies. (M10; niepełny miesiąc — M10c) | RATE-MAT-007 |
+| 10 | kwota < świadczenie rodzicielskie | – | – | – | – | podwyższenie do 1000 zł/mies. (M10; niepełny miesiąc - M10c) | RATE-MAT-007 |
 
 Pierwszeństwo: 8 > 7 > 5 > 6/3 > 4/2 > 1; modyfikator 9 stosowany zawsze na końcu.
 
@@ -107,7 +107,7 @@ Wieloraczki: wariant wg masy najlżejszego dziecka, dni wg najdłużej hospitali
 | 2 | JDG / współpracujący / duchowny / pracodawca zagraniczny | F | – | **ZUS** | GEN-CLS-002 |
 | 3 | pracownik / zleceniobiorca | F | ≤ 20 | **ZUS** (płatnik przekazuje dokumenty w 7 dni) | GEN-CLS-002, SICK-DL-001 |
 | 4 | pracownik / zleceniobiorca | F | > 20 | **płatnik składek** | GEN-CLS-001 |
-| 5 | pracownik / zleceniobiorca | F | ? | NEEDS_DATA (nie wpływa na prawo) | — |
+| 5 | pracownik / zleceniobiorca | F | ? | NEEDS_DATA (nie wpływa na prawo) | - |
 
 ## DT-9. Agregacja statusu świadczenia
 

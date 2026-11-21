@@ -6,7 +6,7 @@ Tryby reguł (03_rules.yaml meta.dsl.evaluation_modes):
   z brakującymi polami wejścia → UNKNOWN z listą braków (D17: najpierw dopytać), UNKNOWN bez braków → BLOCKED,
 - reguła z faktem, którego nie ma jeszcze w rejestrze: oceniana częściowo (brakujący fakt = UNKNOWN). Gdy znane dane
   przesądzają wynik → normalny wynik; gdy brakuje pól wejścia → UNKNOWN z brakami; gdy rozstrzygnięcie zależy tylko
-  od faktu spoza rejestru → NOT_EVALUATED (``not_evaluated_rules``) — wywołujący decyduje o NEEDS_REVIEW.
+  od faktu spoza rejestru → NOT_EVALUATED (``not_evaluated_rules``) - wywołujący decyduje o NEEDS_REVIEW.
 """
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ STATUS_ORDER = ["OUT_OF_SCOPE", "NOT_ELIGIBLE", "NEEDS_REVIEW", "NEEDS_DATA", "E
 
 FIRED, NOT_FIRED, UNKNOWN = "FIRED", "NOT_FIRED", "UNKNOWN"
 BLOCKED, FUTURE_SKIPPED, NOT_APPLICABLE = "BLOCKED", "FUTURE_SKIPPED", "NOT_APPLICABLE"
-NOT_EVALUATED = "NOT_EVALUATED"  # wewnętrzny — raportowany w not_evaluated_rules, nie w śladzie
+NOT_EVALUATED = "NOT_EVALUATED"  # wewnętrzny - raportowany w not_evaluated_rules, nie w śladzie
 
 
 @dataclass
@@ -119,7 +119,7 @@ class Engine:
     def pick(self, candidate_ids: list[str]) -> tuple[Outcome | None, list[Outcome]]:
         """Rozstrzyga ``overrides`` (07 §6): wygrywa reguła FIRED nienadpisana przez inną FIRED.
 
-        Zwraca (zwycięzca, nadpisujące UNKNOWN) — o skutku UNKNOWN decyduje wywołujący.
+        Zwraca (zwycięzca, nadpisujące UNKNOWN) - o skutku UNKNOWN decyduje wywołujący.
         """
         outcomes = {rid: self.eval(rid) for rid in candidate_ids}
         fired = [o for o in outcomes.values() if o.fired]

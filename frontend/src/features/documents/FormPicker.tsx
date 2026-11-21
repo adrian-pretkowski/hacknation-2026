@@ -1,7 +1,7 @@
 "use client";
 
 // Kafelki pism (FE1-11): ten sam komponent na ścieżce „Szybkie pisma” i na podsumowaniu wyniku.
-// Klik → onOpen(kod) — ekran pisma z formularzem do wypełnienia (etap 3: FE1-23).
+// Klik → onOpen(kod) - ekran pisma z formularzem do wypełnienia (etap 3: FE1-23).
 import { useId, useState } from "react";
 import type { Answers } from "@/features/main-flow/wizard/answers";
 import { FormFill } from "./FormFill";
@@ -53,7 +53,7 @@ function FormTile({ code, recommended, onOpen, level }: { code: FormCode; recomm
         <div><dt className="inline font-semibold text-zinc-900">Kto: </dt><dd className="inline text-zinc-700">{f.who}</dd></div>
       </dl>
       {/* cały kafelek klikalny (after:inset-0), nazwa przycisku krótka dla czytników ekranu */}
-      <button type="button" onClick={() => onOpen(code)} aria-label={`Wypełnij ${code} — ${f.name}`}
+      <button type="button" onClick={() => onOpen(code)} aria-label={`Wypełnij ${code} - ${f.name}`}
         className="mt-auto self-start pt-4 text-sm font-semibold text-zus-green-dark after:absolute after:inset-0 after:rounded-2xl hover:underline focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-zus-green-dark">
         Wypełnij {code} →
       </button>
@@ -83,13 +83,13 @@ export function FormPicker({ onOpen, recommended = [], headingLevel = 3, codes, 
           </ul>
         </section>
       ))}
-      {showLegend && <p className="text-xs text-zinc-600">Symbole i nazwy formularzy wg informacji ZUS. Kolor ikony: zielony — wypełniasz Ty, granatowy — wypełnia płatnik składek.</p>}
+      {showLegend && <p className="text-xs text-zinc-600">Symbole i nazwy formularzy wg informacji ZUS. Kolor ikony: zielony - wypełniasz Ty, granatowy - wypełnia płatnik składek.</p>}
     </div>
   );
 }
 
 /** Na wyniku (FE1-16): widać tylko pisma dopasowane do planu, pozostałe po kliknięciu „Pokaż pozostałe pisma”.
- *  Bez dopasowania — informacja, że nic nie pasuje, i ten sam przycisk (wszystkie pisma zwinięte). */
+ *  Bez dopasowania - informacja, że nic nie pasuje, i ten sam przycisk (wszystkie pisma zwinięte). */
 export function MatchedFormPicker({ onOpen, recommended, headingLevel = 4 }: {
   onOpen: (code: FormCode) => void; recommended: FormCode[]; headingLevel?: 3 | 4;
 }) {
@@ -117,7 +117,7 @@ export function MatchedFormPicker({ onOpen, recommended, headingLevel = 4 }: {
   );
 }
 
-/** Ekran pojedynczego pisma: opis i formularz do wypełnienia (FE1-23) — Anuluj wraca, Prześlij pobiera wypełniony PDF. */
+/** Ekran pojedynczego pisma: opis i formularz do wypełnienia (FE1-23) - Anuluj wraca, Prześlij pobiera wypełniony PDF. */
 export function FormDetail({ code, onBack, backLabel, answers = null }: { code: FormCode; onBack: () => void; backLabel: string; answers?: Answers | null }) {
   const f = FORMS[code];
   return (

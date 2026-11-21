@@ -12,7 +12,7 @@ from app.modules.planner.router import router as planner_router
 from app.modules.simulations.router import router as simulations_router
 
 settings = get_settings()
-app = FastAPI(title="Przewodnik Przyszłego Rodzica — API", version="0.1.0")
+app = FastAPI(title="Przewodnik Przyszłego Rodzica - API", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["GET", "POST", "PUT"],
                    allow_headers=["*"])
 

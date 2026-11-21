@@ -1,4 +1,4 @@
-"""BE2-05: panel admina parametrów — GET/PUT /api/admin/parameters (kontrakt ParameterList / ParameterUpdate).
+"""BE2-05: panel admina parametrów - GET/PUT /api/admin/parameters (kontrakt ParameterList / ParameterUpdate).
 
 Kryterium akceptacji: zmiana MAT_RATE_COMBINED zmienia wynik /api/evaluate bez restartu. Dodatkowo: token (401),
 konflikt wersji (409), walidacja (422), valid_from (wartość obowiązuje od daty), trwałość w pliku JSON.
@@ -63,7 +63,7 @@ def test_BE2_05_rate_change_changes_evaluation_without_restart(client, demo_payl
     before = client.post("/api/evaluate", json=demo_payload).json()["benefits"][0]
     assert (before["rate"], before["daily_amount_exact"]) == ("0.815", "163")
     response = _put(client, {"name": "MAT_RATE_COMBINED", "value": "0.9", "valid_from": None,
-                             "reason": "Demo — zmiana stawki (test BE2-05)"})
+                             "reason": "Demo - zmiana stawki (test BE2-05)"})
     assert response.status_code == 200
     body = response.json()
     assert not list(_validator("ParameterList").iter_errors(body))

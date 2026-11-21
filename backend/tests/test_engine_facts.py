@@ -213,7 +213,7 @@ def test_t_base_006_007_010_same_base_end_to_end(demo_payload, prev_end):
     assert benefit["status"] == "ELIGIBLE"
     assert "BASE-GEN-001" in benefit["applied_rules"]
     assert benefit["base"] == {"amount_exact": "5123.45", "source": "REUSED_PREVIOUS", "method_rule_id": "BASE-GEN-001"}
-    # 5123,45 × 100% / 30 — dokładnie, bez zaokrągleń pośrednich
+    # 5123,45 × 100% / 30 - dokładnie, bez zaokrągleń pośrednich
     assert Decimal(benefit["daily_amount_exact"]) == Decimal("5123.45") / 30
 
 

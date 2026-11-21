@@ -42,10 +42,10 @@ export async function evaluate(request: EvaluateRequest): Promise<EvaluateRespon
   return (await response.json()) as EvaluateResponse;
 }
 
-// Planer urlopów (BE2-07): najlepszy następny wybór + cofanie. Wymaga backendu — w trybie mock zwraca błąd z opisem.
+// Planer urlopów (BE2-07): najlepszy następny wybór + cofanie. Wymaga backendu - w trybie mock zwraca błąd z opisem.
 export async function plannerSuggest(request: PlannerSuggestRequest): Promise<PlannerSuggestResponse> {
   if (API_MODE === "mock") {
-    throw new ApiError(null, "Planer wymaga działającego API — w trybie demo (bez backendu) jest niedostępny.");
+    throw new ApiError(null, "Planer wymaga działającego API - w trybie demo (bez backendu) jest niedostępny.");
   }
   let response: Response;
   try {
@@ -66,7 +66,7 @@ export async function plannerSuggest(request: PlannerSuggestRequest): Promise<Pl
 
 export type Health = components["schemas"]["Health"];
 
-/** Wersja frontendu — wstrzykiwana z tagu przy buildzie (INT-11); lokalnie „dev”. */
+/** Wersja frontendu - wstrzykiwana z tagu przy buildzie (INT-11); lokalnie „dev”. */
 export const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || "dev";
 
 export async function getHealth(): Promise<Health | null> {
@@ -86,7 +86,7 @@ export type ParameterUpdate = components["schemas"]["ParameterUpdate"];
 
 async function adminCall(token: string, init?: { method: "PUT"; body: ParameterUpdate }): Promise<ParameterList> {
   if (API_MODE === "mock") {
-    throw new ApiError(null, "Panel admina wymaga działającego API — w trybie demo (bez backendu) jest niedostępny.");
+    throw new ApiError(null, "Panel admina wymaga działającego API - w trybie demo (bez backendu) jest niedostępny.");
   }
   let response: Response;
   try {

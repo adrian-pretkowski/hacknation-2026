@@ -1,4 +1,4 @@
-// SYMULACJA pobrania danych z systemów ZUS — wyłącznie dane syntetyczne, bez żadnego połączenia z ZUS.
+// SYMULACJA pobrania danych z systemów ZUS - wyłącznie dane syntetyczne, bez żadnego połączenia z ZUS.
 // Docelowo: GET /api/sim/zus-profile i GET /api/sim/debt-certificate (contracts/openapi.yaml, x-status: planned, INT-03).
 // Wartości poniżej są przykładowe i deterministyczne; nie odpowiadają żadnej rzeczywistej osobie ani sprawie.
 import { formatMoney } from "@/lib/format";

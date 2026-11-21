@@ -1,4 +1,4 @@
-"""Rezerwacja zadania z docs/TASKS.md — od razu na origin/main, żeby inni widzieli, że jest zajęte.
+"""Rezerwacja zadania z docs/TASKS.md - od razu na origin/main, żeby inni widzieli, że jest zajęte.
 
 Użycie (z katalogu repo, dowolna gałąź, brudne drzewo nie przeszkadza):
     python scripts/claim_task.py INT-10                      # zajmij istniejące zadanie
@@ -7,14 +7,14 @@ Użycie (z katalogu repo, dowolna gałąź, brudne drzewo nie przeszkadza):
     python scripts/claim_task.py BE2-05 --dry-run            # pokaż zmianę, nic nie wysyłaj
 
 Co robi:
-1. `git fetch origin main` i czyta docs/TASKS.md (oraz PROGRESS.md) z origin/main — nie z lokalnej kopii.
+1. `git fetch origin main` i czyta docs/TASKS.md (oraz PROGRESS.md) z origin/main - nie z lokalnej kopii.
 2. Sprawdza status wiersza: TODO → zajmuje; IN_PROGRESS u kogoś innego, DONE, BLOCKED → odmawia (kod 2)
    bez `--force`; IN_PROGRESS już u ciebie → nic nie robi (kod 0).
 3. Ustawia `IN_PROGRESS (<rola> · <kto>)` i nadpisuje linię roli w PROGRESS.md § 3 (bez `--no-progress`).
 4. Tworzy commit `chore(<ID>): claim …` bezpośrednio na origin/main (plumbing: commit-tree, bez checkoutu
    i bez ruszania twojej gałęzi ani drzewa roboczego) i wypycha go. Przy wyścigu (ktoś wypchnął w międzyczasie)
    pobiera main od nowa, sprawdza status jeszcze raz i ponawia (do 5 prób).
-5. Jeśli jesteś na `main` — przewija go fast-forward do origin/main; na innej gałęzi podaje, co zrobić.
+5. Jeśli jesteś na `main` - przewija go fast-forward do origin/main; na innej gałęzi podaje, co zrobić.
 
 Commit rezerwacji nie przechodzi przez /review (dotyczy tylko statusu w TASKS/PROGRESS).
 """
@@ -122,7 +122,7 @@ def claim_tasks(text: str, task_id: str, status: str, who: str, new_row: str | N
     idx = find_row(lines, task_id)
     if new_row is not None:
         if idx is not None:
-            raise ClaimError(f"{task_id} już jest w {TASKS} — zajmij je bez --new-row")
+            raise ClaimError(f"{task_id} już jest w {TASKS} - zajmij je bez --new-row")
         row = cells(new_row)
         if len(row) < 2 or row[0] != task_id:
             raise ClaimError(f"--new-row musi być wierszem tabeli zaczynającym się od '| {task_id} |'")
@@ -158,7 +158,7 @@ def claim_progress(text: str, role: str, task_id: str, branch: str, today: str) 
             row = cells(lines[i])
             if row and row[0] == role and len(row) >= 4:
                 row[1] = f"{task_id} IN_PROGRESS"
-                row[2] = f"`{branch}`" if branch else "—"
+                row[2] = f"`{branch}`" if branch else "-"
                 row[3] = today
                 lines[i] = join_cells(row)
                 break
@@ -170,7 +170,7 @@ def show(rev: str, path: str) -> str:
 
 
 def make_commit(base: str, files: dict[str, str], message: str) -> str:
-    """Commit z rodzicem `base` zmieniający `files` — przez tymczasowy indeks, bez checkoutu."""
+    """Commit z rodzicem `base` zmieniający `files` - przez tymczasowy indeks, bez checkoutu."""
     fd, index_path = tempfile.mkstemp(prefix="claim-index-")
     os.close(fd)
     os.unlink(index_path)
@@ -191,20 +191,20 @@ def sync_local(task_id: str) -> None:
     current = out("branch", "--show-current")
     if current != BRANCH:
         print(f"Jesteś na '{current or '(odłączony HEAD)'}'. Zalecane: zajmuj zadanie przed utworzeniem gałęzi, "
-              f"albo teraz `git merge {REMOTE}/{BRANCH}` — wtedy zmiana statusu {task_id} na DONE nie da konfliktu.")
+              f"albo teraz `git merge {REMOTE}/{BRANCH}` - wtedy zmiana statusu {task_id} na DONE nie da konfliktu.")
         return
     if git("merge-base", "--is-ancestor", "HEAD", f"{REMOTE}/{BRANCH}", check=False).returncode != 0:
-        print(f"Lokalny {BRANCH} ma własne commity — wykonaj `git pull --rebase {REMOTE} {BRANCH}`.")
+        print(f"Lokalny {BRANCH} ma własne commity - wykonaj `git pull --rebase {REMOTE} {BRANCH}`.")
         return
     dirty = out("status", "--porcelain", "--", TASKS, PROGRESS)
     if dirty:
-        print(f"Masz lokalne zmiany w {TASKS}/{PROGRESS} — przewiń ręcznie: `git pull --rebase {REMOTE} {BRANCH}`.")
+        print(f"Masz lokalne zmiany w {TASKS}/{PROGRESS} - przewiń ręcznie: `git pull --rebase {REMOTE} {BRANCH}`.")
         return
     proc = git("merge", "--ff-only", "-q", f"{REMOTE}/{BRANCH}", check=False)
     if proc.returncode == 0:
         print(f"Lokalny {BRANCH} przewinięty do {REMOTE}/{BRANCH}.")
     else:
-        print(f"Nie udało się przewinąć {BRANCH}: {proc.stderr.decode('utf-8', 'replace').strip()} — "
+        print(f"Nie udało się przewinąć {BRANCH}: {proc.stderr.decode('utf-8', 'replace').strip()} - "
               f"wykonaj `git pull --rebase {REMOTE} {BRANCH}`.")
 
 
@@ -225,7 +225,7 @@ def run(args: argparse.Namespace) -> int:
     role = args.role or ROLES[m.group(1)]
     who = args.who or git("config", "user.name", check=False).stdout.decode("utf-8").strip()
     if not who:
-        raise ClaimError("nieznane 'kto' — ustaw `git config user.name` albo podaj --who")
+        raise ClaimError("nieznane 'kto' - ustaw `git config user.name` albo podaj --who")
     status = f"IN_PROGRESS ({role} · {who})"
     branch = args.branch or ""
     today = dt.date.today().isoformat()
@@ -235,7 +235,7 @@ def run(args: argparse.Namespace) -> int:
         base = out("rev-parse", f"{REMOTE}/{BRANCH}")
         tasks_new, state = claim_tasks(show(base, TASKS), task_id, status, who, args.new_row, args.force)
         if state == "mine":
-            print(f"{task_id} jest już zajęte przez ciebie ({who}) na {REMOTE}/{BRANCH} — nic do zrobienia.")
+            print(f"{task_id} jest już zajęte przez ciebie ({who}) na {REMOTE}/{BRANCH} - nic do zrobienia.")
             return EXIT_OK
         if state in ("taken", "done", "blocked"):
             print(f"UWAGA: nadpisuję status {task_id} (--force).")
@@ -251,7 +251,7 @@ def run(args: argparse.Namespace) -> int:
                 if line.startswith(f"| {task_id} |"):
                     print(line)
             return EXIT_OK
-        sha = make_commit(base, files, f"chore({task_id}): claim — {status}")
+        sha = make_commit(base, files, f"chore({task_id}): claim - {status}")
         proc = git("push", "-q", REMOTE, f"{sha}:refs/heads/{BRANCH}", check=False)
         if proc.returncode == 0:
             git("fetch", "-q", REMOTE, BRANCH)
@@ -260,10 +260,10 @@ def run(args: argparse.Namespace) -> int:
             return EXIT_OK
         err = proc.stderr.decode("utf-8", "replace").strip()
         if not any(k in err for k in ("rejected", "fetch first", "non-fast-forward")):
-            raise ClaimError(f"push nieudany (to nie wyścig — sprawdź dostęp/sieć): {err}")
+            raise ClaimError(f"push nieudany (to nie wyścig - sprawdź dostęp/sieć): {err}")
         if attempt == MAX_ATTEMPTS:
             raise ClaimError(f"push nieudany po {MAX_ATTEMPTS} próbach: {err}")
-        print(f"Push odrzucony (próba {attempt}/{MAX_ATTEMPTS}) — pobieram {BRANCH} ponownie i sprawdzam status.", file=sys.stderr)
+        print(f"Push odrzucony (próba {attempt}/{MAX_ATTEMPTS}) - pobieram {BRANCH} ponownie i sprawdzam status.", file=sys.stderr)
         time.sleep(min(2 ** attempt, 16) * 0.5)
     return EXIT_ERROR
 

@@ -1,15 +1,15 @@
-"""slice-v0 — TYMCZASOWA implementacja podzbioru reguł dla vertical slice.
+"""slice-v0 - TYMCZASOWA implementacja podzbioru reguł dla vertical slice.
 
 Zakres: zasiłek macierzyński za okres urlopu macierzyńskiego matki po urodzeniu dziecka.
 Reguły: MAT-ELIG-001 (tylko ubezpieczenie w dniu porodu), GEN-EXCL-001 (zadłużenie),
 MAT-DUR-001, MAT-DUR-009, APP-DL-001, RATE-MAT-001, RATE-MAT-003, CALC-MAT-001.
 Wszystkie wartości liczbowe pochodzą z zus_rules/03_rules.yaml (app.core.params).
 
-Czego NIE ocenia (zwracane w not_evaluated_rules — jawne ograniczenia):
+Czego NIE ocenia (zwracane w not_evaluated_rules - jawne ograniczenia):
 art. 30 (zasiłek po ustaniu ubezpieczenia), urlop wychowawczy, martwe urodzenie,
 wyliczanie podstawy z historii wynagrodzeń (przyjmuje manual_base_override).
 
-Do zastąpienia przez silnik reguł (app/engine/dsl + facts + pipeline) — patrz docs/TASKS.md.
+Do zastąpienia przez silnik reguł (app/engine/dsl + facts + pipeline) - patrz docs/TASKS.md.
 Logika trójwartościowa: brak danych → NEEDS_DATA, nigdy NOT_ELIGIBLE.
 """
 from __future__ import annotations
@@ -71,7 +71,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     missing: list[dict[str, Any]] = []
     applied: list[str] = []
     assumptions = [{"code": "ROUNDING_UNCONFIRMED",
-                    "text": "Kwoty bez zaokrągleń — zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."}]
+                    "text": "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."}]
     statuses: list[str] = []
 
     def need(field: str, *rule_ids: str) -> None:
@@ -101,7 +101,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
             statuses.append("NEEDS_REVIEW")
             reasons.append({"code": "NOT_INSURED_ON_BIRTH_ART30_NOT_EVALUATED", "rule_id": "MAT-ELIG-001",
                             "message": "Brak ubezpieczenia chorobowego w dniu porodu. Ta wersja nie ocenia jeszcze "
-                                       "przypadków z art. 30 (zasiłek po ustaniu ubezpieczenia) — wymaga weryfikacji.",
+                                       "przypadków z art. 30 (zasiłek po ustaniu ubezpieczenia) - wymaga weryfikacji.",
                             "legal_basis": [{"document": "USTAWA", "location": "art. 29 ust. 1 pkt 1; art. 30"}]})
         elif title and title.get("title_type") in ART2A_TITLES:
             # GEN-EXCL-001
@@ -117,7 +117,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
                 statuses.append("NOT_ELIGIBLE")
                 reasons.append({"code": "CONTRIBUTION_DEBT", "rule_id": "GEN-EXCL-001",
                                 "message": f"Zadłużenie składkowe przekracza 1% minimalnego wynagrodzenia "
-                                           f"({dec_str(threshold)} zł) — zasiłek nie przysługuje do czasu spłaty.",
+                                           f"({dec_str(threshold)} zł) - zasiłek nie przysługuje do czasu spłaty.",
                                 "legal_basis": [{"document": "USTAWA", "location": "art. 2a ust. 1"}]})
             else:
                 statuses.append("ELIGIBLE")
@@ -145,7 +145,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
             assumptions.append({"code": "PUBLIC_HOLIDAYS_UNCONFIRMED",
                                 "text": "Termin w sobotę, niedzielę lub święto przesunięto na następny dzień roboczy "
                                         "(M15); lista świąt 2026–2031 przygotowana przez zespół "
-                                        "(public_holidays.yaml) — do potwierdzenia."})
+                                        "(public_holidays.yaml) - do potwierdzenia."})
         filed = _as_date(_get(payload, "applications.combined_815_filed_date"))
         planned = _get(payload, "applications.combined_815_planned")
         applied.append("APP-DL-001")
@@ -153,13 +153,13 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
             rate = param("MAT_RATE_COMBINED")
             applied.append("RATE-MAT-003")
             reasons.append({"code": "RATE_COMBINED_815", "rule_id": "RATE-MAT-003",
-                            "message": "Wniosek o łączny zasiłek złożony w 21 dni od porodu — 81,5% podstawy.",
+                            "message": "Wniosek o łączny zasiłek złożony w 21 dni od porodu - 81,5% podstawy.",
                             "legal_basis": [{"document": "USTAWA", "location": "art. 31 ust. 3; art. 30a ust. 1"}]})
         else:
             rate = param("MAT_RATE_FULL")
             applied.append("RATE-MAT-001")
             reasons.append({"code": "RATE_FULL_100", "rule_id": "RATE-MAT-001",
-                            "message": f"Zasiłek za okres urlopu macierzyńskiego — 100% podstawy. Wniosek o 81,5% "
+                            "message": f"Zasiłek za okres urlopu macierzyńskiego - 100% podstawy. Wniosek o 81,5% "
                                        f"można złożyć do {deadline.isoformat()}.",
                             "legal_basis": [{"document": "USTAWA", "location": "art. 31 ust. 1; art. 30a ust. 1"}]})
 

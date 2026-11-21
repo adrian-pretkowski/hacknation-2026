@@ -1,7 +1,7 @@
-"""Fakty — urlop rodzicielski, ojcowski, przejęcie macierzyńskiego i walidacje planu (zus_rules/07 §5, BE2-02).
+"""Fakty - urlop rodzicielski, ojcowski, przejęcie macierzyńskiego i walidacje planu (zus_rules/07 §5, BE2-02).
 
 Plan = ``plan.segments`` (04 ``PlanSegment``: parent, leave_type, from, to, work_fraction,
-is_other_parent_reserved_9w). Brak planu = brak segmentów (lista pusta) — fakty walidacyjne zwracają wtedy wynik
+is_other_parent_reserved_9w). Brak planu = brak segmentów (lista pusta) - fakty walidacyjne zwracają wtedy wynik
 „brak naruszenia”, a fakty wymagające segmentu (np. ``f_paternity_within_deadline``) korzystają z dat startu
 (``plan.*_start_date``), które pipeline uzupełnia propozycją, gdy użytkownik ich nie podał.
 Tydzień = WEEK_AS_DAYS dni (C3), liczba tygodni z dni jako Decimal bez zaokrągleń (C1).
@@ -53,7 +53,7 @@ def _weeks(ctx: Context, days: int) -> Decimal:
 
 
 def child_birth_date(ctx: Context) -> date | None:
-    """Data urodzenia dziecka: najstarsze z ``children.items`` (C7), przy porodzie — ``event.date``."""
+    """Data urodzenia dziecka: najstarsze z ``children.items`` (C7), przy porodzie - ``event.date``."""
     dates = [to_date(c.get("birth_date")) for c in ctx.field("children.items") or []]
     dates = [d for d in dates if d is not None]
     if dates:
@@ -115,7 +115,7 @@ def adoption_age_capped(ctx: Context) -> bool | None:
 
 @fact("f_parental_leave_weeks")
 def parental_leave_weeks(ctx: Context) -> int | None:
-    """07 §5: BIRTH 41/43, „Za życiem” 65/67; ADOPTION/FOSTER 41/43, w przypadku KP 183 § 3 — 38 (Za życiem 62).
+    """07 §5: BIRTH 41/43, „Za życiem” 65/67; ADOPTION/FOSTER 41/43, w przypadku KP 183 § 3 - 38 (Za życiem 62).
 
     ``za_zyciem`` null → None. KP art. 182(1a) § 1-2; art. 183 § 3.
     """
@@ -143,7 +143,7 @@ def parental_leave_weeks(ctx: Context) -> int | None:
 def child_alive_on(ctx: Context, date: Any = None) -> bool | None:
     """07 §5: którekolwiek dziecko żyje w ``date`` (nie martwo urodzone, bez zgonu przed ``date``).
 
-    ``children.items`` null → None. Zgon w trakcie urlopu — GAP-014 (pipeline: NEEDS_REVIEW). KP art. 182(1a).
+    ``children.items`` null → None. Zgon w trakcie urlopu - GAP-014 (pipeline: NEEDS_REVIEW). KP art. 182(1a).
     """
     day = to_date(date)
     items = ctx.field("children.items")
@@ -208,7 +208,7 @@ def total_parental_weeks_planned(ctx: Context) -> Decimal | None:
 
 @fact("f_parental_parts_count")
 def parental_parts_count(ctx: Context) -> int:
-    """07 §5: liczba rozłącznych ciągów segmentów PARENTAL — łącznie obu rodziców, segment każdego rodzica to osobna
+    """07 §5: liczba rozłącznych ciągów segmentów PARENTAL - łącznie obu rodziców, segment każdego rodzica to osobna
     część; segmenty tego samego rodzica stykające się (to + 1 = from) tworzą jedną część (GAP-017, DERIVED).
     KP art. 182(1a) § 1."""
     parts = 0
@@ -270,7 +270,7 @@ def one_minus_work_fraction(ctx: Context) -> Decimal:
 # --------------------------------------------------------------------------------------------- stawki
 @fact("f_segment_is_other_parent_reserved_9w")
 def segment_is_other_parent_reserved_9w(ctx: Context) -> bool | None:
-    """07 §5: ``segment.is_other_parent_reserved_9w``; gdy null — segment rodzica innego niż wnioskodawca 81,5%
+    """07 §5: ``segment.is_other_parent_reserved_9w``; gdy null - segment rodzica innego niż wnioskodawca 81,5%
     zaczyna się w pierwszych PARENTAL_NONTRANSFERABLE_WEEKS tygodniach jego rodzicielskiego. USTAWA art. 31 ust. 3f."""
     seg = ctx.segment or {}
     flag = seg.get("is_other_parent_reserved_9w")
@@ -292,8 +292,8 @@ def segment_is_other_parent_reserved_9w(ctx: Context) -> bool | None:
 
 @fact("f_any_parental_day_in_first_year")
 def any_parental_day_in_first_year(ctx: Context) -> bool | None:
-    """07 §5: którykolwiek dzień PARENTAL (obojga rodziców) przed 1. urodzinami dziecka (C7). Bez planu — bieżący
-    segment (propozycja pipeline'u). GAP-019: przyjęcie dziecka starszego niż rok — niejasne. USTAWA art. 31 ust. 3g."""
+    """07 §5: którykolwiek dzień PARENTAL (obojga rodziców) przed 1. urodzinami dziecka (C7). Bez planu - bieżący
+    segment (propozycja pipeline'u). GAP-019: przyjęcie dziecka starszego niż rok - niejasne. USTAWA art. 31 ust. 3g."""
     birth = child_birth_date(ctx)
     if birth is None:
         return None
@@ -309,8 +309,8 @@ def any_parental_day_in_first_year(ctx: Context) -> bool | None:
 
 @fact("f_one_off_equalization")
 def one_off_equalization(ctx: Context) -> Decimal | None:
-    """07 §2: base × (MAT_RATE_FULL − MAT_RATE_COMBINED) / MONTH_AS_DAYS × dni(macierzyński) — wyrównanie do 100%
-    (DERIVED). Dni macierzyńskiego: segmenty MATERNITY_LEAVE matki, bez planu — pełny wymiar. USTAWA art. 31 ust. 3g."""
+    """07 §2: base × (MAT_RATE_FULL − MAT_RATE_COMBINED) / MONTH_AS_DAYS × dni(macierzyński) - wyrównanie do 100%
+    (DERIVED). Dni macierzyńskiego: segmenty MATERNITY_LEAVE matki, bez planu - pełny wymiar. USTAWA art. 31 ust. 3g."""
     base = ctx.fact("f_benefit_base")
     if base is None:
         return None
@@ -347,7 +347,7 @@ def paternity_window(ctx: Context) -> dict[str, Any] | None:
 @fact("f_paternity_within_deadline")
 def paternity_within_deadline(ctx: Context) -> bool | None:
     """07 §5: wszystkie segmenty PATERNITY ≤ deadline, ≤ PATERNITY_MAX_PARTS części, każda ≥ PATERNITY_MIN_PART_WEEKS
-    tyg., Σ ≤ max_days. Bez segmentów — jedna część max_days od ``plan.paternity_start_date``. KP art. 182(3) § 1-2."""
+    tyg., Σ ≤ max_days. Bez segmentów - jedna część max_days od ``plan.paternity_start_date``. KP art. 182(3) § 1-2."""
     window = ctx.fact("f_paternity_window")
     if window is None:
         return None

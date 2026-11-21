@@ -38,7 +38,7 @@ class ApplicationService:
 
     @staticmethod
     def _deadline(application_type: str, event: dt.date, submitted: dt.date) -> dict[str, Any] | None:
-        """Termin tylko tam, gdzie jest w parametrach: ZAM (wniosek łączony 81,5%) — art. 30a."""
+        """Termin tylko tam, gdzie jest w parametrach: ZAM (wniosek łączony 81,5%) - art. 30a."""
         if application_type != "ZAM":
             return None
         deadline = event + dt.timedelta(days=param("APP_COMBINED_DEADLINE_DAYS"))

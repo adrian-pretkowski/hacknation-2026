@@ -1,4 +1,4 @@
-// SYMULACJA usług zewnętrznych — lokalny mock endpointów /api/sim/* z contracts/openapi.yaml (x-status: planned, INT-03).
+// SYMULACJA usług zewnętrznych - lokalny mock endpointów /api/sim/* z contracts/openapi.yaml (x-status: planned, INT-03).
 // Kształty odpowiedzi zgodne z kontraktem (SimLoginResponse, SimEzlaList, SimDebtCertificate, SimPueTicket, każda ma simulated: true).
 // Po wdrożeniu INT-03 funkcje zastąpi klient z lib/api.ts. Żadnego połączenia z ZUS ani z aplikacją rządową.
 import type { components } from "@/lib/api-types";
@@ -28,7 +28,7 @@ function seq(seed: string): number {
   return h;
 }
 
-/** Iloczyn dwóch liczb dziesiętnych zapisanych jako string — bez float (BigInt na skalach). Wynik z 2 miejscami (obcięcie). */
+/** Iloczyn dwóch liczb dziesiętnych zapisanych jako string - bez float (BigInt na skalach). Wynik z 2 miejscami (obcięcie). */
 function mulDecimal(a: string, b: string): string {
   const parse = (s: string) => {
     const [i, f = ""] = s.split(".");
@@ -52,7 +52,7 @@ function cmpDecimal(a: string, b: string): number {
   return d > BigInt(0) ? 1 : d < BigInt(0) ? -1 : 0;
 }
 
-// Typy wprost z kontraktu (npm run gen:api) — mock nie może rozjechać się z openapi.yaml.
+// Typy wprost z kontraktu (npm run gen:api) - mock nie może rozjechać się z openapi.yaml.
 type S = components["schemas"];
 export type SimLoginResponse = S["SimLoginResponse"];
 export type SimEzla = S["SimEzla"];

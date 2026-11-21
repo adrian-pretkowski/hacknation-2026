@@ -85,7 +85,7 @@ export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie pod
   );
 }
 
-/** FE1-10: pole daty z walidacją — aria-invalid i aria-describedby wskazują komunikat pod polem. */
+/** FE1-10: pole daty z walidacją - aria-invalid i aria-describedby wskazują komunikat pod polem. */
 export function DateField({ label, hint, value, onChange, error, warning }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void; error?: string;
   /** Ostrzeżenie bez blokady (np. sytuacja prawnie istotna, którą ocenia silnik). */
@@ -158,7 +158,7 @@ export function Slider({ label, hint, value, onChange, min, max, step = 1, unit,
           aria-valuetext={num === null ? emptyLabel : show(normalized)} aria-describedby={described} aria-invalid={describedBy ? true : undefined}
           className={`h-2 w-full cursor-pointer accent-zus-green-dark disabled:cursor-not-allowed disabled:opacity-40 ${num === null ? "opacity-50" : ""}`}
           onChange={(e) => onChange(e.target.value)} />
-        <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} — wpisz wartość`} placeholder="—" disabled={disabled}
+        <input inputMode={money ? "decimal" : "numeric"} aria-label={`${label} - wpisz wartość`} placeholder="-" disabled={disabled}
           aria-describedby={described} aria-invalid={describedBy ? true : undefined}
           className={`${money ? "w-28" : "w-20"} shrink-0 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-right text-base disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark`}
           value={value} onChange={(e) => onChange(clean(e.target.value))} />

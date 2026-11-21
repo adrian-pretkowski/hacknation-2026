@@ -1,18 +1,18 @@
-"""DSL v1 z zus_rules/03_rules.yaml — loader (walidacja strukturalna) i ewaluator Kleene (C9, C10).
+"""DSL v1 z zus_rules/03_rules.yaml - loader (walidacja strukturalna) i ewaluator Kleene (C9, C10).
 
 Wartość logiczna: True / False / None (= UNKNOWN). UNKNOWN nigdy nie jest traktowane jako FALSE.
 
 Liście:
-- ``{field: a.b, operator, value}`` — pole wejścia (lub ``segment.*`` / pole stanu ustawione przez reguły),
-- ``{fact: f_x, args: {...}, operator, value}`` — fakt z rejestru (app.engine.facts),
+- ``{field: a.b, operator, value}`` - pole wejścia (lub ``segment.*`` / pole stanu ustawione przez reguły),
+- ``{fact: f_x, args: {...}, operator, value}`` - fakt z rejestru (app.engine.facts),
 - value: literał | ``{param: NAZWA}`` | ``{fact: f_y}``.
 
-Decyzje (docs/DECISIONS.md — BE1-01):
+Decyzje (docs/DECISIONS.md - BE1-01):
 - ``exists`` na polu: wartość ≠ null → TRUE, null/brak → FALSE (C10; nigdy UNKNOWN).
   ``exists`` na fakcie: fakt None = UNKNOWN (C9) → UNKNOWN, bo None z faktu oznacza „nie wiadomo”.
 - Argument faktu będący ścieżką pola (string z kropką), który jest null → fakt UNKNOWN, pole trafia do braków.
 - ``all`` przerywa na pierwszym FALSE, ``any`` na pierwszym TRUE (wynik Kleene jest wtedy przesądzony,
-  a braki danych liczą się tylko przy UNKNOWN). Pozostałe podwarunki są liczone wszystkie — pełna lista braków.
+  a braki danych liczą się tylko przy UNKNOWN). Pozostałe podwarunki są liczone wszystkie - pełna lista braków.
 """
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ LEAF_KEYS = {"field", "fact", "args", "operator", "value"}
 
 
 class RulesetError(ValueError):
-    """Błędny plik reguł — loader odrzuca cały zestaw."""
+    """Błędny plik reguł - loader odrzuca cały zestaw."""
 
 
 # ---------------------------------------------------------------- Kleene (C9)

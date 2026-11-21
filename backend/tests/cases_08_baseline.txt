@@ -1,10 +1,10 @@
 # Zapadka testów zus_rules/08_TEST_CASES.json (BE1-03, runner: tests/test_cases.py).
 # Jeden test_id w linii. Test z tej listy MUSI przejść (regresja = czerwony pytest); pozostałe są xfail.
-# Gdy po twojej zmianie test zacznie przechodzić (XPASS / „nowe zielone” w raporcie) — dopisz go tutaj
+# Gdy po twojej zmianie test zacznie przechodzić (XPASS / „nowe zielone” w raporcie) - dopisz go tutaj
 # w tym samym commicie. Usuwanie ID tylko z uzasadnieniem w commicie (np. zmiana 08 z wpisem w mentors.md).
 # Raport: cd backend; .\.venv\Scripts\python -m tests.test_cases --all
 
-# GEN — płatnik (GEN-CLS-001/002, BE1-04) i wyłączenie przy zadłużeniu (GEN-EXCL-001)
+# GEN - płatnik (GEN-CLS-001/002, BE1-04) i wyłączenie przy zadłużeniu (GEN-EXCL-001)
 T-GEN-001
 T-GEN-002
 T-GEN-003
@@ -15,7 +15,7 @@ T-GEN-007
 T-GEN-008
 T-GEN-009
 
-# MAT — macierzyński matki
+# MAT - macierzyński matki
 T-MAT-001
 T-MAT-002
 T-MAT-003
@@ -40,7 +40,7 @@ T-MAT-020
 T-MAT-021
 T-MAT-022
 
-# SUPP — urlop uzupełniający (BE2-01)
+# SUPP - urlop uzupełniający (BE2-01)
 T-SUPP-001
 T-SUPP-002
 T-SUPP-003
@@ -52,21 +52,21 @@ T-SUPP-009
 T-SUPP-010
 T-SUPP-011
 
-# RATE — 81,5% / 100%
+# RATE - 81,5% / 100%
 T-RATE-001
 T-RATE-002
 T-RATE-008
 T-RATE-009
 T-RATE-007
 
-# BASE — art. 43, ta sama podstawa (BASE-GEN-001, M05)
+# BASE - art. 43, ta sama podstawa (BASE-GEN-001, M05)
 T-BASE-006
 T-BASE-007
 T-BASE-010
 T-BASE-011
 T-BASE-012
 
-# SICK — prawo, okres wyczekiwania, stawka (BE1-04)
+# SICK - prawo, okres wyczekiwania, stawka (BE1-04)
 T-SICK-001
 T-SICK-002
 T-SICK-003
@@ -74,7 +74,7 @@ T-SICK-004
 T-SICK-005
 T-SICK-006
 T-SICK-012
-# SICK — okres zasiłkowy, łączenie okresów, po ustaniu tytułu, kwoty (BE1-05)
+# SICK - okres zasiłkowy, łączenie okresów, po ustaniu tytułu, kwoty (BE1-05)
 T-SICK-007
 T-SICK-008
 T-SICK-009
@@ -83,7 +83,7 @@ T-SICK-011
 T-SICK-013
 T-SICK-014
 
-# SP — wynagrodzenie chorobowe: prawo, stawka, limit dni (BE1-04)
+# SP - wynagrodzenie chorobowe: prawo, stawka, limit dni (BE1-04)
 T-SP-001
 T-SP-002
 T-SP-003
@@ -95,7 +95,7 @@ T-INT-002
 T-INT-005
 T-INT-006
 
-# BE2-02 — rodzicielski, ojcowski, przejęcie macierzyńskiego, stawki RATE-MAT-*, walidacje planu
+# BE2-02 - rodzicielski, ojcowski, przejęcie macierzyńskiego, stawki RATE-MAT-*, walidacje planu
 T-PAR-001
 T-PAR-002
 T-PAR-003

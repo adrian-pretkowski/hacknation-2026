@@ -1,6 +1,6 @@
-# HackNation 2026 — ZUS „Zasiłkowy Przewodnik Przyszłego Rodzica” — Battle Plan
+# HackNation 2026 - ZUS „Zasiłkowy Przewodnik Przyszłego Rodzica” - Battle Plan
 
-**Start:** sobota 11:45 · **Deadline Hacktribe:** niedziela 11:00 · **Czas kalendarzowy:** 23 h 15 min (w briefie: „20 h” — przyjmuję ~20 h efektywnej pracy + rotacyjny sen, patrz §4).
+**Start:** sobota 11:45 · **Deadline Hacktribe:** niedziela 11:00 · **Czas kalendarzowy:** 23 h 15 min (w briefie: „20 h” - przyjmuję ~20 h efektywnej pracy + rotacyjny sen, patrz §4).
 
 Oznaczenia: **[OFICJALNE]** = cytat/wymóg z treści zadania lub regulaminu · **[REKOMENDACJA]** = nasza decyzja · **[NIEWIADOMA]** = do potwierdzenia u mentora / w spike'u.
 
@@ -11,9 +11,9 @@ Oznaczenia: **[OFICJALNE]** = cytat/wymóg z treści zadania lub regulaminu · *
 ## 1. EXECUTIVE SUMMARY
 
 **CO BUDUJEMY**
-Responsywną aplikację webową „Przewodnik Rodzica” z jednym **zintegrowanym kalkulatorem** (silnik reguł, nie AI), który dla konkretnej osoby — z symulowanych danych ZUS (mObywatel → „pobierz dane”), z ręcznie wpisanych danych albo **z wybranej/wgranej przykładowej sprawy ZUS** — ustala: czy przysługuje świadczenie (ciąża / macierzyński / rodzicielski / ojcowski / uzupełniający / przysposobienie / rodzina zastępcza), **na jak długo i w jakiej kwocie**, dla **obojga rodziców na osi czasu**, z wariantem łączenia pracy z rodzicielskim. Do wyniku dołączamy: listę dokumentów, **gdzie złożyć (płatnik vs ZUS)**, terminy, ryzyka utraty/obniżenia świadczeń, wsparcie organizacji charytatywnych. Parametry prawne (stawki %, wymiary tygodni, limity) są edytowalne w **panelu admina**.
+Responsywną aplikację webową „Przewodnik Rodzica” z jednym **zintegrowanym kalkulatorem** (silnik reguł, nie AI), który dla konkretnej osoby - z symulowanych danych ZUS (mObywatel → „pobierz dane”), z ręcznie wpisanych danych albo **z wybranej/wgranej przykładowej sprawy ZUS** - ustala: czy przysługuje świadczenie (ciąża / macierzyński / rodzicielski / ojcowski / uzupełniający / przysposobienie / rodzina zastępcza), **na jak długo i w jakiej kwocie**, dla **obojga rodziców na osi czasu**, z wariantem łączenia pracy z rodzicielskim. Do wyniku dołączamy: listę dokumentów, **gdzie złożyć (płatnik vs ZUS)**, terminy, ryzyka utraty/obniżenia świadczeń, wsparcie organizacji charytatywnych. Parametry prawne (stawki %, wymiary tygodni, limity) są edytowalne w **panelu admina**.
 **DLACZEGO TO WYSTARCZY**
-Pokrywa punkty a–j „Oczekiwanego rezultatu” i wszystkie wymagane symulacje (mObywatel, dane ZUS, zadłużenie, e-ZLA, PUE/eZUS, wnioski, akt stanu cywilnego, linki), spełnia wymogi formalne (demo www z wyborem przykładów, RWD, repo, wideo ≤3 min, ≤10 slajdów, opis AI). Najmocniejsza karta to **mierzalna poprawność**: ekran „Weryfikacja na sprawach ZUS” pokazuje, że nasz silnik daje ten sam wynik co decyzja ZUS w X/N sprawach — trafia w *Związek z wyzwaniem* (25%) i *Kompletność/UX* (25%) oraz *Potencjał wdrożeniowy* (15%).
+Pokrywa punkty a–j „Oczekiwanego rezultatu” i wszystkie wymagane symulacje (mObywatel, dane ZUS, zadłużenie, e-ZLA, PUE/eZUS, wnioski, akt stanu cywilnego, linki), spełnia wymogi formalne (demo www z wyborem przykładów, RWD, repo, wideo ≤3 min, ≤10 slajdów, opis AI). Najmocniejsza karta to **mierzalna poprawność**: ekran „Weryfikacja na sprawach ZUS” pokazuje, że nasz silnik daje ten sam wynik co decyzja ZUS w X/N sprawach - trafia w *Związek z wyzwaniem* (25%) i *Kompletność/UX* (25%) oraz *Potencjał wdrożeniowy* (15%).
 
 **CO MUSI DZIAŁAĆ (P0)**
 1. Silnik reguł: prawo do świadczenia + wymiar + wysokość (z podstawy wymiaru).
@@ -32,7 +32,7 @@ Prawdziwych integracji (mObywatel, PUE, CEIDG, e-ZLA, USC), czatu AI jako źród
 Błędne wyliczenia na sprawach ZUS (niezrozumiana podstawa wymiaru z Z-3 / zaokrąglenia / brak dostępu do zestawów spraw) → jury wprost to sprawdza.
 
 **PIERWSZY KROK**
-11:45 — BA idzie do stoiska ZUS po zestawy spraw + zadaje pytania Q1–Q3 (§15); równolegle 2 BE czytają ustawę/Załącznik i spisują reguły do `rules.md`; FE stawia szkielet Next.js; Dev5 robi spike deploymentu i spike ekstrakcji PDF.
+11:45 - BA idzie do stoiska ZUS po zestawy spraw + zadaje pytania Q1–Q3 (§15); równolegle 2 BE czytają ustawę/Załącznik i spisują reguły do `rules.md`; FE stawia szkielet Next.js; Dev5 robi spike deploymentu i spike ekstrakcji PDF.
 
 ---
 
@@ -47,25 +47,25 @@ Błędne wyliczenia na sprawach ZUS (niezrozumiana podstawa wymiaru z Z-3 / zaok
 | Największy beneficjent | ZUS (mniej spraw wadliwych i sporów) + ubezpieczeni w sytuacjach złożonych (JDG z zadłużeniem, wcześniak, martwe urodzenie). |
 | Obecny proces | Informacja rozproszona (poradnik PDF, zus.pl, gov.pl, PIP), wnioski ZAM/Z-3/Z-3a/ZAS-53, płatnik >20 ubezpieczonych wypłaca sam, inaczej ZUS. |
 | Co ma się poprawić | Spersonalizowane ustalenie uprawnień + kwot **przed** zdarzeniem, świadome planowanie podziału urlopów, kierowanie do właściwego adresata wniosku, ostrzeganie o ryzykach. |
-| Co jury chce zobaczyć | Działające demo www, na którym wybiorą przykładową sprawę i sprawdzą poprawność wyliczeń [OFICJALNE §6]; zintegrowany kalkulator [OFICJALNE — rekomendacja ZUS]; przegląd struktury kodu; potencjał produkcyjny. |
+| Co jury chce zobaczyć | Działające demo www, na którym wybiorą przykładową sprawę i sprawdzą poprawność wyliczeń [OFICJALNE §6]; zintegrowany kalkulator [OFICJALNE - rekomendacja ZUS]; przegląd struktury kodu; potencjał produkcyjny. |
 
 **Obowiązkowe vs interpretacja**
 - Obowiązkowe [OFICJALNE §4]: opis+tytuł, prezentacja ≤10 slajdów, wideo ≤3 min w otwartym repozytorium (link). „Dodatkowo powinien zawierać”: repo, screenshoty, link do demo www z możliwością przetestowania wybranych przykładów (formularze PDF) i kalkulatora, pełna RWD, materiały graficzne, wskazanie funkcji z AI.
-- Funkcje a–j i lista „Narzędzie powinno zapewnić możliwość” — sformułowane jako „powinno”: traktujemy jako **wymagane**, bo wprost pokrywają się z kryterium „Związek z wyzwaniem” i „Kompletność”.
-- Panel admina parametrów — „powinno być tak zaprojektowane” → P0 w wersji minimalnej.
+- Funkcje a–j i lista „Narzędzie powinno zapewnić możliwość” - sformułowane jako „powinno”: traktujemy jako **wymagane**, bo wprost pokrywają się z kryterium „Związek z wyzwaniem” i „Kompletność”.
+- Panel admina parametrów - „powinno być tak zaprojektowane” → P0 w wersji minimalnej.
 - Technologia: **dowolna**; preferowane FE React/Next.js, BE JS/Python/C#, REST [OFICJALNE §5].
 - Interpretacja: punkty **e)** i **j)** to ten sam kalkulator (j bez słowa „niezawodowej”) → jedna funkcja; pytanie do mentora Q6.
 
 **Konkurencyjne interpretacje**
-1. *Portal informacyjny + kalkulator* (treści + formularz) — łatwe, mało oryginalne.
-2. *Silnik decyzyjny na danych sprawy* (dokumenty → uprawnienia + kwota + weryfikacja z decyzją ZUS) — trudniejsze, ale dokładnie to jury testuje.
-3. *Asystent AI/chatbot* — efektowne, ale ryzykowne merytorycznie (halucynacje w kwotach) i trudne do obrony.
+1. *Portal informacyjny + kalkulator* (treści + formularz) - łatwe, mało oryginalne.
+2. *Silnik decyzyjny na danych sprawy* (dokumenty → uprawnienia + kwota + weryfikacja z decyzją ZUS) - trudniejsze, ale dokładnie to jury testuje.
+3. *Asystent AI/chatbot* - efektowne, ale ryzykowne merytorycznie (halucynacje w kwotach) i trudne do obrony.
 
 **[REKOMENDACJA] 2 jako rdzeń + elementy 1 jako warstwa przewodnika; AI wyłącznie pomocniczo** (ekstrakcja danych z PDF, objaśnienia prostym językiem) z deterministycznym silnikiem jako jedynym źródłem kwot.
 
-**Product Vision:** Osobisty przewodnik, który na podstawie danych z ZUS lub wpisanych przez rodzica pokazuje, co mu przysługuje w ciąży i po narodzinach dziecka, ile dostanie, jak podzielić urlopy z partnerem i co, gdzie i kiedy złożyć. Dla ZUS — mniej wadliwych wniosków i sporów dzięki informacji udzielonej, zanim urodzi się dziecko.
+**Product Vision:** Osobisty przewodnik, który na podstawie danych z ZUS lub wpisanych przez rodzica pokazuje, co mu przysługuje w ciąży i po narodzinach dziecka, ile dostanie, jak podzielić urlopy z partnerem i co, gdzie i kiedy złożyć. Dla ZUS - mniej wadliwych wniosków i sporów dzięki informacji udzielonej, zanim urodzi się dziecko.
 
-**Core Value Proposition:** „Wiesz, ile i na jak długo dostaniesz — zanim złożysz wniosek — wyliczone tak samo, jak policzy ZUS.”
+**Core Value Proposition:** „Wiesz, ile i na jak długo dostaniesz - zanim złożysz wniosek - wyliczone tak samo, jak policzy ZUS.”
 
 **Main User Journey**
 1. Wejście → „Zaloguj przez mObywatel (symulacja)” lub „Wybierz przykładową sprawę ZUS” / „Wgraj PDF”.
@@ -89,17 +89,17 @@ Juror wybiera sprawę ZUS (np. przedsiębiorczyni z dobrowolnym chorobowym), apl
 | Kompletność i UX | 25% | Pełny przepływ E2E, RWD, prosty język, dostępność | Wszystkie ekrany P0, mobile | Screenshoty desktop+mobile, wideo, Lighthouse a11y | P0 |
 | Potencjał wdrożeniowy | 15% | Preferowany stack ZUS (React/Next + Python REST), OpenAPI, parametry w adminie z wersjonowaniem i datą obowiązywania, testy jednostkowe reguł, adaptery integracji | Admin, OpenAPI, testy, adaptery | Repo, `/docs` (Swagger), raport testów | P0/P1 |
 
-**Gdzie stracimy punkty (realnie):** rzadkie warianty podstawy (art. 37, 40, składniki kwartalne/roczne) i zaokrąglenia, których brak w materiałach — rdzeń podstawy jest P0 (F15), a „podstawa podana ręcznie” zostaje jako fallback; świadczenie rehabilitacyjne — tylko informacyjnie; zasiłek opiekuńczy — poza zakresem (nie jest w a–j).
+**Gdzie stracimy punkty (realnie):** rzadkie warianty podstawy (art. 37, 40, składniki kwartalne/roczne) i zaokrąglenia, których brak w materiałach - rdzeń podstawy jest P0 (F15), a „podstawa podana ręcznie” zostaje jako fallback; świadczenie rehabilitacyjne - tylko informacyjnie; zasiłek opiekuńczy - poza zakresem (nie jest w a–j).
 
-**Etap I — Hacktribe:** oceniane materiały = opis, slajdy, wideo, repo, screenshoty, demo www. Jury **samo klika** w demo → demo musi działać bez nas, mieć widoczny wybór przykładowych spraw i być stabilne (cold start hostingu!). Ryzyko odrzucenia: brak linku do wideo w otwartym repozytorium, wideo >3 min, >10 slajdów, brak oznaczenia AI, niedziałający link.
+**Etap I - Hacktribe:** oceniane materiały = opis, slajdy, wideo, repo, screenshoty, demo www. Jury **samo klika** w demo → demo musi działać bez nas, mieć widoczny wybór przykładowych spraw i być stabilne (cold start hostingu!). Ryzyko odrzucenia: brak linku do wideo w otwartym repozytorium, wideo >3 min, >10 slajdów, brak oznaczenia AI, niedziałający link.
 
-**Etap II — Finał (max 3 zespoły [OFICJALNE Regulamin §2.7]):** wartość = mniej sporów i wadliwych wniosków; wyróżnik = weryfikacja z decyzjami ZUS + panel parametrów; Q&A = poprawność, RODO, wdrożenie w ekosystemie PUE/eZUS.
+**Etap II - Finał (max 3 zespoły [OFICJALNE Regulamin §2.7]):** wartość = mniej sporów i wadliwych wniosków; wyróżnik = weryfikacja z decyzjami ZUS + panel parametrów; Q&A = poprawność, RODO, wdrożenie w ekosystemie PUE/eZUS.
 
 **Regulacyjne (tylko tam, gdzie dotyczy):**
 - *RODO:* dane wrażliwe (ciąża = dane o zdrowiu, art. 9). W prototypie: brak trwałego zapisu danych osobowych, stan w sesji, sprawy przykładowe zanonimizowane. W produkcji: tożsamość przez mObywatel/login.gov.pl, minimalizacja, hosting ZUS.
-- *Poufność materiałów ZUS:* „Udostępnionych przez ZUS dokumentów nie wolno kopiować ani rozpowszechniać” [OFICJALNE] — **koliduje** z publicznym repo i demo umożliwiającym wybór przykładów. → pytanie Q1; domyślnie: PDF-y spraw **nie** trafiają do publicznego repo (`.gitignore`), w demo tylko za zgodą mentora lub jako nasze **syntetyczne** odpowiedniki.
-- *AI Act:* system informacyjny, nie podejmuje decyzji administracyjnych → nie wysokiego ryzyka; wymóg przejrzystości — oznaczamy treści generowane przez AI.
-- *Dostępność (WCAG 2.1 AA):* instytucja publiczna — realny argument wdrożeniowy, niski koszt (semantyczny HTML, kontrast, focus).
+- *Poufność materiałów ZUS:* „Udostępnionych przez ZUS dokumentów nie wolno kopiować ani rozpowszechniać” [OFICJALNE] - **koliduje** z publicznym repo i demo umożliwiającym wybór przykładów. → pytanie Q1; domyślnie: PDF-y spraw **nie** trafiają do publicznego repo (`.gitignore`), w demo tylko za zgodą mentora lub jako nasze **syntetyczne** odpowiedniki.
+- *AI Act:* system informacyjny, nie podejmuje decyzji administracyjnych → nie wysokiego ryzyka; wymóg przejrzystości - oznaczamy treści generowane przez AI.
+- *Dostępność (WCAG 2.1 AA):* instytucja publiczna - realny argument wdrożeniowy, niski koszt (semantyczny HTML, kontrast, focus).
 
 ### 2.3 MVP Scope
 
@@ -111,19 +111,19 @@ Juror wybiera sprawę ZUS (np. przedsiębiorczyni z dobrowolnym chorobowym), apl
 | F4 Planer osi czasu obojga rodziców + praca na ≤½ etatu (wydłużenie proporcjonalne) + porównanie 100/70 vs 81,5% | P0 | Pomysł, Związek (b,c,d) | Wysoka | 8 (BE 3 + FE 5) | F1, F2 | Walidacje: 14 tyg. matki, 9 tyg. nieprzenoszalne, max 5 części |
 | F5 Adopcja / rodzina zastępcza niezawodowa (wiek 7/10/14 lat) | P0 | Związek (e,j) | Średnia | 2 | F1 | Testy graniczne wieku |
 | F6 Sprawy przykładowe: lista + wybór + upload PDF → dane wejściowe → wynik → porównanie z decyzją ZUS | P0 | Związek, Kompletność (§6) | Krytyczna | 10 | Zestawy spraw, spike S2 | ≥N spraw zakodowanych jako fixtures; ekran z ✓/✗ |
-| F7 Przewodnik: dokumenty, adresat (płatnik >20 ubezpieczonych vs ZUS), terminy, ryzyka (pozorna umowa, podwyższona podstawa, brak ubezp. na dzień porodu), ochrona pracownicy w ciąży (KP 177 — pkt I zadania; nie dotyczy JDG), planowany powrót do pracy (data per rodzic, KP 186(4)), linki ZUS/MRPiPS/PIP | P0 | Związek (g,h) | Wysoka | 4 (BA treść + FE 2) | F3 | Treść zatwierdzona przez BA, przypięta do wyniku |
-| F8 Organizacje wsparcia (charytatywne) — statyczna lista z filtrami sytuacji | P0 | Związek (i) | Średnia | 1,5 | BA research | ≥6 wpisów, zweryfikowane linki |
+| F7 Przewodnik: dokumenty, adresat (płatnik >20 ubezpieczonych vs ZUS), terminy, ryzyka (pozorna umowa, podwyższona podstawa, brak ubezp. na dzień porodu), ochrona pracownicy w ciąży (KP 177 - pkt I zadania; nie dotyczy JDG), planowany powrót do pracy (data per rodzic, KP 186(4)), linki ZUS/MRPiPS/PIP | P0 | Związek (g,h) | Wysoka | 4 (BA treść + FE 2) | F3 | Treść zatwierdzona przez BA, przypięta do wyniku |
+| F8 Organizacje wsparcia (charytatywne) - statyczna lista z filtrami sytuacji | P0 | Związek (i) | Średnia | 1,5 | BA research | ≥6 wpisów, zweryfikowane linki |
 | F9 Symulacje: mObywatel login, pobranie danych ZUS, zadłużenie składkowe, e-ZLA, PUE/eZUS | P0 | Związek | Wysoka | 5 | Profile demo | Każdy ekran z banerem „SYMULACJA” |
-| F10 Symulacja wniosku (ZAM/wniosek o urlop) prefill + „wyślij do pracodawcy/ZUS” + wniosek o odpis aktu urodzenia. **Wnioski urlopowe trzeba zaprojektować** (wymóg zadania) — treść i załączniki wg rozporządzenia z 11.03.2025 (§ 2–18), terminy KP (7/14/21 dni); przy płatniku-ZUS odpis aktu urodzenia nie jest wymagany (ROZP_DOK § 13 ust. 2) | P0 | Związek | Średnia | 5 | F3, `zus_rules/` APP-* | Prefill z danych, PDF/HTML podgląd, termin złożenia |
+| F10 Symulacja wniosku (ZAM/wniosek o urlop) prefill + „wyślij do pracodawcy/ZUS” + wniosek o odpis aktu urodzenia. **Wnioski urlopowe trzeba zaprojektować** (wymóg zadania) - treść i załączniki wg rozporządzenia z 11.03.2025 (§ 2–18), terminy KP (7/14/21 dni); przy płatniku-ZUS odpis aktu urodzenia nie jest wymagany (ROZP_DOK § 13 ust. 2) | P0 | Związek | Średnia | 5 | F3, `zus_rules/` APP-* | Prefill z danych, PDF/HTML podgląd, termin złożenia |
 | F11 Panel admina parametrów (JSON w DB, wersja + data obowiązywania, przeliczenie) | P0 | Potencjał | Wysoka | 4 | F1, F2 | Zmiana % zmienia wynik bez redeployu |
-| F12 RWD + deployment publiczny + README | P0 | Kompletność, formalne | Krytyczna | 4 | — | Działa na 375 px i 1440 px pod publicznym URL |
+| F12 RWD + deployment publiczny + README | P0 | Kompletność, formalne | Krytyczna | 4 | - | Działa na 375 px i 1440 px pod publicznym URL |
 | F13 Ekstrakcja AI z PDF (LLM, structured output) z poziomem pewności i ręczną korektą | P1 | Oryginalność | Średnia | 5 | S2, zgoda Q2 | Na N sprawach pola zgodne z fixtures ≥90% |
 | F14 Objaśnienia AI prostym językiem („dlaczego ta kwota”) z ugruntowaniem w regułach | P1 | UX | Średnia | 3 | F3 | Tylko parafraza wyników silnika, oznaczone „AI” |
-| F15 Podstawa wymiaru z Z-3 / poświadczenia — **P0:** art. 36, 38, 45, 47, 48, 48a, 50 (12 m-cy, wyłączanie miesięcy <½, minimum, JDG z zadeklarowaną podstawą); **P1:** składniki kwartalne/roczne, art. 37, 40 | **P0** (zmiana po weryfikacji: pkt f i § 6 zadania — jury sprawdza wyliczenia na sprawach) | Związek (f) | Krytyczna | 6 | F2, zestawy, `zus_rules/` BASE-* | Zgodność z decyzjami w sprawach |
+| F15 Podstawa wymiaru z Z-3 / poświadczenia - **P0:** art. 36, 38, 45, 47, 48, 48a, 50 (12 m-cy, wyłączanie miesięcy <½, minimum, JDG z zadeklarowaną podstawą); **P1:** składniki kwartalne/roczne, art. 37, 40 | **P0** (zmiana po weryfikacji: pkt f i § 6 zadania - jury sprawdza wyliczenia na sprawach) | Związek (f) | Krytyczna | 6 | F2, zestawy, `zus_rules/` BASE-* | Zgodność z decyzjami w sprawach |
 | F16 Tryb empatyczny dla martwego urodzenia/poronienia | P1 | Oryginalność | Średnia | 2 | F7 | Recenzja BA |
-| F17 Eksport planu do PDF / .ics kalendarza terminów | P2 | UX | Niska | 2 | F4 | — |
-| F18 Chat Q&A RAG nad poradnikiem | P2 | — | Niska/ryzyko | 6 | — | Nie robimy bez zapasu ≥4 h |
-| F19 WCAG audyt + Lighthouse ≥90 | P2 | Kompletność | Niska | 2 | F12 | — |
+| F17 Eksport planu do PDF / .ics kalendarza terminów | P2 | UX | Niska | 2 | F4 | - |
+| F18 Chat Q&A RAG nad poradnikiem | P2 | - | Niska/ryzyko | 6 | - | Nie robimy bez zapasu ≥4 h |
+| F19 WCAG audyt + Lighthouse ≥90 | P2 | Kompletność | Niska | 2 | F12 | - |
 
 **Po 4–5 h (do ~17:00):** F1 (macierzyński + rodzicielski dla 1 dziecka i bliźniąt) + F2 (100/70/81,5%) przez REST → jeden ekran kalkulatora w FE pod publicznym URL; 1 sprawa przykładowa zakodowana jako fixture daje wynik.
 
@@ -135,13 +135,13 @@ Juror wybiera sprawę ZUS (np. przedsiębiorczyni z dobrowolnym chorobowym), apl
 
 ## 3. ARCHITEKTURA I INTEGRACJE
 
-### 3.1 Stack — decyzja
+### 3.1 Stack - decyzja
 
 | Warstwa | [REKOMENDACJA] | Uzasadnienie | Alternatywa |
 |---|---|---|---|
-| FE | **Next.js (React) + TypeScript + Tailwind + shadcn/ui** | Preferencja ZUS [OFICJALNE §5] → punkty za potencjał; RWD szybko; Claude Code generuje React najpewniej | Angular — tylko jeśli FE-owcy nie znają Reacta wcale (decyzja w 15 min) |
-| BE | **Python 3.12 + FastAPI + Pydantic** | Na liście preferowanych; Pydantic = kontrakt + OpenAPI za darmo; najlepszy ekosystem PDF (pdfplumber/PyMuPDF) i LLM SDK; silnik reguł jako czyste funkcje + pytest | Java/Spring nie jest na liście preferowanych — dozwolone („dowolny”), ale tracimy argument wdrożeniowy |
-| Dane | **SQLite** (parametry, wersje) + **pliki JSON** (fixtures spraw, treści przewodnika, organizacje) | Zero infrastruktury; parametry wersjonowane w tabeli | Postgres na Render — tylko gdy SQLite nie przetrwa redeployu (ephemeral disk → parametry seed z JSON przy starcie) |
+| FE | **Next.js (React) + TypeScript + Tailwind + shadcn/ui** | Preferencja ZUS [OFICJALNE §5] → punkty za potencjał; RWD szybko; Claude Code generuje React najpewniej | Angular - tylko jeśli FE-owcy nie znają Reacta wcale (decyzja w 15 min) |
+| BE | **Python 3.12 + FastAPI + Pydantic** | Na liście preferowanych; Pydantic = kontrakt + OpenAPI za darmo; najlepszy ekosystem PDF (pdfplumber/PyMuPDF) i LLM SDK; silnik reguł jako czyste funkcje + pytest | Java/Spring nie jest na liście preferowanych - dozwolone („dowolny”), ale tracimy argument wdrożeniowy |
+| Dane | **SQLite** (parametry, wersje) + **pliki JSON** (fixtures spraw, treści przewodnika, organizacje) | Zero infrastruktury; parametry wersjonowane w tabeli | Postgres na Render - tylko gdy SQLite nie przetrwa redeployu (ephemeral disk → parametry seed z JSON przy starcie) |
 | AI (P1) | Claude API (claude-sonnet-5-5) structured output do ekstrakcji pól z PDF | Ekstrakcja z formularzy to dokładnie zastosowanie LLM; kwoty liczy silnik | Brak AI: pdfplumber + regex / ręczne fixtures |
 | Deploy | FE: **Vercel**; BE: **Render/Railway/Fly** (Docker) | Darmowe, publiczne URL w 15 min | Jeden kontener (Next static export + FastAPI) na VPS |
 
@@ -167,12 +167,12 @@ flowchart LR
 ```
 
 ### 3.3 Komponenty i przepływy
-- **`engine/`** — czyste funkcje: `entitlement(profile, event) → [BenefitDecision]`, `duration(...)`, `amount(base, segments, params)`, `timeline(plan, params)`. Parametry wstrzykiwane (nie stałe w kodzie) → admin działa „za darmo”.
-- **`cases/`** — `CaseFixture` (dane wejściowe + oczekiwany wynik z decyzji ZUS) + `extract(pdf) → CaseInput` (P1).
-- **`adapters/`** — interfejs `InsuranceDataProvider` z implementacją `SimulatedZusProvider` (profile demo). Ten wzorzec to argument wdrożeniowy: produkcyjnie podmieniamy adapter.
+- **`engine/`** - czyste funkcje: `entitlement(profile, event) → [BenefitDecision]`, `duration(...)`, `amount(base, segments, params)`, `timeline(plan, params)`. Parametry wstrzykiwane (nie stałe w kodzie) → admin działa „za darmo”.
+- **`cases/`** - `CaseFixture` (dane wejściowe + oczekiwany wynik z decyzji ZUS) + `extract(pdf) → CaseInput` (P1).
+- **`adapters/`** - interfejs `InsuranceDataProvider` z implementacją `SimulatedZusProvider` (profile demo). Ten wzorzec to argument wdrożeniowy: produkcyjnie podmieniamy adapter.
 - **Krytyczny przepływ:** wybór sprawy → `CaseInput` → `/eligibility` + `/calculate` → wynik + `expected` → diff.
 
-**Integracje wymagające weryfikacji:** Claude API (klucz, limity, zgoda na wysłanie dokumentów ZUS — Q2); hosting BE (cold start na darmowym planie Render ~30–60 s → keep-alive/płatny plan); format PDF spraw (tekst vs skan).
+**Integracje wymagające weryfikacji:** Claude API (klucz, limity, zgoda na wysłanie dokumentów ZUS - Q2); hosting BE (cold start na darmowym planie Render ~30–60 s → keep-alive/płatny plan); format PDF spraw (tekst vs skan).
 
 **SPOF:** (1) jeden plik silnika edytowany przez wiele osób → właściciel modułu; (2) BE hosting cold start w trakcie oceny jury; (3) klucz API LLM; (4) brak zestawów spraw.
 
@@ -183,9 +183,9 @@ flowchart LR
 | Pytanie | Odpowiedź |
 |---|---|
 | Do czego AI jest potrzebne? | **Nie** do ustalania uprawnień ani kwot (prawo = reguły, wymaga powtarzalności i audytu). Tak do: (a) ekstrakcji pól z PDF formularzy (ZAM, Z-3, poświadczenie), (b) parafrazy uzasadnień prostym językiem. |
-| LLM / RAG / ML / reguły | Reguły = rdzeń. LLM = ekstrakcja (structured output, schemat Pydantic). RAG — P2, nie budujemy domyślnie. ML klasyczny — nie. |
+| LLM / RAG / ML / reguły | Reguły = rdzeń. LLM = ekstrakcja (structured output, schemat Pydantic). RAG - P2, nie budujemy domyślnie. ML klasyczny - nie. |
 | Spike | S2: 3 PDF-y spraw → LLM → JSON; porównanie z ręcznie wpisanym. Wynik WORKS jeśli ≥90% pól zgodnych i <20 s/dok. |
-| Koszty/limity | Kilkadziesiąt dokumentów × kilka wywołań — pomijalne; ryzyko = rate limit w trakcie demo → cache wyników ekstrakcji dla spraw przykładowych. |
+| Koszty/limity | Kilkadziesiąt dokumentów × kilka wywołań - pomijalne; ryzyko = rate limit w trakcie demo → cache wyników ekstrakcji dla spraw przykładowych. |
 | Wykrywanie błędów | Walidacja schematu, reguły sanity (daty, PESEL-format, kwoty >0), pole `confidence` + ekran „sprawdź i popraw dane” przed liczeniem. |
 | Gdy AI niedostępne | Fallback: zapisane wyniki ekstrakcji (cache) dla spraw przykładowych + formularz ręczny. W UI etykieta źródła danych. |
 
@@ -200,17 +200,17 @@ flowchart LR
 | Panel admina parametrów | REAL | Wymóg „powinno” | Średni | Niski | Zmiana na żywo |
 | Przewodnik / ryzyka / organizacje | REAL (treść statyczna) | Pkt g, h, i | Średni | Merytoryka treści | Karty przy wyniku |
 | Ekstrakcja z PDF | REAL (P1) lub fixtures | Efekt „wow”, ale nie rdzeń | Średni | Jakość OCR/LLM | Oznaczenie „AI” |
-| Logowanie mObywatel | SIMULATED [OFICJALNE: „wyłącznie zasymulować”] | — | Wymagane | — | Ekran imitujący przepływ, **bez** logotypów/brandingu mObywatel/ZUS 1:1, baner SYMULACJA |
-| Pobranie danych ZUS (ubezpieczenie) | SIMULATED [OFICJALNE] | Adapter z profilami demo | Wymagane | — | Baner SYMULACJA |
-| Zaświadczenie o zadłużeniu | SIMULATED [OFICJALNE] | — | Wymagane | — | Generowany podgląd z dopiskiem |
-| e-ZLA podgląd (kod B) | SIMULATED [OFICJALNE] | — | Wymagane | — | Lista e-ZLA z profilu demo |
-| PUE/eZUS (zapytanie, konto) | SIMULATED [OFICJALNE] | — | Wymagane | — | Formularz pytania → „wysłano (symulacja)” |
+| Logowanie mObywatel | SIMULATED [OFICJALNE: „wyłącznie zasymulować”] | - | Wymagane | - | Ekran imitujący przepływ, **bez** logotypów/brandingu mObywatel/ZUS 1:1, baner SYMULACJA |
+| Pobranie danych ZUS (ubezpieczenie) | SIMULATED [OFICJALNE] | Adapter z profilami demo | Wymagane | - | Baner SYMULACJA |
+| Zaświadczenie o zadłużeniu | SIMULATED [OFICJALNE] | - | Wymagane | - | Generowany podgląd z dopiskiem |
+| e-ZLA podgląd (kod B) | SIMULATED [OFICJALNE] | - | Wymagane | - | Lista e-ZLA z profilu demo |
+| PUE/eZUS (zapytanie, konto) | SIMULATED [OFICJALNE] | - | Wymagane | - | Formularz pytania → „wysłano (symulacja)” |
 | Wnioski o urlopy/świadczenia + wysyłka | SIMULATED [OFICJALNE] | Wnioski o urlop do zaprojektowania | Wymagane | Nowy ZAM po 24.10.2026 | Prefill + podgląd |
-| Wniosek o odpis aktu urodzenia | SIMULATED [OFICJALNE] | — | Wymagane | — | Formularz + link gov.pl |
-| Zasiłek opiekuńczy, świadczenia rodzinne (800+ itp.) | OUT | Spoza a–j / spoza ZUS-chorobowego | Brak | — | Tylko linki |
-| Prawdziwe integracje, konta, wysyłka | OUT | Zakazane/symulowane wg treści | Brak | — | Slajd „ścieżka wdrożenia” |
+| Wniosek o odpis aktu urodzenia | SIMULATED [OFICJALNE] | - | Wymagane | - | Formularz + link gov.pl |
+| Zasiłek opiekuńczy, świadczenia rodzinne (800+ itp.) | OUT | Spoza a–j / spoza ZUS-chorobowego | Brak | - | Tylko linki |
+| Prawdziwe integracje, konta, wysyłka | OUT | Zakazane/symulowane wg treści | Brak | - | Slajd „ścieżka wdrożenia” |
 
-Zasada: każdy ekran symulowany ma stały baner **„Symulacja — w wersji produkcyjnej: integracja z …”** i jest wymieniony w README.
+Zasada: każdy ekran symulowany ma stały baner **„Symulacja - w wersji produkcyjnej: integracja z …”** i jest wymieniony w README.
 
 ---
 
@@ -266,7 +266,7 @@ Zasada: każdy ekran symulowany ma stały baner **„Symulacja — w wersji prod
                 "legalRef": "KP art. 182(1a)"}]
 }
 ```
-(liczby ilustracyjne — **nie** wartości referencyjne)
+(liczby ilustracyjne - **nie** wartości referencyjne)
 
 **`BenefitDecision`:** `{benefit, status: ELIGIBLE|NOT_ELIGIBLE|NEEDS_INFO, reasons[{code,message,legalRef}], payer: EMPLOYER|ZUS, documents[], deadlines[]}`
 
@@ -278,7 +278,7 @@ Zasada: każdy ekran symulowany ma stały baner **„Symulacja — w wersji prod
 
 ## 6. PLAN PRACY 2-2-2
 
-**Zmiana podziału [REKOMENDACJA]:** BA nie pisze kodu, ale **jest właścicielem „złotego zestawu testów”** (sprawy → oczekiwane wyniki) — to najważniejsza praca domenowa i tak trzeba ją wykonać ręcznie. Dev5 przejmuje symulacje + deployment + admin, odciążając BE od rzeczy niekrytycznych.
+**Zmiana podziału [REKOMENDACJA]:** BA nie pisze kodu, ale **jest właścicielem „złotego zestawu testów”** (sprawy → oczekiwane wyniki) - to najważniejsza praca domenowa i tak trzeba ją wykonać ręcznie. Dev5 przejmuje symulacje + deployment + admin, odciążając BE od rzeczy niekrytycznych.
 
 | Rola | Osoba | Zakres |
 |---|---|---|
@@ -302,7 +302,7 @@ Zasada: każdy ekran symulowany ma stały baner **„Symulacja — w wersji prod
 | 5 Stabilization | 01:00–05:00 P1, **Feature Freeze 05:00** | Bugfix, P1 wg CP3 | Polerka UX, a11y, mobile | BA: testy eksploracyjne wszystkich spraw | Stabilne demo | 0 błędów blokujących na liście |
 | 5b Hardening | 05:00–08:00, **Code Freeze 08:00** | Tylko bugfixy | Tylko bugfixy | Screenshoty, slajdy final, opis | Tag `v1.0` | Smoke test na prod (checklista) |
 | 6 Submission | 08:00–10:00 | Dyżur awaryjny | Dyżur | Nagranie wideo (08:00–09:00), upload YouTube/Drive public, formularz Hacktribe | Zgłoszenie wysłane **do 10:00** | Ktoś spoza autorów otwiera wszystkie linki w trybie incognito |
-| Bufor | 10:00–11:00 | — | — | Weryfikacja | | |
+| Bufor | 10:00–11:00 | - | - | Weryfikacja | | |
 
 Zasada „nikt nie czeka”: FE na MSW od 13:30; BA produkuje fixtures, które są jednocześnie testami BE i danymi demo FE.
 
@@ -332,12 +332,12 @@ flowchart LR
 | 2 | Zgoda na użycie spraw w publicznym demo/repo | BA | 13:00 | Odpowiedź mentora | Repo bez PDF; demo z wyborem spraw tylko po zalogowaniu kodem dla jury lub syntetyczne odpowiedniki |
 | 3 | Rozumienie podstawy wymiaru i zaokrągleń | BE-1 + BA | 14:00 | 3 sprawy policzone ręcznie = decyzja | Podstawa wpisywana/brana z dokumentu, liczymy tylko wymiar i %; pytanie Q4 |
 | 4 | Deploy FE+BE | Dev5 | 13:15 | Hello world publicznie, autodeploy z main | Jeden kontener na Fly.io / Railway |
-| 5 | Kontrakt v1 | Dev5 | 13:30 | Zamrożony, MSW działa | — |
+| 5 | Kontrakt v1 | Dev5 | 13:30 | Zamrożony, MSW działa | - |
 | 6 | Ekstrakcja PDF | BE-2 | 14:15 | ≥90% pól na 3 PDF | Ręczne fixtures + formularz korekty |
 | 7 | Stack Python | BE-1/2 | 12:15 | Silnik 1 przypadku + test w FastAPI | Spring Boot |
 
 **Technology Spikes (pierwsze 90 min), każdy kończy się WORKS / DOES NOT WORK / UNVERIFIED:**
-- **S1** (BE-1, 45 min): funkcja liczenia macierzyńskiego dla 1 sprawy + pytest — WORKS gdy test przechodzi z wartością policzoną przez BA.
+- **S1** (BE-1, 45 min): funkcja liczenia macierzyńskiego dla 1 sprawy + pytest - WORKS gdy test przechodzi z wartością policzoną przez BA.
 - **S2** (BE-2/Dev5, 60 min): 3 PDF → tekst (pdfplumber) → czy to tekst czy skan? → LLM structured output → porównanie.
 - **S3** (Dev5, 45 min): Vercel + Render, CORS, env vars, cold start zmierzony.
 - **S4** (FE-1, 45 min): Next.js + shadcn + formularz kreatora RWD na 375 px.
@@ -349,11 +349,11 @@ flowchart LR
 | CP1 | 17:15 | Vertical slice na prod | Juror-test: wybór sprawy → kwota | BE-1 | SCOPE CUT: F13, F16 out; 2 osoby z FE-2/Dev5 na silnik |
 | CP2 | 20:00 | Journey 1–7 E2E | Checklista E2E | FE-1 | SCOPE CUT: F15 → podstawa ręczna; F10 tylko podgląd |
 | CP3 | 01:00 | Wszystkie P0 | Macierz pokrycia a–j | BA | STOP dla P1; tylko braki P0 |
-| CP4 | 05:00 | Feature Freeze | — | Dev5 | STOP |
+| CP4 | 05:00 | Feature Freeze | - | Dev5 | STOP |
 | CP5 | 08:00 | Code Freeze, tag v1.0 | Smoke test prod | Dev5 | Rollback do ostatniego zielonego tagu |
 | CP6 | 10:00 | Zgłoszenie wysłane | Incognito check linków | BA | Upload natychmiast „as is” |
 
-**GO:** CP osiągnięty w czasie. **SCOPE CUT:** CP spóźniony ≤1 h → tniemy z listy cięć (§2.3). **FALLBACK:** komponent zawodzi 2× po 30 min → przełączamy na wariant zapasowy (fixtures, podstawa ręczna, jeden kontener). **STOP:** od 05:00 lub gdy CP spóźniony >2 h — zero nowych funkcji.
+**GO:** CP osiągnięty w czasie. **SCOPE CUT:** CP spóźniony ≤1 h → tniemy z listy cięć (§2.3). **FALLBACK:** komponent zawodzi 2× po 30 min → przełączamy na wariant zapasowy (fixtures, podstawa ręczna, jeden kontener). **STOP:** od 05:00 lub gdy CP spóźniony >2 h - zero nowych funkcji.
 
 ---
 
@@ -366,25 +366,25 @@ flowchart LR
 | R3 | Zakaz rozpowszechniania dokumentów ZUS vs publiczne repo/demo | MED | HIGH | Odpowiedź mentora | `.gitignore` dla `cases/raw`, zgoda na piśmie (Discord) | Syntetyczne odpowiedniki | BA |
 | R4 | Ekstrakcja PDF/AI niedokładna lub skany | MED | MED | S2 <90% | Ekran korekty + cache | Fixtures ręczne | BE-2 |
 | R5 | Niedostępność API LLM / limit / zgoda na wysyłkę danych | MED | MED | 429/5xx, odmowa Q2 | Cache wyników dla spraw demo | Wyłącznik AI w adminie | BE-2 |
-| R6 | Cold start / awaria hostingu w czasie oceny jury | MED | HIGH | >10 s pierwszego requestu | Plan płatny/keep-alive, healthcheck, uptime monitor | Wersja z silnikiem w przeglądarce? — nie; zapasowy URL na drugim hostingu | Dev5 |
-| R7 | FE blokowany przez BE / niezgodny kontrakt | MED | MED | FE pisze typy ręcznie | Generowany klient z OpenAPI, MSW, testy kontraktu | — | Dev5 |
+| R6 | Cold start / awaria hostingu w czasie oceny jury | MED | HIGH | >10 s pierwszego requestu | Plan płatny/keep-alive, healthcheck, uptime monitor | Wersja z silnikiem w przeglądarce? - nie; zapasowy URL na drugim hostingu | Dev5 |
+| R7 | FE blokowany przez BE / niezgodny kontrakt | MED | MED | FE pisze typy ręcznie | Generowany klient z OpenAPI, MSW, testy kontraktu | - | Dev5 |
 | R8 | Scope creep (chatbot, RAG, kolejne kalkulatory) | HIGH | MED | PR z P2 przed CP3 | Reguła: P1 dopiero po CP3, BA pilnuje listy | Revert | BA |
 | R9 | Nieznajomość niuansów prawa (np. 14 tyg. matki, 9 tyg., łączenie z pracą, min. 9 tyg. przy przysposobieniu) | HIGH | MED | Spory w zespole | `rules.md` z cytatami artykułów; mentor | Oznaczamy „uproszczenie” w UI | BA |
-| R10 | Niespełnienie wymogów formalnych (wideo >3 min, link nieotwarty, >10 slajdów, brak opisu AI) | LOW | HIGH | — | Checklista §10, wideo do 2:45 | — | BA |
+| R10 | Niespełnienie wymogów formalnych (wideo >3 min, link nieotwarty, >10 slajdów, brak opisu AI) | LOW | HIGH | - | Checklista §10, wideo do 2:45 | - | BA |
 | R11 | Problem z uploadem w ostatniej godzinie | LOW | HIGH | Wolne łącze | Upload do 10:00, wideo wrzucone o 09:15 | Drugi uploader | BA |
 | R12 | Zmęczenie nocą → regresje | HIGH | MED | Rośnie liczba bugów | Sen rotacyjny, freeze 05:00, CI z testami blokuje merge | Rollback do tagu | Dev5 |
-| R13 | Konflikty edycji przez równoległe sesje Claude Code | MED | MED | Konflikty merge | Właściciel modułu, małe PR-y, worktrees | — | Dev5 |
-| R14 | Odwzorowanie wyglądu mObywatel/ZUS uznane za podszywanie się | LOW | MED | — | Własny neutralny design, napisy „symulacja” | — | FE-2 |
+| R13 | Konflikty edycji przez równoległe sesje Claude Code | MED | MED | Konflikty merge | Właściciel modułu, małe PR-y, worktrees | - | Dev5 |
+| R14 | Odwzorowanie wyglądu mObywatel/ZUS uznane za podszywanie się | LOW | MED | - | Własny neutralny design, napisy „symulacja” | - | FE-2 |
 
 **TOP 3 ryzyka porażki:** R2 (błędne kwoty), R1/R3 (brak lub nieużywalne sprawy ZUS), R6 (demo nie działa, gdy jury klika).
 
-### Plan awaryjny — ostatnie 3 godziny (08:00–11:00)
+### Plan awaryjny - ostatnie 3 godziny (08:00–11:00)
 1. **Przestajemy implementować wszystko**; dozwolone są tylko fixy błędów blokujących journey, max 20 min każdy, potem revert.
 2. **Ochrona MVP:** `main` chroniony, deploy tylko z tagu; rollback = redeploy poprzedniego tagu (przećwiczony o 05:00).
-3. **Zakres:** niedziałającą funkcję ukrywamy feature-flagą i w README/wideo opisujemy jako „poza zakresem prototypu” — **nie** pokazujemy jej jako działającej.
+3. **Zakres:** niedziałającą funkcję ukrywamy feature-flagą i w README/wideo opisujemy jako „poza zakresem prototypu” - **nie** pokazujemy jej jako działającej.
 4. **Niedziałające API BE:** zapasowa instancja na drugim hostingu (przygotowana o 05:00), FE przełączany zmienną env.
 5. **Niedziałające AI:** wyłącznik w adminie → ścieżka fixtures + formularz ręczny; w opisie jasno.
-6. **Niedziałający deployment:** `docker compose` lokalnie + nagranie wideo z lokalnego środowiska; link demo podajemy, gdy wróci — w zgłoszeniu nota.
+6. **Niedziałający deployment:** `docker compose` lokalnie + nagranie wideo z lokalnego środowiska; link demo podajemy, gdy wróci - w zgłoszeniu nota.
 7. **Demo:** wideo nagrane do 09:00 z działającej wersji = gwarancja, że Etap I ma dowód działania.
 
 ---
@@ -398,11 +398,11 @@ flowchart LR
 | Fixtures spraw | Claude czyta PDF sprawy → proponuje JSON → BA weryfikuje 100% pól | Tak (subagent per sprawa) |
 | Testy kontraktu, MSW, klient TS | Generacja z OpenAPI | Tak |
 | Ekrany symulacji | Claude generuje komponenty wg makiety + banera SYMULACJA | Tak (FE-2) |
-| Debug | `superpowers:systematic-debugging`, logi z Render | — |
-| Code review | `/code-review` przed merge do `main` po CP2 i przed freeze | — |
+| Debug | `superpowers:systematic-debugging`, logi z Render | - |
+| Code review | `/code-review` przed merge do `main` po CP2 i przed freeze | - |
 | Treści przewodnika | Claude streszcza Poradnik/ustawę → BA weryfikuje merytorycznie | Tak |
 
-**Subagenci:** tylko do zadań izolowanych (ekstrakcja fixtures z N spraw, przegląd zgodności reguł z ustawą, generacja testów granicznych). **Agent Teams:** nie — konfiguracja kosztuje więcej niż zysk przy 6 ludziach z własnymi sesjami.
+**Subagenci:** tylko do zadań izolowanych (ekstrakcja fixtures z N spraw, przegląd zgodności reguł z ustawą, generacja testów granicznych). **Agent Teams:** nie - konfiguracja kosztuje więcej niż zysk przy 6 ludziach z własnymi sesjami.
 
 **Decyzje wyłącznie ludzkie:** interpretacja przepisu, oczekiwany wynik sprawy, zakres MVP/cięcia, treść o martwym urodzeniu, co oznaczamy jako AI.
 
@@ -411,7 +411,7 @@ flowchart LR
 - Każda osoba = własna gałąź/worktree, PR ≤ ~300 linii, merge po zielonym CI.
 - DoD zadania: testy + działa na prod + wpis w macierzy pokrycia.
 - Eskalacja: blokada >30 min → kanał #blocker, Dev5 reaguje.
-- Antymarnotrawstwo: max 2 regeneracje tego samego kodu — potem człowiek pisze/poprawia ręcznie; prompty z konkretnym testem/kontraktem, nie „zrób kalkulator”.
+- Antymarnotrawstwo: max 2 regeneracje tego samego kodu - potem człowiek pisze/poprawia ręcznie; prompty z konkretnym testem/kontraktem, nie „zrób kalkulator”.
 
 ---
 
@@ -423,10 +423,10 @@ flowchart LR
 |---|---|---|---|
 | Q1 | Gdzie są zestawy przykładowych spraw i czy możemy je umieścić w publicznym demo/repo/wideo, skoro „nie wolno kopiować ani rozpowszechniać”, a demo ma umożliwiać ich wybór? | Konflikt wymogów | Prawdziwe vs syntetyczne sprawy; repo bez PDF |
 | Q2 | Czy wolno przesłać zanonimizowane dokumenty spraw do zewnętrznego API LLM (Claude) w celu ekstrakcji? | Poufność | F13 tak/nie |
-| Q3 | Jak jury sprawdzi „poprawność wyliczeń” — która wartość jest referencyjna (kwota z decyzji/zrzutu, podstawa, okres)? Jakie zaokrąglenia (dzienna stawka /30, grosze)? | Definicja „poprawnie” | Format diffu, reguły zaokrągleń |
+| Q3 | Jak jury sprawdzi „poprawność wyliczeń” - która wartość jest referencyjna (kwota z decyzji/zrzutu, podstawa, okres)? Jakie zaokrąglenia (dzienna stawka /30, grosze)? | Definicja „poprawnie” | Format diffu, reguły zaokrągleń |
 | Q4 | Czy oczekują wyliczenia podstawy wymiaru z Z-3 (składniki, uzupełnianie), czy wystarczy podstawa z poświadczenia ubezpieczenia? | Najdroższa funkcja | F15 P0 czy P1 |
 | Q5 | Czy uwzględniać stan prawny po 24.10.2026 (połączony ZAM, likwidacja Z-3b, ZUR, ZAO) także w sprawach sprzed tej daty? | Wersjonowanie parametrów | `validFrom` w adminie, dobór formularza |
-| Q6 | Pkt e) vs j) — czy j) obejmuje też rodziny zastępcze zawodowe? | Duplikat w treści | Zakres F5 |
+| Q6 | Pkt e) vs j) - czy j) obejmuje też rodziny zastępcze zawodowe? | Duplikat w treści | Zakres F5 |
 | Q7 | Czy ZUS ma zweryfikowaną listę organizacji charytatywnych, czy możemy wskazać publiczne (np. hospicja perinatalne, fundacje wcześniaków)? | Reputacja instytucji | Treść F8 |
 | Q8 | Jaki poziom szczegółu dla świadczenia rehabilitacyjnego i zasiłku w wys. macierzyńskiego jest oczekiwany? | Zakres ścieżki ciąży | Logika vs tylko informacja |
 
@@ -435,8 +435,8 @@ flowchart LR
 | Czas | Co pokazujemy | Co mówimy | Kryterium |
 |---|---|---|---|
 | 0:00–0:30 | 1 slajd: Ania, JDG, 6. miesiąc ciąży | „Nie wie, czy dostanie zasiłek, ile i gdzie złożyć wniosek; ZUS dowie się o dziecku dopiero po porodzie.” | Związek |
-| 0:30–1:15 | Logowanie mObywatel (SYMULACJA) → dane z ZUS: dobrowolne chorobowe, e-ZLA kod B, zadłużenie | „Dane pobrane z systemów ZUS — tu symulowane adapterem.” | Kompletność |
-| 1:15–2:15 | Wynik: karty świadczeń + uzasadnienia z przepisami; ostrzeżenie o zadłużeniu i ryzyku podwyższenia podstawy | „Każdy wynik ma podstawę prawną — nic nie jest czarną skrzynką.” | Pomysł, Oryginalność |
+| 0:30–1:15 | Logowanie mObywatel (SYMULACJA) → dane z ZUS: dobrowolne chorobowe, e-ZLA kod B, zadłużenie | „Dane pobrane z systemów ZUS - tu symulowane adapterem.” | Kompletność |
+| 1:15–2:15 | Wynik: karty świadczeń + uzasadnienia z przepisami; ostrzeżenie o zadłużeniu i ryzyku podwyższenia podstawy | „Każdy wynik ma podstawę prawną - nic nie jest czarną skrzynką.” | Pomysł, Oryginalność |
 | 2:15–3:15 | Planer: mama + tata, 9 tyg. taty na ½ etatu, porównanie 81,5% vs 100/70 → kwoty w czasie | „Rodzina widzi, ile straci lub zyska na każdej decyzji.” | Pomysł (b,c,d) |
 | 3:15–4:00 | **Demo Success Moment**: wybór sprawy ZUS → „Zgodne z decyzją ZUS ✓” + ekran X/N spraw | „Sprawdziliśmy silnik na wszystkich sprawach od ZUS.” | Związek, Potencjał |
 | 4:00–4:30 | Admin: zmiana parametru → przeliczenie; mobile | „Zmiana ustawy = zmiana parametru, bez programisty.” | Potencjał |
@@ -444,13 +444,13 @@ flowchart LR
 
 Wideo Hacktribe (≤3 min): ta sama struktura skrócona (0:20 problem / 2:10 demo / 0:30 wartość+AI+symulacje). Cel: 2:45.
 
-### 10.3 Q&A — 5 najtrudniejszych pytań
+### 10.3 Q&A - 5 najtrudniejszych pytań
 
-1. **„Skąd wiemy, że kwoty są poprawne?”** — Prototyp: silnik deterministyczny, X/N zgodnych spraw ZUS, testy jednostkowe dla każdego wiersza Załącznika, w repo. Znane uproszczenia: [lista z README]. Produkcja: walidacja przez merytoryków ZUS, testy regresyjne na zanonimizowanych sprawach historycznych.
-2. **„RODO — dane o ciąży to dane o zdrowiu.”** — Prototyp: nic nie jest trwale zapisywane, dane tylko w sesji, sprawy zanonimizowane. Produkcja: uwierzytelnienie przez mObywatel/PUE, przetwarzanie w infrastrukturze ZUS, DPIA, minimalizacja, logi dostępu.
-3. **„Gdzie i jak używacie AI i co, jeśli się pomyli?”** — AI wyłącznie [ekstrakcja pól z PDF / parafraza]; kwot i uprawnień nie ustala AI. Wynik ekstrakcji jest pokazywany do potwierdzenia, AI można wyłączyć w adminie. W prototypie przetestowane na N sprawach z wynikiem Y%.
-4. **„Jak to wdrożyć w ZUS i ile to kosztuje?”** — Modularny monolit, REST/OpenAPI, adaptery integracji (dziś symulowane) → podmiana na KSI/PUE/e-ZLA. Parametry z datą obowiązywania. Hosting w ZUS; koszt AI pomijalny/opcjonalny. Nie twierdzimy, że integracje istnieją.
-5. **„Co ze skalą i zmianami prawa?”** — Silnik bezstanowy, skaluje się horyzontalnie; obciążenie to proste obliczenia. Zmiany prawa: parametry w adminie, a nowe reguły — nowa wersja modułu z testami. Prototyp nie był testowany obciążeniowo.
+1. **„Skąd wiemy, że kwoty są poprawne?”** - Prototyp: silnik deterministyczny, X/N zgodnych spraw ZUS, testy jednostkowe dla każdego wiersza Załącznika, w repo. Znane uproszczenia: [lista z README]. Produkcja: walidacja przez merytoryków ZUS, testy regresyjne na zanonimizowanych sprawach historycznych.
+2. **„RODO - dane o ciąży to dane o zdrowiu.”** - Prototyp: nic nie jest trwale zapisywane, dane tylko w sesji, sprawy zanonimizowane. Produkcja: uwierzytelnienie przez mObywatel/PUE, przetwarzanie w infrastrukturze ZUS, DPIA, minimalizacja, logi dostępu.
+3. **„Gdzie i jak używacie AI i co, jeśli się pomyli?”** - AI wyłącznie [ekstrakcja pól z PDF / parafraza]; kwot i uprawnień nie ustala AI. Wynik ekstrakcji jest pokazywany do potwierdzenia, AI można wyłączyć w adminie. W prototypie przetestowane na N sprawach z wynikiem Y%.
+4. **„Jak to wdrożyć w ZUS i ile to kosztuje?”** - Modularny monolit, REST/OpenAPI, adaptery integracji (dziś symulowane) → podmiana na KSI/PUE/e-ZLA. Parametry z datą obowiązywania. Hosting w ZUS; koszt AI pomijalny/opcjonalny. Nie twierdzimy, że integracje istnieją.
+5. **„Co ze skalą i zmianami prawa?”** - Silnik bezstanowy, skaluje się horyzontalnie; obciążenie to proste obliczenia. Zmiany prawa: parametry w adminie, a nowe reguły - nowa wersja modułu z testami. Prototyp nie był testowany obciążeniowo.
 
 ### 10.4 Paczka Hacktribe
 
@@ -460,13 +460,13 @@ Wideo Hacktribe (≤3 min): ta sama struktura skrócona (0:20 problem / 2:10 dem
 | Prezentacja ≤10 slajdów | **TAK** | BA | Problem, persona, rozwiązanie, demo screens, weryfikacja spraw, architektura, AI, wdrożenie, zespół | 08:30 | Liczba slajdów ≤10, PDF |
 | Wideo ≤3 min, link w otwartym repozytorium | **TAK** | Dev5 + BA | Patrz 10.2 | 09:15 upload | Otwarcie w incognito, długość |
 | Repozytorium kodu | „Dodatkowo powinien” | Dev5 | Kod, README, licencja, `.gitignore` bez dokumentów ZUS | 08:00 | Klon na czystej maszynie + `docker compose up` |
-| Screenshoty (desktop + mobile) | „Dodatkowo powinien” | FE-2 | 8–10 ekranów | 08:30 | — |
+| Screenshoty (desktop + mobile) | „Dodatkowo powinien” | FE-2 | 8–10 ekranów | 08:30 | - |
 | Link demo www z wyborem przykładów i kalkulatorem | „Dodatkowo powinien” | Dev5 | Publiczny URL, rozgrzany | 08:00 | Incognito + telefon |
-| RWD | „Dodatkowo powinien” | FE-2 | — | 05:00 | 375/768/1440 px |
-| Materiały graficzne | „Dodatkowo powinien” | FE-2 | Logo projektu (własne!), diagram | 08:30 | — |
-| Wskazanie funkcji z AI | „Dodatkowo powinien” + §9 | BA | Tabela: funkcja → AI tak/nie → model → zakres | 08:30 | — |
-| Wskazanie rozwiązań zewnętrznych | **TAK** [Regulamin §4.1] | Dev5 | Lista bibliotek/usług (Next, FastAPI, Claude API…) w prezentacji | 08:30 | — |
-| Instrukcja uruchomienia, diagram architektury, ograniczenia prototypu, lista symulacji | [REKOMENDACJA] | Dev5 | W README | 08:00 | — |
+| RWD | „Dodatkowo powinien” | FE-2 | - | 05:00 | 375/768/1440 px |
+| Materiały graficzne | „Dodatkowo powinien” | FE-2 | Logo projektu (własne!), diagram | 08:30 | - |
+| Wskazanie funkcji z AI | „Dodatkowo powinien” + §9 | BA | Tabela: funkcja → AI tak/nie → model → zakres | 08:30 | - |
+| Wskazanie rozwiązań zewnętrznych | **TAK** [Regulamin §4.1] | Dev5 | Lista bibliotek/usług (Next, FastAPI, Claude API…) w prezentacji | 08:30 | - |
+| Instrukcja uruchomienia, diagram architektury, ograniczenia prototypu, lista symulacji | [REKOMENDACJA] | Dev5 | W README | 08:00 | - |
 
 ---
 
@@ -477,11 +477,11 @@ Wideo Hacktribe (≤3 min): ta sama struktura skrócona (0:20 problem / 2:10 dem
 | 0–10 | Kickoff: ten plan, role, kanały (#general, #blocker, #contract), repo GitHub, właściciele modułów | Dev5 | Wszyscy znają P0 i swoją rolę |
 | 0–30 | Stoisko ZUS/Discord: zestawy spraw + Q1, Q2, Q3 | BA | Pliki spraw, odpowiedzi zapisane w `docs/mentors.md` |
 | 10–30 | Decyzja stack (Python vs Spring) po 15-min próbie | BE-1, BE-2 | Decyzja zapisana |
-| 10–55 | S1: silnik — 1 przypadek macierz.+rodzic. + pytest | BE-1 | WORKS/NOT |
+| 10–55 | S1: silnik - 1 przypadek macierz.+rodzic. + pytest | BE-1 | WORKS/NOT |
 | 10–55 | Czytanie ustawy/Załącznika → `rules.md` (tabela reguł z artykułami) | BE-2 → potem S2 | Szkic reguł |
 | 10–55 | S3: deploy hello-world FE (Vercel) + BE (Render), CORS, cold start | Dev5 | WORKS/NOT + czas cold startu |
 | 10–55 | S4: Next.js + shadcn + kreator 3 kroków na 375 px | FE-1 | WORKS/NOT |
-| 10–55 | Makiety 6 ekranów (start/login sim, dane ZUS, wynik, planer, sprawy+diff, admin) — szkic papier/Figma | FE-2 | Zatwierdzone przez BA |
+| 10–55 | Makiety 6 ekranów (start/login sim, dane ZUS, wynik, planer, sprawy+diff, admin) - szkic papier/Figma | FE-2 | Zatwierdzone przez BA |
 | 30–55 | Ręczne policzenie 2 spraw → oczekiwane wartości | BA | 2 złote przypadki |
 | 45–60 | Kontrakt v0 (Pydantic stubs + przykładowe JSON) | Dev5 + BE-2 | `contract-fixtures/` w repo |
 | 55–60 | Stand-up decyzyjny (5 min) | Dev5 | Potwierdzone: P0, stack, blockery, spike S2 start, przydział Fazy 2, plan vertical slice na 17:15 |
@@ -493,6 +493,6 @@ Wideo Hacktribe (≤3 min): ta sama struktura skrócona (0:20 problem / 2:10 dem
 
 ### Założenia i niewiadome (zbiorczo)
 - Brief podaje „20 h” i „MVP w 2 godziny”; plan liczony do realnego deadline'u 11:00 (23 h 15 min) z ~3 h snu na osobę.
-- Nie widziałem przykładowych spraw — ich format (tekst/skan), liczba i to, co jest „wynikiem referencyjnym”, są **niewiadome**.
-- Minimalna podstawa wymiaru 2026 (od płacy minimalnej 4 806 zł brutto − 13,71%) i limit 20 321,30 zł dla dobrowolnego chorobowego — z Załącznika; zasady zaokrągleń — do potwierdzenia (Q3).
+- Nie widziałem przykładowych spraw - ich format (tekst/skan), liczba i to, co jest „wynikiem referencyjnym”, są **niewiadome**.
+- Minimalna podstawa wymiaru 2026 (od płacy minimalnej 4 806 zł brutto − 13,71%) i limit 20 321,30 zł dla dobrowolnego chorobowego - z Załącznika; zasady zaokrągleń - do potwierdzenia (Q3).
 - Wymagania prawne opisane w treści zadania przyjmuję za obowiązujące w świecie zadania (stan prawny 2026), także tam, gdzie mogą różnić się od aktualnie znanych przepisów.

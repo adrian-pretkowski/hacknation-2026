@@ -1,4 +1,4 @@
-"""BE2-04: dokumenty, terminy, ryzyka (zus_rules/07 §3, §5, §7) — przypadek typowy, graniczny, brak danych.
+"""BE2-04: dokumenty, terminy, ryzyka (zus_rules/07 §3, §5, §7) - przypadek typowy, graniczny, brak danych.
 
 Fakty: f_has_pre_birth_maternity_segment (APP-DOC-001), f_documents_for_segment (APP-DOC-006),
 f_leave_application_deadlines (APP-DL-002), f_title_started_during_or_shortly_before_pregnancy (RISK-001),
@@ -48,10 +48,10 @@ def _docs(body: dict) -> dict[str, str]:
 def test_APP_DOC_001_pre_birth_segment_typical_boundary_missing():
     plan = {"segments": [_seg("MATERNITY_LEAVE", "2027-03-01", "2027-07-18")]}
     assert _ctx({"event": BIRTH, "plan": plan}).fact("f_has_pre_birth_maternity_segment") is True
-    plan = {"segments": [_seg("MATERNITY_LEAVE", "2027-03-15", "2027-08-01")]}  # od dnia porodu — nie „przed”
+    plan = {"segments": [_seg("MATERNITY_LEAVE", "2027-03-15", "2027-08-01")]}  # od dnia porodu - nie „przed”
     assert _ctx({"event": BIRTH, "plan": plan}).fact("f_has_pre_birth_maternity_segment") is False
     assert _ctx({"event": BIRTH}).fact("f_has_pre_birth_maternity_segment") is None
-    # FORECAST: przed porodem — przewidywana data porodu
+    # FORECAST: przed porodem - przewidywana data porodu
     data = {"event": {"type": "BIRTH"}, "pregnancy": PREGNANCY, "plan": {"maternity_start_date": "2027-02-01"}}
     assert _ctx(data).fact("f_has_pre_birth_maternity_segment") is True
 
@@ -78,7 +78,7 @@ def test_APP_DL_002_supplementary_resignation_and_maternity_like_boundary():
     result = {d["code"]: d["date"] for d in _ctx({"event": BIRTH, "plan": plan}).fact("f_leave_application_deadlines")}
     assert result["LEAVE_APP_SUPPLEMENTARY"] == date(2027, 7, 10)        # koniec macierzyńskiego − 21
     assert result["LEAVE_APP_MATERNITY_RESIGNATION"] == date(2027, 7, 25)  # powrót 2027-08-01 − 7
-    plan["segments"] = plan["segments"][1:]  # bez segmentu macierzyńskiego — koniec nieznany, brak terminu
+    plan["segments"] = plan["segments"][1:]  # bez segmentu macierzyńskiego - koniec nieznany, brak terminu
     result = _ctx({"event": BIRTH, "plan": plan}).fact("f_leave_application_deadlines")
     assert all(d["code"] != "LEAVE_APP_SUPPLEMENTARY" for d in result)
     data = {"event": {"type": "ADOPTION", "date": "2027-05-10"},
@@ -95,8 +95,8 @@ def test_BE2_08_pre_birth_maternity_application_deadline():
         return {d["code"]: d["date"] for d in _ctx(data).fact("f_leave_application_deadlines")}
 
     assert deadlines("2027-02-01")["LEAVE_APP_MATERNITY_PRE_BIRTH"] == date(2027, 1, 18)  # start − 14
-    assert "LEAVE_APP_MATERNITY_PRE_BIRTH" not in deadlines("2027-03-15")  # od dnia porodu — bez wniosku przed
-    # FORECAST: przed porodem — liczy się przewidywana data porodu
+    assert "LEAVE_APP_MATERNITY_PRE_BIRTH" not in deadlines("2027-03-15")  # od dnia porodu - bez wniosku przed
+    # FORECAST: przed porodem - liczy się przewidywana data porodu
     assert deadlines("2027-03-01", {"type": "BIRTH"}, PREGNANCY)["LEAVE_APP_MATERNITY_PRE_BIRTH"] == date(2027, 2, 15)
     assert "LEAVE_APP_MATERNITY_PRE_BIRTH" not in deadlines("2027-03-01", {"type": "BIRTH"})  # brak dat porodu
 
@@ -115,7 +115,7 @@ def test_APP_DL_002_no_plan_is_unknown():
      {"payer_of_benefit": "CONTRIBUTION_PAYER", "is_employee": True, "maternity_parent": "MOTHER"},
      {"OTHER_PARENT_PAYER_CERTIFICATE_PERIOD_RATE", "BIRTH_CERTIFICATE_SHORT"},
      {"EMPLOYER_LEAVE_AND_WORKTIME_CERTIFICATE"}),
-    (_seg("PATERNITY_LEAVE", "2027-04-01", "2027-04-14", "FATHER"),  # niepracownik — wniosek
+    (_seg("PATERNITY_LEAVE", "2027-04-01", "2027-04-14", "FATHER"),  # niepracownik - wniosek
      {"payer_of_benefit": "ZUS", "is_employee": False},
      {"CHILD_DATA_FOR_ZUS_REGISTRY_LOOKUP", "NO_PATERNITY_BENEFIT_FROM_OTHER_TITLE_STATEMENT",
       "PATERNITY_BENEFIT_APPLICATION"}, {"BIRTH_CERTIFICATE_SHORT"}),
@@ -174,7 +174,7 @@ def test_RISK_002_base_increase_typical_boundary_missing():
         return _ctx(data).fact("f_contribution_base_increase_during_pregnancy")
 
     assert risk(_months("4000.00", "9000.00")) is True
-    assert risk(_months("4000.00", "6000.00")) is False   # dokładnie × 1,5 — nie „więcej niż”
+    assert risk(_months("4000.00", "6000.00")) is False   # dokładnie × 1,5 - nie „więcej niż”
     assert risk(_months("4000.00", "6000.01")) is True
     assert risk(_months("4000.00", "4000.00")[:3]) is None  # brak miesięcy w ciąży
     assert risk([{"month": "2026-07", "gross_contribution_base": "9000.00"}]) is None  # brak miesięcy przed ciążą
@@ -237,7 +237,7 @@ def test_pipeline_father_only_own_segments_and_deadlines():
     assert "NO_PATERNITY_BENEFIT_FROM_OTHER_TITLE_STATEMENT" in _docs(body)
     assert "OTHER_PARENT_PLANS_STATEMENT" not in _docs(body)  # segment rodzicielski matki
     assert [d["code"] for d in body["deadlines"]] == ["LEAVE_APP_PATERNITY"]
-    assert not any(w["rule_id"].startswith("RISK-") for w in body["warnings"])  # ryzyka ciąży — tylko matka
+    assert not any(w["rule_id"].startswith("RISK-") for w in body["warnings"])  # ryzyka ciąży - tylko matka
 
 
 def test_pipeline_adoption_documents():
@@ -264,6 +264,6 @@ def test_guidance_refused_benefits_have_no_documents():
     refused = [{"benefit_type": "MATERNITY_BENEFIT", "leave_type": "MATERNITY_LEAVE", "status": "NOT_ELIGIBLE",
                 "payer_of_benefit": "CONTRIBUTION_PAYER"}]
     assert guidance(eng, refused) == {"missing_documents": [], "deadlines": []}
-    refused[0]["status"] = "NEEDS_DATA"  # brak danych to nie odmowa — dokumenty i terminy zostają
+    refused[0]["status"] = "NEEDS_DATA"  # brak danych to nie odmowa - dokumenty i terminy zostają
     result = guidance(eng, refused)
     assert result["missing_documents"] and result["deadlines"]

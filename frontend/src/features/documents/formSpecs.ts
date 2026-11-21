@@ -1,5 +1,5 @@
-// FE1-23: układ formularzy pism — sekcje z najważniejszymi polami, etykiety po ludzku i pola wymagane.
-// Pola wskazujemy krótkim ID (`p1_000`, `p2_17`) — pełna nazwa pola PDF pochodzi z metadanych (public/forms/<KOD>.json),
+// FE1-23: układ formularzy pism - sekcje z najważniejszymi polami, etykiety po ludzku i pola wymagane.
+// Pola wskazujemy krótkim ID (`p1_000`, `p2_17`) - pełna nazwa pola PDF pochodzi z metadanych (public/forms/<KOD>.json),
 // więc po regeneracji szablonu poprawia się tylko ten plik (zalecenie z docs/wnioski-pdf/*_instrukcja.md).
 // Pola z PDF, których tu nie ma, formularz pokazuje w części „Pozostałe pola formularza” (z etykietą z metadanych).
 import { formatRate } from "@/lib/format";
@@ -8,7 +8,7 @@ import type { FormCode } from "./forms";
 
 const PAYER_SIZE: [string, string] = [`do ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych`, `powyżej ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych`];
 
-/** Odczyt wartości po krótkim ID — dla warunków „wymagane, jeśli…”. */
+/** Odczyt wartości po krótkim ID - dla warunków „wymagane, jeśli…”. */
 export type Get = (id: string) => string | boolean | undefined;
 
 export type SpecField = {
@@ -37,11 +37,11 @@ const empty = (id: string) => (get: Get) => !get(id);
 const PESEL_HINT = "11 cyfr. Jeśli nie masz numeru PESEL, zostaw puste i podaj dokument tożsamości.";
 const DOC_LABEL = "Rodzaj, seria i numer dokumentu tożsamości";
 const DOC_HINT = "Tylko gdy brak numeru PESEL.";
-const BANK_HINT = "26 cyfr bez spacji i bez „PL”. Pole dobrowolne — bez rachunku zasiłek przyjdzie przekazem pocztowym.";
+const BANK_HINT = "26 cyfr bez spacji i bez „PL”. Pole dobrowolne - bez rachunku zasiłek przyjdzie przekazem pocztowym.";
 const PERIOD_HINT = "Daty od–do, np. 01.03.2027–18.07.2027.";
-const SIGN_HINT = "Data wypełnienia — domyślnie dziś.";
+const SIGN_HINT = "Data wypełnienia - domyślnie dziś.";
 
-/** Dane osoby (PESEL, data urodzenia, dokument, imię, nazwisko) — kolejne ID od `ids[0]`. */
+/** Dane osoby (PESEL, data urodzenia, dokument, imię, nazwisko) - kolejne ID od `ids[0]`. */
 function person(ids: [string, string, string, string, string]): SpecField[] {
   const [pesel, birth, doc, first, last] = ids;
   return [
@@ -87,7 +87,7 @@ function incapacityCause(cbs: [string, string, string], yes: string, no: string,
     { id: cbs[0], label: "choroby zawodowej" },
     { id: cbs[1], label: "wypadku przy pracy" },
     { id: cbs[2], label: "wypadku w drodze do pracy lub z pracy" },
-    { id: doc, label: "Jeśli TAK — rodzaj dokumentu (decyzja / protokół / karta wypadku), numer i data", required: is(yes, "TAK") },
+    { id: doc, label: "Jeśli TAK - rodzaj dokumentu (decyzja / protokół / karta wypadku), numer i data", required: is(yes, "TAK") },
   ];
 }
 
@@ -98,26 +98,26 @@ function absence(cbs: [string, string, string, string, string, string], yes: str
   return [
     { id: yes, no, label: "5. Czy w okresie niezdolności do pracy (choroba, opieka, macierzyństwo) zachodzi któraś z sytuacji poniżej?" },
     ...cbs.map((id, i) => ({ id, label: labels[i] })),
-    { id: period, label: "Jeśli TAK — okresy od–do", required: is(yes, "TAK") },
+    { id: period, label: "Jeśli TAK - okresy od–do", required: is(yes, "TAK") },
   ];
 }
 
 /** „Informacje o wypłaconych świadczeniach”: pytanie TAK/NIE + okresy i kody literowe. */
 const paid = (yes: string, no: string, details: string, label: string): SpecField[] => [
   { id: yes, no, label },
-  { id: details, label: "Jeśli TAK — okresy od–do i kod literowy", required: is(yes, "TAK") },
+  { id: details, label: "Jeśli TAK - okresy od–do i kod literowy", required: is(yes, "TAK") },
 ];
 
 const benefitPair = (chk: string, period: string, label: string): SpecField[] => [
   { id: chk, label },
-  { id: period, label: `${label[0].toUpperCase()}${label.slice(1)} — za okres`, hint: `${PERIOD_HINT} Jeśli znasz — także seria i numer zwolnienia.`, required: on(chk) },
+  { id: period, label: `${label[0].toUpperCase()}${label.slice(1)} - za okres`, hint: `${PERIOD_HINT} Jeśli znasz - także seria i numer zwolnienia.`, required: on(chk) },
 ];
 
 export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
   ZAM: [
     { id: "you", title: "Twoje dane", fields: person(["p1_00", "p1_01", "p1_02", "p1_03", "p1_04"]) },
     { id: "address", title: "Adres zamieszkania", fields: address(["p1_05", "p1_06", "p1_07", "p1_08", "p1_09", "p1_10", "p1_11"]) },
-    { id: "payer", title: "Dane płatnika składek", text: "Twój pracodawca lub zleceniodawca. Przy własnej działalności — Ty.",
+    { id: "payer", title: "Dane płatnika składek", text: "Twój pracodawca lub zleceniodawca. Przy własnej działalności - Ty.",
       fields: payer(["p1_12", "p1_13", "p1_14", "p1_15", "p1_16"], true) },
     { id: "bank", title: "Rachunek bankowy", fields: [{ id: "p2_17", label: "Numer rachunku", hint: BANK_HINT }] },
     { id: "scope", title: "Zakres wniosku", text: "Wnioskuję o zasiłek macierzyński za okres:",
@@ -156,7 +156,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
     { id: "other", title: "Drugi rodzic", text: "Wypełnij, jeśli wnioskujesz o zasiłek za urlop rodzicielski lub uzupełniający.",
       fields: [
         { id: "p5_76", no: "p5_77", label: "Czy drugi rodzic będzie korzystał z zasiłku za urlop rodzicielski / uzupełniający?" },
-        { id: "p5_78", label: "Jeśli TAK — okres", hint: PERIOD_HINT, required: is("p5_76", "TAK") },
+        { id: "p5_78", label: "Jeśli TAK - okres", hint: PERIOD_HINT, required: is("p5_76", "TAK") },
         { id: "p5_79", label: "PESEL drugiego rodzica" },
         { id: "p5_80", label: "Data urodzenia drugiego rodzica", hint: "Gdy nie ma numeru PESEL." },
         { id: "p5_81", label: DOC_LABEL, hint: DOC_HINT },
@@ -165,7 +165,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
       ] },
     { id: "paternity", title: "Oświadczenie (urlop ojcowski)", text: "Wypełnij, jeśli wnioskujesz o zasiłek za okres urlopu ojcowskiego.", fields: [
       { id: "p5_73", no: "p5_74", label: "Czy pobierałeś z innego tytułu zasiłek macierzyński za okres urlopu ojcowskiego?", required: on("p2_26") },
-      { id: "p5_75", label: "Jeśli TAK — tytuł i okres pobierania", required: is("p5_73", "TAK") },
+      { id: "p5_75", label: "Jeśli TAK - tytuł i okres pobierania", required: is("p5_73", "TAK") },
     ] },
     { id: "sign", title: "Oświadczenie", text: "Oświadczam, że dane zawarte we wniosku podałem/podałam zgodnie z prawdą.",
       fields: [{ id: "p5_84", label: "Data", hint: SIGN_HINT, required: true }] },
@@ -174,12 +174,12 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
   "ZAS-53": [
     { id: "you", title: "Twoje dane", fields: person(["p1_000", "p1_001", "p1_002", "p1_003", "p1_004"]) },
     { id: "address", title: "Adres zamieszkania", fields: address(["p1_005", "p1_006", "p1_007", "p1_008", "p1_009", "p1_010", "p1_011"]) },
-    { id: "payer", title: "Dane płatnika składek", text: "Przy własnej działalności — Ty.", fields: payer(["p1_012", "p1_013", "p1_014", "p1_015", "p1_016"], false) },
+    { id: "payer", title: "Dane płatnika składek", text: "Przy własnej działalności - Ty.", fields: payer(["p1_012", "p1_013", "p1_014", "p1_015", "p1_016"], false) },
     { id: "bank", title: "Rachunek bankowy", fields: [{ id: "p2_017", label: "Numer rachunku", hint: BANK_HINT }] },
     { id: "request", title: "Składam wniosek o przyznanie zasiłku chorobowego",
       oneOf: { ids: ["p2_019", "p2_020"], message: "Zaznacz, kiedy przypada niezdolność do pracy." },
       fields: [
-        { id: "p2_018", label: "Okres niezdolności do pracy", hint: `${PERIOD_HINT} Jeśli znasz — seria i numer zwolnienia lekarskiego.`, required: true },
+        { id: "p2_018", label: "Okres niezdolności do pracy", hint: `${PERIOD_HINT} Jeśli znasz - seria i numer zwolnienia lekarskiego.`, required: true },
         { id: "p2_019", label: "niezdolność przypada w okresie ubezpieczenia chorobowego/wypadkowego" },
         { id: "p2_020", label: "niezdolność przypada po ustaniu tytułu ubezpieczenia" },
         { id: "p2_021", label: "Data ustania tytułu ubezpieczenia", required: on("p2_020") },
@@ -190,7 +190,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
         { id: "p2_022", label: "choroby zawodowej" },
         { id: "p2_023", label: "wypadku przy pracy" },
         { id: "p2_024", label: "wypadku w drodze do pracy lub z pracy" },
-        { id: "p2_027", label: "Jeśli TAK — rodzaj dokumentu (decyzja / protokół / karta wypadku), numer i data", required: is("p2_025", "TAK") },
+        { id: "p2_027", label: "Jeśli TAK - rodzaj dokumentu (decyzja / protokół / karta wypadku), numer i data", required: is("p2_025", "TAK") },
         { id: "p2_028", no: "p2_029", label: "Jeśli jesteś marynarzem: czy za ten okres przysługuje Ci wynagrodzenie (art. 75 pkt 2 ustawy o pracy na morzu)?" },
       ] },
     { id: "sign", title: "Oświadczenie", fields: [{ id: "p2_030", label: "Data", hint: SIGN_HINT, required: true }] },
@@ -237,7 +237,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
         ...benefitPair("p2_036", "p2_037", "świadczenie rehabilitacyjne"),
       ] },
     { id: "employee", title: "Informacje o pracowniku", fields: [
-      { id: "p3_038", label: "1. Jest zatrudniony — okres zatrudnienia", required: true },
+      { id: "p3_038", label: "1. Jest zatrudniony - okres zatrudnienia", required: true },
       { id: "p3_039", label: "w wymiarze czasu pracy", hint: "Np. pełny etat, 1/2 etatu.", required: true },
       { id: "p3_040", label: "Od kiedy w tym wymiarze (data lub okres od–do)" },
       { id: "p3_041", no: "p3_042", label: "2. Czy jest zatrudniony na podstawie umowy o pracę tymczasową?", required: true },
@@ -254,7 +254,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
       { id: "p3_065", label: "NIE (wniosek dotyczy zasiłku macierzyńskiego po ustaniu zatrudnienia)" },
       { id: "p3_066", label: "Okres od–do, data złożenia wniosku i stawka procentowa zasiłku (jeśli go wypłacałeś)" },
       { id: "p4_069", no: "p4_070", label: "7. Czy pracownik w czasie urlopu rodzicielskiego wykonuje pracę u swojego pracodawcy?" },
-      { id: "p4_071", label: "Jeśli TAK — okres od–do i wymiar czasu pracy", required: is("p4_069", "TAK") },
+      { id: "p4_071", label: "Jeśli TAK - okres od–do i wymiar czasu pracy", required: is("p4_069", "TAK") },
       { id: "p3_067", label: "Dane dziecka/dzieci", hint: "Imię i nazwisko, data urodzenia.", required: on("p2_030") },
       { id: "p3_068", label: "Dane drugiego rodzica albo członka rodziny" },
     ] },
@@ -266,7 +266,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
       fields: [{ id: "p4_078", no: "p4_079", options: PAYER_SIZE, label: "Zgłosiłeś do ubezpieczenia chorobowego", required: true }] },
     { id: "contracts", title: "Inne umowy z pracownikiem", fields: [
       { id: "p5_271", no: "p5_272", label: "5. Czy z pracownikiem jest zawarta umowa zlecenia, agencyjna, o dzieło lub inna, albo przysługuje mu składnik wynagrodzenia przyznany do określonego terminu?" },
-      { id: "p5_273", label: "Jeśli TAK — data, do której zawarto umowę (lub przysługuje składnik), i kwoty za poszczególne miesiące", required: is("p5_271", "TAK") },
+      { id: "p5_273", label: "Jeśli TAK - data, do której zawarto umowę (lub przysługuje składnik), i kwoty za poszczególne miesiące", required: is("p5_271", "TAK") },
     ] },
     { id: "sign", title: "Oświadczenie płatnika", fields: [
       { id: "p6_274", label: "Uwagi" },
@@ -294,7 +294,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
         ...benefitPair("p2_030", "p2_031", "zasiłek macierzyński"),
         ...benefitPair("p2_032", "p2_033", "świadczenie rehabilitacyjne"),
         { id: "p2_034", label: "Wniosek o zasiłek macierzyński złożył w dniu" },
-        { id: "p2_035", label: "Jeśli wypłacałeś zasiłek macierzyński — stawka procentowa" },
+        { id: "p2_035", label: "Jeśli wypłacałeś zasiłek macierzyński - stawka procentowa" },
         { id: "p2_036", label: "Dane dziecka/dzieci", hint: "Imię i nazwisko, data urodzenia.", required: on("p2_030") },
         { id: "p3_037", label: "Dane drugiego rodzica albo członka rodziny" },
       ] },
@@ -309,7 +309,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
       ...absence(["p4_064", "p4_065", "p4_066", "p4_067", "p4_068", "p4_069"], "p4_070", "p4_071", "p4_072"),
     ] },
     { id: "paid", title: "Informacje o wypłaconych świadczeniach", fields: [
-      ...paid("p4_073", "p4_074", "p4_075", "1. Czy wypłaciłeś wynagrodzenie za okresy niezdolności do pracy (art. 92 KP — praca nakładcza, służba zastępcza)?"),
+      ...paid("p4_073", "p4_074", "p4_075", "1. Czy wypłaciłeś wynagrodzenie za okresy niezdolności do pracy (art. 92 KP - praca nakładcza, służba zastępcza)?"),
       ...paid("p4_076", "p4_077", "p4_078", "2. Czy wypłaciłeś zasiłek chorobowy?"),
       ...paid("p4_079", "p4_080", "p4_081", "3. Czy wypłaciłeś uposażenie / stypendium / inne świadczenie za okresy niezdolności do pracy?"),
     ] },

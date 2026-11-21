@@ -82,7 +82,7 @@ export function LoginDialog({ onClose, onSuccess }: { onClose: () => void; onSuc
             </div>
             {step.note && <p role="status" className="mt-3 rounded-md bg-zinc-100 p-2 text-xs text-zinc-800">{step.note}</p>}
           </div>
-          <Phone label="Symulowany telefon — wybierz konto testowe">
+          <Phone label="Symulowany telefon - wybierz konto testowe">
             <p className="mb-2 text-center text-xs text-zinc-700">Zeskanuj kod jako użytkownik testowy:</p>
             <ul className="space-y-2">
               {TEST_USERS.map((u) => (
@@ -112,7 +112,7 @@ export function LoginDialog({ onClose, onSuccess }: { onClose: () => void; onSuc
             </p>
             <button type="button" onClick={reject} disabled={step.kind === "loading"} className={`${simBtnSecondary} mt-5`}>Anuluj i wróć do kodu QR</button>
           </div>
-          <Phone label="Symulowany telefon — prośba o potwierdzenie">
+          <Phone label="Symulowany telefon - prośba o potwierdzenie">
             <div className="rounded-xl bg-white p-3 text-sm shadow-sm">
               <div className="flex items-center gap-2"><Avatar u={step.user} size="h-8 w-8 text-xs" /><span className="font-semibold">{fullName(step.user)}</span></div>
               <p className="mt-3 text-xs text-zinc-600">Prośba o zalogowanie do serwisu:</p>

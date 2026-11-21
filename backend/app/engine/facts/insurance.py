@@ -1,10 +1,10 @@
-"""Fakty — klasyfikacja, ubezpieczenie, zadłużenie (zus_rules/07 §3 i §6).
+"""Fakty - klasyfikacja, ubezpieczenie, zadłużenie (zus_rules/07 §3 i §6).
 
 BE1-01: zestaw ścieżki macierzyńskiej. BE1-04: płatnik (GEN-CLS-*), okres wyczekiwania i jego wyjątki
 (SICK-ELIG-002..005), przedawnienie przy zadłużeniu (GEN-EXCL-002).
 
 „Dzień zdarzenia” (``event_day``): dla niezdolności do pracy (event.type PREGNANCY_INCAPACITY / SICKNESS)
-— ``incapacity.start_date``, dla pozostałych zdarzeń — ``event.date``.
+- ``incapacity.start_date``, dla pozostałych zdarzeń - ``event.date``.
 """
 from __future__ import annotations
 
@@ -80,7 +80,7 @@ def on_childcare_leave_on(ctx: Context, date: Any = None) -> bool | None:
 def primary_title_type(ctx: Context) -> str | None:
     """07 §3: tytuł chorobowy aktywny w dniu zdarzenia; priorytet EMPLOYMENT_CONTRACT > SELF_EMPLOYED > pozostałe.
 
-    Gdy żaden nie jest aktywny — ostatni zakończony tytuł (DERIVED, D17; np. poród w czasie urlopu wychowawczego).
+    Gdy żaden nie jest aktywny - ostatni zakończony tytuł (DERIVED, D17; np. poród w czasie urlopu wychowawczego).
     """
     day = event_day(ctx)
     titles = _titles(ctx)
@@ -237,7 +237,7 @@ def days_since_title_end(ctx: Context, date: Any = None) -> int | None:
 
 @fact("f_sickness_insurance_mode_on")
 def sickness_insurance_mode_on(ctx: Context, date: Any = None) -> str | None:
-    """07 §3: tryb tytułu aktywnego w ``date``; przy wielu — MANDATORY ma pierwszeństwo. USTAWA art. 4 ust. 1."""
+    """07 §3: tryb tytułu aktywnego w ``date``; przy wielu - MANDATORY ma pierwszeństwo. USTAWA art. 4 ust. 1."""
     day = to_date(date)
     titles = _titles(ctx)
     if day is None or titles is None:
