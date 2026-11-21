@@ -21,7 +21,7 @@ Pliki wspólne: `contracts/openapi.yaml` (edytuje INT, zmiany przez PR z akcepta
 | I1 | `app.engine.pipeline.evaluate(payload: dict) -> dict` — wejście `zus_rules/04`, wyjście `zus_rules/05` | BE1-02 | modules/evaluation, modules/cases, test_cases |
 | I2 | Rejestr faktów: `@fact("f_nazwa")` na `def f(ctx: Context, **args) -> Any \| None`; `Context(input, params, as_of, segment)`; `None` = UNKNOWN | BE1-01 (dzień 1, najpierw interfejs + stub) | BE1-04/05, BE2-01..04 |
 | I3 | `contracts/openapi.yaml` | INT-01 | BE, FE |
-| I4 | Treści FE: `frontend/src/content/*.json` (schemat w INT-01 jako `ContentBlock`) | BA-02 | FE2-04, FE2-05 |
+| I4 | Treści FE: `frontend/src/content/*.json` (schemat w INT-01 jako `ContentBlock`) | BA-02 | DONE — `frontend/src/content/{guide,risks,legal_protection,support,sensitive}.json` + `index.ts`, `backend/app/engine/explain/templates.pl.yaml`, test `backend/tests/test_content.py` (schemat ContentBlock, istniejące `rule_ids`, https); źródła: 03, wyciąg KP, ustawa, Poradnik ZUS 2026; `reviewed_by` = null — do przeglądu przez BA/lidera |
 | I5 | Szablony wyjaśnień: `templates.pl.yaml` — `RULE-ID: "zdanie z {placeholder}"` | BA-02 | BE1-07 |
 | I6 | Parametry: `app.core.params.param(name, on=None)` (YAML + nadpisania admina z `valid_from`, BE2-05; `Context.param` podaje datę oceny) | istnieje | wszyscy BE |
 
