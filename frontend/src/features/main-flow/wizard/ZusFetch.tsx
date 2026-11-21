@@ -4,7 +4,10 @@
 import { useState } from "react";
 import type { Answers } from "./answers";
 import { SimBadge } from "./fields";
-import { type SimSource, simFetchFromZus } from "./simZus";
+import { fetchFromProfile } from "@/features/simulations/fromProfile";
+import { useSimSession } from "@/features/simulations/session";
+import { fullName, type TestUser } from "@/features/simulations/users";
+import type { SimSource } from "./simZus";
 
 export function ZusFetch({ source, what, a, set }: {
   source: SimSource; what: string; a: Answers; set: (patch: Partial<Answers>) => void;
@@ -12,13 +15,18 @@ export function ZusFetch({ source, what, a, set }: {
   const [state, setState] = useState<"idle" | "loading" | "done">("idle");
   const [summary, setSummary] = useState<string[]>([]);
 
-  const run = async () => {
+  const { user, requestLogin } = useSimSession();
+
+  // Bez zalogowania najpierw symulowane logowanie (kod QR), potem pobranie z konta testowego.
+  const fetchAs = async (u: TestUser) => {
     setState("loading");
-    const res = await simFetchFromZus(source, a);
+    const res = await fetchFromProfile(source, a, u);
     set(res.patch);
     setSummary(res.summary);
     setState("done");
   };
+
+  const run = () => (user ? fetchAs(user) : requestLogin((u) => { void fetchAs(u); }));
 
   return (
     <div className="rounded-lg border border-dashed border-amber-400 bg-amber-50/60 p-3 text-sm">
@@ -29,11 +37,11 @@ export function ZusFetch({ source, what, a, set }: {
         </p>
         <button type="button" onClick={run} disabled={state === "loading"}
           className="rounded-md border border-zinc-700 bg-white px-3 py-1.5 text-sm font-medium text-zinc-900 hover:bg-zinc-900 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 disabled:opacity-60">
-          {state === "loading" ? "Pobieranie…" : state === "done" ? "Pobierz ponownie" : "Pobierz dane z ZUS"}
+          {state === "loading" ? "Pobieranie…" : state === "done" ? "Pobierz ponownie" : user ? "Pobierz dane z ZUS" : "Zaloguj się i pobierz"}
         </button>
       </div>
       <p className="mt-1 text-xs text-zinc-600">
-        SYMULACJA — w wersji produkcyjnej: integracja z systemami ZUS. Tu wstawiamy przykładowe dane, bez połączenia z ZUS.
+        SYMULACJA — w wersji produkcyjnej: integracja z systemami ZUS po zalogowaniu przez mObywatel. Tu dane pochodzą z fikcyjnego konta testowego{user ? ` (${fullName(user)})` : ""}.
       </p>
       <div aria-live="polite">
         {state === "done" && (
