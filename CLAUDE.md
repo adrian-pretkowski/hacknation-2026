@@ -7,6 +7,7 @@ Aplikacja webowa RWD: ustala uprawnienia do zasiłków (chorobowy w ciąży, mac
 2. `docs/TASKS.md` — twoje zadanie, zakres plików, kryteria akceptacji.
 3. Wymagania zadania (nadrzędne): `docs/CHALLENGE.md`. Decyzje: `docs/DECISIONS.md`. Architektura: `docs/ARCHITECTURE.md`.
 4. Prawo i reguły: `zus_rules/03_rules.yaml`, `07_CALCULATION_SPEC.md`, testy `08_TEST_CASES.json`, luki `09_...md`. Pytania do mentorów: `docs/mentors.md`.
+5. Historia decyzji z pierwszej sesji i preferencje lidera: `docs/background/03_session_history.md`. **Nie commituj** — commity robi lider; na koniec podaj listę zmienionych plików i proponowany komunikat commita.
 
 ## Nienaruszalne wymagania zadania
 RWD · demo www z wyborem/uploadem przykładowych wniosków i weryfikacją ubezpieczenia · kalkulatory a–j (jeden zintegrowany) · integracje WYŁĄCZNIE symulowane (baner „SYMULACJA”, bez brandingu ZUS/mObywatel) · panel admina parametrów · REST · wskazanie funkcji z AI · poufność spraw ZUS (`cases/`, `materials/` poza gitem).
