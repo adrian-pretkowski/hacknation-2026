@@ -247,8 +247,7 @@ paths:
       x-owner: BE-2
       x-task: BE2-05
       summary: Parametry prawne (zus_rules meta.parameters + nadpisania)
-      security:
-      - AdminToken: []
+      description: 'Demo: bez uwierzytelnienia (wejście bezpośrednio z przycisku „Panel admina”). Produkcyjnie: SSO.'
       responses:
         '200':
           description: OK
@@ -256,17 +255,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ParameterList'
-        '401':
-          description: Brak/zły token
-          content: *id001
     put:
       operationId: updateParameters
       x-status: implemented
       x-owner: BE-2
       x-task: BE2-05
       summary: 'Nadpisanie parametrów z wersją i datą obowiązywania (wymóg: panel administracyjny)'
-      security:
-      - AdminToken: []
       requestBody:
         required: true
         content:
@@ -287,9 +281,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ParameterList'
-        '401':
-          description: Brak/zły token
-          content: *id001
         '409':
           description: Konflikt wersji parametrów
           content: *id001
@@ -2953,9 +2944,3 @@ components:
               type: integer
         best_plan:
           $ref: '#/components/schemas/PlannerPlan'
-  securitySchemes:
-    AdminToken:
-      type: apiKey
-      in: header
-      name: X-Admin-Token
-      description: 'Prosty token panelu admina (z .env ADMIN_TOKEN). Produkcyjnie: SSO ZUS.'

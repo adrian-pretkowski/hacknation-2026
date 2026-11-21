@@ -116,7 +116,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Parametry prawne (zus_rules meta.parameters + nadpisania) */
+        /**
+         * Parametry prawne (zus_rules meta.parameters + nadpisania)
+         * @description Demo: bez uwierzytelnienia (wejście bezpośrednio z przycisku „Panel admina”). Produkcyjnie: SSO.
+         */
         get: operations["listParameters"];
         /** Nadpisanie parametrów z wersją i datą obowiązywania (wymóg: panel administracyjny) */
         put: operations["updateParameters"];
@@ -1452,15 +1455,6 @@ export interface operations {
                     "application/json": components["schemas"]["ParameterList"];
                 };
             };
-            /** @description Brak/zły token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
         };
     };
     updateParameters: {
@@ -1496,15 +1490,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ParameterList"];
-                };
-            };
-            /** @description Brak/zły token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
                 };
             };
             /** @description Konflikt wersji parametrów */
