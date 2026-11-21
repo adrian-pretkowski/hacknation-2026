@@ -26,7 +26,7 @@
 24. Przejdź dalej.
 25. Sprawdź, że widać „Oś czasu”.
 26. Sprawdź, że widać „Powrót do pracy”.
-27. Kliknij „Tata: Urlop ojcowski”.
-28. Sprawdź, że widać „stawka 100%”.
+27. Kliknij „Pokaż szczegóły okresów (daty, stawki, kwoty)”.
+28. Sprawdź, że widać „100% podstawy”.
 29. Sprawdź, że strona nie przewija się w poziomie.
 30. Zrób zrzut ekranu „os-czasu”.
