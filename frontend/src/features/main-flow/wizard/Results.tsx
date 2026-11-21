@@ -113,6 +113,7 @@ function StatusHeader({ result, onEdit, canEdit }: {
 function Remaining({ p }: { p: PreviewResult }) {
   const rem = p.summary.remaining!;
   const rows: [string, string][] = [
+    ...(rem.maternityWeeks !== null ? [["Urlop macierzyński — zostało", `${rem.maternityWeeks} tyg.`] as [string, string]] : []),
     ["Pula urlopu rodzicielskiego", `${p.summary.parentalPoolWeeks} tyg.`],
     ["Pozostało łącznie", `${rem.totalWeeks} tyg.`],
     ["Mama może jeszcze", `${rem.motherWeeks} tyg.`],
