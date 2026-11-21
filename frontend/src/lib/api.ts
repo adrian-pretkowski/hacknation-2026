@@ -63,3 +63,18 @@ export async function plannerSuggest(request: PlannerSuggestRequest): Promise<Pl
   }
   return (await response.json()) as PlannerSuggestResponse;
 }
+
+export type Health = components["schemas"]["Health"];
+
+/** Wersja frontendu — wstrzykiwana z tagu przy buildzie (INT-11); lokalnie „dev”. */
+export const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || "dev";
+
+export async function getHealth(): Promise<Health | null> {
+  if (API_MODE === "mock") return null;
+  try {
+    const response = await fetch(`${API_URL}/api/health`);
+    return response.ok ? ((await response.json()) as Health) : null;
+  } catch {
+    return null;
+  }
+}

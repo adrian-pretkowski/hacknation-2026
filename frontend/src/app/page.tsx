@@ -1,3 +1,4 @@
+import { AppVersion } from "@/components/AppVersion";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { Wizard } from "@/features/main-flow/wizard/Wizard";
 import { UserChip } from "@/features/simulations/UserChip";
@@ -19,6 +20,7 @@ export default function Home() {
       <footer className="border-t border-zinc-200 bg-white">
         <div className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-zinc-600">
           Prototyp HackNation 2026. Wynik ma charakter informacyjny i nie jest decyzją ZUS. Integracje z systemami zewnętrznymi są symulowane.
+          <AppVersion />
         </div>
       </footer>
     </>

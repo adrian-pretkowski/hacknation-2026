@@ -293,6 +293,8 @@ export interface components {
         Health: {
             /** @constant */
             status: "ok";
+            /** @description Wersja wdrożonej aplikacji z tagu vX.Y.Z (lokalnie dev). */
+            app_version: string;
             ruleset_version: string;
             /** Format: date */
             law_reference_date: string;
@@ -1234,7 +1236,8 @@ export interface operations {
                      *       "status": "ok",
                      *       "ruleset_version": "0.1.0",
                      *       "law_reference_date": "2026-11-21",
-                     *       "engine": "slice-v0"
+                     *       "engine": "slice-v0",
+                     *       "app_version": "dev"
                      *     }
                      */
                     "application/json": components["schemas"]["Health"];

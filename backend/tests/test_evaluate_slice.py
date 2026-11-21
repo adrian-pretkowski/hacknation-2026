@@ -14,6 +14,7 @@ def _benefit(client, payload):
 def test_health(client):
     body = client.get("/api/health").json()
     assert body["status"] == "ok" and body["ruleset_version"] == "0.1.0"
+    assert body["app_version"] == "dev"  # INT-11: bez tagu/buildu wersja to dev
 
 
 def test_t_rate_001_combined_815_within_21_days(client, demo_payload):
