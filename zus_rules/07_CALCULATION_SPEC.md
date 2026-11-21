@@ -163,7 +163,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | `f_apply_after_title_cap` | – | – | — | — | BLOCKED (GAP-002) |
 | `f_benefit_amount` | – | object | Per segment: `daily = base × rate × (1 − wf) / 30`; `total = daily × dni` | None | C1, C2 |
 | `f_monthly_maternity_amount` | – | Decimal | `base × rate × (1 − wf)` | None | – |
-| `f_raise_to_parental_benefit_floor` | – | – | — | — | BLOCKED (GAP-002) |
+| `f_raise_to_parental_benefit_floor` | – | object | Gdy `f_monthly_maternity_amount` < `PARENTAL_BENEFIT_FLOOR_MONTHLY`: `daily = PARENTAL_BENEFIT_FLOOR_MONTHLY / 30`, `total = daily × dni(segment)`, `monthly = PARENTAL_BENEFIT_FLOOR_MONTHLY` | None | M10 (1000 zł); niepełny miesiąc proporcjonalnie przez dzienną /30 — założenie do potwierdzenia (M10c) |
 | `f_one_off_equalization` | – | Decimal | §2 wyrównanie | None | – |
 | `f_debt_on_right_date_exceeds_threshold` | – | bool | `debt.amount_on_right_date > MIN_WAGE × 0,01` | None | Równe progowi → FALSE („przekraczającą”) |
 | `f_debt_fully_repaid` | – | bool | `repaid_in_full_date` istnieje i ≤ as_of | None | – |
@@ -193,7 +193,7 @@ Formalna specyfikacja obliczeń i **wszystkich nazwanych funkcji (faktów)**, do
 | Parametr | Używany przez | Skutek |
 |---|---|---|
 | `ROUNDING_POLICY` | wszystkie kwoty | `amount_rounded = null` + assumption |
-| `PARENTAL_BENEFIT_FLOOR_MONTHLY` | RATE-MAT-007 | BLOCKED → NEEDS_REVIEW, gdy kwota może być niższa |
+| ~~`PARENTAL_BENEFIT_FLOOR_MONTHLY`~~ — 1000,00 zł (M10, 2026-11-21), status CONFIRMED | RATE-MAT-007 (ACTIVE) | podwyższenie liczone automatycznie |
 | `AVERAGE_WAGE_CAP_AFTER_TITLE` | BASE-GEN-002 | BLOCKED |
 | ~~`MIN_WAGE_2026_MONTHLY`~~ — potwierdzona 4806,00 zł (M07, 2026-11-21), status CONFIRMED | BASE-EMP-008, GEN-EXCL-001 | bez assumption `MIN_WAGE_FROM_ATTACHMENT` |
 | najniższa podstawa składek (wejście per miesiąc) — 2026: `JDG_MIN_CONTRIB_BASE_2026` 5652,00 zł, preferencyjna `JDG_PREFERENTIAL_CONTRIB_BASE_2026` 1441,80 zł przez `JDG_PREFERENTIAL_MONTHS` od założenia działalności (M08); 2027 — brak wartości | BASE-NEMP-002/003 | NEEDS_DATA gdy brak wejścia; parametry 2026 = podpowiedź w kreatorze / symulacji danych ZUS, nie domyślna wartość silnika (preferencja zależy od wyboru płatnika) |

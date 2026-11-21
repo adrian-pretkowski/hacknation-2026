@@ -133,5 +133,5 @@ def test_pipeline_response_has_trace(client, demo_payload, monkeypatch):
     assert outcomes["GEN-EXCL-001"] == "NOT_FIRED"
     # BLOCKED: count_at_birth > 1 = FALSE rozstrzyga bez faktów spoza rejestru
     assert outcomes["MAT-DUR-005"] == "NOT_FIRED"
-    # podłoga świadczenia rodzicielskiego: fakt f_monthly_maternity_amount jeszcze nie w rejestrze
-    assert "RATE-MAT-007" in body["not_evaluated_rules"]
+    # podłoga świadczenia rodzicielskiego (M10): oceniona, kwota demo powyżej 1000 zł → nie podwyższa
+    assert outcomes["RATE-MAT-007"] == "NOT_FIRED" and "RATE-MAT-007" not in body["not_evaluated_rules"]

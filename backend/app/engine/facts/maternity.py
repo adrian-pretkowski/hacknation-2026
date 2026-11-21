@@ -139,6 +139,36 @@ def benefit_amount(ctx: Context) -> dict[str, Any] | None:
     return {"daily": daily, "total": mul(daily, Decimal(days)), "days": days}
 
 
+@fact("f_monthly_maternity_amount")
+def monthly_maternity_amount(ctx: Context) -> Decimal | None:
+    """07 §6: miesięczna kwota zasiłku = base × rate × (1 − work_fraction), przed zaokrągleniem (M10 b).
+
+    USTAWA art. 31 ust. 3a (porównanie ze świadczeniem rodzicielskim, RATE-MAT-007).
+    """
+    base = ctx.fact("f_benefit_base")
+    rate = to_decimal(ctx.field("rate"))
+    if base is None or rate is None:
+        return None
+    work_fraction = to_decimal(ctx.field("segment.work_fraction")) or Decimal(0)
+    return mul(base, rate, Decimal(1) - work_fraction)
+
+
+@fact("f_raise_to_parental_benefit_floor")
+def raise_to_parental_benefit_floor(ctx: Context) -> dict[str, Any] | None:
+    """07 §6, RATE-MAT-007: kwota podwyższona do PARENTAL_BENEFIT_FLOOR_MONTHLY (M10: 1000 zł).
+
+    daily = floor / MONTH_AS_DAYS (art. 36 ust. 3, M09); total = daily × dni(segment). Niepełny miesiąc
+    proporcjonalnie przez stawkę dzienną — założenie do potwierdzenia (M10c). USTAWA art. 31 ust. 3a-3c.
+    """
+    floor = to_decimal(ctx.param("PARENTAL_BENEFIT_FLOOR_MONTHLY"))
+    start, end = to_date(ctx.field("segment.from")), to_date(ctx.field("segment.to"))
+    if floor is None or start is None or end is None:
+        return None
+    daily = div(floor, int(ctx.param("MONTH_AS_DAYS")))
+    days = days_in(start, end)
+    return {"monthly": floor, "daily": daily, "total": mul(daily, Decimal(days)), "days": days}
+
+
 # ------------------------------------------------------------ martwe urodzenie / zgon dziecka (MAT-DUR-003/004/005)
 def _children_items(ctx: Context) -> list[dict[str, Any]] | None:
     items = ctx.field("children.items")

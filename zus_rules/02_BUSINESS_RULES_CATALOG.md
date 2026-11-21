@@ -78,7 +78,7 @@ Liczba reguł: **119**. Status `evaluation`: ACTIVE — wykonywana automatycznie
 | [RATE-MAT-001](#rate-mat-001) | 100% — macierzyński, na warunkach macierzyńskiego, uzupełniający, ojcowski | RATE | P0 | ACTIVE | HIGH | DIRECT | 4 |
 | [RATE-MAT-003](#rate-mat-003) | 81,5% — wniosek o łączny zasiłek złożony w 21 dni | RATE | P0 | ACTIVE | HIGH | DIRECT | 3 |
 | [RATE-MAT-006](#rate-mat-006) | Jednorazowe wyrównanie macierzyńskiego do 100% | CALCULATION | P1 | ACTIVE | HIGH | DIRECT | 0 |
-| [RATE-MAT-007](#rate-mat-007) | Podwyższenie do kwoty świadczenia rodzicielskiego | CALCULATION | P1 | BLOCKED | LOW | INCOMPLETE_SOURCE | 0 |
+| [RATE-MAT-007](#rate-mat-007) | Podwyższenie do kwoty świadczenia rodzicielskiego | CALCULATION | P1 | ACTIVE | MEDIUM | DERIVED | 0 |
 | [APP-DL-001](#app-dl-001) | Termin 21 dni na wniosek o zasiłek 81,5% | DEADLINE | P0 | ACTIVE | MEDIUM | DERIVED | 1 |
 | [APP-DOC-001](#app-doc-001) | Dokumenty — urlop macierzyński przed porodem | DOCUMENT_REQUIREMENT | P0 | INFORMATIONAL | HIGH | DIRECT | 0 |
 | [APP-DOC-002](#app-doc-002) | Dokumenty — urodzenie dziecka (akt urodzenia / martwe urodzenie) | DOCUMENT_REQUIREMENT | P0 | INFORMATIONAL | HIGH | DIRECT | 0 |
@@ -1572,7 +1572,7 @@ Gdy w 1. roku życia nie wykorzystano żadnego dnia rodzicielskiego przy wniosku
 
 ### RATE-MAT-007
 
-**Podwyższenie do kwoty świadczenia rodzicielskiego** — `CALCULATION` · P1 · PARTIALLY_AUTOMATABLE · eval: **BLOCKED**
+**Podwyższenie do kwoty świadczenia rodzicielskiego** — `CALCULATION` · P1 · AUTOMATABLE · eval: **ACTIVE**
 
 Jeżeli miesięczna kwota zasiłku jest niższa niż świadczenie rodzicielskie (ustawa o świadczeniach rodzinnych), podwyższa się ją do tej kwoty (proporcjonalnie za część miesiąca).
 
@@ -1581,13 +1581,13 @@ Jeżeli miesięczna kwota zasiłku jest niższa niż świadczenie rodzicielskie 
 - **Obowiązuje:** od — do —
 - **Warunki:**
   - WSZYSTKIE:
-    - `f_monthly_maternity_amount` **lt** PARENTAL_BENEFIT_FLOOR_MONTHLY (=None)
+    - `f_monthly_maternity_amount` **lt** PARENTAL_BENEFIT_FLOOR_MONTHLY (=1000.00)
 - **Rezultat:** `{"compute": "f_raise_to_parental_benefit_floor", "output": "amount.floor_raise"}`
 - **Wyjątki:** — · **Zależy od:** RATE-MAT-001, RATE-MAT-002, RATE-MAT-003 · **Ma pierwszeństwo przed:** —
-- **Dane:** `income_history` · brak danych → `NEEDS_REVIEW`
-- **Jakość:** pewność LOW, interpretacja INCOMPLETE_SOURCE
+- **Dane:** `income_history` · brak danych → `NEEDS_DATA`
+- **Jakość:** pewność MEDIUM, interpretacja DERIVED
 - **Testy:** —
-- **Uwagi:** Kwota świadczenia rodzicielskiego nie występuje w materiałach (PARENTAL_BENEFIT_FLOOR_MONTHLY=null) → BLOKOWANA do czasu uzupełnienia parametru w panelu admina (GAP-002).
+- **Uwagi:** Odblokowana po odpowiedzi mentora M10 (2026-11-21): świadczenie rodzicielskie = 1000 zł miesięcznie (PARENTAL_BENEFIT_FLOOR_MONTHLY), uwzględniamy w MVP; porównanie miesięcznej kwoty base × rate × (1 − wf) przed zaokrągleniem. Po podwyższeniu dzienna kwota = 1000 / 30 (art. 36 ust. 3, M09), kwota za segment = dzienna × dni — sposób liczenia za niepełny miesiąc (ust. 3b-3c) do potwierdzenia (M10c). GAP-002 częściowo zamknięty.
 
 ### APP-DL-001
 

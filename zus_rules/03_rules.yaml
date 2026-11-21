@@ -104,13 +104,13 @@ meta:
     MAT_RATE_PARENTAL: {value: "0.70", unit: ratio, source: "USTAWA art. 31 ust. 2"}
     MAT_RATE_COMBINED: {value: "0.815", unit: ratio, source: "USTAWA art. 31 ust. 3"}
     APP_COMBINED_DEADLINE_DAYS: {value: 21, unit: days_after_event, source: "USTAWA art. 30a ust. 1-2"}
-    PARENTAL_BENEFIT_FLOOR_MONTHLY: {value: null, unit: PLN, source: "USTAWA art. 31 ust. 3a → ustawa o świadczeniach rodzinnych (NIEZAŁĄCZONA)", status: MISSING}
+    PARENTAL_BENEFIT_FLOOR_MONTHLY: {value: "1000.00", unit: PLN, source: "USTAWA art. 31 ust. 3a → ustawa o świadczeniach rodzinnych (niezałączona); kwota 1000 zł — mentor fachowy ZUS (M10, 2026-11-21)", status: CONFIRMED}
     # --- podstawa wymiaru
     CONTRIBUTION_DEDUCTION_RATE: {value: "0.1371", unit: ratio, source: "USTAWA art. 3 pkt 3 (pracownicy — M06), pkt 4; art. 45 ust. 1"}
     MIN_WAGE_2026_MONTHLY: {value: "4806.00", unit: PLN, source: "ZALACZNIK; potwierdzone przez mentora fachowego ZUS (M07, 2026-11-21)", status: CONFIRMED}
     VOLUNTARY_MAX_CONTRIB_BASE_2026: {value: "23550.00", unit: PLN, source: "ZALACZNIK; potwierdzone przez mentora fachowego ZUS (M08, 2026-11-21)", status: CONFIRMED}
-    JDG_MIN_CONTRIB_BASE_2026: {value: "5652.00", unit: PLN, source: "Najniższa podstawa składek JDG 2026 — mentor fachowy ZUS (M08, 2026-11-21); ustawa o s.u.s. niezałączona", status: CONFIRMED}
-    JDG_PREFERENTIAL_CONTRIB_BASE_2026: {value: "1441.80", unit: PLN, source: "Preferencyjna podstawa składek JDG 2026 (30% płacy minimalnej) — mentor fachowy ZUS (M08, 2026-11-21)", status: CONFIRMED}
+    JDG_MIN_CONTRIB_BASE_2026: {value: "5652.00", unit: PLN, source: "Najniższa podstawa składek JDG 2026 — mentor fachowy ZUS (M08, 2026-11-21; bez weryfikacji w źródle zewnętrznym); ustawa o s.u.s. niezałączona", status: CONFIRMED}
+    JDG_PREFERENTIAL_CONTRIB_BASE_2026: {value: "1441.80", unit: PLN, source: "Preferencyjna podstawa składek JDG 2026 (30% płacy minimalnej) — mentor fachowy ZUS (M08, 2026-11-21; bez weryfikacji w źródle zewnętrznym)", status: CONFIRMED}
     JDG_PREFERENTIAL_MONTHS: {value: 24, unit: months, source: "Okres preferencyjnych składek od założenia działalności — mentor fachowy ZUS (M08, 2026-11-21)", status: CONFIRMED}
     AVERAGE_WAGE_CAP_AFTER_TITLE: {value: null, unit: PLN, source: "USTAWA art. 46 (kwota ogłaszana odrębnie — brak w materiałach)", status: MISSING}
     # --- płatnik, terminy, zadłużenie
@@ -2668,13 +2668,13 @@ rules:
   dependencies: [RATE-MAT-001, RATE-MAT-002, RATE-MAT-003]
   overrides: []
   required_inputs: [income_history]
-  missing_data_behavior: NEEDS_REVIEW
-  evaluation: BLOCKED
-  confidence: LOW
-  interpretation_status: INCOMPLETE_SOURCE
+  missing_data_behavior: NEEDS_DATA
+  evaluation: ACTIVE
+  confidence: MEDIUM
+  interpretation_status: DERIVED
   implementation_priority: P1
-  automation_status: PARTIALLY_AUTOMATABLE
-  notes: "Kwota świadczenia rodzicielskiego nie występuje w materiałach (PARENTAL_BENEFIT_FLOOR_MONTHLY=null) → BLOKOWANA do czasu uzupełnienia parametru w panelu admina (GAP-002)."
+  automation_status: AUTOMATABLE
+  notes: "Odblokowana po odpowiedzi mentora M10 (2026-11-21): świadczenie rodzicielskie = 1000 zł miesięcznie (PARENTAL_BENEFIT_FLOOR_MONTHLY), uwzględniamy w MVP; porównanie miesięcznej kwoty base × rate × (1 − wf) przed zaokrągleniem. Po podwyższeniu dzienna kwota = 1000 / 30 (art. 36 ust. 3, M09), kwota za segment = dzienna × dni — sposób liczenia za niepełny miesiąc (ust. 3b-3c) do potwierdzenia (M10c). GAP-002 częściowo zamknięty."
 
 - id: RATE-MAT-008
   name: "Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki"

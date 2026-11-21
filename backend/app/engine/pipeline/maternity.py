@@ -19,7 +19,7 @@ NOT_RUN = ["MAT-ELIG-004", "MAT-ELIG-005", "MAT-ELIG-006", "MAT-NEG-001", "MAT-D
            "BASE-NEMP-001", "BASE-GEN-001", "GEN-CLS-001",
            "GEN-CLS-002", "GEN-EXCL-002"]
 # Reguły BLOCKED/HUMAN_REVIEW, które mogą zmienić wynik macierzyńskiego po porodzie (DT-9 wiersz 3)
-REVIEW_RULES = ["MAT-DUR-005", "RATE-MAT-007"]
+REVIEW_RULES = ["MAT-DUR-005"]
 DURATION_RULES = ["MAT-DUR-001", "MAT-DUR-003", "MAT-DUR-004", "MAT-DUR-005"]
 RATE_RULES = ["RATE-MAT-001", "RATE-MAT-003", "RATE-MAT-004", "RATE-MAT-005"]
 
@@ -159,6 +159,17 @@ def evaluate_maternity(eng: Engine) -> dict[str, Any]:
         if amount is not None:
             daily, total = amount["daily"], amount["total"]
             applied.append("CALC-MAT-001")
+            # RATE-MAT-007 (M10): podwyższenie do kwoty świadczenia rodzicielskiego (art. 31 ust. 3a)
+            floor = eng.eval("RATE-MAT-007")
+            raised = ctx.fact(eng.rules.rule("RATE-MAT-007")["result"]["compute"]) if floor.fired else None
+            if raised is not None:
+                monthly = ctx.fact("f_monthly_maternity_amount")
+                daily, total = raised["daily"], raised["total"]
+                applied.append("RATE-MAT-007")
+                reason("RAISED_TO_PARENTAL_BENEFIT_FLOOR", "RATE-MAT-007",
+                       f"Miesięczna kwota zasiłku ({dec_str(monthly)} zł) jest niższa niż kwota świadczenia "
+                       f"rodzicielskiego — zasiłek podwyższony do {dec_str(raised['monthly'])} zł miesięcznie "
+                       f"({dec_str(daily)} zł za dzień).", "art. 31 ust. 3a-3c")
 
     # wynik: obiekt base (kontrakt Benefit.base) — tylko gdy podstawa jest znana i jej źródło rozstrzygnięte
     base_amount = ctx.fact("f_benefit_base") if base_source else None

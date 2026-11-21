@@ -69,3 +69,50 @@ def test_m09_daily_rate_non_terminating_division_kept_exact(demo_payload):
     payload["income_history"]["manual_base_override"] = "5000.00"
     benefit = pipeline.evaluate(payload)["benefits"][0]
     assert Decimal(benefit["daily_amount_exact"]) == Decimal("5000.00") * Decimal(benefit["rate"]) / Decimal(30)
+
+
+# ------------------------------------------------------------ M10: podwyższenie do świadczenia rodzicielskiego
+def _rate_100(demo_payload, base):
+    payload = copy.deepcopy(demo_payload)
+    payload["applications"] = {"combined_815_planned": False}  # bez wniosku 81,5% → 100%
+    payload["income_history"]["manual_base_override"] = base
+    return payload
+
+
+def test_m10_rate_mat_007_raises_low_amount_to_floor(demo_payload):
+    """Typowy: podstawa 800 zł × 100% = 800 zł/mies. < 1000 zł → 1000/30 za dzień, 140 dni."""
+    body = pipeline.evaluate(_rate_100(demo_payload, "800.00"))
+    benefit = body["benefits"][0]
+    floor = param("PARENTAL_BENEFIT_FLOOR_MONTHLY")
+    assert floor == Decimal("1000.00") and param_status("PARENTAL_BENEFIT_FLOOR_MONTHLY") == "CONFIRMED"
+    assert benefit["status"] == "ELIGIBLE" and "RATE-MAT-007" in benefit["applied_rules"]
+    assert Decimal(benefit["daily_amount_exact"]) == floor / param("MONTH_AS_DAYS")
+    assert Decimal(benefit["total_amount_exact"]) == floor / param("MONTH_AS_DAYS") * benefit["days"]
+    assert "RAISED_TO_PARENTAL_BENEFIT_FLOOR" in [r["code"] for r in benefit["reasons"]]
+    assert "RATE-MAT-007" not in body["not_evaluated_rules"]
+
+
+def test_m10_rate_mat_007_raises_after_815_rate(demo_payload):
+    """81,5%: 1200 × 0,815 = 978 zł < 1000 zł → podwyższenie (porównanie przed zaokrągleniem, M10 b)."""
+    payload = copy.deepcopy(demo_payload)
+    payload["income_history"]["manual_base_override"] = "1200.00"
+    benefit = pipeline.evaluate(payload)["benefits"][0]
+    assert benefit["rate"] == "0.815" and "RATE-MAT-007" in benefit["applied_rules"]
+
+
+def test_m10_rate_mat_007_boundary_equal_floor_not_raised(demo_payload):
+    """Graniczny: dokładnie 1000 zł → bez podwyższenia; 999,99 zł → podwyższenie."""
+    benefit = pipeline.evaluate(_rate_100(demo_payload, "1000.00"))["benefits"][0]
+    assert "RATE-MAT-007" not in benefit["applied_rules"]
+    assert Decimal(benefit["daily_amount_exact"]) == Decimal("1000.00") / param("MONTH_AS_DAYS")
+    raised = pipeline.evaluate(_rate_100(demo_payload, "999.99"))["benefits"][0]
+    assert "RATE-MAT-007" in raised["applied_rules"]
+
+
+def test_m10_rate_mat_007_missing_base_needs_data_not_review(demo_payload):
+    """Brak podstawy → NEEDS_DATA (podstawa), reguła nie wymusza NEEDS_REVIEW."""
+    payload = copy.deepcopy(demo_payload)
+    payload["income_history"] = {"manual_base_override": None}
+    body = pipeline.evaluate(payload)
+    assert body["benefits"][0]["status"] == "NEEDS_DATA"
+    assert "RATE-MAT-007" not in body["benefits"][0]["applied_rules"]
