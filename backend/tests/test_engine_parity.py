@@ -60,12 +60,22 @@ def _payload(demo: dict, patches) -> dict:
     return EvaluateRequest.model_validate(payload).model_dump(mode="json", by_alias=True, exclude_none=False)
 
 
+# BE1-04: pipeline ocenia płatnika (GEN-CLS-*) i przedawnienie długu (GEN-EXCL-002), których slice_v0 nie liczy —
+# te pola i braki danych zgłoszone wyłącznie przez te reguły są wyłączone z porównania (testy: test_facts_insurance.py)
+BEYOND_SLICE_RULES = {"GEN-CLS-001", "GEN-CLS-002", "GEN-EXCL-002"}
+BEYOND_SLICE_FIELDS = ("payer_of_benefit", "suspended_until_debt_repaid")
+
+
 def _comparable(body: dict) -> dict:
     body = copy.deepcopy(body)
     for key in ("evaluation_id", "engine", "applied_rules", "future_changes", "not_evaluated_rules"):
         body.pop(key, None)
+    body["missing_data"] = [{**item, "rule_ids": [r for r in item["rule_ids"] if r not in BEYOND_SLICE_RULES]}
+                            for item in body["missing_data"] if not set(item["rule_ids"]) <= BEYOND_SLICE_RULES]
     for benefit in body["benefits"]:
         benefit.pop("applied_rules")
+        for key in BEYOND_SLICE_FIELDS:
+            benefit.pop(key, None)
         benefit.pop("base", None)  # obiekt podstawy (kontrakt Benefit.base) zwraca tylko pipeline (M05, BASE-GEN-001)
     return body
 
@@ -102,5 +112,5 @@ def test_pipeline_not_insured_without_leave_data_is_review_and_asks_for_leaves(d
 
 
 def test_pipeline_out_of_scope_event():
-    body = pipeline.evaluate({"event": {"type": "SICKNESS", "date": "2027-01-01"}})
+    body = pipeline.evaluate({"event": {"type": "ADOPTION", "date": "2027-01-01"}})
     assert body["overall_status"] == "OUT_OF_SCOPE" and body["benefits"] == []

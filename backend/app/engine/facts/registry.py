@@ -30,7 +30,7 @@ FactFn = Callable[..., Any]
 _REGISTRY: dict[str, FactFn] = {}
 
 # Moduły faktów (domeny). BE1-04/05: insurance, sickness; BE2-01..04: maternity, parental, base, documents.
-_FACT_MODULES = ["app.engine.facts.insurance", "app.engine.facts.maternity"]
+_FACT_MODULES = ["app.engine.facts.insurance", "app.engine.facts.sickness", "app.engine.facts.maternity"]
 
 
 def fact(name: str) -> Callable[[FactFn], FactFn]:
