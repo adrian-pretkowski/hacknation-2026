@@ -40,7 +40,7 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
 
   return (
     <div className="space-y-5" aria-live="polite">
-      {/* FE1-12: wsparcie zawsze na samej górze wyniku — najpierw człowiek, potem kwoty */}
+      {/* FE1-14: wsparcie zawsze na samej górze wyniku — najpierw człowiek, potem kwoty */}
       {sensitive && <SupportBlock kind="loss" />}
       {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
       <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} />

@@ -103,7 +103,7 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
             cta="Wybierz pismo →" onClick={onForms} />
         </ul>
 
-        {/* FE1-12: ścieżka dla rodziców po stracie — tuż pod wyborem drogi, wyraźna i ciepła, nie na dole strony */}
+        {/* FE1-14: ścieżka dla rodziców po stracie — tuż pod wyborem drogi, wyraźna i ciepła, nie na dole strony */}
         <section aria-labelledby="loss-h" className="mt-4 flex flex-col gap-4 rounded-2xl border border-zus-blue/30 bg-zus-blue-50 p-5 text-zus-navy sm:flex-row sm:items-center sm:p-6">
           <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-zus-blue">
             <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.6.8-1.5 2.3-2.6 4.3-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" /></svg>

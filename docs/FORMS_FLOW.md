@@ -10,7 +10,7 @@ Nie każdy użytkownik chce przejść cały kreator. Część osób wie, jakiego
 | Etap | Zakres | Status |
 |---|---|---|
 | 1 | Ekran startowy: sekcja **„Od czego chcesz zacząć?”** z dwiema kartami wyboru: **„Sprawdź, co Ci przysługuje”** (kreator → plan, przycisk „Zaczynamy →”) i **„Złóż pisma szybko”** (przycisk „Wybierz pismo →”). Droga „pisma” to ekran **„Które pismo chcesz złożyć?”** z kafelkami pism (ikona z symbolem, nazwa, do czego służy, **kiedy złożyć**, **kto wypełnia**) | zrobione (FE1-11) |
-| 2 | Te same kafelki na podsumowaniu wyniku kreatora (sekcja **„Pisma do wypełnienia”** pod „Co i gdzie złożyć”). Widać **tylko pisma pasujące do wyniku** (`missing_documents.doc_type`, etykieta „Pasuje do Twojego planu”); pozostałe są zwinięte pod przyciskiem **„Pokaż pozostałe pisma (N)”** / „Ukryj pozostałe pisma”. Gdy nic nie pasuje — komunikat „Do Twojego aktualnego planu nie pasuje żadne z tych pism…” i ten sam przycisk „Pokaż pozostałe pisma (5)” | zrobione (FE1-11, zwijanie: FE1-12) |
+| 2 | Te same kafelki na podsumowaniu wyniku kreatora (sekcja **„Pisma do wypełnienia”** pod „Co i gdzie złożyć”). Widać **tylko pisma pasujące do wyniku** (`missing_documents.doc_type`, etykieta „Pasuje do Twojego planu”); pozostałe są zwinięte pod przyciskiem **„Pokaż pozostałe pisma (N)”** / „Ukryj pozostałe pisma”. Gdy nic nie pasuje — komunikat „Do Twojego aktualnego planu nie pasuje żadne z tych pism…” i ten sam przycisk „Pokaż pozostałe pisma (5)” | zrobione (FE1-11, zwijanie: FE1-14) |
 | 3 | Wypełnianie pisma formularzem (prefill z odpowiedzi kreatora, wysyłka jako SYMULACJA przez `/api/sim/applications`) | **osobne zadanie — do zdefiniowania**; teraz kafelek otwiera ekran pisma z opisem i informacją „w przygotowaniu” |
 
 ## Pisma (kolejność i grupy)
@@ -38,7 +38,7 @@ Kolor ikony: zielony — wypełniasz Ty, granatowy — wypełnia płatnik skład
 - Wybór drogi: `frontend/src/features/main-flow/wizard/Intro.tsx` (`PathCard`); widoki `forms` / `form`: `Wizard.tsx`; sekcja na wyniku: `Results.tsx` (`FormsToFill`).
 - E2E: `e2e/scenariusze/14-szybkie-pisma.md`, `15-pisma-dopasowane-do-planu.md` (zwijanie, widok komputera).
 
-## Opieka nad rodzicami (FE1-12, zgłoszone 2026-11-21)
+## Opieka nad rodzicami (FE1-14, zgłoszone 2026-11-21)
 Wsparcie psychiczne i informacja o pomocy to pokazanie, że rodzice są dla nas ważni — mają pierwszeństwo przed kwotami:
 - **Ekran startowy:** sekcja „Gdy ciąża nie zakończyła się szczęśliwie” jest zaraz pod wyborem drogi (a nie na dole strony), jako wyraźna karta z ikoną serca, ciepłym tekstem i przyciskiem „Przejdź do trybu spokojnego”.
 - **Wynik:** panele wsparcia (strata dziecka, wcześniak, „Za życiem”) są **na samej górze**, przed nagłówkiem z wynikiem; większa czcionka, ikona serca, klikalny numer telefonu.
