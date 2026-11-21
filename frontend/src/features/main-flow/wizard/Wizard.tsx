@@ -1,95 +1,165 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { type Answers, EMPTY_ANSWERS, PRESETS } from "./answers";
+import { Intro } from "./Intro";
 import { Results } from "./Results";
 import { STEPS } from "./steps";
 
-const btn = "rounded-md px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark";
+const btn = "rounded-full px-5 py-2.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark";
+
+// Widok kreatora: ekran startowy → kroki → wynik. Każde przejście trafia do historii przeglądarki,
+// więc przycisk „Wstecz” w przeglądarce (i gest wstecz na telefonie) cofa o jeden krok.
+type View = { kind: "intro" } | { kind: "step"; index: number } | { kind: "result" };
 
 export function Wizard() {
   const [a, setA] = useState<Answers>(EMPTY_ANSWERS);
-  const [index, setIndex] = useState(0);
-  const [done, setDone] = useState(false);
+  const [view, setView] = useState<View>({ kind: "intro" });
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const [storyOpen, setStoryOpen] = useState(false);
   const steps = useMemo(() => STEPS.filter((s) => s.visible(a)), [a]);
-  const step = steps[Math.min(index, steps.length - 1)];
+  const index = view.kind === "step" ? Math.min(view.index, steps.length - 1) : steps.length - 1;
+  const step = steps[index];
+  const done = view.kind === "result";
   const set = (patch: Partial<Answers>) => setA((prev) => ({ ...prev, ...patch }));
-  const focusTop = () => requestAnimationFrame(() => headingRef.current?.focus());
 
-  const go = (i: number) => { setIndex(Math.max(0, Math.min(i, steps.length - 1))); setDone(false); focusTop(); };
-  const next = () => { if (index >= steps.length - 1) { setDone(true); focusTop(); } else go(index + 1); };
+  useEffect(() => {
+    const onPop = (e: PopStateEvent) => {
+      const v = (e.state as { wizard?: View } | null)?.wizard;
+      // Zdarzenia bez stanu kreatora (np. przejście do kotwicy na stronie startowej) nie zmieniają widoku.
+      if (!v) { setView((cur) => (cur.kind === "intro" ? cur : { kind: "intro" })); return; }
+      setView(v);
+      requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const show = (v: View) => {
+    setView(v);
+    window.history.pushState({ wizard: v }, "");
+    requestAnimationFrame(() => {
+      headingRef.current?.focus();
+      headingRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+  };
+  const go = (i: number) => (i < 0 ? show({ kind: "intro" }) : show({ kind: "step", index: Math.min(i, steps.length - 1) }));
+  const next = () => (index >= steps.length - 1 ? show({ kind: "result" }) : go(index + 1));
+  const back = () => (done ? go(steps.length - 1) : go(index - 1));
   const editStep = (id: string) => { const i = steps.findIndex((s) => s.id === id); go(i < 0 ? 0 : i); };
-  const loadPreset = (answers: Partial<Answers>) => { setA({ ...EMPTY_ANSWERS, ...answers }); setDone(true); focusTop(); };
-  const startSensitive = () => { setA({ ...EMPTY_ANSWERS, sensitive: true, role: "MOTHER", stage: "BORN", stillborn: true }); setIndex(0); setDone(false); focusTop(); };
-  const progress = done ? 100 : Math.round((index / steps.length) * 100);
+  const loadPreset = (answers: Partial<Answers>) => { setA({ ...EMPTY_ANSWERS, ...answers }); show({ kind: "result" }); };
+  const start = () => { setA(EMPTY_ANSWERS); show({ kind: "step", index: 0 }); };
+  const startSensitive = () => { setA({ ...EMPTY_ANSWERS, sensitive: true, role: "MOTHER", stage: "BORN", stillborn: true }); show({ kind: "step", index: 0 }); };
+  const answered = steps.filter((s, i) => (done || i < index) && s.summary(a)).length;
+  const progress = done ? 100 : Math.round(((index + 1) / (steps.length + 1)) * 100);
+
+  if (view.kind === "intro") {
+    return <Intro headingRef={headingRef} onStart={start} onPreset={loadPreset} onSensitive={startSensitive} presets={PRESETS} />;
+  }
 
   return (
-    <div className="space-y-5">
-      {!a.sensitive && (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-zinc-600">Przykłady:</span>
-          {PRESETS.map((p) => (
-            <button key={p.id} type="button" onClick={() => loadPreset(p.answers)}
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1 hover:border-zus-green-dark focus-visible:outline-2 focus-visible:outline-zus-green-dark">{p.label}</button>
-          ))}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[16rem_minmax(0,1fr)]">
-        <nav aria-label="Kroki kreatora" className="min-w-0 lg:sticky lg:top-4 lg:self-start">
-          <div className="h-2 overflow-hidden rounded-full bg-zinc-200" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Postęp">
-            <div className="h-full bg-zus-green transition-all" style={{ width: `${progress}%` }} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[17rem_minmax(0,1fr)]">
+      <nav aria-label="Kroki kreatora" className="min-w-0 lg:sticky lg:top-4 lg:self-start">
+        <button type="button" onClick={() => show({ kind: "intro" })}
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zus-navy hover:border-zus-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark">
+          <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9.5 10 4l7 5.5M5 8v8h10V8" />
+          </svg>
+          Strona startowa
+        </button>
+        <section aria-labelledby="story-h" className="rounded-2xl border border-zinc-200 bg-white p-4">
+          <div className="flex items-baseline justify-between gap-2">
+            <h2 id="story-h" className="text-base font-semibold text-zus-navy">Twoja historia</h2>
+            <span className="text-xs text-zinc-600">{done ? "Gotowe" : `Krok ${index + 1} z ${steps.length}`}</span>
           </div>
-          <ol className="mt-3 flex gap-1 overflow-x-auto pb-1 text-sm lg:flex-col lg:overflow-visible">
-            {steps.map((s, i) => (
-              <li key={s.id} className="relative shrink-0">
-                <button type="button" onClick={() => go(i)} aria-current={!done && i === index ? "step" : undefined}
-                  className={`w-full rounded-md px-3 py-1.5 text-left ${!done && i === index ? "bg-zus-green-100 font-medium text-zus-navy" : "text-zinc-700 hover:bg-zinc-100"}`}>
-                  <span className="mr-1 text-zinc-400">{i + 1}.</span>{s.title}{s.complete(a) && <span className="sr-only"> (uzupełniony)</span>}
-                </button>
-              </li>
-            ))}
-            <li className="shrink-0">
-              <button type="button" onClick={() => { setDone(true); focusTop(); }} aria-current={done ? "step" : undefined}
-                className={`w-full rounded-md px-3 py-1.5 text-left ${done ? "bg-zus-green-100 font-medium text-zus-navy" : "text-zinc-700 hover:bg-zinc-100"}`}>
-                <span className="mr-1 text-zinc-400">✓</span>Wynik
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-200" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Postęp">
+            <div className="h-full rounded-full bg-zus-green transition-all" style={{ width: `${progress}%` }} />
+          </div>
+          <button type="button" onClick={() => setStoryOpen((o) => !o)} aria-expanded={storyOpen}
+            className="mt-3 w-full rounded-full border border-zinc-300 px-4 py-1.5 text-sm font-semibold text-zus-navy lg:hidden">
+            {storyOpen ? "Ukryj historię" : `Pokaż historię (${answered})`}
+          </button>
+          <ol className={`mt-4 ${storyOpen ? "block" : "hidden"} lg:block`}>
+            {steps.map((s, i) => {
+              const current = !done && i === index;
+              const visited = done || i < index;
+              const complete = s.complete(a) && visited;
+              const summary = s.summary(a);
+              return (
+                <li key={s.id} className="relative pb-4 pl-9 last:pb-0">
+                  <span aria-hidden="true" className="absolute top-7 bottom-0 left-[11px] w-0.5 bg-zinc-200" />
+                  <span aria-hidden="true" className={`absolute top-0.5 left-0 flex h-6 w-6 items-center justify-center rounded-full border-2 text-[11px] font-semibold ${
+                    current ? "border-zus-green-dark bg-zus-green-dark text-white" : complete ? "border-zus-green-dark bg-zus-green-50 text-zus-green-dark" : "border-zinc-300 bg-white text-zinc-500"}`}>
+                    {complete ? "✓" : i + 1}
+                  </span>
+                  <button type="button" onClick={() => go(i)} aria-current={current ? "step" : undefined}
+                    className={`group block w-full rounded-lg px-2 py-1 text-left focus-visible:outline-2 focus-visible:outline-zus-green-dark ${current ? "bg-zus-green-50" : "hover:bg-zinc-50"}`}>
+                    <span className={`block text-xs ${current ? "font-semibold text-zus-green-dark" : "text-zinc-500"}`}>
+                      {current ? `Teraz: ${s.title}` : s.title}
+                    </span>
+                    {(visited || current) && summary ? (
+                      <span className={`mt-0.5 block text-sm ${visited ? "font-semibold text-zus-navy" : "text-zus-navy"}`}>
+                        <span className="sr-only">Wybrano: </span>{summary}
+                      </span>
+                    ) : !visited && !current ? null : (
+                      <span className="mt-0.5 block text-sm text-zinc-500">jeszcze bez odpowiedzi</span>
+                    )}
+                    {visited && <span className="mt-0.5 block text-xs text-zinc-500 underline-offset-2 group-hover:text-zus-navy group-hover:underline">zmień</span>}
+                    {complete && <span className="sr-only"> (uzupełniony)</span>}
+                  </button>
+                </li>
+              );
+            })}
+            <li className="relative pl-9">
+              <span aria-hidden="true" className={`absolute top-0.5 left-0 flex h-6 w-6 items-center justify-center rounded-full border-2 text-[11px] ${done ? "border-zus-green-dark bg-zus-green-dark text-white" : "border-zinc-300 bg-white text-zinc-500"}`}>★</span>
+              <button type="button" onClick={() => show({ kind: "result" })} aria-current={done ? "step" : undefined}
+                className={`block w-full rounded-lg px-2 py-1 text-left text-sm font-semibold focus-visible:outline-2 focus-visible:outline-zus-green-dark ${done ? "bg-zus-green-50 text-zus-navy" : "text-zus-navy hover:bg-zinc-50"}`}>
+                Twój plan
               </button>
             </li>
           </ol>
-          {!a.sensitive ? (
-            <button type="button" onClick={startSensitive} className="mt-3 text-left text-xs text-zinc-600 underline underline-offset-2">
-              Poród martwego dziecka lub strata dziecka — tryb spokojny
-            </button>
-          ) : (
-            <button type="button" onClick={() => { setA(EMPTY_ANSWERS); setIndex(0); setDone(false); }} className="mt-3 text-left text-xs text-zinc-600 underline underline-offset-2">
-              Wyjdź z trybu spokojnego
-            </button>
-          )}
-        </nav>
+        </section>
+        {!a.sensitive ? (
+          <button type="button" onClick={startSensitive} className="mt-4 text-left text-xs text-zinc-600 underline underline-offset-2">
+            Poród martwego dziecka lub strata dziecka — tryb spokojny
+          </button>
+        ) : (
+          <button type="button" onClick={start} className="mt-4 text-left text-xs text-zinc-600 underline underline-offset-2">
+            Wyjdź z trybu spokojnego
+          </button>
+        )}
+      </nav>
 
-        <div className="min-w-0">
-          <h2 ref={headingRef} tabIndex={-1} className="mb-3 text-lg font-semibold focus:outline-none">
-            {done ? "Twój plan" : `Krok ${index + 1} z ${steps.length}: ${step.title}`}
-          </h2>
-          {done ? (
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-wider text-zus-green-dark">{done ? "Wynik" : `Krok ${index + 1} z ${steps.length}`}</p>
+        <h2 ref={headingRef} tabIndex={-1} className="mt-1 mb-4 scroll-mt-4 text-2xl font-semibold text-zus-navy focus:outline-none">
+          {done ? "Twój plan" : step.title}
+        </h2>
+        {done ? (
+          <>
             <Results answers={a} onEdit={editStep} />
-          ) : (
-            <form className="space-y-5 rounded-lg border border-zinc-200 bg-white p-4 sm:p-6"
-              onSubmit={(e) => { e.preventDefault(); next(); }}>
-              {step.render({ a, set })}
-              <div className="flex flex-wrap justify-between gap-2 border-t border-zinc-100 pt-4">
-                <button type="button" onClick={() => go(index - 1)} disabled={index === 0} className={`${btn} border border-zinc-300 disabled:opacity-40`}>Wstecz</button>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => { setDone(true); focusTop(); }} className={`${btn} text-zus-navy underline-offset-2 hover:underline`}>Pokaż wynik teraz</button>
-                  <button type="submit" disabled={!step.complete(a)} className={`${btn} bg-zus-green-dark text-white hover:bg-zus-navy disabled:opacity-50`}>
-                    {index >= steps.length - 1 ? "Pokaż wynik" : "Dalej"}
-                  </button>
-                </div>
+            <div className="mt-6 flex flex-wrap gap-2 border-t border-zinc-200 pt-4">
+              <button type="button" onClick={back} className={`${btn} border border-zinc-300 bg-white text-zus-navy hover:border-zus-navy`}>← Wstecz</button>
+              <button type="button" onClick={() => go(0)} className={`${btn} text-zus-navy hover:underline`}>Zmień odpowiedzi od początku</button>
+            </div>
+          </>
+        ) : (
+          <form className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-7"
+            onSubmit={(e) => { e.preventDefault(); next(); }}>
+            {step.render({ a, set })}
+            <div className="flex flex-col-reverse gap-3 border-t border-zinc-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <button type="button" onClick={back} className={`${btn} border border-zinc-300 bg-white text-zus-navy hover:border-zus-navy`}>
+                ← Wstecz
+              </button>
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+                <button type="button" onClick={() => show({ kind: "result" })} className={`${btn} text-zus-navy hover:underline`}>Pokaż wynik teraz</button>
+                <button type="submit" disabled={!step.complete(a)} className={`${btn} bg-zus-green-dark text-white hover:bg-zus-navy disabled:opacity-50`}>
+                  {index >= steps.length - 1 ? "Pokaż plan →" : "Dalej →"}
+                </button>
               </div>
-            </form>
-          )}
-        </div>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 # Pełna weryfikacja lokalna (Windows / PowerShell): audyt reguł, lint, testy, typy, build.
 # Opcja -Smoke: dodatkowo smoke test na uruchomionych serwerach (najpierw scripts\dev.ps1).
-param([switch]$Smoke)
+# Opcja -E2E: dodatkowo scenariusze użytkownika po polsku (e2e/scenariusze/*.md, Playwright; raz: cd e2e; npm install).
+param([switch]$Smoke, [switch]$E2E)
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $py = Join-Path $root "backend\.venv\Scripts\python.exe"
@@ -24,6 +25,7 @@ Invoke-Step "Frontend typecheck" { npm run typecheck }
 Invoke-Step "Frontend build" { npm run build }
 Pop-Location
 if ($Smoke) { Invoke-Step "Smoke" { & $py scripts\smoke.py } }
+if ($E2E) { Push-Location e2e; Invoke-Step "E2E scenariusze" { npm test }; Pop-Location }
 Pop-Location
 
 if ($failed.Count -gt 0) { Write-Host "VERIFY: FAIL ($($failed -join ', '))" -ForegroundColor Red; exit 1 }
