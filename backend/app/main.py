@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
 from app.core.params import ruleset_version
+from app.modules.admin.router import router as admin_router
 from app.modules.evaluation.router import router as evaluation_router
 from app.modules.planner.router import router as planner_router
 from app.modules.simulations.router import router as simulations_router
@@ -34,3 +35,4 @@ def health() -> dict[str, str]:
 app.include_router(evaluation_router)
 app.include_router(simulations_router)
 app.include_router(planner_router)
+app.include_router(admin_router)  # BE2-05

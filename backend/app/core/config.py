@@ -18,6 +18,10 @@ class Settings:
         self.engine = os.environ.get("ENGINE", "rules").strip().lower()
         if self.engine not in ("rules", "slice"):
             raise ValueError(f"ENGINE musi być 'rules' albo 'slice', jest {self.engine!r}")
+        # BE2-05: panel admina parametrów — token nagłówka X-Admin-Token (brak → endpointy admina zwracają 401)
+        self.admin_token = os.environ.get("ADMIN_TOKEN", "").strip() or None
+        self.param_overrides_path = Path(os.environ.get(
+            "PARAM_OVERRIDES_PATH", REPO_ROOT / "backend" / "data" / "parameter_overrides.json"))
 
 
 @lru_cache

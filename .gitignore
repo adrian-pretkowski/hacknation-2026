@@ -37,3 +37,6 @@ materials/
 # E2E (Playwright)
 e2e/test-results/
 e2e/playwright-report/
+
+# Nadpisania parametrów z panelu admina (BE2-05, PARAM_OVERRIDES_PATH)
+backend/data/

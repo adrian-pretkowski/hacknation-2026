@@ -21,7 +21,7 @@ Aktualizuj przy każdym zmergowanym PR. Status: ⬜ nie rozpoczęte · 🟨 w to
 | Wnioski o urlopy i świadczenia (symulacja, projekt wniosków urlopowych) | APP-*, ROZP_WN | Dokumenty | ui-verifier | ⬜ |
 | Wniosek o odpis aktu urodzenia (symulacja) | — | Dokumenty | ui-verifier | ⬜ |
 | Linki zus.pl / gov.pl / PIP | treść | Dokumenty | — | ⬜ |
-| Panel admina parametrów | params/store.py | Admin | test zmiany 0.815 | ⬜ |
+| Panel admina parametrów | `core/params.py` (OverrideStore), `modules/admin/router.py` | Admin | `test_admin.py` (zmiana 0.815 → wynik bez restartu) | 🟨 API `GET/PUT /api/admin/parameters` (BE2-05): wersje, `valid_from`, 401/409/422, zapis JSON; ekran FE — do zrobienia |
 | Upload/wybór przykładowych wniosków, weryfikacja ubezpieczenia | cases + insurance_verification | Sprawy | /run-golden | ⬜ |
 | RWD | frontend | wszystkie | ui-verifier 375/1440 | ⬜ |
 | Wskazanie funkcji z AI | docs/AI_USAGE.md | — | — | ⬜ |
