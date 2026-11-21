@@ -13,6 +13,9 @@ import {
 import { todayIso, toEvaluateRequest } from "./request";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
+/** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania — test tekstu kwoty). */
+const hasPayout = (p: PreviewResult) => p.response.overall_status !== "NOT_ELIGIBLE"
+  && !!p.summary.ownTotal && !/^0+(\.0*)?$/.test(p.summary.ownTotal);
 const pct = (rate: string, work = "0") => `${(Number(rate) * 100).toLocaleString("pl-PL")}%${work !== "0" ? ` × ${(1 - Number(work)).toLocaleString("pl-PL")}` : ""}`;
 
 export function Results({ answers, onEdit, canEdit = () => true }: {
@@ -43,7 +46,8 @@ export function Results({ answers, onEdit, canEdit = () => true }: {
           <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />
         </details>
       ) : <Timeline segments={current.summary.segments} planErrors={r.plan_errors ?? []} />)}
-      {current.summary.combinedEligible && current.summary.ownTotal && cmp && (
+      {/* porównanie wariantów tylko gdy zasiłek przysługuje i jest kwota w obu wariantach */}
+      {current.summary.combinedEligible && hasPayout(pA) && hasPayout(pB) && cmp && (
         <VariantComparison pA={pA} pB={pB} variant={variant} recommended={recommended} onChoose={setChosen} />
       )}
       <Deadlines response={r} />
