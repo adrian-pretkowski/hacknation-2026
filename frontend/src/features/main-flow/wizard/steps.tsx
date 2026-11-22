@@ -66,6 +66,10 @@ export type Step = {
   title: string;
   visible: (a: Answers) => boolean;
   complete: (a: Answers) => boolean;
+  /** FE1-54: nazwy brakujących pól obowiązkowych (komunikat przy nieaktywnym „Dalej →”); pusta lista = brak braków albo tylko błędy w polach. */
+  missing?: (a: Answers) => string[];
+  /** FE1-54: czy krok pokazuje teraz pole obowiązkowe (legenda „*”); domyślnie tak, gdy jest `missing`. */
+  hasRequired?: (a: Answers) => boolean;
   /** Krótka historia wyboru pokazywana pod nazwą kroku na liście kroków (null = nic do pokazania). */
   summary: (a: Answers) => string | null;
   render: (p: StepProps) => React.ReactNode;
@@ -165,9 +169,10 @@ export const STEPS: Step[] = [
     title: "Kim jesteś?",
     visible: (a) => !a.sensitive,
     complete: (a) => a.role !== null,
+    missing: (a) => (a.role === null ? ["kim jesteś"] : []),
     summary: (a) => (a.role === "MOTHER" ? "Jestem mamą" : a.role === "FATHER" ? "Jestem tatą" : a.role === "GUARDIAN" ? "Przyjmuję dziecko jako opiekun" : null),
     render: ({ a, set }) => (
-      <Choice legend="Kim jesteś?" value={a.role} columns={3} onChange={(role) => set({ role })} options={[
+      <Choice legend="Kim jesteś?" required value={a.role} columns={3} onChange={(role) => set({ role })} options={[
         { value: "MOTHER", label: "Mamą", description: "jestem w ciąży lub urodziłam" },
         { value: "FATHER", label: "Tatą", description: "partnerka jest w ciąży lub urodziła" },
         { value: "GUARDIAN", label: "Opiekunem", description: "adopcja lub rodzina zastępcza" },
@@ -179,17 +184,18 @@ export const STEPS: Step[] = [
     title: "Etap",
     visible: (a) => a.role !== null && !a.sensitive,
     complete: (a) => (a.role === "GUARDIAN" ? a.guardianKind !== null : a.stage !== null),
+    missing: (a) => (a.role === "GUARDIAN" ? (a.guardianKind === null ? ["forma przyjęcia dziecka"] : []) : a.stage === null ? ["etap"] : []),
     summary: (a) => (a.role === "GUARDIAN" ? (a.guardianKind ? GUARDIAN_TEXT[a.guardianKind] : null)
       : a.stage === "PREGNANT" ? (a.role === "FATHER" ? "Partnerka jest w ciąży" : "Jestem w ciąży") : a.stage === "BORN" ? "Dziecko już jest na świecie" : null),
     render: ({ a, set }) =>
       a.role === "GUARDIAN" ? (
-        <Choice legend="Jaka to forma przyjęcia dziecka?" value={a.guardianKind} columns={1} onChange={(guardianKind) => set({ guardianKind })} options={[
+        <Choice legend="Jaka to forma przyjęcia dziecka?" required value={a.guardianKind} columns={1} onChange={(guardianKind) => set({ guardianKind })} options={[
           { value: "ADOPTION", label: "Adopcja", description: "wystąpiłam(-em) do sądu o przysposobienie" },
           { value: "FOSTER_NON_PROFESSIONAL", label: "Rodzina zastępcza niezawodowa" },
           { value: "FOSTER_PROFESSIONAL", label: "Zawodowa rodzina zastępcza" },
         ]} />
       ) : (
-        <Choice legend="Na jakim etapie jesteś?" value={a.stage} onChange={(stage) => set({ stage })} options={[
+        <Choice legend="Na jakim etapie jesteś?" required value={a.stage} onChange={(stage) => set({ stage })} options={[
           { value: "PREGNANT", label: a.role === "FATHER" ? "Partnerka jest w ciąży" : "Jestem w ciąży", description: "planuję urlopy i wnioski" },
           { value: "BORN", label: "Dziecko już się urodziło", description: "sprawdzę, co zostało i do kiedy" },
         ]} />
@@ -200,6 +206,10 @@ export const STEPS: Step[] = [
     title: "Data i dzieci",
     visible: (a) => a.role !== null,
     complete: (a) => !!a.eventDate && !hasErrors(a, "eventDate") && a.children >= 1 && (a.role !== "GUARDIAN" || a.childAgeYears !== ""),
+    missing: (a) => [
+      !a.eventDate && (a.role === "GUARDIAN" ? "data przyjęcia dziecka" : a.stage === "BORN" ? "data porodu" : "planowana data porodu"),
+      a.role === "GUARDIAN" && a.childAgeYears === "" && "wiek dziecka",
+    ].filter((x): x is string => !!x),
     summary: (a) => join([
       a.eventDate && `${a.role === "GUARDIAN" ? "Przyjęcie dziecka" : a.stage === "BORN" ? "Poród" : "Poród planowany"} ${formatDate(a.eventDate)}`,
       a.children > 1 && `${a.children} dzieci`,
@@ -210,7 +220,7 @@ export const STEPS: Step[] = [
     render: ({ a, set }) => (
       <div className="space-y-4">
         <DateField label={a.role === "GUARDIAN" ? "Data przyjęcia dziecka" : a.stage === "BORN" ? "Data porodu" : "Planowana data porodu"}
-          hint={a.stage === "PREGNANT" ? "Z karty ciąży; wynik będzie prognozą." : undefined}
+          hint={a.stage === "PREGNANT" ? "Z karty ciąży; wynik będzie prognozą." : undefined} required
           value={a.eventDate} error={dateErrors(a).eventDate} onChange={(eventDate) => set({ eventDate })} />
         {/* FE1-41: świadczenia w ciąży (wymaganie a) - L4 w ciąży ocenia silnik reguł (PREGNANCY_INCAPACITY) */}
         {a.role === "MOTHER" && a.stage === "PREGNANT" && (
@@ -237,7 +247,7 @@ export const STEPS: Step[] = [
         </Field>
         {a.role === "GUARDIAN" && (
           <>
-            <NumberSelect label="Wiek dziecka" value={a.childAgeYears} from={0} to={17} unit={plYears} unknownLabel="Wybierz wiek"
+            <NumberSelect label="Wiek dziecka" required value={a.childAgeYears} from={0} to={17} unit={plYears} unknownLabel="Wybierz wiek"
               onChange={(childAgeYears) => set({ childAgeYears })} />
             <DateField label="Data urodzenia dziecka (jeśli znasz)"
               hint={`Policzymy dokładny koniec urlopu - najpóźniej dzień przed ${a.guardianKind === "ADOPTION" ? PARAMS.ADOPTION_CHILD_AGE_MAX
@@ -268,16 +278,17 @@ export const STEPS: Step[] = [
     title: "Strata dziecka",
     visible: (a) => a.sensitive && isBirth(a),
     complete: (a) => a.lossKind === "STILLBORN" || (!!a.deathDate && !hasErrors(a, "deathDate")),
+    missing: (a) => (a.lossKind === null ? ["co się wydarzyło"] : a.lossKind === "DIED" && !a.deathDate ? ["data śmierci dziecka"] : []),
     summary: (a) => (a.lossKind === "STILLBORN" ? "Martwe urodzenie" : join(["Zgon po porodzie", a.deathDate && formatDate(a.deathDate)])),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <p className="text-sm text-zinc-700">Bardzo nam przykro. Zapytamy tylko o to, co niezbędne.</p>
-        <Choice legend="Co się wydarzyło?" value={a.lossKind} columns={2} onChange={(lossKind) => set({ lossKind, stillborn: true })} options={[
+        <Choice legend="Co się wydarzyło?" required value={a.lossKind} columns={2} onChange={(lossKind) => set({ lossKind, stillborn: true })} options={[
           { value: "STILLBORN", label: "Dziecko urodziło się martwe" },
           { value: "DIED", label: "Dziecko zmarło po porodzie" },
         ]} />
         {a.lossKind === "DIED" && (
-          <DateField label="Data śmierci dziecka" value={a.deathDate} error={dateErrors(a).deathDate}
+          <DateField label="Data śmierci dziecka" required value={a.deathDate} error={dateErrors(a).deathDate}
             onChange={(deathDate) => set({ deathDate })} />
         )}
         {a.stillborn && a.children > 1 && (
@@ -292,6 +303,9 @@ export const STEPS: Step[] = [
     title: "Okoliczności szczególne",
     visible: (a) => isBirth(a) && !a.sensitive && a.role !== null,
     complete: (a) => !a.preterm || (a.gestationWeeks !== "" || a.lowBirthWeight !== "UNKNOWN"),
+    missing: (a) => (a.preterm && a.gestationWeeks === "" && a.lowBirthWeight === "UNKNOWN"
+      ? [weightMatters(a) ? "tydzień ciąży przy porodzie albo masa urodzeniowa" : "tydzień ciąży przy porodzie"] : []),
+    hasRequired: (a) => a.preterm,
     summary: (a) => join([
       a.preterm && "Wcześniak / szpital",
       a.preterm && a.gestationWeeks !== "" && `${a.gestationWeeks}. tydz.`,
@@ -306,11 +320,12 @@ export const STEPS: Step[] = [
           checked={a.preterm} onChange={(preterm) => set({ preterm })} />
         {a.preterm && (
           <div className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 sm:grid-cols-2">
-            <NumberSelect label="Ukończony tydzień ciąży przy porodzie" value={a.gestationWeeks} from={20} to={42}
+            <NumberSelect label="Ukończony tydzień ciąży przy porodzie" required={a.lowBirthWeight === "UNKNOWN"} value={a.gestationWeeks}
+              hint={weightMatters(a) ? "Wystarczy tydzień ciąży albo masa urodzeniowa." : undefined} from={20} to={42}
               unit={(n) => `${n}. tydzień`} onChange={(gestationWeeks) => set({ gestationWeeks })} />
             {weightMatters(a) && (
               <div className="sm:col-span-2">
-                <Choice legend="Masa urodzeniowa" hint="Przy kilkorgu dzieci: najlżejszego. Dokładna waga nie jest potrzebna."
+                <Choice legend="Masa urodzeniowa" required={a.gestationWeeks === ""} hint="Przy kilkorgu dzieci: najlżejszego. Dokładna waga nie jest potrzebna."
                   value={a.lowBirthWeight} columns={3} onChange={(lowBirthWeight) => set({ lowBirthWeight })} options={weightOptions()} />
               </div>
             )}
@@ -348,12 +363,17 @@ export const STEPS: Step[] = [
     visible: (a) => a.role !== null,
     complete: (a) => a.title !== null && (a.title === "NONE" || !!noInsuranceReason(a) || !!a.insuredFrom) && !hasErrors(a, "contractEnd")
       && (a.title !== "EMPLOYMENT" || a.contractType !== null),
+    missing: (a) => [
+      a.title === null && "tytuł ubezpieczenia",
+      a.title !== null && a.title !== "NONE" && !noInsuranceReason(a) && !a.insuredFrom && "od kiedy podlegasz ubezpieczeniu",
+      a.title === "EMPLOYMENT" && a.contractType === null && "rodzaj umowy",
+    ].filter((x): x is string => !!x),
     summary: (a) => (a.title ? join([TITLE_TEXT[a.title], a.title !== "NONE" && a.insuredFrom && `od ${formatDate(a.insuredFrom)}`,
       a.contractType && a.contractType !== "INDEFINITE" && CONTRACT_TEXT[a.contractType], a.title === "EMPLOYMENT" && a.fullTime === "NO" && "niepełny etat",
       noInsuranceReason(a) === "START_RELIEF" && "ulga na start", noInsuranceReason(a) === "STUDENT_UNDER_26" && "student do 26 lat"]) : null),
     render: ({ a, set }) => (
       <div className="space-y-4">
-        <Choice legend="Z jakiego tytułu masz ubezpieczenie?" value={a.title} onChange={(title) => set({ title })} options={[
+        <Choice legend="Z jakiego tytułu masz ubezpieczenie?" required value={a.title} onChange={(title) => set({ title })} options={[
           { value: "EMPLOYMENT", label: "Umowa o pracę" },
           { value: "MANDATE", label: "Umowa zlecenia" },
           { value: "SELF_EMPLOYED", label: "Działalność gospodarcza (JDG)" },
@@ -376,13 +396,13 @@ export const STEPS: Step[] = [
         {a.title && a.title !== "NONE" && !noInsuranceReason(a) && (
           <>
             <ZusFetch source="insurance" a={a} set={set} what="Nie pamiętasz dat? Pobierzemy okres ubezpieczenia i dane płatnika." />
-            <DateField label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej."
+            <DateField label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej." required
               value={a.insuredFrom} warning={dateWarnings(a).insuredFrom} onChange={(insuredFrom) => set({ insuredFrom })} />
           </>
         )}
         {a.title === "EMPLOYMENT" && (
           <>
-            <Choice legend="Rodzaj umowy" value={a.contractType} onChange={(contractType) => set({ contractType })} options={[
+            <Choice legend="Rodzaj umowy" required value={a.contractType} onChange={(contractType) => set({ contractType })} options={[
               { value: "INDEFINITE", label: "Na czas nieokreślony" },
               { value: "FIXED_TERM", label: "Na czas określony" },
               { value: "PROBATION_OVER_1_MONTH", label: "Na okres próbny dłuższy niż 1 miesiąc" },

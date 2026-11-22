@@ -7,8 +7,20 @@ import { moneyError, normalizeMoney } from "./money";
 export const inputCls =
   "mt-1 w-full rounded-md border border-zinc-500 bg-white px-3 py-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-zus-green-dark";
 
-export function Choice<T extends string>({ legend, hint, value, options, onChange, columns = 2 }: {
+/** FE1-54: znacznik pola obowiązkowego (blokuje „Dalej →”); czytnik ekranu słyszy „wymagane”. */
+export function RequiredMark() {
+  return (
+    <>
+      <span aria-hidden="true" className="ml-0.5 font-semibold text-zus-red">*</span>
+      <span className="sr-only"> (wymagane)</span>
+    </>
+  );
+}
+
+export function Choice<T extends string>({ legend, hint, value, options, onChange, columns = 2, required = false }: {
   legend: string;
+  /** FE1-54: pole blokuje przejście dalej - gwiazdka przy pytaniu. */
+  required?: boolean;
   hint?: string;
   value: T | null;
   options: { value: T; label: string; description?: string }[];
@@ -19,7 +31,7 @@ export function Choice<T extends string>({ legend, hint, value, options, onChang
   const cols = columns === 1 ? "" : columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3";
   return (
     <fieldset className="space-y-2">
-      <legend className="text-base font-semibold text-zus-navy">{legend}</legend>
+      <legend className="text-base font-semibold text-zus-navy">{legend}{required && <RequiredMark />}</legend>
       {hint && <p className="text-sm text-zinc-600">{hint}</p>}
       <div className={`grid gap-2 ${cols}`}>
         {options.map((o) => {
@@ -42,15 +54,15 @@ export function Choice<T extends string>({ legend, hint, value, options, onChang
   );
 }
 
-export function Field({ label, hint, children, error, errorId }: {
-  label: string; hint?: string; children: React.ReactNode;
+export function Field({ label, hint, children, error, errorId, required = false }: {
+  label: string; hint?: string; children: React.ReactNode; required?: boolean;
   /** FE1-10: komunikat walidacji pod polem (pole wskazuje go przez aria-describedby = errorId). */
   error?: string; errorId?: string;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium">
-        {label}
+        {label}{required && <RequiredMark />}
         {children}
         {hint && <span className="mt-1 block text-xs font-normal text-zinc-600">{hint}</span>}
       </label>
@@ -86,8 +98,8 @@ export function MoneyField({ label, hint, value, onChange, emptyLabel = "nie pod
 }
 
 /** FE1-10: pole daty z walidacją - aria-invalid i aria-describedby wskazują komunikat pod polem. */
-export function DateField({ label, hint, value, onChange, error, warning }: {
-  label: string; hint?: string; value: string; onChange: (v: string) => void; error?: string;
+export function DateField({ label, hint, value, onChange, error, warning, required = false }: {
+  label: string; hint?: string; value: string; onChange: (v: string) => void; error?: string; required?: boolean;
   /** Ostrzeżenie bez blokady (np. sytuacja prawnie istotna, którą ocenia silnik). */
   warning?: string;
 }) {
@@ -96,8 +108,8 @@ export function DateField({ label, hint, value, onChange, error, warning }: {
   const describedBy = error ? errorId : warning ? warnId : undefined;
   return (
     <div>
-      <Field label={label} hint={hint} error={error} errorId={errorId}>
-        <input type="date" className={`${inputCls} ${error ? "border-zus-red" : ""}`} value={value}
+      <Field label={label} hint={hint} error={error} errorId={errorId} required={required}>
+        <input type="date" aria-required={required || undefined} className={`${inputCls} ${error ? "border-zus-red" : ""}`} value={value}
           aria-invalid={error ? true : undefined} aria-describedby={describedBy}
           onChange={(e) => onChange(e.target.value)} />
       </Field>
@@ -177,16 +189,17 @@ export function Slider({ label, hint, value, onChange, min, max, step = 1, unit,
 }
 
 /** Lista rozwijana liczb z opcjonalną pozycją „Nie wiem” (pusta wartość). */
-export function NumberSelect({ label, hint, value, onChange, from, to, unit, unknownLabel = "Nie wiem / nie podam", describedBy }: {
+export function NumberSelect({ label, hint, value, onChange, from, to, unit, unknownLabel = "Nie wiem / nie podam", describedBy, required = false }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void;
   from: number; to: number; unit?: (n: number) => string; unknownLabel?: string | null;
   /** FE1-10: id komunikatu walidacji (aria-describedby, aria-invalid). */
   describedBy?: string;
+  required?: boolean;
 }) {
   const opts = Array.from({ length: to - from + 1 }, (_, i) => from + i);
   return (
-    <Field label={label} hint={hint}>
-      <select className={inputCls} value={value} onChange={(e) => onChange(e.target.value)}
+    <Field label={label} hint={hint} required={required}>
+      <select className={inputCls} value={value} onChange={(e) => onChange(e.target.value)} aria-required={required || undefined}
         aria-describedby={describedBy} aria-invalid={describedBy ? true : undefined}>
         {unknownLabel !== null && <option value="">{unknownLabel}</option>}
         {opts.map((n) => <option key={n} value={String(n)}>{unit ? unit(n) : n}</option>)}
