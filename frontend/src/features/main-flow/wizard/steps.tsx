@@ -23,10 +23,11 @@ const weeksBefore = (a: Answers): string => {
     ? String(d / PARAMS.WEEK_AS_DAYS) : "custom";
 };
 // FE1-05: masa urodzeniowa liczy się tylko względem progu (KP art. 180(2) § 1) - pytanie z opcjami zamiast suwaka.
-const WEIGHT_LIMIT = `${PARAMS.SUPP_WEIGHT_THRESHOLD_G.toLocaleString("pl-PL")} g`;
-const WEIGHT_OPTIONS = [
-  { value: "YES" as const, label: `Do ${WEIGHT_LIMIT}` },
-  { value: "NO" as const, label: `Powyżej ${WEIGHT_LIMIT}` },
+// FE1-37: funkcje - próg z panelu admina (apiParams) czytany przy renderze, nie przy ładowaniu modułu
+const weightLimit = () => `${PARAMS.SUPP_WEIGHT_THRESHOLD_G.toLocaleString("pl-PL")} g`;
+const weightOptions = () => [
+  { value: "YES" as const, label: `Do ${weightLimit()}` },
+  { value: "NO" as const, label: `Powyżej ${weightLimit()}` },
   { value: "UNKNOWN" as const, label: "Nie wiem" },
 ];
 /** Przy porodzie przed SUPP_GESTATION_EARLY_WEEK masa nie zmienia wyniku (SUPP-ELIG-001 i tak przysługuje). */
@@ -291,7 +292,7 @@ export const STEPS: Step[] = [
     summary: (a) => join([
       a.preterm && "Wcześniak / szpital",
       a.preterm && a.gestationWeeks !== "" && `${a.gestationWeeks}. tydz.`,
-      a.preterm && weightMatters(a) && a.lowBirthWeight !== "UNKNOWN" && `${a.lowBirthWeight === "YES" ? "do" : "powyżej"} ${WEIGHT_LIMIT}`,
+      a.preterm && weightMatters(a) && a.lowBirthWeight !== "UNKNOWN" && `${a.lowBirthWeight === "YES" ? "do" : "powyżej"} ${weightLimit()}`,
       a.preterm && a.hospitalWeeks !== "" && `szpital ${plDays(Number(a.hospitalDays))} = ${plWeeks(Number(a.hospitalWeeks))}`,
       a.zaZyciem && "„Za życiem”",
     ]) ?? "Brak",
@@ -307,7 +308,7 @@ export const STEPS: Step[] = [
             {weightMatters(a) && (
               <div className="sm:col-span-2">
                 <Choice legend="Masa urodzeniowa" hint="Przy kilkorgu dzieci: najlżejszego. Dokładna waga nie jest potrzebna."
-                  value={a.lowBirthWeight} columns={3} onChange={(lowBirthWeight) => set({ lowBirthWeight })} options={WEIGHT_OPTIONS} />
+                  value={a.lowBirthWeight} columns={3} onChange={(lowBirthWeight) => set({ lowBirthWeight })} options={weightOptions()} />
               </div>
             )}
             <div className="space-y-2 sm:col-span-2">

@@ -2,6 +2,7 @@
 // Symbole formularzy pochodzą z treści zadania i informacji ZUS, nie z rozporządzenia (CONF-007, APP-DOC-003) -
 // w UI z dopiskiem „wg informacji ZUS”. Terminy liczbowe tylko z PARAMS (bez liczb z przepisów w kodzie).
 import { PARAMS } from "@/features/main-flow/preview/params";
+import { formatRate } from "@/lib/format";
 
 export type FormCode = "ZAM" | "Z-3" | "Z-3a" | "ZAS-12" | "ZAS-53";
 
@@ -29,7 +30,8 @@ export const FORMS: Record<FormCode, FormInfo> = {
     name: "Wniosek o zasiłek macierzyński",
     purpose: "Wniosek o zasiłek za urlop macierzyński, rodzicielski i ojcowski. Od 24.10.2026 zastępuje też dawne druki ZUR i ZAO.",
     who: "Wypełniasz Ty - mama lub tata, gdy zasiłek wypłaca ZUS (np. działalność gospodarcza, umowa zlecenia).",
-    when: `Po urodzeniu lub przyjęciu dziecka, razem z odpisem aktu urodzenia. Wariant 81,5% za cały okres - w ciągu ${PARAMS.APP_COMBINED_DEADLINE_DAYS} dni od porodu.`,
+    // FE1-37: getter - wartość z panelu admina (apiParams) czytana przy wyświetleniu, nie przy ładowaniu modułu
+    get when() { return `Po urodzeniu lub przyjęciu dziecka, razem z odpisem aktu urodzenia. Wariant ${formatRate(PARAMS.MAT_RATE_COMBINED)} za cały okres - w ciągu ${PARAMS.APP_COMBINED_DEADLINE_DAYS} dni od porodu.`; },
     submitTo: "Do ZUS (eZUS lub placówka) albo do płatnika, jeśli to on wypłaca zasiłek.",
     filledBy: "YOU",
     docTypes: ["ZAM_APPLICATION", "MATERNITY_APPLICATION_ANNEX6"],
@@ -39,7 +41,7 @@ export const FORMS: Record<FormCode, FormInfo> = {
     name: "Zaświadczenie płatnika składek - pracownik",
     purpose: "Dane o zatrudnieniu i wynagrodzeniu, z których ZUS liczy podstawę zasiłku.",
     who: "Wypełnia pracodawca - dotyczy osoby na umowie o pracę.",
-    when: `Gdy zasiłek wypłaca ZUS (pracodawca do ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych) - dołącza się je do wniosku o zasiłek macierzyński lub chorobowy.`,
+    get when() { return `Gdy zasiłek wypłaca ZUS (pracodawca do ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych) - dołącza się je do wniosku o zasiłek macierzyński lub chorobowy.`; },
     submitTo: "Pracodawca przekazuje je do ZUS.",
     filledBy: "PAYER",
     docTypes: ["PAYER_CERTIFICATE_Z3", "PAYER_CERTIFICATE_Z3_OR_Z3A"],
