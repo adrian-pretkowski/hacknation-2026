@@ -57,7 +57,8 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
       {/* FE1-16: wsparcie zawsze na samej górze wyniku - najpierw człowiek, potem kwoty */}
       {sensitive && <SupportBlock kind="loss" />}
       {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
-      <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} sick={sick.hypothetical ? null : sick.r} />
+      <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} sick={sick.hypothetical ? null : sick.r}
+        planOwn={appliedPlanOwn(answers, current.summary.applicant)} />
       <AppliedPlan answers={answers} onEdit={onEdit} canEdit={canEdit} />
       <SickLeaveCard answers={answers} sick={sick} />
       {current.summary.remaining && <Remaining p={current} />}
@@ -81,6 +82,21 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
   );
 }
 
+/** FE1-65: część wnioskodawcy z zastosowanego (aktualnego) planu planera - ta sama kwota co w karcie „Wasz plan”, bez przeliczania. */
+type PlanOwn = { total: string; days: number; leaves: string[] };
+function appliedPlanOwn(answers: Answers, applicant: string): PlanOwn | null {
+  const plan = answers.plannerPlan;
+  if (!answers.plannerApplied || !plan || answers.sensitive || answers.plannerKey !== plannerInputsKey(answers)) return null;
+  const total = applicant === "FATHER" ? plan.totals.father_preview : plan.totals.mother_preview;
+  if (!total) return null;
+  const items = plan.items.filter((i) => i.parent === applicant && i.kind !== "WORK_INCOME");
+  return {
+    total,
+    days: items.reduce((n, i) => n + i.days, 0),
+    leaves: [...new Set(items.map((i) => LEAVE_LABEL[i.kind] ?? (i.kind.startsWith("PARENTAL") ? LEAVE_LABEL.PARENTAL_LEAVE : "")).filter(Boolean))],
+  };
+}
+
 /** FE1-62: plan rodziny zastosowany z kroku „Optymalizacja” - kwoty planera z API (mama + tata), nie tylko część wypełniającego. */
 function AppliedPlan({ answers, onEdit, canEdit }: { answers: Answers; onEdit: (s: string) => void; canEdit: (s: string) => boolean }) {
   const plan = answers.plannerPlan;
@@ -99,10 +115,10 @@ function AppliedPlan({ answers, onEdit, canEdit }: { answers: Answers; onEdit: (
   return (
     <section aria-labelledby="family-plan-h" className={card}>
       <h2 id="family-plan-h" className="text-base font-semibold">Plan rodziny z kroku „Optymalizacja”</h2>
-      <p className="mt-1 text-sm text-zinc-700">Łączna kwota dla mamy i taty przy wybranym podziale urlopów. Kwota „dla Ciebie” powyżej to tylko Twoja część.</p>
+      <p className="mt-1 text-sm text-zinc-700">Łączna kwota dla mamy i taty przy wybranym podziale urlopów. Kwota „dla Ciebie” powyżej to Twoja część tego planu.</p>
       <div className="mt-3">
         <PlannerPlanCard plan={plan} title="Wasz plan - łącznie dla rodziny"
-          note={<p className="mt-1 text-xs text-zinc-600">Planer liczy urlopy od dnia porodu, ze stałym wynagrodzeniem obojga rodziców; Twoja część powyżej uwzględnia też m.in. urlop przed porodem i podwyższenie do kwoty świadczenia rodzicielskiego, więc może się nieco różnić.</p>}>
+          note={<p className="mt-1 text-xs text-zinc-600">Planer liczy urlopy od dnia porodu, ze stałym wynagrodzeniem obojga rodziców. Oś czasu i „Pokaż, jak to policzyliśmy” niżej uwzględniają też m.in. urlop przed porodem i podwyższenie do kwoty świadczenia rodzicielskiego, więc ich kwoty mogą się nieco różnić.</p>}>
           {canEdit("optimize") && (
             <button type="button" onClick={() => onEdit("optimize")} className="mt-3 text-sm font-semibold text-zus-navy underline underline-offset-2">Zmień plan</button>
           )}
@@ -112,8 +128,10 @@ function AppliedPlan({ answers, onEdit, canEdit }: { answers: Answers; onEdit: (
   );
 }
 
-function StatusHeader({ result, onEdit, canEdit, sick }: {
+function StatusHeader({ result, onEdit, canEdit, sick, planOwn }: {
   result: PreviewResult; onEdit: (s: string) => void; canEdit: (s: string) => boolean; sick: EvaluateResponse | null;
+  /** FE1-65: przy zastosowanym planie suma „dla Ciebie” z planera (spójna z kartą „Wasz plan”) */
+  planOwn?: PlanOwn | null;
 }) {
   // kwoty za L4 tylko przy pełnym wyniku silnika (przy NEEDS_DATA kwoty bywają niespójne, np. 0 dni z kwotą)
   const sickPaid = sick?.overall_status === "ELIGIBLE" ? sick.benefits.filter((b) => b.total_amount_exact) : [];
@@ -127,7 +145,9 @@ function StatusHeader({ result, onEdit, canEdit, sick }: {
     <section className={`rounded-lg border border-zinc-200 border-l-8 bg-white p-4 sm:p-5 ${tone}`} aria-labelledby="status-h">
       <p className="text-xs font-medium uppercase tracking-wide text-zinc-600">{r.mode === "FORECAST" ? "Prognoza" : "Wynik"}</p>
       <h2 id="status-h" className="mt-1 text-xl font-semibold">{STATUS_HEADLINE[r.overall_status]}</h2>
-      {result.summary.ownTotal && r.overall_status !== "NOT_ELIGIBLE" && (
+      {planOwn && r.overall_status !== "NOT_ELIGIBLE" ? (
+        <OwnTotal applicant={result.summary.applicant} total={planOwn.total} days={planOwn.days} leaves={planOwn.leaves} fromPlan />
+      ) : result.summary.ownTotal && r.overall_status !== "NOT_ELIGIBLE" && (
         <OwnTotal applicant={result.summary.applicant} total={result.summary.ownTotal}
           days={ownBenefits.reduce((n, b) => n + (b.days ?? 0), 0)}
           leaves={[...new Set(ownBenefits.map((b) => LEAVE_LABEL[b.leave_type ?? ""]).filter(Boolean))]} />
@@ -188,14 +208,14 @@ function StatusHeader({ result, onEdit, canEdit, sick }: {
 }
 
 /** FE1-33: wyrazista suma dla wnioskodawcy - duża kwota, dni i rodzaje świadczeń. */
-function OwnTotal({ applicant, total, days, leaves }: {
-  applicant: string; total: string; days: number; leaves: string[];
+function OwnTotal({ applicant, total, days, leaves, fromPlan = false }: {
+  applicant: string; total: string; days: number; leaves: string[]; fromPlan?: boolean;
 }) {
   return (
     <div className="mt-4 rounded-lg border border-zus-green-100 bg-zus-green-50 p-4 sm:flex sm:items-end sm:justify-between sm:gap-6 sm:p-5" data-testid="own-total">
       <div>
         <p className="text-sm font-medium text-zus-green-dark">
-          Łącznie {applicant === "MOTHER" ? "dla Ciebie" : "dla Ciebie (tata)"}
+          Łącznie {applicant === "MOTHER" ? "dla Ciebie" : "dla Ciebie (tata)"}{fromPlan ? " - wg Waszego planu" : ""}
         </p>
         <p className="mt-1 text-3xl font-bold tracking-tight text-zus-ink sm:text-4xl">
           {formatMoney(total)}

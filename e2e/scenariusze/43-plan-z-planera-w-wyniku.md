@@ -1,6 +1,6 @@
 # Plan z planera trafia do wyniku „Twój plan”
 
-> FE1-62: „Użyj tego planu w kreatorze” przenosi plan rodziny (kwoty planera z API: mama + tata) do wyniku; ręczna zmiana planu w kroku „Plany” odłącza zastosowany plan.
+> FE1-62: „Użyj tego planu w kreatorze” przenosi plan rodziny (kwoty planera z API: mama + tata) do wyniku; ręczna zmiana planu w kroku „Plany” odłącza zastosowany plan. FE1-65: „Łącznie dla Ciebie” = część mamy z tego planu.
 
 1. Otwórz stronę główną.
 2. Sprawdź, że widać „Zaplanujcie urlopy po narodzinach dziecka”.
@@ -35,15 +35,16 @@
 31. Sprawdź, że widać „Wasz plan - łącznie dla rodziny”.
 32. Sprawdź, że widać „Ojciec przejmuje”.
 33. Sprawdź, że widać „Łącznie dla Ciebie”.
-34. Sprawdź, że strona nie przewija się w poziomie.
-35. Zrób zrzut ekranu „plan-rodziny-z-planera”.
-36. Kliknij „Wstecz”.
-37. Sprawdź, że nagłówek to „Optymalizacja”.
-38. Sprawdź, że widać „Plan przeniesiony do kroku”.
-39. Kliknij „Wstecz”.
+34. Sprawdź, że widać „Łącznie dla Ciebie - wg Waszego planu”.
+35. Sprawdź, że strona nie przewija się w poziomie.
+36. Zrób zrzut ekranu „plan-rodziny-z-planera”.
+37. Kliknij „Wstecz”.
+38. Sprawdź, że nagłówek to „Optymalizacja”.
+39. Sprawdź, że widać „Plan przeniesiony do kroku”.
 40. Kliknij „Wstecz”.
-41. Sprawdź, że nagłówek to „Plany”.
-42. Ustaw suwak „Ile tygodni rodzicielskiego weźmie tata?” na „9”.
-43. Kliknij „Pokaż wynik teraz”.
-44. Sprawdź, że nagłówek to „Twój plan”.
-45. Sprawdź, że nie widać „Plan rodziny z kroku”.
+41. Kliknij „Wstecz”.
+42. Sprawdź, że nagłówek to „Plany”.
+43. Ustaw suwak „Ile tygodni rodzicielskiego weźmie tata?” na „9”.
+44. Kliknij „Pokaż wynik teraz”.
+45. Sprawdź, że nagłówek to „Twój plan”.
+46. Sprawdź, że nie widać „Plan rodziny z kroku”.
