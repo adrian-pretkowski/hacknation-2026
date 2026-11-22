@@ -52,6 +52,13 @@ const parentalPool = (a: Answers) => kp183Case(a)
 const parentalMax = (a: Answers, other: string) =>
   Math.max(parentalPool(a) - Math.max(PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS, Number(other || 0)), 0);
 const clampWeeks = (v: string, max: number) => (v === "" ? v : String(Math.min(Number(v), max)));
+/** FE1-44: ile tygodni rodzicielskiego zostało tacie po porodzie (jak `remaining.fatherWeeks` w podglądzie). */
+const fatherLeftWeeks = (a: Answers) => {
+  const usedM = Number(a.usedParentalMotherWeeks || 0);
+  const usedF = Number(a.usedParentalFatherWeeks || 0);
+  const total = Math.max(parentalPool(a) - usedM - usedF, 0);
+  return Math.max(Math.min(parentalPool(a) - PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS - usedF, total), 0);
+};
 
 export type StepProps = { a: Answers; set: (patch: Partial<Answers>) => void };
 export type Step = {
@@ -205,6 +212,9 @@ export const STEPS: Step[] = [
         {/* FE1-41: świadczenia w ciąży (wymaganie a) - L4 w ciąży ocenia silnik reguł (PREGNANCY_INCAPACITY) */}
         {a.role === "MOTHER" && a.stage === "PREGNANT" && (
           <>
+            <DateField label="Twoja data urodzenia (jeśli chcesz dokładny wynik zwolnienia lekarskiego)"
+              hint={`Od roku następującego po roku, w którym kończysz ${PARAMS.SICK_PAY_AGE_THRESHOLD} lat, pracodawca płaci za ${PARAMS.SICK_PAY_DAYS_50PLUS} zamiast ${PARAMS.SICK_PAY_DAYS_STD} dni zwolnienia w roku.`}
+              value={a.birthDate} onChange={(birthDate) => set({ birthDate })} />
             <Choice legend="Czy jesteś teraz (albo byłaś) na zwolnieniu lekarskim w ciąży (L4)?" value={a.sickLeave} columns={3}
               onChange={(sickLeave) => set({ sickLeave })} options={TRI_OPTIONS} />
             {a.sickLeave === "YES" && (
@@ -425,7 +435,8 @@ export const STEPS: Step[] = [
   {
     id: "used",
     title: "Co już wykorzystano",
-    visible: (a) => a.stage === "BORN" && a.role === "MOTHER" && !a.sensitive,
+    // FE1-44: także dla taty - po porodzie planuje swoją część rodzicielskiego i ojcowski
+    visible: (a) => a.stage === "BORN" && (a.role === "MOTHER" || a.role === "FATHER") && !a.sensitive,
     complete: (a) => Object.keys(usedErrors(a)).length === 0,
     summary: (a) => join([a.usedMaternityFully === "NO" && a.usedMaternityWeeks !== "" && `macierzyński ${plWeeks(Number(a.usedMaternityWeeks))}`,
       `mama ${plWeeks(Number(a.usedParentalMotherWeeks || 0))}`, `tata ${plWeeks(Number(a.usedParentalFatherWeeks || 0))}`,
@@ -477,6 +488,14 @@ export const STEPS: Step[] = [
           { value: "FULL_100_70", label: "100%, potem 70%" },
           { value: "UNKNOWN", label: "Nie wiem", description: "pobierz dane z ZUS powyżej (symulacja)" },
         ]} />
+        {/* FE1-44: plan części taty po porodzie - rodzicielski (do końca roku 6. urodzin) i ojcowski (do 12. miesiąca) */}
+        <Slider label="Ile tygodni rodzicielskiego weźmie jeszcze tata?" unit="tyg." min={0} max={fatherLeftWeeks(a)}
+          value={a.fatherRemainingWeeks} emptyLabel="0 tyg." disabled={a.usedMaternityFully !== "YES"}
+          hint={`Tacie zostało do ${fatherLeftWeeks(a)} tyg. (w tym ${Math.max(PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS - Number(a.usedParentalFatherWeeks || 0), 0)} tyg. tylko dla niego). Zaplanujemy je po dalszej części mamy.`}
+          onChange={(v) => set({ fatherRemainingWeeks: clampWeeks(v, fatherLeftWeeks(a)) })} />
+        <Choice legend="Czy tata wykorzystał już urlop ojcowski?" value={a.fatherPaternityUsed} columns={3}
+          hint={`${PARAMS.PATERNITY_WEEKS} tygodnie, do ukończenia przez dziecko ${PARAMS.PATERNITY_CHILD_AGE_MONTHS} miesięcy.`}
+          onChange={(fatherPaternityUsed) => set({ fatherPaternityUsed })} options={TRI_OPTIONS} />
       </div>
     ),
   },

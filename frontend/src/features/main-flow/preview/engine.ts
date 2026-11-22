@@ -464,10 +464,66 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       warn("MUST_STAY_INSURED", "INFO", "PAR-ELIG-001",
         "Zasiłek za dalszą część rodzicielskiego przysługuje, jeśli nadal podlegasz ubezpieczeniu chorobowemu. Urlop wychowawczy nie daje zasiłku.");
       const planStart = maxDate(addDays(today, P.LEAVE_APP_PARENTAL_DAYS_BEFORE), addDays(ev, matDays));
-      if (motherCan > 0 && partsLeft > 0 && finalDate >= planStart) {
-        const days = Math.min(motherCan * W, periodDays(planStart, finalDate));
-        segments.push(mkSeg("MOTHER", "PARENTAL_LEAVE", planStart, days, rate, mOwn));
+      // FE1-44: tata planuje swoją część - mama bierze resztę puli, która nie przypada tacie
+      const fatherPlan = Math.min(Math.max(wp.father_remaining_weeks ?? 0, 0), fatherCan);
+      const motherPlan = Math.max(Math.min(motherCan, total - fatherPlan), 0);
+      let partsFree = partsLeft;
+      let fatherStart = planStart;
+      if (motherPlan > 0 && partsFree > 0 && finalDate >= planStart) {
+        const days = Math.min(motherPlan * W, periodDays(planStart, finalDate));
+        const m = mkSeg("MOTHER", "PARENTAL_LEAVE", planStart, days, rate, mOwn);
+        segments.push(m);
         deadlines.push({ code: "PARENTAL_APPLICATION", date: addDays(planStart, -P.LEAVE_APP_PARENTAL_DAYS_BEFORE), who: "MOTHER", rule_id: "APP-DL-002" });
+        fatherStart = addDays(m.to, 1);
+        partsFree -= 1;
+      }
+      if (fatherPlan > 0) {
+        if (partsFree <= 0) {
+          // błąd PARENTAL_PARTS_EXHAUSTED jest już w planie, gdy części skończyły się wcześniej
+          if (partsLeft > 0) warn("NO_PART_FOR_FATHER", "WARNING", "PAR-COND-001",
+            `Ostatnią wolną część rodzicielskiego (z ${P.PARENTAL_MAX_PARTS}) wykorzystuje mama - na część taty nie zostaje osobny wniosek. Zmieńcie podział tak, by zmieścić się w limicie części.`);
+        } else if (finalDate >= fatherStart) {
+          // 9 tyg. tylko dla taty: 70% (RATE-MAT-004); reszta jak wariant mamy - przy 81,5% tata też 81,5% (RATE-MAT-008,
+          // M11), po 1. roku życia bez rodzicielskiego 70% (RATE-MAT-005 - już w `rate`)
+          const ownLeft = Math.max(reserved - usedF, 0);
+          const ownWeeks = Math.min(fatherPlan, ownLeft);
+          const restWeeks = fatherPlan - ownWeeks;
+          let fCursor = fatherStart;
+          if (ownWeeks > 0) {
+            const seg = mkSeg("FATHER", "PARENTAL_LEAVE", fCursor, Math.min(ownWeeks * W, periodDays(fCursor, finalDate)), P.MAT_RATE_PARENTAL, fOwn,
+              { reserved_9w: true, rule_ids: ["PAR-SHARE-001", "RATE-MAT-004"] });
+            segments.push(seg);
+            fCursor = addDays(seg.to, 1);
+          }
+          if (restWeeks > 0 && finalDate >= fCursor) {
+            const combinedUsed = wp.used_variant === "COMBINED_815";
+            segments.push(mkSeg("FATHER", "PARENTAL_LEAVE", fCursor, Math.min(restWeeks * W, periodDays(fCursor, finalDate)), rate, fOwn,
+              { rule_ids: combinedUsed ? ["RATE-MAT-008"] : ["RATE-MAT-002"] }));
+          }
+          deadlines.push({ code: "FATHER_PARENTAL_APPLICATION", date: addDays(fatherStart, -P.LEAVE_APP_PARENTAL_DAYS_BEFORE), who: "FATHER", rule_id: "APP-DL-002" });
+        }
+      } else if (fatherCan > 0) {
+        warn("FATHER_PART_NOT_PLANNED", "INFO", "PAR-SHARE-001",
+          `Tacie zostało do ${fatherCan} tyg. rodzicielskiego (część tylko dla niego przepada, jeśli jej nie weźmie) - można je zaplanować w kroku „Co już wykorzystano”.`);
+      }
+      // FE1-44: ojcowski taty po porodzie - do ukończenia przez dziecko 12 miesięcy (PAT-DUR-001)
+      if (eventType === "BIRTH" && wp.father_paternity_used !== true) {
+        const limit = addDays(addMonths(ev, P.PATERNITY_CHILD_AGE_MONTHS), -1);
+        const pStart = maxDate(ev, addDays(today, P.LEAVE_APP_PATERNITY_DAYS_BEFORE));
+        // pełne tygodnie mieszczące się w oknie (PAT-DUR-001: do 2 tyg., części po co najmniej tydzień)
+        const fitWeeks = limit >= pStart ? Math.min(P.PATERNITY_WEEKS, Math.floor(periodDays(pStart, limit) / W)) : 0;
+        if (fitWeeks >= P.PATERNITY_MIN_PART_WEEKS) {
+          segments.push(mkSeg("FATHER", "PATERNITY_LEAVE", pStart, fitWeeks * W, P.MAT_RATE_FULL, fOwn));
+          if (fitWeeks < P.PATERNITY_WEEKS) warn("PATERNITY_WINDOW_SHORT", "WARNING", "PAT-DUR-001",
+            `Do ukończenia przez dziecko ${P.PATERNITY_CHILD_AGE_MONTHS} miesięcy zostało mało czasu - zmieści się tylko ${fitWeeks} tydz. urlopu ojcowskiego. Złóż wniosek jak najszybciej.`);
+          deadlines.push({ code: "PATERNITY_APPLICATION", date: addDays(pStart, -P.LEAVE_APP_PATERNITY_DAYS_BEFORE), who: "FATHER", rule_id: "APP-DL-002" });
+          deadlines.push({ code: "PATERNITY_LATEST_END", date: limit, who: "FATHER", rule_id: "PAT-DUR-001" });
+          if (wp.father_paternity_used === null) warn("PATERNITY_USAGE_UNKNOWN", "INFO", "PAT-DUR-001",
+            "Nie wiemy, czy tata wykorzystał już urlop ojcowski - pokazujemy go w planie; jeśli był wykorzystany, zaznacz to w kroku „Co już wykorzystano”.");
+        } else if (limit < today) {
+          warn("PATERNITY_WINDOW_PASSED", "INFO", "PAT-DUR-001",
+            `Urlop ojcowski można było wykorzystać do ukończenia przez dziecko ${P.PATERNITY_CHILD_AGE_MONTHS} miesięcy - ten termin minął.`);
+        }
       }
       deadlines.push({ code: "PARENTAL_LATEST_CONTINUOUS_APPLICATION", date: latestApplication, who: "MOTHER/FATHER", rule_id: "PAR-COND-001" });
       deadlines.push({ code: "PARENTAL_FINAL_DATE", date: finalDate, who: "MOTHER/FATHER", rule_id: "PAR-COND-001" });
@@ -611,10 +667,9 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
           { reserved_9w: true, rule_ids: ["PAR-SHARE-001", "RATE-MAT-004"] });
         segments.push(r);
         if (extraDays > 0) {
-          segments.push(mkSeg("FATHER", "PARENTAL_LEAVE", addDays(r.to, 1), extraDays, P.MAT_RATE_PARENTAL, fOwn,
-            { needs_review: combined, rule_ids: combined ? ["RATE-MAT-008"] : ["RATE-MAT-002"] }));
-          if (combined) warn("FATHER_RATE_UNDER_815", "WARNING", "RATE-MAT-008",
-            "Przy wariancie 81,5% stawka taty za tygodnie przekazane przez mamę nie wynika jednoznacznie z przepisów - przyjęto 70%, wymaga weryfikacji.");
+          // M11: przy wniosku 81,5% mamy tata za tygodnie ponad swoje 9 też 81,5% (RATE-MAT-008 ACTIVE)
+          segments.push(mkSeg("FATHER", "PARENTAL_LEAVE", addDays(r.to, 1), extraDays, ratePar, fOwn,
+            { rule_ids: combined ? ["RATE-MAT-008"] : ["RATE-MAT-002"] }));
         }
         deadlines.push({ code: "FATHER_PARENTAL_APPLICATION", date: addDays(fStart, -P.LEAVE_APP_PARENTAL_DAYS_BEFORE), who: "FATHER", rule_id: "APP-DL-002" });
       }
@@ -667,7 +722,8 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
     if (!isEmployee && applicant === "MOTHER") docs.push({ doc_type: "ZAM_APPLICATION", rule_id: "APP-DOC-003", submit_to: submitBenefit, provider: "Ty (eZUS)" });
     if (combined && applicant === "MOTHER" && combinedEligible) docs.push({ doc_type: "APPLICATION_COMBINED_815", rule_id: "APP-DL-001", submit_to: submitBenefit, provider: "Ty" });
     if (applicant === "FATHER") {
-      docs.push({ doc_type: "LEAVE_APPLICATION_PATERNITY", rule_id: "APP-DOC-006", submit_to: isEmployee ? "EMPLOYER" : "ZUS", provider: "Ty" });
+      // FE1-44: wniosek o ojcowski tylko, gdy ojcowski jest w planie (po porodzie mógł być już wykorzystany)
+      if (own.some((s) => s.leave_type === "PATERNITY_LEAVE")) docs.push({ doc_type: "LEAVE_APPLICATION_PATERNITY", rule_id: "APP-DOC-006", submit_to: isEmployee ? "EMPLOYER" : "ZUS", provider: "Ty" });
       if (own.some((s) => s.leave_type === "PARENTAL_LEAVE")) docs.push({ doc_type: "LEAVE_APPLICATION_PARENTAL", rule_id: "APP-DOC-006", submit_to: isEmployee ? "EMPLOYER" : "ZUS", provider: "Ty" });
     }
     if (payer === "ZUS" && isEmployee) docs.push({ doc_type: "PAYER_CERTIFICATE_Z3", rule_id: "APP-DOC-003", submit_to: "ZUS", provider: "Pracodawca (przekazuje do ZUS w 7 dni)" });
