@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MatchedFormPicker } from "@/features/documents/FormPicker";
 import { type FormCode, formsForDocTypes } from "@/features/documents/forms";
-import { API_MODE, type EvaluateRequest, type EvaluateResponse, evaluate } from "@/lib/api";
+import { type EvaluateRequest, type EvaluateResponse, evaluate } from "@/lib/api";
 import { formatDate, formatMoney, formatRate } from "@/lib/format";
 import { RuleList } from "../RuleList";
 import { useApiParams } from "../preview/apiParams";
@@ -74,7 +74,6 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
       <Documents response={rAll} payer={current.summary.payer} />
       {onOpenForm && <FormsToFill response={rAll} onOpen={onOpenForm} />}
       <CalcDetails p={current} />
-      {!sensitive && <EngineCrossCheck answers={answers} variant={variant} preview={current} />}
     </div>
   );
 }
@@ -274,40 +273,6 @@ function CalcDetails({ p }: { p: PreviewResult }) {
         {r.not_evaluated_rules.length > 0 && <li>Jeszcze nieoceniane:<RuleList ids={r.not_evaluated_rules} className="mt-1" /></li>}
       </ul>
     </details>
-  );
-}
-
-/** FE1-39: wynik silnika reguł (POST /api/evaluate) dla tych samych odpowiedzi. Plan obojga rodziców liczy się
- * w przeglądarce na parametrach z API; urlop macierzyński, status i braki danych sprawdza silnik. Przy rozbieżności
- * rozstrzyga silnik - karta jest wtedy wyróżniona i pokazuje jego uzasadnienie. */
-function EngineCrossCheck({ answers, variant, preview }: { answers: Answers; variant: Variant; preview: PreviewResult }) {
-  const [state, setState] = useState<{ key: string; r?: EvaluateResponse; error?: string } | null>(null);
-  const request = useMemo(() => toEvaluateRequest(answers, variant), [answers, variant]);
-  const key = JSON.stringify(request);
-  useEffect(() => {
-    let alive = true;
-    evaluate(request).then((r) => alive && setState({ key, r }), (e: Error) => alive && setState({ key, error: e.message }));
-    return () => { alive = false; };
-  }, [key, request]);
-  if (!state || state.key !== key) return <p className="text-xs text-zinc-500" role="status">Sprawdzam wynik w silniku reguł…</p>;
-  if (state.error) return <p className="text-xs text-zinc-500">Silnik reguł niedostępny ({state.error}) - wynik policzony w przeglądarce na kopii parametrów.</p>;
-  const engine = state.r!;
-  const mat = engine.benefits.find((b) => b.leave_type === "MATERNITY_LEAVE");
-  const mine = preview.response.benefits.find((b) => b.leave_type === "MATERNITY_LEAVE" && b.total_amount_exact);
-  const cents = (v: string) => v.slice(0, v.indexOf(".") < 0 ? v.length : v.indexOf(".") + 3);
-  const same = !mat || !mine || (mat.status === mine.status
-    && (!mat.total_amount_exact || !mine.total_amount_exact || cents(mat.total_amount_exact) === cents(mine.total_amount_exact)));
-  return (
-    <section aria-labelledby="engine-h" className={same ? "rounded-lg border border-dashed border-zinc-300 p-4 text-xs text-zinc-700"
-      : "rounded-lg border-2 border-zus-yellow bg-amber-50 p-4 text-sm text-zinc-800"}>
-      <p id="engine-h" className="font-medium">Sprawdzenie w silniku reguł ({engine.engine}{API_MODE === "mock" ? ", tryb demo" : ""})</p>
-      {mat ? (
-        <p className="mt-1">Urlop macierzyński: {STATUS_HEADLINE[mat.status] ?? mat.status}, {mat.days ?? "-"} dni, {formatMoney(mat.total_amount_exact)}
-          {mine ? (same ? " - zgodne z planem ✓" : ` - plan w przeglądarce: ${formatMoney(mine.total_amount_exact)}. Rozstrzyga wynik silnika.`) : ""}</p>
-      ) : <p className="mt-1">Wynik silnika dla tych danych: {STATUS_HEADLINE[engine.overall_status] ?? engine.overall_status}.</p>}
-      {!same && mat?.reasons.map((x) => <p key={x.code} className="mt-1">{x.message}</p>)}
-      <p className="mt-1 text-zinc-500">Plan obojga rodziców (rodzicielski, ojcowski, terminy) liczymy w przeglądarce na parametrach z panelu administratora.</p>
-    </section>
   );
 }
 
