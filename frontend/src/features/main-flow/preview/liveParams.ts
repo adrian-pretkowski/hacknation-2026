@@ -23,15 +23,20 @@ export function useParamsVersion(): number {
   return useSyncExternalStore(subscribe, snapshot, () => 0);
 }
 
-/** Wartość z API w typie wartości z kopii; `undefined` = niezgodny typ (zostaje kopia). */
+/** Wartość z API w typie wartości z kopii; `undefined` = niezgodny typ lub zakres (zostaje kopia).
+ *
+ * Zakres (panel admina jest otwarty - D36): liczby całkowite w podglądzie to dni, tygodnie, progi i liczniki - muszą
+ * być > 0 (np. MONTH_AS_DAYS = 0 dałoby dzielenie przez zero przy renderze wyniku); stawki i kwoty nie mogą być ujemne.
+ */
 function coerce(current: unknown, incoming: unknown): unknown {
   if (typeof current === "number") {
-    if (typeof incoming === "number" && Number.isInteger(incoming)) return incoming;
-    return typeof incoming === "string" && INTEGER.test(incoming.trim()) ? Number(incoming.trim()) : undefined;
+    const n = typeof incoming === "number" ? incoming
+      : typeof incoming === "string" && INTEGER.test(incoming.trim()) ? Number(incoming.trim()) : NaN;
+    return Number.isInteger(n) && n > 0 ? n : undefined;
   }
   if (typeof current === "string") {
-    const text = typeof incoming === "number" ? String(incoming) : incoming;
-    return typeof text === "string" && DECIMAL.test(text.trim()) ? text.trim() : undefined;
+    const text = (typeof incoming === "number" ? String(incoming) : incoming);
+    return typeof text === "string" && DECIMAL.test(text.trim()) && !text.trim().startsWith("-") ? text.trim() : undefined;
   }
   if (current && typeof current === "object" && !Array.isArray(current)) {
     if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) return undefined;
@@ -68,11 +73,16 @@ export function applyParameters(list: Parameter[]): boolean {
   return changed;
 }
 
-/** Pobiera parametry z API i podmienia je w podglądzie; błąd lub tryb mock = bez zmian. */
+let lastRequest = 0;
+
+/** Pobiera parametry z API i podmienia je w podglądzie; błąd lub tryb mock = bez zmian.
+ *  Przy kilku równoległych pobraniach (powrót do karty = visibilitychange + focus) stosuje tylko najnowsze. */
 export async function refreshLiveParams(): Promise<boolean> {
   if (API_MODE === "mock") return false;
+  const request = ++lastRequest;
   try {
-    return applyParameters((await listParameters()).parameters);
+    const list = await listParameters();
+    return request === lastRequest ? applyParameters(list.parameters) : false;
   } catch {
     return false;
   }

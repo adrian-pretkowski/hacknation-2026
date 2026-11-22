@@ -1,6 +1,6 @@
 # Kreator liczy na parametrach z panelu admina (FE1-37)
 
-> Stawka za cały okres zmieniona „w panelu” z 81,5% na 90% (podmiana odpowiedzi API tylko w tej przeglądarce, bez zapisu w backendzie). Kreator pobiera parametry ponownie po powrocie do karty - wynik przelicza się bez utraty odpowiedzi.
+> Stawka za cały okres zmieniona „w panelu” z 81,5% na 90% (podmiana odpowiedzi API tylko w tej przeglądarce, bez zapisu w backendzie). Kreator pobiera parametry ponownie po powrocie do karty - wynik przelicza się bez utraty odpowiedzi. Wartość spoza zakresu (0 dni w miesiącu) jest ignorowana - wynik nadal się wyświetla.
 
 1. Otwórz stronę główną.
 2. Kliknij „Zaczynamy”.
@@ -29,3 +29,7 @@
 25. Sprawdź, że widać „90%”.
 26. Sprawdź, że nagłówek to „Twój plan”.
 27. Sprawdź, że strona nie przewija się w poziomie.
+28. W API ustaw parametr „MONTH_AS_DAYS” na „0”.
+29. Przełącz się na inną kartę i wróć.
+30. Sprawdź, że nagłówek to „Twój plan”.
+31. Sprawdź, że widać „Łącznie dla Ciebie”.

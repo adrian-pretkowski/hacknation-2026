@@ -4,6 +4,7 @@
 // Prefill: konto testowe (SYMULACJA) + odpowiedzi kreatora; puste pola wymagane są oznaczone „Uzupełnij”.
 // „Prześlij” = walidacja → wypełniony PDF (pobierany jako dowód) → potwierdzenie wysyłki (SYMULACJA, nic nie trafia do ZUS).
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useParamsVersion } from "@/features/main-flow/preview/liveParams";
 import type { Answers } from "@/features/main-flow/wizard/answers";
 import { inputCls } from "@/features/main-flow/wizard/fields";
 import { useSimSession } from "@/features/simulations/session";
@@ -84,6 +85,8 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
   const get: Get = (id) => { const m = byShort.get(id); return m ? values[m.name] : undefined; };
   const set = (name: string, v: string | boolean) => setEdits((e) => ({ ...e, [name]: v }));
 
+  // FE1-37: spread `...f` czyta gettery (próg ubezpieczonych, stawka) - paramsVersion przelicza je po zmianie w panelu
+  const paramsVersion = useParamsVersion();
   const sections = useMemo(() => FORM_SPECS[code].map((s) => ({
     ...s,
     resolved: s.fields.flatMap((f): Resolved[] => {
@@ -91,7 +94,8 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
       if (!m) return [];
       return [{ ...f, meta: m, noMeta: f.no ? byShort.get(f.no) : undefined }];
     }),
-  })), [code, byShort]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsVersion: gettery w FORM_SPECS czytają PARAMS
+  })), [code, byShort, paramsVersion]);
 
   const pairs = useMemo(() => Object.fromEntries(sections.flatMap((s) => s.resolved.filter((f) => f.noMeta).map((f) => [f.meta.name, f.noMeta!.name]))), [sections]);
   const covered = useMemo(() => new Set(sections.flatMap((s) => s.resolved.flatMap((f) => [f.meta.name, ...(f.noMeta ? [f.noMeta.name] : [])]))), [sections]);
