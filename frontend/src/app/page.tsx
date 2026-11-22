@@ -16,7 +16,6 @@ export default function Home() {
         <div className="mx-auto flex w-full max-w-[78rem] flex-wrap items-center gap-3 px-4 py-4">
           <BrandLogo />
           <p className="min-w-0 flex-1 basis-[calc(100%-3rem)] text-lg font-semibold tracking-tight text-zus-navy sm:basis-0 sm:text-xl">Przewodnik Przyszłego Rodzica</p>
-          <Link href="/sprawy" className="text-sm font-medium text-zus-navy underline underline-offset-2">Przykładowe wnioski</Link>
           <Link href="/wsparcie" className="text-sm font-medium text-zus-navy underline underline-offset-2">Przewodnik</Link>
           <Link href="/admin" className="rounded-md border border-zus-navy px-3 py-1.5 text-sm font-medium text-zus-navy hover:bg-zinc-50">Panel admina</Link>
           <UserChip />
