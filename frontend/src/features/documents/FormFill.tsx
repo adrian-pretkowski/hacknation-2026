@@ -10,7 +10,7 @@ import { inputCls } from "@/features/main-flow/wizard/fields";
 import { useSimSession } from "@/features/simulations/session";
 import { SimBanner } from "@/features/simulations/ui";
 import { FORMS, type FormCode } from "./forms";
-import { FORM_SPECS, type Get, type SpecField, type SpecSection } from "./formSpecs";
+import { FORM_SPECS, REST_PAGES, type Get, type SpecField, type SpecSection } from "./formSpecs";
 import { downloadPdf, fillPdf, inputKind, loadFieldMeta, type PdfFieldMeta, type Values } from "./pdfForm";
 import { buildPrefill, type Source, todayIso } from "./prefill";
 
@@ -343,6 +343,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
   const restPages = [...new Set(rest.map((m) => m.page))].sort((x, y) => x - y);
   const renderRest = (page: number) => {
     const items = rest.filter((m) => m.page === page);
+    const info = REST_PAGES[code]?.[page];
     const plain = items.filter((m) => !TABLE_RE.test(m.name));
     const tables = new Map<string, PdfFieldMeta[]>();
     for (const m of items.filter((x) => TABLE_RE.test(x.name))) {
@@ -352,7 +353,11 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
     return (
       <div className="space-y-5">
         {plain.length > 0 && <div className="grid gap-4 sm:grid-cols-2">{plain.map((m) => renderField({ id: shortId(m.name), meta: m }))}</div>}
-        {[...tables.entries()].map(([t, cells]) => renderTable(cells, `Tabela ${t} (strona ${page}) - kolumny jak na formularzu`, `Tabela ${t}`))}
+        {info?.text && <p className="text-sm text-zinc-600">{info.text}</p>}
+        {[...tables.entries()].map(([t, cells]) => {
+          const tab = info?.tables?.[Number(t)];
+          return tab ? renderTable(cells, tab.title, tab.title, tab.columns) : renderTable(cells, `Tabela ${t} (strona ${page}) - kolumny jak na formularzu`, `Tabela ${t}`);
+        })}
       </div>
     );
   };
@@ -425,11 +430,15 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
       {rest.length > 0 && (
         <section aria-labelledby={`${idp}-rest`} className="rounded-2xl border border-zinc-200 bg-zus-gray-50 p-5 sm:p-6">
           <h3 id={`${idp}-rest`} className="text-base font-semibold text-zus-navy">Pozostałe pola formularza ({rest.length})</h3>
-          <p className="mt-1 text-sm text-zinc-600">Rzadziej potrzebne pola z wzoru {code}, według stron formularza. Wypełnij te, które Cię dotyczą.</p>
+          <p className="mt-1 text-sm text-zinc-600">Rzadziej potrzebne pola z wzoru {code}, pogrupowane tematycznie. Wypełnij te, które Cię dotyczą.</p>
           <div className="mt-3 space-y-2">
             {restPages.map((p) => (
               <details key={p} open={!!openRest[p]} className="rounded-xl border border-zinc-200 bg-white" onToggle={(e) => { const isOpen = (e.currentTarget as HTMLDetailsElement).open; setOpenRest((o) => ({ ...o, [p]: isOpen })); }}>
-                <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-zus-navy">Strona {p} ({rest.filter((m) => m.page === p).length} {plural(rest.filter((m) => m.page === p).length, "pole", "pola", "pól")})</summary>
+                <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-zus-navy">{(() => {
+                  const n = rest.filter((m) => m.page === p).length;
+                  const title = REST_PAGES[code]?.[p]?.title;
+                  return <>{title ?? `Strona ${p}`} <span className="font-normal text-zinc-600">({title ? `strona ${p} formularza, ` : ""}{n} {plural(n, "pole", "pola", "pól")})</span></>;
+                })()}</summary>
                 {openRest[p] && <div className="border-t border-zinc-100 p-4">{renderRest(p)}</div>}
               </details>
             ))}
