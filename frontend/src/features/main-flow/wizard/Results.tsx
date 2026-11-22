@@ -5,7 +5,7 @@ import { MatchedFormPicker } from "@/features/documents/FormPicker";
 import { type FormCode, formsForDocTypes } from "@/features/documents/forms";
 import { API_MODE, type EvaluateResponse, evaluate } from "@/lib/api";
 import { formatDate, formatMoney, formatRate } from "@/lib/format";
-import { RuleList, RuleText } from "../RuleList";
+import { RuleList } from "../RuleList";
 import { useApiParams } from "../preview/apiParams";
 import { type PreviewResult, compareTotals, previewEvaluate } from "../preview/engine";
 import { PARAMS } from "../preview/params";
@@ -18,6 +18,7 @@ import { toEvaluateRequest, toSickLeaveRequest } from "./request";
 import { TimelineView } from "./TimelineView";
 import { Deadlines } from "./DeadlinesCards";
 import { VariantComparison } from "./VariantComparison";
+import { RiskRadar } from "./RiskRadar";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 /** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania - test tekstu kwoty). */
@@ -171,29 +172,6 @@ function Remaining({ p }: { p: PreviewResult }) {
           </div>
         ))}
       </dl>
-    </section>
-  );
-}
-
-const SEVERITY = {
-  CRITICAL: { label: "Czerwona flaga", cls: "border-l-zus-red", dot: "bg-zus-red" },
-  WARNING: { label: "Uwaga", cls: "border-l-zus-yellow", dot: "bg-zus-yellow" },
-  INFO: { label: "Dobrze wiedzieć", cls: "border-l-zus-green", dot: "bg-zus-green" },
-} as const;
-
-function RiskRadar({ response }: { response: EvaluateResponse }) {
-  const list = [...(response.warnings ?? [])].sort((a, b) => ["CRITICAL", "WARNING", "INFO"].indexOf(a.severity) - ["CRITICAL", "WARNING", "INFO"].indexOf(b.severity));
-  if (list.length === 0) return null;
-  return (
-    <section className={card} aria-labelledby="risk-h">
-      <h3 id="risk-h" className="text-lg font-semibold">Radar ryzyk</h3>
-      <ul className="mt-3 space-y-2">
-        {list.map((w, i) => (
-          <li key={i} className={`flex gap-3 border-l-4 bg-zus-gray-50 px-3 py-2 text-sm ${SEVERITY[w.severity].cls}`}>
-            <span><span className="font-medium">{SEVERITY[w.severity].label}: </span>{w.message} <RuleText entry={w.rule_id} className="mt-0.5 block text-xs" /></span>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
