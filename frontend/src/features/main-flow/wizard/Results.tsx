@@ -82,7 +82,9 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
 function StatusHeader({ result, onEdit, canEdit, sick }: {
   result: PreviewResult; onEdit: (s: string) => void; canEdit: (s: string) => boolean; sick: EvaluateResponse | null;
 }) {
-  const sickPaid = (sick?.benefits ?? []).filter((b) => b.total_amount_exact);
+  // kwoty za L4 tylko przy pełnym wyniku silnika (przy NEEDS_DATA kwoty bywają niespójne, np. 0 dni z kwotą)
+  const sickPaid = sick?.overall_status === "ELIGIBLE" ? sick.benefits.filter((b) => b.total_amount_exact) : [];
+  const sickMissing = sick?.overall_status === "NEEDS_DATA" ? sick.missing_data : [];
   const r = result.response;
   const tone = r.overall_status === "ELIGIBLE" ? "border-l-zus-green"
     : r.overall_status === "NOT_ELIGIBLE" ? "border-l-zus-red" : "border-l-zus-yellow";
@@ -100,13 +102,28 @@ function StatusHeader({ result, onEdit, canEdit, sick }: {
       {/* FE1-50: L4 w ciąży jako osobna pozycja (prośba lidera) - kwoty z silnika, bez sumowania w przeglądarce */}
       {sickPaid.length > 0 && (
         <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm sm:p-4" data-testid="sick-total">
-          <p className="font-medium text-zus-ink">Osobno: zwolnienie lekarskie w ciąży (L4){sick?.overall_status !== "ELIGIBLE" ? " - wstępnie" : ""}</p>
+          <p className="font-medium text-zus-ink">Osobno: zwolnienie lekarskie w ciąży (L4)</p>
           <ul className="mt-1 space-y-0.5">
             {sickPaid.map((b) => (
               <li key={b.benefit_type}>{BENEFIT_TYPE_LABEL[b.benefit_type] ?? b.benefit_type}: <strong>{formatMoney(b.total_amount_exact)}</strong> brutto za {b.days ?? 0} dni</li>
             ))}
           </ul>
-          <p className="mt-1 text-xs text-zinc-700">Szczegóły i wyliczenie - w karcie „Zasiłek chorobowy w ciąży” poniżej.</p>
+          <p className="mt-1 text-xs text-zinc-700">Szczegóły i wyliczenie - w karcie zasiłku chorobowego poniżej.</p>
+        </div>
+      )}
+      {sickPaid.length === 0 && sickMissing.length > 0 && (
+        <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm sm:p-4" data-testid="sick-total">
+          <p className="font-medium text-zus-ink">Osobno: zwolnienie lekarskie w ciąży (L4) - kwoty policzymy po uzupełnieniu:</p>
+          <ul className="mt-1 space-y-0.5">
+            {sickMissing.map((m) => (
+              <li key={m.field} className="flex flex-wrap items-center gap-2">
+                <span>{FIELD_QUESTION[m.field] ?? m.field}</span>
+                {FIELD_STEP[m.field] && canEdit(FIELD_STEP[m.field]) && (
+                  <button type="button" onClick={() => onEdit(FIELD_STEP[m.field])} className="text-zus-navy underline underline-offset-2">uzupełnij</button>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       {reasons.length > 0 && (
@@ -322,8 +339,9 @@ function useSickLeave(answers: Answers): SickLeave {
 
 /** FE1-50: pasek „L4 w ciąży” na osi czasu mamy - daty z odpowiedzi „jestem na zwolnieniu”, kwoty i dni z silnika (bez sumowania). */
 function sickLeaveSegment(answers: Answers, sick: SickLeave): TimelineSeg | null {
-  const paid = (sick.r?.benefits ?? []).filter((b) => b.total_amount_exact);
-  if (sick.hypothetical || !sick.r || paid.length === 0) return null;
+  if (sick.hypothetical || sick.r?.overall_status !== "ELIGIBLE") return null; // kwoty tylko z pełnego wyniku silnika
+  const paid = sick.r.benefits.filter((b) => b.total_amount_exact);
+  if (paid.length === 0) return null;
   // okres z silnika (najwcześniejszy początek i najpóźniejszy koniec świadczeń), a gdy go brak - z odpowiedzi o L4
   const from = paid.map((b) => b.period?.from).filter((d): d is string => !!d).sort()[0] ?? answers.sickLeaveFrom;
   const to = paid.map((b) => b.period?.to).filter((d): d is string => !!d).sort().at(-1) ?? answers.sickLeaveTo;
@@ -362,7 +380,17 @@ function SickLeaveCard({ answers, sick }: { answers: Answers; sick: SickLeave })
   const noSicknessInsurance = sicknessMode(answers) === "NONE" && r?.overall_status !== "ELIGIBLE";
   return (
     <section className={`${card} ${refused ? "border-l-8 border-l-zus-red" : ""}`} aria-labelledby="sick-h" aria-live="polite">
-      <h3 id="sick-h" className="text-lg font-semibold">Zasiłek chorobowy w ciąży{r ? `: ${STATUS_HEADLINE[r.overall_status] ?? r.overall_status}` : ""}</h3>
+      {/* FE1-50: karta domyślnie zwinięta (prośba lidera) - nagłówek ze statusem widoczny, szczegóły po kliknięciu */}
+      <details className="group">
+      <summary className="flex cursor-pointer list-none items-start justify-between gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-navy [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0">
+          <h3 id="sick-h" className="text-lg font-semibold">Zasiłek chorobowy w ciąży{r ? `: ${STATUS_HEADLINE[r.overall_status] ?? r.overall_status}` : ""}</h3>
+          <span className="mt-0.5 block text-sm font-medium text-zus-navy underline underline-offset-2">
+            <span className="group-open:hidden">Pokaż szczegóły zasiłku chorobowego</span><span className="hidden group-open:inline">Ukryj szczegóły zasiłku chorobowego</span>
+          </span>
+        </span>
+        <span aria-hidden="true" className="mt-1 shrink-0 text-zus-navy transition-transform group-open:rotate-90">▸</span>
+      </summary>
       <p className="mt-1 text-sm text-zinc-700">{hypothetical
         ? `Gdyby zwolnienie lekarskie (L4) zaczęło się dziś i trwało ${PARAMS.MONTH_AS_DAYS} dni - wynik silnika reguł dla Twoich danych:`
         : `Twoje zwolnienie od ${formatDate(answers.sickLeaveFrom)}${answers.sickLeaveTo ? ` do ${formatDate(answers.sickLeaveTo)}` : ""} - wynik silnika reguł:`}</p>
@@ -411,6 +439,7 @@ function SickLeaveCard({ answers, sick }: { answers: Answers; sick: SickLeave })
           {r?.assumptions.map((x) => <li key={x.code} className="text-xs text-zinc-600">{x.text}</li>)}
           {r && r.not_evaluated_rules.length > 0 && <li className="text-xs text-zinc-600">Jeszcze nieoceniane:<RuleList ids={r.not_evaluated_rules} /></li>}
         </ul>
+      </details>
       </details>
     </section>
   );
