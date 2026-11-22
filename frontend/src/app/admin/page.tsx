@@ -17,7 +17,7 @@ export default function AdminPage() {
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-4">
           <BrandLogo />
-          <p className="min-w-0 flex-1 basis-[calc(100%-3rem)] text-lg font-semibold tracking-tight text-zus-navy sm:basis-0 sm:text-xl">Przewodnik Przyszłego Rodzica</p>
+          <p className="min-w-0 flex-1 text-lg font-semibold tracking-tight text-zus-navy sm:text-xl">Przewodnik Przyszłego Rodzica</p>
           <Link href="/" className="text-sm font-medium text-zus-navy underline underline-offset-2">Strona główna</Link>
         </div>
       </header>
