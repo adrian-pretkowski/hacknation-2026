@@ -92,7 +92,8 @@ export const FIELD_QUESTION: Record<string, string> = {
   "employment.extended_until_birth_kp177": "Czy umowa kończy się po upływie 3. miesiąca ciąży?",
   "mother.sickness_insured": "Czy partnerka ma ubezpieczenie chorobowe?",
   "birth.completed_gestation_weeks": "Podaj tydzień ciąży lub masę urodzeniową dziecka.",
-  "birth.weight_at_most_threshold": `Czy masa urodzeniowa dziecka wynosiła najwyżej ${PARAMS.SUPP_WEIGHT_THRESHOLD_G.toLocaleString("pl-PL")} g?`,
+  // FE1-37: getter - próg z panelu admina czytany przy wyświetleniu
+  get "birth.weight_at_most_threshold"() { return `Czy masa urodzeniowa dziecka wynosiła najwyżej ${PARAMS.SUPP_WEIGHT_THRESHOLD_G.toLocaleString("pl-PL")} g?`; },
   "children.hospital_stays": "Ile tygodni dziecko było w szpitalu?",
   "payer.insured_count_on_nov30_prev_year": "Ile osób zgłasza do ubezpieczenia Twój pracodawca? (ustala, kto wypłaca)",
   "children.items[].birth_date": "Podaj wiek dziecka.",

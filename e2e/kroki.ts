@@ -139,6 +139,25 @@ export const KROKI: Krok[] = [
   { opis: "Cofnij w przeglądarce", wzorce: [re("(cofnij|wróć) (w przeglądarce|przyciskiem przeglądarki)"), re("naciśnij wstecz w przeglądarce")],
     wykonaj: async ({ page }) => { await page.goBack(); } },
   { opis: "Odśwież stronę", wzorce: [re("odśwież stronę")], wykonaj: async ({ page }) => { await page.reload(); } },
+  // FE1-37: zmiana parametru „jak z panelu admina”, ale tylko w tej przeglądarce (podmiana odpowiedzi
+  // GET /api/admin/parameters) - bez zapisu w backendzie, więc nie wpływa na scenariusze uruchomione równolegle.
+  // Użyj przed „Otwórz stronę główną” (kreator pobiera parametry przy starcie).
+  { opis: "W API ustaw parametr „MAT_RATE_COMBINED” na „0.9”", wzorce: [re("w api ustaw parametr «Q» na «Q»")],
+    wykonaj: async ({ page }, nazwa, wartosc) => {
+      await page.route("**/api/admin/parameters", async (route) => {
+        const response = await route.fetch();
+        const body = await response.json();
+        const param = body.parameters.find((p: { name: string }) => p.name === nazwa);
+        if (!param) throw new Error(`Nie ma parametru „${nazwa}” w GET /api/admin/parameters`);
+        param.value = wartosc;
+        await route.fulfill({ response, json: body });
+      });
+    } },
+  { opis: "Przełącz się na inną kartę i wróć", wzorce: [re("przełącz się na inną kartę i wróć"), re("wróć do karty")],
+    wykonaj: async ({ page }) => {
+      // FE1-37: powrót do karty (visibilitychange + focus) - kreator ponownie pobiera parametry
+      await page.evaluate(() => { document.dispatchEvent(new Event("visibilitychange")); window.dispatchEvent(new Event("focus")); });
+    } },
 
   // logowanie (SYMULACJA)
   { opis: "Zaloguj się przez mObywatel jako „Anna Przykładowa”", wzorce: [re("zaloguj się( przez mobywatel| kodem qr)? jako «Q»")], wykonaj: zalogujJako },
