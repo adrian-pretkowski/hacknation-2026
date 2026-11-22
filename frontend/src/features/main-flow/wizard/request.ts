@@ -19,6 +19,8 @@ export type WizardPlan = {
   used_parental_father_weeks: number;
   used_parts: number;
   used_variant: Variant | null;
+  father_remaining_weeks: number | null; // FE1-44: plan dalszej części rodzicielskiego taty po porodzie
+  father_paternity_used: boolean | null; // FE1-44: ojcowski już wykorzystany
   started_during_pregnancy: boolean | null;
   raised_base_during_pregnancy: boolean | null;
   voluntary_sickness: boolean | null;
@@ -42,6 +44,17 @@ export function noInsuranceReason(a: Answers): NoInsuranceReason | null {
 
 export type WizardRequest = EvaluateRequest & { wizard_plan: WizardPlan };
 
+/** Tryb ubezpieczenia chorobowego z odpowiedzi - jedno źródło dla żądania i komunikatów (FE1-43). */
+export function sicknessMode(a: Answers): "MANDATORY" | "VOLUNTARY" | "NONE" | null {
+  if (a.title === "EMPLOYMENT") return "MANDATORY";
+  if (a.title === "NONE") return "NONE";
+  if (noInsuranceReason(a)) return "NONE";
+  if (a.title === "MANDATE" || a.title === "SELF_EMPLOYED") {
+    return a.voluntarySickness === "YES" ? "VOLUNTARY" : a.voluntarySickness === "NO" ? "NONE" : null;
+  }
+  return null;
+}
+
 const tri = (v: Tri): boolean | null => (v === "YES" ? true : v === "NO" ? false : null);
 const num = (v: string): number | null => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
 const money = parseMoney; // FE1-15: wspólna normalizacja kwot (money.ts); kwota ≥ 0 (np. zaległość 0)
@@ -61,8 +74,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
   const titleType = a.title === "EMPLOYMENT" ? "EMPLOYMENT_CONTRACT" : a.title === "MANDATE" ? "CIVIL_CONTRACT_MANDATE"
     : a.title === "SELF_EMPLOYED" ? "SELF_EMPLOYED" : null;
   const excluded = noInsuranceReason(a);
-  const mode = a.title === "EMPLOYMENT" ? "MANDATORY" : excluded ? "NONE"
-    : a.voluntarySickness === "YES" ? "VOLUNTARY" : a.voluntarySickness === "NO" ? "NONE" : null;
+  const mode = a.title === "NONE" ? null : sicknessMode(a);
 
   let titleTo: string | null = null;
   let terminationReason: string | null = null;
@@ -148,6 +160,8 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       used_parental_father_weeks: num(a.usedParentalFatherWeeks) ?? 0,
       used_parts: num(a.usedParts) ?? 0,
       used_variant: a.usedVariant === "UNKNOWN" ? null : a.usedVariant,
+      father_remaining_weeks: a.stage === "BORN" ? num(a.fatherRemainingWeeks) : null,
+      father_paternity_used: a.stage === "BORN" ? tri(a.fatherPaternityUsed) : null,
       started_during_pregnancy: tri(a.startedDuringPregnancy),
       raised_base_during_pregnancy: tri(a.raisedBaseDuringPregnancy),
       voluntary_sickness: tri(a.voluntarySickness),
@@ -162,24 +176,30 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
   };
 }
 
-/** FE1-41: zwolnienie lekarskie w ciąży → osobne żądanie do silnika (event PREGNANCY_INCAPACITY, wymaganie a).
- * Ubezpieczenie, płatnik i podstawa jak w planie urlopów; brak daty końca → silnik liczy do daty oceny / pyta. */
-export function toSickLeaveRequest(a: Answers): EvaluateRequest | null {
-  if (a.role !== "MOTHER" || a.stage !== "PREGNANT" || a.sickLeave !== "YES" || !a.sickLeaveFrom) return null;
+/** FE1-41, FE1-43: zwolnienie lekarskie w ciąży → osobne żądanie do silnika (event PREGNANCY_INCAPACITY, wymaganie a).
+ * Ubezpieczenie, płatnik i podstawa jak w planie urlopów; brak daty końca → silnik liczy do daty oceny / pyta.
+ * Bez podanego L4 (`hypothetical`): zwolnienie od dziś - silnik ocenia prawo (okres wyczekiwania, tytuł), kwoty bez okresu. */
+export function toSickLeaveRequest(a: Answers): { request: EvaluateRequest; hypothetical: boolean } | null {
+  if (a.role !== "MOTHER" || a.stage !== "PREGNANT" || a.sensitive) return null;
+  const hypothetical = !(a.sickLeave === "YES" && a.sickLeaveFrom);
   const base = toEvaluateRequest(a, "FULL_100_70");
-  return {
-    evaluation: { as_of_date: todayIso(), mode: "DECISION_SUPPORT" },
-    person: base.person,
+  const request = {
+    evaluation: { as_of_date: todayIso(), mode: hypothetical ? "FORECAST" : "DECISION_SUPPORT" },
+    person: { ...base.person, birth_date: a.birthDate || null },
     insurance: base.insurance,
     employment: base.employment,
     payer: base.payer,
     pregnancy: { expected_due_date: a.eventDate || null, is_pregnant_during_incapacity: true },
     event: { type: "PREGNANCY_INCAPACITY" },
-    incapacity: { start_date: a.sickLeaveFrom, end_date: a.sickLeaveTo || null, cause: "ILLNESS", certificate_present: true },
+    // hipotetycznie: zwolnienie w ciąży (kod B) od dziś przez miesiąc (MONTH_AS_DAYS), bez wcześniejszych zwolnień
+    incapacity: hypothetical
+      ? { start_date: todayIso(), end_date: addDays(todayIso(), PARAMS.MONTH_AS_DAYS - 1), codes: ["B"], cause: "ILLNESS", certificate_present: true }
+      : { start_date: a.sickLeaveFrom, end_date: a.sickLeaveTo || null, codes: ["B"], cause: "ILLNESS", certificate_present: true },
     // „Nie” = brak wcześniejszych zwolnień: pusta historia i 0 dni wynagrodzenia chorobowego; inaczej silnik dopyta
-    benefit_history: a.sickLeaveEarlier === "NO"
+    benefit_history: hypothetical || a.sickLeaveEarlier === "NO"
       ? { sickness_periods: [], sickness_periods_confirmed_complete: true, employer_sick_pay_days_in_year: 0 } : undefined,
     income_history: base.income_history,
     debt: base.debt,
   } as EvaluateRequest;
+  return { request, hypothetical };
 }
