@@ -39,15 +39,15 @@ function useModel({ pA, pB, recommended }: Props) {
       p: pA, ph: phases(pA), needsApp: true,
       pros: ["Ta sama kwota co miesiąc - łatwiej planować budżet"],
       cons: [`Wniosek do ${formatDate(dl)} (${PARAMS.APP_COMBINED_DEADLINE_DAYS} dni od porodu)`] },
-    { v: "FULL_100_70" as Variant, letter: "B", name: "Więcej na start", rateLabel: "100% → 70%",
+    { v: "FULL_100_70" as Variant, letter: "B", name: "Więcej na start", rateLabel: `${formatRate(PARAMS.MAT_RATE_FULL)} → ${formatRate(PARAMS.MAT_RATE_PARENTAL)}`,
       p: pB, ph: phases(pB), needsApp: false,
-      pros: ["Pełne 100% przez macierzyński", "Bez dodatkowego wniosku"],
+      pros: [`Pełne ${formatRate(PARAMS.MAT_RATE_FULL)} przez macierzyński`, "Bez dodatkowego wniosku"],
       cons: ["Niższa kwota w rodzicielskim"] },
   ];
-  return { c, small, dl, opts, recommendedLetter: recommended === "COMBINED_815" ? "A" : "B" };
+  return { c, small, opts, recommendedLetter: recommended === "COMBINED_815" ? "A" : "B" };
 }
 
-const RISK = "Jeśli w 1. roku życia dziecka nie wykorzystasz ani dnia rodzicielskiego, za rodzicielski dostaniesz 70%, a macierzyński wyrówna się do 100% dopiero na wniosek.";
+const risk = () => `Jeśli w 1. roku życia dziecka nie wykorzystasz ani dnia rodzicielskiego, za rodzicielski dostaniesz ${formatRate(PARAMS.MAT_RATE_PARENTAL)}, a macierzyński wyrówna się do ${formatRate(PARAMS.MAT_RATE_FULL)} dopiero na wniosek.`;
 
 function Verdict({ small, better, diff }: { small: boolean; better: string; diff: string }) {
   return small ? (
@@ -69,8 +69,9 @@ function Radio({ on }: { on: boolean }) {
   );
 }
 
-/** Kolor okresu wg stawki: 100% najciemniejszy (kontrast tekstu AA na każdym tle). */
-const tone = (level: number) => (level >= 0.999 ? "bg-zus-green-dark text-white" : level >= 0.8 ? "bg-[#7cc79c] text-zus-ink" : "bg-zus-green-100 text-zus-ink");
+/** Kolor okresu wg stawki z parametrów (tylko odcień paska): pełna najciemniejsza; kontrast tekstu AA na każdym tle. */
+const tone = (level: number) => (level >= Number(PARAMS.MAT_RATE_FULL) ? "bg-zus-green-dark text-white"
+  : level >= Number(PARAMS.MAT_RATE_COMBINED) ? "bg-[#7cc79c] text-zus-ink" : "bg-zus-green-100 text-zus-ink");
 
 export function VariantComparison(props: Props) {
   const { c, small, opts, recommendedLetter } = useModel(props);
@@ -119,7 +120,7 @@ export function VariantComparison(props: Props) {
               </span>
               <span className="mt-4 grid gap-1 border-t border-zinc-100 pt-3 text-sm">
                 {o.pros.map((t) => <span key={t} className="flex gap-2"><span aria-hidden="true" className="text-zus-green-dark">✓</span>{t}</span>)}
-                {o.cons.map((t) => <span key={t} className="flex gap-2"><span aria-hidden="true" className="font-bold text-zus-yellow">!</span>{t}</span>)}
+                {o.cons.map((t) => <span key={t} className="flex gap-2"><span aria-hidden="true" className="font-bold text-amber-700">!</span>{t}</span>)}
               </span>
             </button>
           );
@@ -127,7 +128,7 @@ export function VariantComparison(props: Props) {
       </div>
       <details className="mt-3 text-xs text-zinc-700">
         <summary className="cursor-pointer font-medium">Ryzyko wariantu A</summary>
-        <p className="mt-1">{RISK}</p>
+        <p className="mt-1">{risk()}</p>
       </details>
     </section>
   );
