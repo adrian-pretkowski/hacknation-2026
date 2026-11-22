@@ -10,15 +10,13 @@ import { useApiParams } from "../preview/apiParams";
 import { type PreviewResult, compareTotals, previewEvaluate } from "../preview/engine";
 import { PARAMS } from "../preview/params";
 import type { Answers, Variant } from "./answers";
-import {
-  DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, PAYER_LABEL,
-  STATUS_HEADLINE, SUBMIT_LABEL,
-} from "./labels";
+import { FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, STATUS_HEADLINE } from "./labels";
 import { sicknessMode, toEvaluateRequest, toSickLeaveRequest } from "./request";
 import { TimelineView } from "./TimelineView";
 import { Deadlines } from "./DeadlinesCards";
 import { VariantComparison } from "./VariantComparison";
 import { RiskRadar } from "./RiskRadar";
+import { Documents } from "./Documents";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 /** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania - test tekstu kwoty). */
@@ -172,26 +170,6 @@ function Remaining({ p }: { p: PreviewResult }) {
           </div>
         ))}
       </dl>
-    </section>
-  );
-}
-
-function Documents({ response, payer }: { response: EvaluateResponse; payer: string | null }) {
-  const docs = response.missing_documents ?? [];
-  if (docs.length === 0) return null;
-  return (
-    <section className={card} aria-labelledby="doc-h">
-      <h3 id="doc-h" className="text-lg font-semibold">Co i gdzie złożyć</h3>
-      {payer && <p className="mt-1 text-sm text-zinc-700">{PAYER_LABEL[payer]}</p>}
-      <ul className="mt-3 divide-y divide-zinc-100 text-sm">
-        {docs.map((d, i) => (
-          <li key={i} className="flex flex-col gap-0.5 py-2 sm:flex-row sm:justify-between sm:gap-4">
-            <span className="font-medium">{DOC_LABEL[d.doc_type] ?? d.doc_type}</span>
-            <span className="text-zinc-600">{d.submit_to ? SUBMIT_LABEL[d.submit_to] : ""}{d.provider ? ` · wystawia: ${d.provider}` : ""}{d.obtainable_by_zus ? " · ZUS może pobrać sam" : ""}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-2 text-xs text-zinc-600">Wysyłka wniosków i pobranie odpisu z USC w tym demo to SYMULACJA.</p>
     </section>
   );
 }
