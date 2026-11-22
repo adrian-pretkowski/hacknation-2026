@@ -320,7 +320,7 @@
   "name": "Jednoczesne korzystanie - łączny wymiar nie może przekroczyć puli"
  },
  "PAR-SHARE-003": {
-  "basis": "USTAWA art. 31 ust. 3h; treść zadania pkt B",
+  "basis": "USTAWA art. 31 ust. 3h",
   "description": "Zasiłek za okres urlopu rodzicielskiego przysługuje ojcu także wtedy, gdy matka w dniu porodu nie była ubezpieczona i nie korzystała z zasiłku za okres urlopu macierzyńskiego (finansowanie z budżetu).",
   "name": "Ojciec - rodzicielski, gdy matka nie była ubezpieczona w dniu porodu"
  },
@@ -425,7 +425,7 @@
   "name": "Ryzyko - podwyższenie podstawy wymiaru składek w ciąży"
  },
  "RISK-003": {
-  "basis": "USTAWA art. 29 ust. 1, art. 30; treść zadania pkt H.3",
+  "basis": "USTAWA art. 29 ust. 1, art. 30",
   "description": "Ostrzeżenie, gdy planowany koniec umowy/działalności/dobrowolnego ubezpieczenia przypada przed przewidywaną datą porodu, a nie zachodzi przypadek z art. 30 ani przedłużenie z KP 177 § 3.",
   "name": "Ryzyko - ustanie ubezpieczenia przed porodem"
  },

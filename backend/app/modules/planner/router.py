@@ -11,23 +11,23 @@ router = APIRouter(prefix="/api/planner", tags=["planner"])
 
 ASSUMPTIONS = [
     {"code": "ROUNDING_UNCONFIRMED",
-     "text": "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."},
+     "text": "Kwoty liczone dokładnie, bez zaokrągleń pośrednich; na ekranie pokazane z dokładnością do 1 grosza."},
     {"code": "PLANNER_TRANSFERRED_MATERNITY_RATE",
-     "text": "Macierzyński przejęty przez ojca liczony 100% podstawy ojca (RATE-MAT-001; RATE-MAT-003 dotyczy "
-             "urlopu macierzyńskiego wnioskodawczyni)."},
+     "text": "Macierzyński przejęty przez ojca liczony 100% podstawy ojca (stawka 81,5% z wniosku łącznego dotyczy "
+             "urlopu macierzyńskiego matki)."},
     {"code": "PLANNER_FATHER_RATE_UNDER_815",
      "text": "Stawka ojca na wspólnej części rodzicielskiego przy wniosku 81,5% matki nie wynika jednoznacznie z "
-             "przepisów (RATE-MAT-008) - liczona 70%, plan oznaczony do weryfikacji."},
+             "przepisów - liczona 70%, plan oznaczony do weryfikacji."},
     {"code": "PLANNER_NO_PRE_BIRTH_PART",
-     "text": "Macierzyński liczony od dnia porodu (bez części przedporodowej, MAT-DUR-002); rodzicielski zaraz po "
-             "macierzyńskim, w 1. roku życia dziecka (RATE-MAT-005 nie zachodzi)."},
+     "text": "Macierzyński liczony od dnia porodu (bez części przedporodowej); rodzicielski zaraz po "
+             "macierzyńskim, w 1. roku życia dziecka."},
     {"code": "PLANNER_FLOOR_DAILY",
-     "text": "Miesięczny zasiłek niższy niż kwota świadczenia rodzicielskiego podwyższony do niej (RATE-MAT-007, "
-             "M10) jako kwota dzienna = kwota miesięczna / 30; silnik liczy niepełne miesiące proporcjonalnie do dni "
-             "miesiąca. Przy pracy na rodzicielskim bez podwyższenia (M10c)."},
+     "text": "Miesięczny zasiłek niższy niż kwota świadczenia rodzicielskiego podwyższony do niej "
+             "jako kwota dzienna = kwota miesięczna / 30; niepełne miesiące liczone proporcjonalnie do dni "
+             "miesiąca. Przy pracy na rodzicielskim bez podwyższenia."},
     {"code": "PLANNER_BASE_AS_GIVEN",
-     "text": "Podstawa wymiaru przyjęta tak, jak ją podano - minimalna podstawa przy pełnym etacie (BASE-EMP-008) "
-             "i limit przy dobrowolnym chorobowym (BASE-NEMP-005) są stosowane w wyniku /api/evaluate."},
+     "text": "Podstawa wymiaru przyjęta tak, jak ją podano - minimalna podstawa przy pełnym etacie "
+             "i limit przy dobrowolnym chorobowym są stosowane w głównym wyniku kalkulatora."},
     {"code": "PLANNER_WORK_INCOME",
      "text": "Przy pracy na rodzicielskim do kwoty planu doliczane jest wynagrodzenie (brutto, proporcjonalnie do "
              "wymiaru); bez podanego wynagrodzenia - szacunek: podstawa / (1 − 13,71%)."},

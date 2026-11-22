@@ -34,10 +34,10 @@ export const LEGAL_DOC_LABEL: Record<string, string> = {
 const LEGAL_CODE = /\b(USTAWA|KP|ROZP_DOK|ROZP_WN|ZALACZNIK)\b( - )?/g;
 
 /** Tekst podstawy prawnej z kodami aktów zamienionymi na nazwy („USTAWA - art. 30; KP art. 177” → „ustawa zasiłkowa art. 30; Kodeks pracy art. 177”).
- * Wytyczne ZUS (ZALACZNIK) bez wewnętrznego odnośnika do punktu materiałów. */
+ * Segment z wytycznymi ZUS (ZALACZNIK, do „;”) bez wewnętrznego odnośnika do punktu materiałów. */
 export function legalText(text: string): string {
-  if (/^ZALACZNIK\b/.test(text.trim())) return LEGAL_DOC_LABEL.ZALACZNIK;
-  return text.replace(LEGAL_CODE, (_, code: string) => `${LEGAL_DOC_LABEL[code]} `).replace(/ {2,}/g, " ").trim();
+  return text.split(";").map((part) => /^ZALACZNIK\b/.test(part.trim()) ? LEGAL_DOC_LABEL.ZALACZNIK
+    : part.replace(LEGAL_CODE, (_, code: string) => `${LEGAL_DOC_LABEL[code]} `).replace(/ {2,}/g, " ").trim()).join("; ");
 }
 
 /** Jedna pozycja legal_basis z API → tekst dla użytkownika. */

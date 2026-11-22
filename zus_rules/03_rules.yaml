@@ -2294,7 +2294,7 @@ rules:
   rule_type: ELIGIBILITY
   legal_basis: {document: USTAWA, article: "31", paragraph: "3h", point: null}
   source_document: USTAWA
-  source_location: "USTAWA art. 31 ust. 3h; treść zadania pkt B"
+  source_location: "USTAWA art. 31 ust. 3h"
   source_excerpt: "Zasiłek macierzyński odpowiadający okresowi urlopu rodzicielskiego pobierany przez ubezpieczonego - ojca dziecka, w przypadku gdy matka dziecka nie jest objęta ubezpieczeniem"
   valid_from: null
   valid_to: null
@@ -3393,7 +3393,7 @@ rules:
   rule_type: VALIDATION
   legal_basis: {document: USTAWA, article: "29-30", paragraph: null, point: null}
   source_document: USTAWA
-  source_location: "USTAWA art. 29 ust. 1, art. 30; treść zadania pkt H.3"
+  source_location: "USTAWA art. 29 ust. 1, art. 30"
   source_excerpt: "niepodleganie ubezpieczeniu chorobowemu na dzień porodu"
   valid_from: null
   valid_to: null

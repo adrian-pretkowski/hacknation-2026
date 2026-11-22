@@ -251,7 +251,7 @@ def evaluate_parental(eng: Engine, maternity: dict[str, Any] | None = None) -> d
         insured = ctx.fact("f_sickness_insured_on", date=start) if start else None
         if insured is False:
             b.reason("NOT_INSURED_ON_PARENTAL_START", "PAR-ELIG-001",
-                     "Brak ubezpieczenia chorobowego w dniu rozpoczęcia urlopu rodzicielskiego (M12 b).",
+                     "Brak ubezpieczenia chorobowego w dniu rozpoczęcia urlopu rodzicielskiego.",
                      "art. 29 ust. 1 pkt 1")
         else:
             b.reason("CHILD_NOT_ALIVE_ON_PARENTAL_START", "PAR-ELIG-001",
@@ -269,7 +269,7 @@ def evaluate_parental(eng: Engine, maternity: dict[str, Any] | None = None) -> d
             b.review = True  # GAP-014: prawo po zgonie dziecka w trakcie urlopu - weryfikacja
             b.reason("CHILD_DEATH_DURING_PARENTAL", "PAR-ELIG-001",
                      "Zgon dziecka w trakcie zaplanowanego urlopu rodzicielskiego - prawo do zasiłku po zgonie "
-                     "wymaga weryfikacji (GAP-014).", "KP art. 182(1a)")
+                     "wymaga weryfikacji.", "KP art. 182(1a)")
 
     # stawka i kwota (APP-DL-001 = termin wniosku 81,5%, zależność RATE-MAT-003)
     if eng.eval("APP-DL-001").fired:
@@ -283,7 +283,7 @@ def evaluate_parental(eng: Engine, maternity: dict[str, Any] | None = None) -> d
         b.review = True  # GAP-019
         b.reason("FIRST_YEAR_RULE_UNCLEAR_FOR_OLDER_CHILD", "RATE-MAT-005",
                  "Przyjęto dziecko, które ukończyło rok - stosowanie zasady pierwszego roku życia (stawka "
-                 "rodzicielskiego przy wniosku o łączny zasiłek, wyrównanie do 100%) jest niejasne (GAP-019) - "
+                 "rodzicielskiego przy wniosku o łączny zasiłek, wyrównanie do 100%) jest niejasne - "
                  "wymaga weryfikacji.", "art. 31 ust. 3g")
 
     # łączenie z pracą: wydłużenie (PAR-WORK-002)
@@ -336,7 +336,7 @@ def _adoption_base_right(b: _Benefit) -> None:
         b.excluded = True
         b.reason(eng.rules.rule("MAT-EXCL-001")["result"]["reason_code"], "MAT-EXCL-001",
                  "Rodzina zastępcza zawodowa nie ma prawa do zasiłku macierzyńskiego z tytułu przyjęcia dziecka - "
-                 "także za okres urlopu rodzicielskiego (M16b2).", "art. 29 ust. 1 pkt 3")
+                 "także za okres urlopu rodzicielskiego.", "art. 29 ust. 1 pkt 3")
         return
     rule_id = "MAT-ELIG-002" if ctx.field("event.type") == "ADOPTION" else "MAT-ELIG-003"
     base = eng.eval(rule_id)
@@ -367,7 +367,7 @@ def _work_by_non_employee(b: _Benefit, start: date | None) -> None:
         b.review = True
         b.reason("PARENTAL_WORK_NON_EMPLOYEE_UNCLEAR", "PAR-WORK-001",
                  "Łączenie zasiłku za okres urlopu rodzicielskiego z pracą u osoby niebędącej pracownikiem - zasady "
-                 "nie są ustalone w materiałach (GAP-018), wymaga weryfikacji.", "art. 31 ust. 4a")
+                 "nie są jednoznacznie ustalone - wymaga weryfikacji.", "art. 31 ust. 4a")
 
 
 def _child_at_least_one_year_on_event(ctx) -> bool:
@@ -380,7 +380,7 @@ def _rate_reasons(b: _Benefit, amounts: dict[str, Any]) -> None:
     if "RATE-MAT-008" in b.applied:
         b.reason("FATHER_RATE_815_SHARED", "RATE-MAT-008",
                  f"Wniosek o łączny zasiłek złożony w terminie - część rodzicielskiego ojca (poza 9 tygodniami "
-                 f"nieprzenoszalnymi) płatna {pct(ctx.param('MAT_RATE_COMBINED'))} podstawy (M11).", "art. 31 ust. 3")
+                 f"nieprzenoszalnymi) płatna {pct(ctx.param('MAT_RATE_COMBINED'))} podstawy.", "art. 31 ust. 3")
     if "RATE-MAT-004" in b.applied:
         b.reason("RESERVED_9W_RATE_70", "RATE-MAT-004",
                  f"9 nieprzenoszalnych tygodni drugiego rodzica przy wniosku o łączny zasiłek - "
@@ -563,7 +563,7 @@ def reserved_weeks_review(eng: Engine, benefits: list[dict[str, Any]], errors: l
             benefit["reasons"].append(make_reason(
                 eng, "RESERVED_9W_OTHER_PARENT_NOT_INSURED", "PAR-SHARE-001",
                 "Matka nie podlega ubezpieczeniu chorobowemu - czy 9 tygodni rodzicielskiego jest dla niej "
-                "zarezerwowane, nie jest ustalone (GAP-016); błąd planu wymaga weryfikacji.", "KP art. 182(1a) § 3"))
+                "zarezerwowane, nie jest ustalone; błąd planu wymaga weryfikacji.", "KP art. 182(1a) § 3"))
 
 
 def return_to_work(eng: Engine) -> list[dict[str, Any]]:

@@ -1975,7 +1975,7 @@ Rodzice mogą jednocześnie korzystać z urlopu/zasiłku rodzicielskiego; łącz
 
 Zasiłek za okres urlopu rodzicielskiego przysługuje ojcu także wtedy, gdy matka w dniu porodu nie była ubezpieczona i nie korzystała z zasiłku za okres urlopu macierzyńskiego (finansowanie z budżetu).
 
-- **Podstawa:** USTAWA - USTAWA art. 31 ust. 3h; treść zadania pkt B
+- **Podstawa:** USTAWA - USTAWA art. 31 ust. 3h
 - **Fragment:** „Zasiłek macierzyński odpowiadający okresowi urlopu rodzicielskiego pobierany przez ubezpieczonego - ojca dziecka, w przypadku gdy matka dziecka nie jest objęta ubezpieczeniem”
 - **Obowiązuje:** od - do -
 - **Warunki:**
@@ -2552,7 +2552,7 @@ ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w 
 
 Ostrzeżenie, gdy planowany koniec umowy/działalności/dobrowolnego ubezpieczenia przypada przed przewidywaną datą porodu, a nie zachodzi przypadek z art. 30 ani przedłużenie z KP 177 § 3.
 
-- **Podstawa:** USTAWA - USTAWA art. 29 ust. 1, art. 30; treść zadania pkt H.3
+- **Podstawa:** USTAWA - USTAWA art. 29 ust. 1, art. 30
 - **Fragment:** „niepodleganie ubezpieczeniu chorobowemu na dzień porodu”
 - **Obowiązuje:** od - do -
 - **Warunki:**

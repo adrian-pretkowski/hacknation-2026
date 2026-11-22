@@ -73,7 +73,7 @@ Brak błędów i ostrzeżeń.
 | ROZP_DOK § 11 ust. 1-3 | REHAB-DOC-001 | INFORMATIONAL | - |
 | ROZP_DOK § 2, § 3 ust. 1, zał. 1-3; USTAWA art. 53, 61b ust. 2 | SICK-DOC-001 | INFORMATIONAL | - |
 | ROZP_DOK § 4, zał. 4 | SICK-DOC-002 | INFORMATIONAL | - |
-| USTAWA USTAWA art. 29 ust. 1, art. 30; treść zadania pkt H.3 | RISK-003 | INFORMATIONAL | T-MAT-004 |
+| USTAWA USTAWA art. 29 ust. 1, art. 30 | RISK-003 | INFORMATIONAL | T-MAT-004 |
 | USTAWA USTAWA art. 29 ust. 10; KP art. 180 § 17 | MAT-SHARE-006 | BLOCKED | - |
 | USTAWA USTAWA art. 29 ust. 3; KP art. 180 § 4-5 | MAT-SHARE-001 | ACTIVE | T-MAT-019, T-MAT-020 |
 | USTAWA USTAWA art. 29 ust. 5; KP art. 180 § 6-7 | MAT-SHARE-002 | ACTIVE | - |
@@ -94,7 +94,7 @@ Brak błędów i ostrzeżeń.
 | USTAWA USTAWA art. 31 ust. 3a-3c; art. 62 ust. 4-6; ROZP_DOK § 28 | RATE-MAT-007 | ACTIVE | T-RATE-008 |
 | USTAWA USTAWA art. 31 ust. 3f; art. 30a ust. 1 (wyłączenie okresu z KP 182(1a) § 4) | RATE-MAT-004 | ACTIVE | T-RATE-004, T-INT-001 |
 | USTAWA USTAWA art. 31 ust. 3g | RATE-MAT-005 | ACTIVE | T-RATE-005 |
-| USTAWA USTAWA art. 31 ust. 3h; treść zadania pkt B | PAR-SHARE-003 | ACTIVE | - |
+| USTAWA USTAWA art. 31 ust. 3h | PAR-SHARE-003 | ACTIVE | - |
 | USTAWA USTAWA art. 31 ust. 4 | RATE-MAT-006 | ACTIVE | - |
 | USTAWA USTAWA art. 31 ust. 4a | PAR-WORK-003 | ACTIVE | T-PAR-006 |
 | USTAWA USTAWA art. 36 ust. 1, 4; art. 38 ust. 1; art. 47 | BASE-EMP-001 | ACTIVE | T-BASE-001 |

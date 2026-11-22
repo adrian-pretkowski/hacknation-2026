@@ -156,7 +156,7 @@ class Planner:
             else:
                 text += f" Opcja „{runner.label}” daje ten sam wynik."
         if best_total.review_rules:
-            text += f" Plan zawiera część do weryfikacji ({', '.join(sorted(best_total.review_rules))})."
+            text += " Plan zawiera część do weryfikacji."
         return text
 
     def _backtrack(self, choices: list[Any], taken: list[Taken], current: Totals, lookback: int) -> list[dict]:

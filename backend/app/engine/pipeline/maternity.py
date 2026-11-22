@@ -149,7 +149,7 @@ def _base_limits(eng: Engine, applied: list[str], reason: Reason) -> bool:
     ctx = eng.ctx
     raw = to_decimal(ctx.field("income_history.manual_base_override"))
     checks = [("BASE-NEMP-005", "BASE_CAPPED_VOLUNTARY",
-               "limit podstawy składek przy dobrowolnym ubezpieczeniu (Załącznik, M08)")]
+               "limit podstawy składek przy dobrowolnym ubezpieczeniu (wytyczne ZUS)")]
     minimum = ctx.fact("f_minimum_base")
     below = raw is not None and minimum is not None and raw < minimum
     if ctx.field("employment.working_time_fraction") is not None or (

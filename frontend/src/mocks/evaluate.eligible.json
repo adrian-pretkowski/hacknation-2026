@@ -46,7 +46,7 @@
   "assumptions": [
     {
       "code": "ROUNDING_UNCONFIRMED",
-      "text": "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."
+      "text": "Kwoty liczone dokładnie, bez zaokrągleń pośrednich; na ekranie pokazane z dokładnością do 1 grosza."
     }
   ],
   "not_evaluated_rules": [

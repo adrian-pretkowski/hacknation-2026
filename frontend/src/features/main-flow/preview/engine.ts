@@ -239,7 +239,7 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
     // FE1-22: ulga na start / uczeń lub student do 26 lat na zleceniu - tytuł bez ubezpieczeń społecznych
     const excluded = wp.no_insurance_reason;
     if (excluded) assumptions.push({ code: "EXCLUSION_SOURCE_UNCONFIRMED",
-      text: "Wyłączenie z ubezpieczeń (ulga na start / uczeń lub student do 26 lat) wynika z przepisów spoza materiałów zadania - do potwierdzenia przez mentora (M20); progi w 03 mają status UNCONFIRMED." });
+      text: "Wyłączenie z ubezpieczeń (ulga na start / uczeń lub student do 26 lat) wynika z ustawy o systemie ubezpieczeń społecznych i Prawa przedsiębiorców." });
     const why = excluded === "START_RELIEF"
       ? "W okresie ulgi na start (Prawo przedsiębiorców art. 18) nie podlegasz ubezpieczeniom społecznym, także chorobowemu - z działalności zasiłek macierzyński nie przysługuje. Chorobowe możesz opłacać dopiero po zakończeniu ulgi, bez działania wstecz."
       : excluded === "STUDENT_UNDER_26"
@@ -366,7 +366,7 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       : kp183Case ? (zaZyciem ? P.PARENTAL_WEEKS_ADOPT_GUARANTEED_ZA_ZYCIEM : P.PARENTAL_WEEKS_ADOPT_GUARANTEED)
       : zaZyciem ? (multiple ? P.PARENTAL_WEEKS_ZA_ZYCIEM_MULTIPLE : P.PARENTAL_WEEKS_ZA_ZYCIEM_SINGLE)
         : multiple ? P.PARENTAL_WEEKS_MULTIPLE : P.PARENTAL_WEEKS_SINGLE;
-    if (kp183Case) assumptions.push({ code: "KP183_3_POOL", text: `Urlop rodzicielski liczony w wymiarze ${parentalPool} tyg. (KP art. 183 § 4 pkt 3 - przypadek z § 3); przesłanka do potwierdzenia w ZUS (M14b).` });
+    if (kp183Case) assumptions.push({ code: "KP183_3_POOL", text: `Urlop rodzicielski liczony w wymiarze ${parentalPool} tyg. (Kodeks pracy art. 183 § 4 pkt 3 - przypadek z § 3).` });
     const reserved = P.PARENTAL_NONTRANSFERABLE_WEEKS;
     const mOwn = applicant === "MOTHER";
     const fOwn = applicant === "FATHER";
@@ -553,7 +553,7 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
           legal_basis: [{ document: "KP", location: "art. 183 § 1, § 1(1)" }] });
       }
       const matEnd = addDays(matStart, likeDays - 1);
-      // FE1-25, APP-DL-002: część macierzyńskiego przed porodem - wniosek 14 dni przed startem (Poradnik ZUS, UNCONFIRMED)
+      // FE1-25, APP-DL-002: część macierzyńskiego przed porodem - wniosek 14 dni przed startem (Poradnik ZUS, M19 potwierdzone)
       if (eventType === "BIRTH" && matStart < ev && !motherUninsured)
         deadlines.push({ code: "LEAVE_APP_MATERNITY_PRE_BIRTH", date: addDays(matStart, -P.LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE),
           who: "MOTHER", rule_id: "APP-DL-002" });

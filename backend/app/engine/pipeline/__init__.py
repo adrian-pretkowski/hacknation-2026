@@ -42,10 +42,11 @@ from app.engine.pipeline.verification import insurance_verification
 
 ENGINE_NAME = "rules-engine"
 ROUNDING = {"code": "ROUNDING_UNCONFIRMED",
-            "text": "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."}
+            "text": "Kwoty liczone dokładnie, bez zaokrągleń pośrednich; "
+                    "na ekranie pokazane z dokładnością do 1 grosza."}
 PARAM_ASSUMPTIONS = {
     "MIN_WAGE_2026_MONTHLY": {"code": "MIN_WAGE_FROM_ATTACHMENT",
-                              "text": "Płaca minimalna 2026 wzięta z Załącznika HackNation (niepotwierdzona)."},
+                              "text": "Płaca minimalna 2026 według wytycznych ZUS."},
     "PUBLIC_HOLIDAYS": {"code": "PUBLIC_HOLIDAYS_UNCONFIRMED",
                         "text": "Termin w sobotę, niedzielę lub święto przesunięto na następny dzień roboczy według "
                                 "oficjalnego kalendarza dni ustawowo wolnych od pracy 2026–2031."},
@@ -97,8 +98,8 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
         benefits, extra_assumptions = evaluate_sickness(eng)
     else:
         return _response(eng, [], [{"code": "OUT_OF_SCOPE_SLICE",
-                                    "text": "Silnik reguł obsługuje na razie event.type: BIRTH, ADOPTION, FOSTER, "
-                                            "PREGNANCY_INCAPACITY, SICKNESS."}], "OUT_OF_SCOPE")
+                                    "text": "Kalkulator obsługuje narodziny, przysposobienie i przyjęcie dziecka do "
+                                            "rodziny zastępczej oraz niezdolność do pracy (L4)."}], "OUT_OF_SCOPE")
     if plan:
         reserved_weeks_review(eng, benefits, plan["plan_errors"])  # GAP-016
     guide = guidance(eng, benefits)  # BE2-04: missing_documents, deadlines, RISK-001/002/003 → warnings

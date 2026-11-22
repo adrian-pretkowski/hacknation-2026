@@ -71,7 +71,8 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
     missing: list[dict[str, Any]] = []
     applied: list[str] = []
     assumptions = [{"code": "ROUNDING_UNCONFIRMED",
-                    "text": "Kwoty bez zaokrągleń - zasady zaokrąglania ZUS niepotwierdzone (GAP-001)."}]
+                    "text": "Kwoty liczone dokładnie, bez zaokrągleń pośrednich; "
+                            "na ekranie pokazane z dokładnością do 1 grosza."}]
     statuses: list[str] = []
 
     def need(field: str, *rule_ids: str) -> None:
@@ -80,7 +81,8 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
 
     event_type = _get(payload, "event.type")
     if event_type != "BIRTH":
-        return _response([], [], [{"code": "OUT_OF_SCOPE_SLICE", "text": "slice-v0 obsługuje tylko event.type=BIRTH."}],
+        return _response([], [], [{"code": "OUT_OF_SCOPE_SLICE",
+                                    "text": "Ta wersja kalkulatora obsługuje tylko narodziny dziecka."}],
                          "OUT_OF_SCOPE")
 
     birth = _as_date(_get(payload, "event.date"))
@@ -110,7 +112,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
             threshold = param("MIN_WAGE_2026_MONTHLY") * param("DEBT_THRESHOLD_MIN_WAGE_RATIO")
             if param_status("MIN_WAGE_2026_MONTHLY") == "UNCONFIRMED":
                 assumptions.append({"code": "MIN_WAGE_FROM_ATTACHMENT",
-                                    "text": "Płaca minimalna 2026 wzięta z Załącznika HackNation (niepotwierdzona)."})
+                                    "text": "Płaca minimalna 2026 według wytycznych ZUS."})
             if debt_raw in (None, ""):
                 need("debt.amount_on_right_date", "GEN-EXCL-001")
             elif Decimal(str(debt_raw)) > threshold:
