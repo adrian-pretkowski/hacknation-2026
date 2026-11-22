@@ -45,7 +45,7 @@
 | FE-1 | - (FE1-05 DONE, scalone do `main` po `/review` READY_TO_MERGE) | `fe1/FE1-05-birth-weight-choice` | 2026-11-21 | Następne: wg TASKS. Drobne z review: podgląd liczy masę bez martwo urodzonych (07: wszystkie dzieci), `cd e2e; npm test` dla scenariusza 08 |
 | FE-1 (Michał) | - (FE1-43, FE1-44 DONE, czekają na merge do main) | `fe1/FE1-44-father-after-birth` | 2026-11-22 | Następne: wg TASKS; BE1-10 (luka silnika chorobowego) dla BE-1 |
 | FE-2 | FE2-05 DONE (Michał, czeka na /review); wcześniej FE2-02 DONE (symulacje) | `fe2/FE2-05-guide` | 2026-11-21 | Następne: FE2-03/FE2-04. Po INT-03: zamienić `simulations/simApi.ts` na klienta `lib/api.ts`; FE-1: `simFetchFromZus` w `wizard/simZus.ts` nieużywany - do usunięcia |
-| BA | - (BA-06 DONE; M20 czeka na mentora) | `fe1/FE1-19-gap-fixes` | 2026-11-21 | Każdy punkt na osobnej gałęzi, merge do main po /review. BA-02: treści do przejrzenia przez BA/lidera (`reviewed_by` = null) |
+| BA | BA-08 IN_PROGRESS | `ba/BA-08-prezentacja` | 2026-11-22 | Każdy punkt na osobnej gałęzi, merge do main po /review. BA-02: treści do przejrzenia przez BA/lidera (`reviewed_by` = null) |
 | FE-1 (Tomasz) | - (FE1-32 DONE: nowa oś czasu) | `fe1/FE1-32-timeline-variants` | 2026-11-22 | Ręcznie: test NVDA i `npm run wcag` po restarcie backendu |
 | FE-1 (Adi) | - (FE1-27 DONE i scalone: panel admina bez tokenu; FE1-28 DONE: polskie nazwy parametrów w panelu admina; FE1-29 DONE i scalone (PR #7); FE1-37 DONE: kreator czyta parametry z panelu admina) | `fe1/FE1-37-live-params` | 2026-11-21 | Panel admina celowo otwarty dla każdego (D36) - przed pokazem ewentualnie wyczyścić nadpisania (`backend/data/parameter_overrides.json`) |
 
