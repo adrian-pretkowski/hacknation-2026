@@ -2,7 +2,7 @@
 
 // Krok kreatora „Optymalizacja” (BE2-07): planer urlopów obojga rodziców na API /api/planner/suggest.
 // Graf decyzji i kwoty liczy backend (zus_rules/03_rules.yaml) - tu tylko wyświetlanie i zapis wyborów w odpowiedziach.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResponse, plannerSuggest } from "@/lib/api";
 import { formatMoney, formatRate } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
@@ -23,7 +23,6 @@ const STEP_TITLE: Record<string, string> = {
 };
 const STEP_COUNT = Object.keys(STEP_TITLE).length;
 const PARENT = { MOTHER: "Mama", FATHER: "Tata" } as const;
-const box = "rounded-xl border border-zinc-200 p-4";
 
 const clean = normalizeMoney; // FE1-15: wspólna normalizacja kwot (money.ts)
 
@@ -83,14 +82,39 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
   const done = data?.current_best_plan?.choices.slice(0, choices.length) ?? [];
   const plan = data?.current_best_plan;
   const apply = (p: PlannerPlan) => set(answersFromPlan(p));
+  const complete = data?.status === "COMPLETE";
+  const stepIndex = data?.step ? data.step.index : complete ? STEP_COUNT : choices.length;
 
-  return (
+  // FE1-59: ustawienia zwinięte do jednej linii, gdy są kompletne
+  // otwarte na start, gdy brakuje danych; zwijane dopiero przyciskiem (nie w trakcie wpisywania kwoty)
+  const [editSettings, setEditSettings] = useState(() => !!missing);
+  const settingsCollapsed = !missing && !editSettings;
+
+  // FE1-59: po wyborze odpowiedzi przewijamy do kolejnej decyzji na osi
+  const cardRef = useRef<HTMLDivElement>(null);
+  const picked = useRef(false);
+  const choose = (next: PlannerChoice[]) => { picked.current = true; setChoices(next); };
+  useEffect(() => {
+    if (!picked.current || loading) return;
+    picked.current = false;
+    cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [data, loading]);
+
+  const settingsSummary = [
+    isMother ? `tata ${a.partnerInsured === "YES" ? "ubezpieczony" : a.partnerInsured === "NO" ? "bez ubezpieczenia" : "ubezpieczenie: nie wiem"}` : null,
+    fatherInsured && partnerGross ? `${isMother ? "tata" : "mama"} ${formatMoney(partnerGross)} brutto` : null,
+    a.plannerObjective === "MAX_MONEY" ? "cel: spokojniejszy budżet" : "cel: więcej wspólnego czasu",
+  ].filter(Boolean).join(" · ");
+
+  const settings = settingsCollapsed ? (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-zus-gray-50 px-3 py-2 text-sm">
+      <span className="font-semibold">Ustawienia:</span>
+      <span className="min-w-0 flex-1 text-zinc-700">{settingsSummary}</span>
+      <button type="button" onClick={() => setEditSettings(true)}
+        className="rounded px-2 py-1 text-xs font-medium text-zus-navy underline underline-offset-2 hover:bg-zus-blue-50">Zmień</button>
+    </div>
+  ) : (
     <div className="space-y-5">
-      <p className="text-sm text-zinc-700">
-        Planer sprawdza wszystkie dozwolone podziały urlopów między mamę i tatę. Przy każdej odpowiedzi widzisz, ile
-        rodzina może łącznie dostać, jeśli dalej wybierze najlepiej. Jeśli wcześniejszy wybór okaże się gorszy, planer
-        podpowie, do którego kroku wrócić.
-      </p>
       {isMother && (
         <Choice legend="Czy tata ma ubezpieczenie chorobowe?" value={a.partnerInsured} columns={3}
           onChange={(partnerInsured) => set({ partnerInsured, plannerChoices: [] })} options={TRI_OPTIONS} />
@@ -108,124 +132,171 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           { value: "MAX_TIME", label: "Więcej wspólnego czasu", description: "Podział, w którym urlop z dzieckiem trwa najdłużej." },
           { value: "MAX_MONEY", label: "Spokojniejszy domowy budżet", description: "Podział, w którym rodzina otrzyma łącznie najwyższe świadczenie." },
         ]} />
+      {!missing && (
+        <button type="button" onClick={() => setEditSettings(false)}
+          className="rounded-full bg-zus-navy px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Gotowe - przejdź do decyzji</button>
+      )}
+    </div>
+  );
+
+  const backtrack = !missing && (data?.backtrack ?? []).map((b) => (
+    <div key={b.step_index} className="rounded-xl border-l-8 border-l-zus-yellow bg-zus-yellow-50 p-4 text-sm" aria-live="polite">
+      <p className="font-semibold">Możecie zyskać {formatMoney(b.gain_preview ?? b.gain_exact)}</p>
+      <p className="mt-1">
+        Wróć o {b.steps_back} {b.steps_back === 1 ? "krok" : "kroki"} do „{STEP_TITLE[b.step_id]}”: zamiast „{b.current_label}”
+        wybierz „{b.suggested_label}”.
+      </p>
+      <button type="button" onClick={() => choose([...choices.slice(0, b.step_index), b.suggested_value])}
+        className="mt-3 rounded-full bg-zus-navy px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Zmień ten wybór</button>
+    </div>
+  ));
+
+  const optionList = data?.step && (
+    <ul className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-1">
+      {(data.options ?? []).map((o) => (
+        <li key={String(o.value)}>
+          {o.feasible ? (
+            <button type="button" onClick={() => choose([...choices, o.value])}
+              className={`flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border px-3 py-2 text-left text-sm hover:bg-zus-green-50 focus-visible:outline-2 focus-visible:outline-zus-green-dark ${o.recommended ? "border-zus-green-dark bg-zus-green-50" : "border-zinc-200"}`}>
+              <span className="min-w-0 flex-1 font-medium">{o.label}</span>
+              {o.recommended && <span className="rounded-full bg-zus-green-dark px-2 py-0.5 text-xs text-white">Polecane</span>}
+              {o.needs_review && <span className="rounded-full bg-zus-yellow-50 px-2 py-0.5 text-xs">do weryfikacji</span>}
+              <span className="tabular-nums">{formatMoney(o.best_total_preview)}</span>
+              {!o.recommended && o.loss_vs_best_preview && Number(o.loss_vs_best_preview) >= 0.01 && (
+                <span className="w-full text-xs tabular-nums text-zus-red sm:w-auto">−{formatMoney(o.loss_vs_best_preview)}</span>
+              )}
+            </button>
+          ) : (
+            <div className="rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-sm text-zinc-500">
+              <span className="line-through">{o.label}</span>
+              <span className="ml-2 text-xs">Niedozwolone: {o.blocked_reason}</span>
+              {o.blocked_by_rule && <RuleText entry={o.blocked_by_rule} className="mt-1 block text-xs" />}
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+  const stepFooter = data?.step && (
+    <>
+      {data.explanation && <p className="mt-3 text-sm text-zinc-700" aria-live="polite">{data.explanation}</p>}
+      <div className="mt-1 text-xs text-zinc-600">Przepisy:<RuleList ids={data.step.rule_ids} /></div>
+    </>
+  );
+
+  // FE1-59: oś 7 decyzji (gotowe zwinięte, bieżąca rozwinięta, przyszłe z podpowiedzią)
+  const timeline = !missing && data && (
+    <div ref={cardRef} className="scroll-mt-4">
+      <ol className="relative space-y-0 border-l-2 border-zinc-200 pl-0" aria-label={`Decyzje planera: ${Math.min(stepIndex, STEP_COUNT)} z ${STEP_COUNT} gotowe`}>
+        {STEP_IDS.map((id, i) => {
+          const doneChoice = i < choices.length ? done[i] : undefined;
+          const current = data.step && i === data.step.index;
+          const hintLabel = plan?.choices[i]?.label;
+          return (
+            <li key={id} className="relative pb-3 pl-6 last:pb-0">
+              <span aria-hidden className={`absolute -left-[11px] top-2 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${doneChoice ? "bg-zus-green-dark text-white" : current ? "bg-white text-zus-green-dark ring-4 ring-zus-green-dark" : "bg-zinc-200 text-zinc-500"}`}>
+                {doneChoice ? "✓" : i + 1}
+              </span>
+              {current && data.step ? (
+                <fieldset className="rounded-xl border-2 border-zus-green-dark bg-zus-green-50/40 p-4 shadow-sm" aria-busy={loading}>
+                  <legend className="px-1 text-sm font-semibold text-zus-green-dark">
+                    Teraz: decyzja {i + 1} z {STEP_COUNT} · {data.step.title}
+                  </legend>
+                  <p className="text-base font-semibold text-balance">{data.step.question}</p>
+                  {data.step.hint && <p className="mt-1 text-sm text-zinc-700">{data.step.hint}</p>}
+                  {optionList}
+                  {stepFooter}
+                </fieldset>
+              ) : (
+                <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5 text-sm ${doneChoice ? "" : "text-zinc-500"}`}>
+                  <span className="min-w-0 flex-1">
+                    <span className={doneChoice ? "font-medium" : ""}>{i + 1}. {STEP_TITLE[id]}</span>
+                    {doneChoice && <span className="text-zinc-700">: {doneChoice.label}</span>}
+                    {!doneChoice && hintLabel && <span className="text-xs"> - polecane: {hintLabel}</span>}
+                  </span>
+                  {doneChoice && (
+                    <button type="button" onClick={() => choose(choices.slice(0, i))}
+                      className="rounded px-2 py-1 text-xs font-medium text-zus-navy underline underline-offset-2 hover:bg-zus-blue-50">Zmień</button>
+                  )}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+
+  const planCard = !missing && plan && (
+    <div className="rounded-xl bg-zus-gray-50 p-4" aria-live="polite">
+      <p className="text-sm font-semibold">{complete ? "Wasz plan" : "Najlepszy plan przy Waszych dotychczasowych wyborach"}</p>
+      <p className="mt-1 text-2xl font-semibold tabular-nums text-zus-navy">{formatMoney(plan.totals.best_total_preview)}</p>
+      <p className="text-xs text-zinc-600">
+        Mama {formatMoney(plan.totals.mother_preview)} · Tata {formatMoney(plan.totals.father_preview)} · {plan.totals.covered_weeks} tyg. opieki nad dzieckiem
+      </p>
+      {plan.needs_review && <div className="mt-2 text-xs">Część planu wymaga weryfikacji:<RuleList ids={plan.review_rules} /></div>}
+      {/* D19: każda kwota z blokiem wyjaśnienia - kroki, dni × stawka, przepisy, założenia (FE1-42 w raporcie INT-15) */}
+      <details className="mt-2 text-sm">
+        <summary className="cursor-pointer font-medium">Pokaż, jak to policzyliśmy</summary>
+        <p className="mt-2 text-xs text-zinc-600">Każda pozycja: podstawa wymiaru × stawka ÷ {PARAMS.MONTH_AS_DAYS} × liczba dni
+          (kwoty liczy silnik planera w API, bez zaokrągleń).</p>
+        <ul className="mt-2 divide-y divide-zinc-200">
+          {plan.items.map((i, n) => (
+            <li key={n} className="py-2">
+              <p className="flex gap-2"><span className="min-w-0 flex-1">{i.label}</span><span className="tabular-nums">{formatMoney(i.amount_exact)}</span></p>
+              <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` × stawka ${formatRate(i.rate)}` : ""}
+                {i.rate ? ` (podstawa ${PARENT[i.parent]?.toLowerCase() ?? ""} × ${formatRate(i.rate)} ÷ ${PARAMS.MONTH_AS_DAYS} × ${i.days} dni)` : ""}</p>
+              <RuleList ids={i.rule_ids} className="text-xs text-zinc-600" />
+            </li>
+          ))}
+        </ul>
+        {data && data.assumptions.length > 0 && (
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-zinc-600">{data.assumptions.map((x) => <li key={x.code}>{x.text}</li>)}</ul>
+        )}
+      </details>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button type="button" onClick={() => apply(plan)}
+          className="rounded-full bg-zus-green-dark px-4 py-2 text-sm font-semibold text-white hover:bg-zus-navy">
+          Użyj tego planu w kreatorze
+        </button>
+        {choices.length > 0 && (
+          <button type="button" onClick={() => choose([])} className="rounded-full px-4 py-2 text-sm font-semibold text-zus-navy hover:underline">
+            Zacznij decyzje od nowa
+          </button>
+        )}
+      </div>
+      {a.plannerApplied && <p className="mt-2 text-xs text-zus-green-dark">Plan przeniesiony do kroku „Plany” i wyniku.</p>}
+    </div>
+  );
+  const assumptionsBox = data && !missing && (
+    <details className="text-xs text-zinc-600">
+      <summary className="cursor-pointer">Założenia planera</summary>
+      <ul className="mt-2 list-disc space-y-1 pl-5">{data.assumptions.map((x) => <li key={x.code}>{x.text}</li>)}</ul>
+    </details>
+  );
+
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-zinc-700">
+        Planer sprawdza wszystkie dozwolone podziały urlopów między mamę i tatę. Przy każdej odpowiedzi widzisz, ile
+        rodzina może łącznie dostać, jeśli dalej wybierze najlepiej. Jeśli wcześniejszy wybór okaże się gorszy, planer
+        podpowie, do którego kroku wrócić.
+      </p>
+      {settings}
 
       {missing && <p className="rounded-lg bg-zus-yellow-50 px-3 py-2 text-sm">{missing}</p>}
       {error && <p className="rounded-lg bg-zus-red-50 px-3 py-2 text-sm text-zus-red" role="alert">{error}</p>}
 
-      {!missing && done.length > 0 && (
-        <div className={box}>
-          <p className="text-sm font-semibold">Wasze wybory</p>
-          <ol className="mt-1 divide-y divide-zinc-100 text-sm">
-            {done.map((c, i) => (
-              <li key={c.step_id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
-                <span className="text-xs tabular-nums text-zinc-500">{i + 1}/{STEP_COUNT}</span>
-                <span className="min-w-0 flex-1"><span className="text-zinc-600">{STEP_TITLE[c.step_id] ?? c.step_id}:</span> {c.label}</span>
-                <button type="button" onClick={() => setChoices(choices.slice(0, i))}
-                  className="rounded px-2 py-1 text-xs font-medium text-zus-navy underline underline-offset-2 hover:bg-zus-blue-50">Zmień</button>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
+      {backtrack}
+      {timeline}
 
-      {!missing && (data?.backtrack ?? []).map((b) => (
-        <div key={b.step_index} className="rounded-xl border-l-8 border-l-zus-yellow bg-zus-yellow-50 p-4 text-sm" aria-live="polite">
-          <p className="font-semibold">Możecie zyskać {formatMoney(b.gain_preview ?? b.gain_exact)}</p>
-          <p className="mt-1">
-            Wróć o {b.steps_back} {b.steps_back === 1 ? "krok" : "kroki"} do „{STEP_TITLE[b.step_id]}”: zamiast „{b.current_label}”
-            wybierz „{b.suggested_label}”.
-          </p>
-          <button type="button" onClick={() => setChoices([...choices.slice(0, b.step_index), b.suggested_value])}
-            className="mt-3 rounded-full bg-zus-navy px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Zmień ten wybór</button>
-        </div>
-      ))}
-
-      {!missing && data?.step && (
-        <fieldset className={box} aria-busy={loading}>
-          <legend className="px-1 text-xs font-semibold uppercase tracking-wider text-zus-green-dark">
-            Decyzja {data.step.index + 1} z {STEP_COUNT} · {data.step.title}
-          </legend>
-          <p className="text-base font-semibold text-balance">{data.step.question}</p>
-          {data.step.hint && <p className="mt-1 text-sm text-zinc-700">{data.step.hint}</p>}
-          <ul className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-1">
-            {(data.options ?? []).map((o) => (
-              <li key={String(o.value)}>
-                {o.feasible ? (
-                  <button type="button" onClick={() => setChoices([...choices, o.value])}
-                    className={`flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border px-3 py-2 text-left text-sm hover:bg-zus-green-50 focus-visible:outline-2 focus-visible:outline-zus-green-dark ${o.recommended ? "border-zus-green-dark bg-zus-green-50" : "border-zinc-200"}`}>
-                    <span className="min-w-0 flex-1 font-medium">{o.label}</span>
-                    {o.recommended && <span className="rounded-full bg-zus-green-dark px-2 py-0.5 text-xs text-white">Polecane</span>}
-                    {o.needs_review && <span className="rounded-full bg-zus-yellow-50 px-2 py-0.5 text-xs">do weryfikacji</span>}
-                    <span className="tabular-nums">{formatMoney(o.best_total_preview)}</span>
-                    {!o.recommended && o.loss_vs_best_preview && Number(o.loss_vs_best_preview) >= 0.01 && (
-                      <span className="w-full text-xs tabular-nums text-zus-red sm:w-auto">−{formatMoney(o.loss_vs_best_preview)}</span>
-                    )}
-                  </button>
-                ) : (
-                  <div className="rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-sm text-zinc-500">
-                    <span className="line-through">{o.label}</span>
-                    <span className="ml-2 text-xs">Niedozwolone: {o.blocked_reason}</span>
-                    {o.blocked_by_rule && <RuleText entry={o.blocked_by_rule} className="mt-1 block text-xs" />}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-          {data.explanation && <p className="mt-3 text-sm text-zinc-700" aria-live="polite">{data.explanation}</p>}
-          <div className="mt-1 text-xs text-zinc-600">Przepisy:<RuleList ids={data.step.rule_ids} /></div>
-        </fieldset>
-      )}
-
-      {!missing && plan && (
-        <div className="rounded-xl bg-zus-gray-50 p-4" aria-live="polite">
-          <p className="text-sm font-semibold">{data?.status === "COMPLETE" ? "Wasz plan" : "Najlepszy plan przy Waszych dotychczasowych wyborach"}</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-zus-navy">{formatMoney(plan.totals.best_total_preview)}</p>
-          <p className="text-xs text-zinc-600">
-            Mama {formatMoney(plan.totals.mother_preview)} · Tata {formatMoney(plan.totals.father_preview)} · {plan.totals.covered_weeks} tyg. opieki nad dzieckiem
-          </p>
-          {plan.needs_review && <div className="mt-2 text-xs">Część planu wymaga weryfikacji:<RuleList ids={plan.review_rules} /></div>}
-          {/* D19: każda kwota z blokiem wyjaśnienia - kroki, dni × stawka, przepisy, założenia (FE1-42 w raporcie INT-15) */}
-          <details className="mt-2 text-sm">
-            <summary className="cursor-pointer font-medium">Pokaż, jak to policzyliśmy</summary>
-            <p className="mt-2 text-xs text-zinc-600">Każda pozycja: podstawa wymiaru × stawka ÷ {PARAMS.MONTH_AS_DAYS} × liczba dni
-              (kwoty liczy silnik planera w API, bez zaokrągleń).</p>
-            <ul className="mt-2 divide-y divide-zinc-200">
-              {plan.items.map((i, n) => (
-                <li key={n} className="py-2">
-                  <p className="flex gap-2"><span className="min-w-0 flex-1">{i.label}</span><span className="tabular-nums">{formatMoney(i.amount_exact)}</span></p>
-                  <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` × stawka ${formatRate(i.rate)}` : ""}
-                    {i.rate ? ` (podstawa ${PARENT[i.parent]?.toLowerCase() ?? ""} × ${formatRate(i.rate)} ÷ ${PARAMS.MONTH_AS_DAYS} × ${i.days} dni)` : ""}</p>
-                  <RuleList ids={i.rule_ids} className="text-xs text-zinc-600" />
-                </li>
-              ))}
-            </ul>
-            {data && data.assumptions.length > 0 && (
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-zinc-600">{data.assumptions.map((x) => <li key={x.code}>{x.text}</li>)}</ul>
-            )}
-          </details>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => apply(plan)}
-              className="rounded-full bg-zus-green-dark px-4 py-2 text-sm font-semibold text-white hover:bg-zus-navy">
-              Użyj tego planu w kreatorze
-            </button>
-            {choices.length > 0 && (
-              <button type="button" onClick={() => setChoices([])} className="rounded-full px-4 py-2 text-sm font-semibold text-zus-navy hover:underline">
-                Zacznij decyzje od nowa
-              </button>
-            )}
-          </div>
-          {a.plannerApplied && <p className="mt-2 text-xs text-zus-green-dark">Plan przeniesiony do kroku „Plany” i wyniku.</p>}
-        </div>
-      )}
-      {data && !missing && (
-        <details className="text-xs text-zinc-600">
-          <summary className="cursor-pointer">Założenia planera</summary>
-          <ul className="mt-2 list-disc space-y-1 pl-5">{data.assumptions.map((x) => <li key={x.code}>{x.text}</li>)}</ul>
-        </details>
-      )}
+      {planCard}
+      {assumptionsBox}
     </div>
   );
 }
+
+const STEP_IDS = Object.keys(STEP_TITLE);
 
 /** Przeniesienie planu do pól kreatora (krok „Plany”): tygodnie taty, przejęcie macierzyńskiego, praca mamy, wariant. */
 export function answersFromPlan(plan: PlannerPlan): Partial<Answers> {
