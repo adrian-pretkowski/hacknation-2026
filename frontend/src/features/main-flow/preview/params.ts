@@ -45,6 +45,7 @@ export const PARAMS = {
   WAITING_DAYS_VOLUNTARY: 90,
   // FE1-43: zasiłek chorobowy w ciąży (wymaganie a) - nazwy i wartości jak w 03 (meta.parameters)
   WAITING_DAYS_MANDATORY: 30, // USTAWA art. 4 ust. 1 pkt 1
+  SICK_RATE_STD: "0.80", // USTAWA art. 11 ust. 1
   SICK_RATE_FULL: "1.00", // USTAWA art. 11 ust. 2 (ciąża - kod B)
   BENEFIT_PERIOD_PREGNANCY_TB_DAYS: 270, // USTAWA art. 8 ust. 1
   SICK_PAY_DAYS_STD: 33, // KP art. 92 § 1 pkt 1

@@ -15,7 +15,7 @@ import {
   DEADLINE_LABEL, DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, PARENT_LABEL, PAYER_LABEL,
   STATUS_HEADLINE, SUBMIT_LABEL,
 } from "./labels";
-import { todayIso, toEvaluateRequest, toSickLeaveRequest } from "./request";
+import { sicknessMode, todayIso, toEvaluateRequest, toSickLeaveRequest } from "./request";
 import { TimelineView } from "./TimelineView";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
@@ -389,7 +389,8 @@ const BENEFIT_TYPE_LABEL: Record<string, string> = {
  * 270 dni, kto płaci, okres wyczekiwania, świadczenie rehabilitacyjne) i wynik silnika reguł: przy podanym L4 okres
  * i kwoty, bez L4 - ocena prawa „gdyby zwolnienie zaczęło się dziś” (także brak prawa z uzasadnieniem). Kwoty tylko z API. */
 function SickLeaveCard({ answers }: { answers: Answers }) {
-  const built = useMemo(() => toSickLeaveRequest(answers), [answers]);
+  const { version: paramsVersion } = useApiParams(); // MONTH_AS_DAYS w hipotetycznym L4 pochodzi z parametrów API
+  const built = useMemo(() => toSickLeaveRequest(answers), [answers, paramsVersion]); // eslint-disable-line react-hooks/exhaustive-deps
   const request = built?.request ?? null;
   const hypothetical = built?.hypothetical ?? true;
   const key = request ? JSON.stringify(request) : null;
@@ -405,9 +406,8 @@ function SickLeaveCard({ answers }: { answers: Answers }) {
   const r = !loading && !state.error ? state.r! : null;
   const paid = (r?.benefits ?? []).filter((b) => b.total_amount_exact);
   const refused = r?.overall_status === "NOT_ELIGIBLE";
-  // informacja z odpowiedzi (nie ocena prawa): brak tytułu, ulga na start / student, brak dobrowolnego chorobowego
-  const noSicknessInsurance = answers.title === "NONE" || answers.voluntarySickness === "NO"
-    || (answers.title === "SELF_EMPLOYED" && answers.startRelief === "YES") || (answers.title === "MANDATE" && answers.studentUnder26 === "YES");
+  // informacja z odpowiedzi (nie ocena prawa) - ta sama logika co tryb w żądaniu; nie przy wyniku ELIGIBLE silnika
+  const noSicknessInsurance = sicknessMode(answers) === "NONE" && r?.overall_status !== "ELIGIBLE";
   return (
     <section className={`${card} ${refused ? "border-l-8 border-l-zus-red" : ""}`} aria-labelledby="sick-h" aria-live="polite">
       <h3 id="sick-h" className="text-lg font-semibold">Zasiłek chorobowy w ciąży{r ? `: ${STATUS_HEADLINE[r.overall_status] ?? r.overall_status}` : ""}</h3>
@@ -418,8 +418,8 @@ function SickLeaveCard({ answers }: { answers: Answers }) {
       {state?.error && state.key === key && <p className="mt-2 text-sm text-zinc-600">Silnik reguł jest teraz niedostępny ({state.error}) - poniżej zasady ogólne.</p>}
       {refused && <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-sm text-zus-red">Zasiłek chorobowy teraz Ci nie przysługuje - przyczyna poniżej.</p>}
       {noSicknessInsurance && !refused && (
-        <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-sm text-zus-red">Z Twoich odpowiedzi wynika, że nie masz ubezpieczenia chorobowego - wtedy zasiłek chorobowy nie przysługuje.
-          {" "}Silnik reguł rozstrzyga to na podstawie tytułów ubezpieczenia.</p>
+        <p className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-zinc-800">Z Twoich odpowiedzi wynika, że nie masz ubezpieczenia chorobowego.
+          {" "}Bez niego zasiłek chorobowy nie przysługuje - sprawdź tytuł ubezpieczenia (np. w PUE/eZUS), jeśli nie masz pewności.</p>
       )}
       {r && r.overall_status === "NEEDS_DATA" && r.missing_data.length === 0 && (
         <p className="mt-2 text-sm text-zinc-700">Silnik nie rozstrzygnął prawa dla tych danych - wymaga to weryfikacji w ZUS.</p>
@@ -467,12 +467,12 @@ function SicknessRules() {
     <div className="mt-3 rounded-md bg-zus-gray-50 p-3 text-sm">
       <p className="font-medium">Jak to działa</p>
       <ul className="mt-1 list-disc space-y-1 pl-5">
-        <li>Zwolnienie w ciąży (kod B na e-ZLA): {formatRate(p.SICK_RATE_FULL)} podstawy wymiaru - zamiast zwykłych 80%.</li>
+        <li>Zwolnienie w ciąży (kod B na e-ZLA): {formatRate(p.SICK_RATE_FULL)} podstawy wymiaru - zamiast zwykłych {formatRate(p.SICK_RATE_STD)}.</li>
         <li>Najdłużej {p.BENEFIT_PERIOD_PREGNANCY_TB_DAYS} dni w okresie zasiłkowym (w ciąży dłużej niż zwykle).</li>
-        <li>Na umowie o pracę pierwsze {p.SICK_PAY_DAYS_STD} dni zwolnienia w roku ({p.SICK_PAY_DAYS_50PLUS} dni od roku, w którym kończysz {p.SICK_PAY_AGE_THRESHOLD} lat)
+        <li>Na umowie o pracę pierwsze {p.SICK_PAY_DAYS_STD} dni zwolnienia w roku ({p.SICK_PAY_DAYS_50PLUS} dni od roku następującego po roku, w którym kończysz {p.SICK_PAY_AGE_THRESHOLD} lat)
           {" "}płaci pracodawca jako wynagrodzenie chorobowe. Potem zasiłek: wypłaca pracodawca, gdy zgłasza do ubezpieczenia więcej niż {p.PAYER_INSURED_THRESHOLD} osób, a w pozostałych przypadkach ZUS.</li>
         <li>Prawo do zasiłku po okresie wyczekiwania: {p.WAITING_DAYS_MANDATORY} dni nieprzerwanego ubezpieczenia obowiązkowego (np. umowa o pracę)
-          {" "}albo {p.WAITING_DAYS_VOLUNTARY} dni dobrowolnego (działalność, zlecenie). Krótsze ubezpieczenie dobrowolne = brak zasiłku (z wyjątkami, które ocenia silnik).</li>
+          {" "}albo {p.WAITING_DAYS_VOLUNTARY} dni dobrowolnego (działalność, zlecenie). Krótszy okres ubezpieczenia = brak zasiłku (z wyjątkami, które ocenia silnik).</li>
         <li>Bez ubezpieczenia chorobowego (np. ulga na start, student na zleceniu) zasiłek chorobowy nie przysługuje.</li>
         <li>Po wyczerpaniu {p.BENEFIT_PERIOD_PREGNANCY_TB_DAYS} dni, gdy dalsze leczenie rokuje powrót do pracy, można wnioskować o świadczenie rehabilitacyjne (w tej wersji tylko informacja).</li>
         <li>Zwolnienie (e-ZLA) lekarz wysyła elektronicznie do ZUS i płatnika składek. Pisma, które mogą być potrzebne (np. Z-3, ZAS-53), są w sekcji „Pisma do wypełnienia”.</li>

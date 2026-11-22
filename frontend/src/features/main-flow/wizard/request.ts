@@ -42,6 +42,17 @@ export function noInsuranceReason(a: Answers): NoInsuranceReason | null {
 
 export type WizardRequest = EvaluateRequest & { wizard_plan: WizardPlan };
 
+/** Tryb ubezpieczenia chorobowego z odpowiedzi - jedno źródło dla żądania i komunikatów (FE1-43). */
+export function sicknessMode(a: Answers): "MANDATORY" | "VOLUNTARY" | "NONE" | null {
+  if (a.title === "EMPLOYMENT") return "MANDATORY";
+  if (a.title === "NONE") return "NONE";
+  if (noInsuranceReason(a)) return "NONE";
+  if (a.title === "MANDATE" || a.title === "SELF_EMPLOYED") {
+    return a.voluntarySickness === "YES" ? "VOLUNTARY" : a.voluntarySickness === "NO" ? "NONE" : null;
+  }
+  return null;
+}
+
 const tri = (v: Tri): boolean | null => (v === "YES" ? true : v === "NO" ? false : null);
 const num = (v: string): number | null => (v.trim() === "" || Number.isNaN(Number(v)) ? null : Number(v));
 const money = parseMoney; // FE1-15: wspólna normalizacja kwot (money.ts); kwota ≥ 0 (np. zaległość 0)
@@ -61,8 +72,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
   const titleType = a.title === "EMPLOYMENT" ? "EMPLOYMENT_CONTRACT" : a.title === "MANDATE" ? "CIVIL_CONTRACT_MANDATE"
     : a.title === "SELF_EMPLOYED" ? "SELF_EMPLOYED" : null;
   const excluded = noInsuranceReason(a);
-  const mode = a.title === "EMPLOYMENT" ? "MANDATORY" : excluded ? "NONE"
-    : a.voluntarySickness === "YES" ? "VOLUNTARY" : a.voluntarySickness === "NO" ? "NONE" : null;
+  const mode = a.title === "NONE" ? null : sicknessMode(a);
 
   let titleTo: string | null = null;
   let terminationReason: string | null = null;
