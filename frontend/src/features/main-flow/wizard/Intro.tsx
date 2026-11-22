@@ -10,6 +10,29 @@ const HOW: { n: string; icon: "ask" | "plan" | "docs"; title: string; text: stri
   { n: "3", icon: "docs", title: "Wiecie, co i kiedy złożyć", text: "Lista dokumentów, adresat każdego wniosku, terminy i ryzyka, na które trzeba uważać." },
 ];
 
+type PresetKind = "mother" | "twins" | "father" | "business" | "progress";
+/** FE1-47: ikona kafelka gotowego przykładu dobrana po treści etykiety; nowe przykłady dostają ikonę domyślną (mama). */
+function presetKind(label: string): PresetKind {
+  const l = label.toLowerCase();
+  if (/bliźn|trojacz|wieloraczk/.test(l)) return "twins";
+  if (/\btata\b|ojciec|ojcowski/.test(l)) return "father";
+  if (/jdg|działalno|firm|zaległo|składk/.test(l)) return "business";
+  if (/wykorzystan|z 20\d\d|część urlopu/.test(l)) return "progress";
+  return "mother";
+}
+
+function PresetIcon({ kind }: { kind: PresetKind }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {kind === "mother" && <><circle cx="12" cy="6" r="2.5" /><path d="M7 20c0-4 2-7 5-7s5 3 5 7" /><circle cx="12" cy="16.5" r="1.8" /></>}
+      {kind === "twins" && <><circle cx="8" cy="8" r="2.5" /><circle cx="16" cy="8" r="2.5" /><path d="M3.5 19c0-3 2-5 4.5-5s4 1.5 4 3.5M12 17.5c0-2 1.5-3.5 4-3.5s4.5 2 4.5 5" /></>}
+      {kind === "father" && <><circle cx="10" cy="5.5" r="2.5" /><path d="M5 20v-5c0-2.5 2-4.5 5-4.5s5 2 5 4.5" /><circle cx="17.5" cy="13" r="1.8" /><path d="M15 20c0-1.8 1.1-3 2.5-3s2.5 1.2 2.5 3" /></>}
+      {kind === "business" && <><rect x="3" y="7" width="18" height="12" rx="2" /><path d="M9 7V5h6v2M3 12h18" /></>}
+      {kind === "progress" && <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M8 3v4M16 3v4M3 10h18" /><path d="M7 14h5" strokeWidth="3" /><path d="M13 14h4" strokeDasharray="1.5 1.5" /></>}
+    </svg>
+  );
+}
+
 /** FE1-46: ikony liniowe kroków „Jak to działa” (ozdobne). */
 function HowIcon({ kind }: { kind: "ask" | "plan" | "docs" }) {
   return (
@@ -215,12 +238,17 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
       <section aria-labelledby="ex-h">
         <h2 id="ex-h" className="text-xl font-semibold text-zus-navy">Albo zobaczcie gotowy przykład</h2>
         <p className="mt-1 text-sm text-zinc-600">Przykładowe dane, niezwiązane z żadną prawdziwą sprawą. Każdą odpowiedź możecie potem zmienić.</p>
+        {/* FE1-47: kafelki z ikoną dobraną do przykładu - stonowane, bez konkurowania z wyborem drogi */}
         <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {presets.map((p) => (
             <li key={p.id}>
               <button type="button" onClick={() => onPreset(p.answers)}
-                className="flex h-full w-full items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-4 text-left text-sm font-medium text-zinc-900 hover:border-zus-green-dark focus-visible:outline-2 focus-visible:outline-zus-green-dark">
-                <span>{p.label}</span><span aria-hidden="true" className="text-zus-green-dark">→</span>
+                className="group flex h-full w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 pr-4 text-left text-sm font-medium text-zus-ink transition hover:-translate-y-0.5 hover:border-zus-green-100 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zus-green-50 text-zus-green-dark transition group-hover:bg-zus-green-100">
+                  <PresetIcon kind={presetKind(p.label)} />
+                </span>
+                <span className="min-w-0 flex-1">{p.label}</span>
+                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zus-green-dark transition group-hover:translate-x-0.5 group-hover:border-zus-green-dark group-hover:bg-zus-green-dark group-hover:text-white motion-reduce:transition-none">→</span>
               </button>
             </li>
           ))}
