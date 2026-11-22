@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppVersion } from "@/components/AppVersion";
+import { FooterBadges } from "@/components/FooterBadges";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { MAIN_ID, SkipLink } from "@/components/SkipLink";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -21,6 +22,7 @@ export default function GuideLayout({ children }: LayoutProps<"/wsparcie">) {
       <footer className="border-t border-zinc-200 bg-white">
         <div className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-zinc-600">
           Prototyp HackNation 2026. Treści mają charakter informacyjny i nie są decyzją ZUS.
+          <FooterBadges />
           <AppVersion />
         </div>
       </footer>
