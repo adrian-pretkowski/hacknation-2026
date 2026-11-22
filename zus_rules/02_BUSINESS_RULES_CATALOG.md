@@ -274,7 +274,7 @@ Płatnik zgłaszający ≤20 ubezpieczonych przekazuje do ZUS wniosek/zaświadcz
 
 **Terminy wniosków urlopowych pracownika (KP)** - `DEADLINE` · P0 · AUTOMATABLE · eval: **INFORMATIONAL**
 
-Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026, UNCONFIRMED - GAP-025, M19); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego - w 7 dni od przyjęcia, start ≤21 dni.
+Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego - w 7 dni od przyjęcia, start ≤21 dni.
 
 - **Podstawa:** KP - KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6
 - **Fragment:** „na wniosek ... składany przez pracownika rodzica dziecka w terminie niekrótszym niż 21 dni przed rozpoczęciem korzystania z urlopu”
@@ -1749,9 +1749,9 @@ Kwota = podstawa × stawka × (1 − wymiar pracy) / 30 × liczba dni kalendarzo
 
 **Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu** - `ELIGIBILITY` · P1 · AUTOMATABLE · eval: **ACTIVE**
 
-Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd (treść zadania, M16 a) i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu - zasiłek macierzyński).
+Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu - zasiłek macierzyński).
 
-- **Podstawa:** USTAWA - art. 30 ust. 3; KP art. 177 § 4; treść zadania (CONF-001, M16 a)
+- **Podstawa:** USTAWA - art. 30 ust. 3; KP art. 177 § 4
 - **Fragment:** „przysługuje do dnia porodu zasiłek w wysokości zasiłku macierzyńskiego”
 - **Obowiązuje:** od - do -
 - **Warunki:**
@@ -2148,7 +2148,7 @@ Jeśli w pierwszym roku życia dziecka nie wykorzystano ani jednego dnia zasiłk
 
 **Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki** - `RATE` · P1 · AUTOMATABLE · eval: **ACTIVE**
 
-Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5% (ustalenie z mentorem M11).
+Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5%.
 
 - **Podstawa:** USTAWA - USTAWA art. 30a ust. 3; art. 31 ust. 3
 - **Fragment:** „ubezpieczona - matka dziecka może dzielić się z ubezpieczonym - ojcem dziecka korzystaniem z zasiłku macierzyńskiego za okres ... urlopu rodzicielskiego”
@@ -2512,7 +2512,7 @@ Podstawa zasiłku chorobowego za okres po ustaniu tytułu nie może przekraczać
 
 **Ryzyko - umowa / działalność zawarta dla pozoru krótko przed ciążą lub w ciąży** - `VALIDATION` · P1 · HUMAN_REVIEW · eval: **INFORMATIONAL**
 
-ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzję o niepodleganiu - skutek: brak prawa do zasiłków. Silnik sygnalizuje sytuacje podwyższonego ryzyka, nie ocenia pozorności.
+ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzję o niepodleganiu - skutek: brak prawa do zasiłków. Przewodnik sygnalizuje sytuacje podwyższonego ryzyka, nie ocenia pozorności.
 
 - **Podstawa:** ZALACZNIK - Treść zadania, pkt H.1 (brak przepisu w wyciągach)
 - **Fragment:** „ZUS po przeprowadzeniu postępowania, może uznać, że umowa została zawarta wyłącznie dla pozoru”
@@ -2531,7 +2531,7 @@ ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzj
 
 **Ryzyko - podwyższenie podstawy wymiaru składek w ciąży** - `VALIDATION` · P1 · HUMAN_REVIEW · eval: **INFORMATIONAL**
 
-ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w ciąży miało wyłącznie na celu uzyskanie wyższych świadczeń. Silnik sygnalizuje istotny wzrost podstawy w okresie ciąży.
+ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w ciąży miało wyłącznie na celu uzyskanie wyższych świadczeń. Przewodnik sygnalizuje istotny wzrost podstawy w okresie ciąży.
 
 - **Podstawa:** ZALACZNIK - Treść zadania, pkt H.2
 - **Fragment:** „podwyższenie podstawy wymiaru składek ... w okresie ciąży wyłącznie w celu nabycia uprawnień do wyższej podstawy”

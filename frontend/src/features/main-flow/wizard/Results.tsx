@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { MatchedFormPicker } from "@/features/documents/FormPicker";
 import { type FormCode, formsForDocTypes } from "@/features/documents/forms";
 import { type EvaluateRequest, type EvaluateResponse, evaluate } from "@/lib/api";
-import { formatDate, formatMoney, formatRate } from "@/lib/format";
+import { formatDate, formatMoney, formatRate, legalBasisText } from "@/lib/format";
 import { RuleList } from "../RuleList";
 import { useApiParams } from "../preview/apiParams";
 import { type PreviewResult, compareTotals, previewEvaluate } from "../preview/engine";
@@ -183,7 +183,7 @@ function StatusHeader({ result, onEdit, canEdit, sick, planOwn }: {
         <ul className="mt-3 space-y-1 text-sm">
           {reasons.map((x) => (
             <li key={x.code}>{x.message}{" "}
-              {!!x.legal_basis?.length && <span className="text-xs text-zinc-600">({x.legal_basis.map((l) => `${l.document === "USTAWA" ? "ustawa zasiłkowa" : l.document} ${l.location}`).join("; ")})</span>}
+              {!!x.legal_basis?.length && <span className="text-xs text-zinc-600">({x.legal_basis.map(legalBasisText).join("; ")})</span>}
             </li>
           ))}
         </ul>

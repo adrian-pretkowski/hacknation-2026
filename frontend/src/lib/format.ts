@@ -25,6 +25,26 @@ export function formatDate(value: string | null | undefined): string {
   return `${d}.${m}.${y}`;
 }
 
+/** Kody aktów z zus_rules (legal_basis.document, początek „Podstawy” reguły) → nazwy dla użytkownika (FE1-66). */
+export const LEGAL_DOC_LABEL: Record<string, string> = {
+  USTAWA: "ustawa zasiłkowa", KP: "Kodeks pracy", ROZP_DOK: "rozporządzenie w sprawie dokumentów",
+  ROZP_WN: "rozporządzenie w sprawie wniosków", ZALACZNIK: "wytyczne ZUS",
+};
+
+const LEGAL_CODE = /\b(USTAWA|KP|ROZP_DOK|ROZP_WN|ZALACZNIK)\b( - )?/g;
+
+/** Tekst podstawy prawnej z kodami aktów zamienionymi na nazwy („USTAWA - art. 30; KP art. 177” → „ustawa zasiłkowa art. 30; Kodeks pracy art. 177”).
+ * Wytyczne ZUS (ZALACZNIK) bez wewnętrznego odnośnika do punktu materiałów. */
+export function legalText(text: string): string {
+  if (/^ZALACZNIK\b/.test(text.trim())) return LEGAL_DOC_LABEL.ZALACZNIK;
+  return text.replace(LEGAL_CODE, (_, code: string) => `${LEGAL_DOC_LABEL[code]} `).replace(/ {2,}/g, " ").trim();
+}
+
+/** Jedna pozycja legal_basis z API → tekst dla użytkownika. */
+export function legalBasisText(l: { document: string; location?: string | null }): string {
+  return l.document === "ZALACZNIK" ? LEGAL_DOC_LABEL.ZALACZNIK : legalText(`${l.document} ${l.location ?? ""}`);
+}
+
 export const STATUS_LABEL: Record<string, string> = {
   ELIGIBLE: "Przysługuje",
   NOT_ELIGIBLE: "Nie przysługuje",

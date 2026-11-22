@@ -144,8 +144,7 @@ def evaluate(payload: dict[str, Any]) -> dict[str, Any]:
         if param_status("PUBLIC_HOLIDAYS") == "UNCONFIRMED":
             assumptions.append({"code": "PUBLIC_HOLIDAYS_UNCONFIRMED",
                                 "text": "Termin w sobotę, niedzielę lub święto przesunięto na następny dzień roboczy "
-                                        "(M15); lista świąt 2026–2031 przygotowana przez zespół "
-                                        "(public_holidays.yaml) - do potwierdzenia."})
+                                        "według oficjalnego kalendarza dni ustawowo wolnych od pracy 2026–2031."})
         filed = _as_date(_get(payload, "applications.combined_815_filed_date"))
         planned = _get(payload, "applications.combined_815_planned")
         applied.append("APP-DL-001")

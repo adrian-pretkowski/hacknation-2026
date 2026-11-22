@@ -133,7 +133,7 @@ Brak błędów i ostrzeżeń.
 | USTAWA art. 2a ust. 2 | GEN-EXCL-002 | ACTIVE | - |
 | USTAWA art. 30 ust. 1 pkt 1 | MAT-ELIG-004 | ACTIVE | T-MAT-005 |
 | USTAWA art. 30 ust. 1 pkt 2 | MAT-ELIG-005 | ACTIVE | - |
-| USTAWA art. 30 ust. 3; KP art. 177 § 4; treść zadania (CONF-001, M16 a) | MAT-ELIG-007 | ACTIVE | T-MAT-006, T-MAT-007 |
+| USTAWA art. 30 ust. 3; KP art. 177 § 4 | MAT-ELIG-007 | ACTIVE | T-MAT-006, T-MAT-007 |
 | USTAWA art. 36 ust. 3; art. 11 ust. 4 | SICK-CALC-001 | ACTIVE | T-SICK-014 |
 | USTAWA art. 4 ust. 1 (zasiłek chorobowy); art. 29-31 | MAT-CLS-001 | ACTIVE | T-MAT-001 |
 | USTAWA art. 4 ust. 1 pkt 1 | SICK-ELIG-002 | ACTIVE | T-SP-006, T-SICK-004 |

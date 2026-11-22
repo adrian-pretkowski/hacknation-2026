@@ -104,7 +104,7 @@ meta:
     MAT_RATE_PARENTAL: {value: "0.70", unit: ratio, source: "USTAWA art. 31 ust. 2"}
     MAT_RATE_COMBINED: {value: "0.815", unit: ratio, source: "USTAWA art. 31 ust. 3"}
     APP_COMBINED_DEADLINE_DAYS: {value: 21, unit: days_after_event, source: "USTAWA art. 30a ust. 1-2"}
-    PUBLIC_HOLIDAYS: {value: null, file: public_holidays.yaml, unit: dates, source: "Dni ustawowo wolne od pracy 2026–2031 - zus_rules/public_holidays.yaml (lista zespołu potwierdzona przez lidera 2026-11-21 - docs/mentors.md; ustawa o dniach wolnych od pracy niezałączona; M15 d: termin w dzień wolny → następny dzień roboczy; edycja w panelu admina)", status: CONFIRMED}
+    PUBLIC_HOLIDAYS: {value: null, file: public_holidays.yaml, unit: dates, source: "Dni ustawowo wolne od pracy 2026–2031 według oficjalnego kalendarza (ustawa z 18.01.1951 o dniach wolnych od pracy); termin przypadający w dzień wolny przesuwa się na następny dzień roboczy", status: CONFIRMED}
     PARENTAL_BENEFIT_FLOOR_MONTHLY: {value: "1000.00", unit: PLN, source: "USTAWA art. 31 ust. 3a → ustawa o świadczeniach rodzinnych (niezałączona); kwota 1000 zł - mentor fachowy ZUS (M10, 2026-11-21)", status: CONFIRMED}
     # --- podstawa wymiaru
     MIN_BASE_ROUNDING_STEP: {value: "0.01", unit: PLN, source: "Minimalna podstawa (art. 45) zaokrąglana do pełnych groszy - mentor fachowy ZUS (M07a, 2026-11-21): 4147,0974 → 4147,10", status: CONFIRMED}
@@ -129,7 +129,7 @@ meta:
     PAYER_FORWARD_DAYS: {value: 7, unit: days, source: "USTAWA art. 61b ust. 5"}
     # --- terminy wniosków urlopowych pracownika (APP-DL-002, f_leave_application_deadlines; BE2-04)
     LEAVE_APP_PARENTAL_DAYS_BEFORE: {value: 21, unit: days_before_start, source: "KP art. 182(1d) § 1; art. 182(1e) § 2 (łączenie z pracą)"}
-    LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "Poradnik dla rodziców, ZUS 2026 - rozdz. „Zasiłek macierzyński za okres urlopu macierzyńskiego przed porodem” (wniosek najpóźniej 14 dni przed rozpoczęciem); w wyciągu KP (art. 180 § 2) brak terminu; GAP-025, pytanie M19 w docs/mentors.md", status: UNCONFIRMED}
+    LEAVE_APP_MATERNITY_PRE_BIRTH_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "Poradnik dla rodziców, ZUS 2026 - rozdz. „Zasiłek macierzyński za okres urlopu macierzyńskiego przed porodem” (wniosek najpóźniej 14 dni przed rozpoczęciem)", status: CONFIRMED}
     LEAVE_APP_MATERNITY_FOR_FATHER_DAYS_BEFORE: {value: 14, unit: days_before_start, source: "KP art. 180 § 9"}
     LEAVE_APP_PATERNITY_DAYS_BEFORE: {value: 7, unit: days_before_start, source: "KP art. 182(3) § 2"}
     LEAVE_APP_SUPPLEMENTARY_DAYS_BEFORE_MATERNITY_END: {value: 21, unit: days_before_maternity_end, source: "KP art. 180(2) § 4"}
@@ -1486,12 +1486,12 @@ rules:
 
 - id: MAT-ELIG-007
   name: "Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu"
-  description: "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd (treść zadania, M16 a) i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu - zasiłek macierzyński)."
+  description: "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu - zasiłek macierzyński)."
   category: MATERNITY_EQUIVALENT
   rule_type: ELIGIBILITY
   legal_basis: {document: USTAWA, article: "30", paragraph: "3", point: null}
   source_document: USTAWA
-  source_location: "art. 30 ust. 3; KP art. 177 § 4; treść zadania (CONF-001, M16 a)"
+  source_location: "art. 30 ust. 3; KP art. 177 § 4"
   source_excerpt: "przysługuje do dnia porodu zasiłek w wysokości zasiłku macierzyńskiego"
   valid_from: null
   valid_to: null
@@ -2695,7 +2695,7 @@ rules:
 
 - id: RATE-MAT-008
   name: "Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki"
-  description: "Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5% (ustalenie z mentorem M11)."
+  description: "Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5%."
   category: PARENTAL
   rule_type: RATE
   legal_basis: {document: USTAWA, article: "30a; 31", paragraph: "30a ust. 3; 31 ust. 3", point: null}
@@ -2753,7 +2753,7 @@ rules:
 
 - id: APP-DL-002
   name: "Terminy wniosków urlopowych pracownika (KP)"
-  description: "Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026, UNCONFIRMED - GAP-025, M19); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego - w 7 dni od przyjęcia, start ≤21 dni."
+  description: "Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego - w 7 dni od przyjęcia, start ≤21 dni."
   category: GENERAL
   rule_type: DEADLINE
   legal_basis: {document: KP, article: "180, 180(2), 182(1d), 182(1e), 182(3), 183", paragraph: "180 § 8-9; 180(2) § 4; 182(1d) § 1; 182(1e) § 2; 182(3) § 2; 183 § 6", point: null}
@@ -3338,7 +3338,7 @@ rules:
 # =====================================================================
 - id: RISK-001
   name: "Ryzyko - umowa / działalność zawarta dla pozoru krótko przed ciążą lub w ciąży"
-  description: "ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzję o niepodleganiu - skutek: brak prawa do zasiłków. Silnik sygnalizuje sytuacje podwyższonego ryzyka, nie ocenia pozorności."
+  description: "ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzję o niepodleganiu - skutek: brak prawa do zasiłków. Przewodnik sygnalizuje sytuacje podwyższonego ryzyka, nie ocenia pozorności."
   category: RISK
   rule_type: VALIDATION
   legal_basis: {document: ZALACZNIK, article: null, paragraph: "treść zadania pkt H.1", point: null}
@@ -3363,7 +3363,7 @@ rules:
 
 - id: RISK-002
   name: "Ryzyko - podwyższenie podstawy wymiaru składek w ciąży"
-  description: "ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w ciąży miało wyłącznie na celu uzyskanie wyższych świadczeń. Silnik sygnalizuje istotny wzrost podstawy w okresie ciąży."
+  description: "ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w ciąży miało wyłącznie na celu uzyskanie wyższych świadczeń. Przewodnik sygnalizuje istotny wzrost podstawy w okresie ciąży."
   category: RISK
   rule_type: VALIDATION
   legal_basis: {document: ZALACZNIK, article: null, paragraph: "treść zadania pkt H.2", point: null}

@@ -1,5 +1,5 @@
 import type { Benefit, EvaluateResponse } from "@/lib/api";
-import { STATUS_LABEL, formatDate, formatMoney, formatRate } from "@/lib/format";
+import { STATUS_LABEL, formatDate, formatMoney, formatRate, legalBasisText, legalText } from "@/lib/format";
 import { ruleLabel } from "./rules";
 import { RuleList } from "./RuleList";
 
@@ -29,13 +29,13 @@ function BenefitCard({ benefit }: { benefit: Benefit }) {
       <ul className="mt-4 space-y-2 text-sm">
         {benefit.reasons.map((reason) => {
           const rule = ruleLabel(reason.rule_id);
-          const basis = reason.legal_basis?.map((l) => `${l.document} ${l.location}`).join("; ") || rule?.basis;
+          const basis = reason.legal_basis?.map(legalBasisText).join("; ") || (rule ? legalText(rule.basis) : undefined);
           return (
             <li key={reason.code} className="rounded bg-zinc-50 p-2">
               {reason.message}
               <span className="block text-xs text-zinc-500" title={reason.rule_id}>
                 {rule?.name ?? reason.rule_id} · {basis}
-                {rule && <span className="block">{rule.description}</span>}
+                {rule && <span className="block">{legalText(rule.description)}</span>}
               </span>
             </li>
           );

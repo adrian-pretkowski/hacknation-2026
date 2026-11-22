@@ -7,10 +7,7 @@ import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { type ContentBlock, GUIDE, LEGAL_PROTECTION, RISKS, SENSITIVE, SUPPORT } from "@/content";
 
-const DOC_LABEL: Record<string, string> = {
-  USTAWA: "ustawa zasiłkowa", KP: "Kodeks pracy", ROZP_DOK: "rozporządzenie w sprawie dokumentów",
-  ROZP_WN: "rozporządzenie w sprawie wniosków", ZALACZNIK: "treść zadania",
-};
+import { legalBasisText } from "@/lib/format";
 
 // ---------- ikony (inline SVG, bez zależności) ----------
 type IconName = "steps" | "alert" | "shield" | "heart" | "link" | "doc" | "calendar" | "baby" | "user" | "users" | "briefcase" | "info" | "phone" | "mail" | "external" | "arrow";
@@ -84,7 +81,7 @@ function LegalTags({ block }: { block: ContentBlock }) {
     <p className="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-zinc-600">
       <span className="font-medium">Podstawa:</span>
       {block.legal_basis!.map((l) => (
-        <span key={`${l.document}-${l.location}`} className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700">{DOC_LABEL[l.document] ?? l.document} {l.location}</span>
+        <span key={`${l.document}-${l.location}`} className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700">{legalBasisText(l)}</span>
       ))}
     </p>
   );

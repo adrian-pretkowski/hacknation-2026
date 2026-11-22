@@ -6,7 +6,7 @@
  },
  "APP-DL-002": {
   "basis": "KP art. 180 § 8-9, 180(2) § 4, 182(1d) § 1, 182(1e) § 2, 182(3) § 2, 183 § 6",
-  "description": "Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026, UNCONFIRMED - GAP-025, M19); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego - w 7 dni od przyjęcia, start ≤21 dni.",
+  "description": "Część macierzyńskiego przed porodem ≥14 dni przed rozpoczęciem (Poradnik ZUS 2026); rezygnacja z części macierzyńskiego ≥7 dni przed powrotem; wniosek ojca o część macierzyńskiego ≥14 dni; uzupełniający ≥21 dni przed końcem macierzyńskiego; rodzicielski ≥21 dni przed rozpoczęciem; łączenie z pracą ≥21 dni; ojcowski ≥7 dni; na warunkach macierzyńskiego - w 7 dni od przyjęcia, start ≤21 dni.",
   "name": "Terminy wniosków urlopowych pracownika (KP)"
  },
  "APP-DOC-001": {
@@ -108,6 +108,11 @@
   "basis": "USTAWA art. 50 ust. 1-2",
   "description": "Gdy przychód zmalał wskutek pobierania zasiłku/świadczenia - wyłącza się miesiące, w których wykonywano działalność przez <½ miesiąca; jeśli każdy miesiąc taki - przyjmuje się wszystkie.",
   "name": "Niepracownik - miesiące z zasiłkiem <½ miesiąca wyłączone"
+ },
+ "BASE-NEMP-005": {
+  "basis": "ZALACZNIK - Załącznik - limit podstawy składek przy dobrowolnym ubezpieczeniu chorobowym; USTAWA art. 48 ust. 1 (przychód = podstawa składek − 13,71%)",
+  "description": "Przy dobrowolnym ubezpieczeniu chorobowym (zlecenie, działalność) podstawa wymiaru zasiłku nie może przekroczyć miesięcznego limitu podstawy składek po odliczeniu 13,71% (23 550,00 × 0,8629 = 20 321,295 zł w 2026 r.).",
+  "name": "Górna granica podstawy - dobrowolne ubezpieczenie chorobowe"
  },
  "CALC-MAT-001": {
   "basis": "USTAWA art. 31 ust. 1-3, 4a, 5 (→ art. 11 ust. 4); art. 47 (→ art. 36 ust. 3)",
@@ -230,8 +235,8 @@
   "name": "Zasiłek macierzyński po ustaniu - umowa terminowa przedłużona do dnia porodu"
  },
  "MAT-ELIG-007": {
-  "basis": "USTAWA - art. 30 ust. 3; KP art. 177 § 4; treść zadania (CONF-001, M16 a)",
-  "description": "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd (treść zadania, M16 a) i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu - zasiłek macierzyński).",
+  "basis": "USTAWA - art. 30 ust. 3; KP art. 177 § 4",
+  "description": "Pracownicy, której umowa wygasła z powodu śmierci pracodawcy lub z którą rozwiązano umowę w ciąży z powodu upadłości lub likwidacji pracodawcy albo z naruszeniem przepisów prawa stwierdzonym przez sąd i nie zapewniono innego zatrudnienia, przysługuje do dnia poprzedzającego poród zasiłek w wysokości zasiłku macierzyńskiego (od dnia porodu - zasiłek macierzyński).",
   "name": "Zasiłek w wysokości zasiłku macierzyńskiego do dnia porodu"
  },
  "MAT-EXCL-001": {
@@ -381,7 +386,7 @@
  },
  "RATE-MAT-008": {
   "basis": "USTAWA art. 30a ust. 3; art. 31 ust. 3",
-  "description": "Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5% (ustalenie z mentorem M11).",
+  "description": "Matka po złożeniu wniosku 81,5% może dzielić się z ojcem zasiłkiem za okres rodzicielskiego (poza 9 tyg. ojca); ojciec w tej części otrzymuje 81,5%.",
   "name": "Stawka dla ojca korzystającego z części rodzicielskiego przy wniosku 81,5% matki"
  },
  "REHAB-DOC-001": {
@@ -411,12 +416,12 @@
  },
  "RISK-001": {
   "basis": "ZALACZNIK - Treść zadania, pkt H.1 (brak przepisu w wyciągach)",
-  "description": "ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzję o niepodleganiu - skutek: brak prawa do zasiłków. Silnik sygnalizuje sytuacje podwyższonego ryzyka, nie ocenia pozorności.",
+  "description": "ZUS może w postępowaniu uznać tytuł ubezpieczenia za pozorny i wydać decyzję o niepodleganiu - skutek: brak prawa do zasiłków. Przewodnik sygnalizuje sytuacje podwyższonego ryzyka, nie ocenia pozorności.",
   "name": "Ryzyko - umowa / działalność zawarta dla pozoru krótko przed ciążą lub w ciąży"
  },
  "RISK-002": {
   "basis": "ZALACZNIK - Treść zadania, pkt H.2",
-  "description": "ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w ciąży miało wyłącznie na celu uzyskanie wyższych świadczeń. Silnik sygnalizuje istotny wzrost podstawy w okresie ciąży.",
+  "description": "ZUS może ustalić niższą podstawę, jeśli podwyższenie podstawy składek w ciąży miało wyłącznie na celu uzyskanie wyższych świadczeń. Przewodnik sygnalizuje istotny wzrost podstawy w okresie ciąży.",
   "name": "Ryzyko - podwyższenie podstawy wymiaru składek w ciąży"
  },
  "RISK-003": {

@@ -47,9 +47,8 @@ PARAM_ASSUMPTIONS = {
     "MIN_WAGE_2026_MONTHLY": {"code": "MIN_WAGE_FROM_ATTACHMENT",
                               "text": "Płaca minimalna 2026 wzięta z Załącznika HackNation (niepotwierdzona)."},
     "PUBLIC_HOLIDAYS": {"code": "PUBLIC_HOLIDAYS_UNCONFIRMED",
-                        "text": "Termin w sobotę, niedzielę lub święto przesunięto na następny dzień roboczy "
-                                "(M15); lista świąt 2026–2031 przygotowana przez zespół "
-                                "(public_holidays.yaml) - do potwierdzenia."},
+                        "text": "Termin w sobotę, niedzielę lub święto przesunięto na następny dzień roboczy według "
+                                "oficjalnego kalendarza dni ustawowo wolnych od pracy 2026–2031."},
 }
 
 
