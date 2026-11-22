@@ -115,7 +115,10 @@ export function buildPrefill(code: FormCode, a: Answers | null, u: TestUser | nu
       if (f.variant === "COMBINED_815") b.set("p2_30", true, "wizard");
       if (f.title === "SELF_EMPLOYED" && f.voluntarySickness !== null) b.set("p2_31", f.voluntarySickness ? "TAK" : "NIE", s);
       if (!f.guardianKind && f.stage === "BORN") b.set("p2_33", true, "wizard");
-      if (!f.guardianKind && f.stage === "PREGNANT" && f.eventDate) { b.set("p3_40", true, "wizard"); b.set("p3_41", f.eventDate, "wizard"); }
+      // FE1-52: pracodawca w likwidacji/upadłości - poród po ustaniu zatrudnienia (p3_42) zamiast „przewidywanej daty porodu” (p3_40)
+      const employerGone = !f.guardianKind && (f.employerEnded === "LIQUIDATION" || f.employerEnded === "BANKRUPTCY");
+      if (employerGone) { b.set("p3_42", true, "wizard"); b.set(f.employerEnded === "LIQUIDATION" ? "p3_44" : "p3_43", true, "wizard"); }
+      else if (!f.guardianKind && f.stage === "PREGNANT" && f.eventDate) { b.set("p3_40", true, "wizard"); b.set("p3_41", f.eventDate, "wizard"); }
       if (f.zaZyciem) b.set("p3_38", true, "wizard");
       b.set("p5_84", todayIso(), "today");
       break;

@@ -22,6 +22,10 @@ const TABLE_RE = /_tab(\d+)_r(\d+)_c(\d+)$/;
 const plural = (n: number, one: string, few: string, many: string) =>
   n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many;
 
+/** Komórki tabeli z PDF (`p<strona>_<nr>_tab<tab>_r<w>_c<k>`) dla sekcji z `table`. */
+const tableCells = (meta: PdfFieldMeta[], t: { page: number; tab: number }) =>
+  meta.filter((m) => { const x = TABLE_RE.exec(m.name); return x && m.page === t.page && Number(x[1]) === t.tab; });
+
 const shortId = (name: string) => name.split("_").slice(0, 2).join("_");
 const isEmpty = (v: string | boolean | undefined) => v === undefined || v === false || (typeof v === "string" && v.trim() === "");
 
@@ -98,18 +102,29 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
   })), [code, byShort, paramsVersion]);
 
   const pairs = useMemo(() => Object.fromEntries(sections.flatMap((s) => s.resolved.filter((f) => f.noMeta).map((f) => [f.meta.name, f.noMeta!.name]))), [sections]);
-  const covered = useMemo(() => new Set(sections.flatMap((s) => s.resolved.flatMap((f) => [f.meta.name, ...(f.noMeta ? [f.noMeta.name] : [])]))), [sections]);
+  const covered = useMemo(() => new Set([
+    ...sections.flatMap((s) => s.resolved.flatMap((f) => [f.meta.name, ...(f.noMeta ? [f.noMeta.name] : [])])),
+    ...sections.flatMap((s) => (s.table ? tableCells(meta ?? [], s.table).map((m) => m.name) : [])),
+  ]), [sections, meta]);
   const rest = useMemo(() => (meta ?? []).filter((m) => !covered.has(m.name)), [meta, covered]);
 
-  const isRequired = (f: SpecField) => (typeof f.required === "function" ? f.required(get) : !!f.required);
+  const isOn = (id: string) => { const v = get(id); return v === true || v === "TAK"; };
+  const isRequired = (f: SpecField) => {
+    if (f.parent && !isOn(f.parent)) return false; // zagnieżdżone: wymagane dopiero po zaznaczeniu nadrzędnego
+    return typeof f.required === "function" ? f.required(get) : !!f.required;
+  };
+  /** Pole zagnieżdżone jest zawsze widoczne, ale wymagane/walidowane tylko po zaznaczeniu pola nadrzędnego (checkbox)
+   *  albo odpowiedzi TAK (para TAK/NIE); zaznaczenie zagnieżdżonego zaznacza nadrzędne - patrz `pick`/`check`. */
+  const isActive = (f: SpecField) => !f.parent || isOn(f.parent);
 
   // Walidacja: wymagane, format, „co najmniej jedno”. Klucz = pełna nazwa pola albo `oneOf:<sekcja>`.
   const errors = useMemo(() => {
     const out: { key: string; label: string; message: string }[] = [];
     if (!meta) return out;
     for (const s of sections) {
-      if (s.oneOf && !s.oneOf.ids.some((id) => get(id) === true)) out.push({ key: `oneOf:${s.id}`, label: s.title, message: s.oneOf.message });
+      if (s.oneOf && (!s.oneOf.when || isOn(s.oneOf.when)) && !s.oneOf.ids.some((id) => get(id) === true)) out.push({ key: `oneOf:${s.id}`, label: s.title, message: s.oneOf.message });
       for (const f of s.resolved) {
+        if (!isActive(f)) continue;
         const v = values[f.meta.name];
         const label = f.label ?? f.meta.label_guess;
         if (isEmpty(v)) {
@@ -132,7 +147,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meta, sections, values, rest]);
   const errorMap = new Map(errors.map((e) => [e.key, e.message]));
-  const missingRequired = sections.reduce((n, s) => n + s.resolved.filter((f) => isRequired(f) && isEmpty(values[f.meta.name])).length, 0);
+  const missingRequired = sections.reduce((n, s) => n + s.resolved.filter((f) => isActive(f) && isRequired(f) && isEmpty(values[f.meta.name])).length, 0);
   const filledCount = Object.values(source).filter((s) => s !== "today").length;
 
   const fieldId = (name: string) => `${idp}-${name}`;
@@ -217,6 +232,20 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
   if (loadError) return <p role="alert" className="rounded-xl bg-zus-red-50 p-4 text-sm text-zus-red">{loadError}</p>;
   if (!meta) return <p role="status" className="text-sm text-zinc-600">Wczytujemy formularz {code}…</p>;
 
+  const allFields = sections.flatMap((s) => s.resolved);
+  /** Pola nadrzędne (rekurencyjnie) w stanie „aktywnym”: checkbox = true, para TAK/NIE = „TAK”. */
+  const ancestors = (f: Resolved): Values => {
+    const p = f.parent ? allFields.find((c) => c.id === f.parent) : undefined;
+    return p ? { [p.meta.name]: p.noMeta ? "TAK" : true, ...ancestors(p) } : {};
+  };
+  const descendants = (id: string): Resolved[] => allFields.filter((c) => c.parent === id).flatMap((c) => [c, ...descendants(c.id)]);
+  const clearedOf = (f: Resolved): Values =>
+    Object.fromEntries(descendants(f.id).map((c) => [c.meta.name, c.noMeta || inputKind(c.meta).kind !== "checkbox" ? "" : false]));
+  /** Checkbox: zaznaczenie zaznacza nadrzędne, odznaczenie czyści zagnieżdżone (nie trafią do PDF). */
+  const check = (f: Resolved, on: boolean) => setEdits((prev) => ({ ...prev, [f.meta.name]: on, ...(on ? ancestors(f) : clearedOf(f)) }));
+  /** Para TAK/NIE: TAK zaznacza nadrzędne, NIE czyści zagnieżdżone. */
+  const pick = (f: Resolved, val: string) => setEdits((prev) => ({ ...prev, [f.meta.name]: val, ...(val === "TAK" ? ancestors(f) : clearedOf(f)) }));
+
   const renderField = (f: Resolved) => {
     const name = f.meta.name;
     const id = fieldId(name);
@@ -242,7 +271,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
           <div className="mt-2 flex flex-wrap gap-2">
             {[["TAK", yes], ["NIE", no]].map(([val, text]) => (
               <label key={val} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm focus-within:ring-2 focus-within:ring-zus-green-dark ${v === val ? "border-zus-green-dark bg-zus-green-50" : "border-zinc-300 bg-white"}`}>
-                <input type="radio" name={id} value={val} checked={v === val} onChange={() => set(name, val)} className="h-4 w-4 accent-zus-green-dark" />
+                <input type="radio" name={id} value={val} checked={v === val} onChange={() => pick(f, val)} className="h-4 w-4 accent-zus-green-dark" />
                 {text}
               </label>
             ))}
@@ -258,7 +287,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
     if (kind === "checkbox") {
       return (
         <label key={name} htmlFor={id} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm sm:col-span-2 ${v === true ? "border-zus-green-dark bg-zus-green-50" : "border-zinc-200 bg-white"}`}>
-          <input id={id} type="checkbox" checked={v === true} onChange={(e) => set(name, e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-zus-green-dark" />
+          <input id={id} type="checkbox" checked={v === true} onChange={(e) => check(f, e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-zus-green-dark" />
           <span>{label}{badge}</span>
         </label>
       );
@@ -281,6 +310,35 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
     );
   };
 
+  /** Siatka komórek tabeli z PDF; `columns` = nagłówki (gdy znane), inaczej „kol. N”. */
+  const renderTable = (cells: PdfFieldMeta[], caption: string, ariaPrefix: string, columns?: string[]) => {
+    const rows = [...new Set(cells.map((c) => Number(TABLE_RE.exec(c.name)![2])))].sort((x, y) => x - y);
+    const cols = [...new Set(cells.map((c) => Number(TABLE_RE.exec(c.name)![3])))].sort((x, y) => x - y);
+    const cell = (r: number, c: number) => cells.find((x) => { const m = TABLE_RE.exec(x.name)!; return Number(m[2]) === r && Number(m[3]) === c; });
+    return (
+      <div key={caption} className="overflow-x-auto">
+        <table className="min-w-full border-collapse text-xs">
+          <caption className="mb-1 text-left text-sm font-medium">{caption}</caption>
+          <thead><tr><th scope="col" className="p-1 text-left">Wiersz</th>{cols.map((c) => <th key={c} scope="col" className="p-1 text-left align-bottom font-medium">{columns?.[c - 1] ?? `kol. ${c}`}</th>)}</tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r}>
+                <th scope="row" className="p-1 text-left font-normal">{r}</th>
+                {cols.map((c) => {
+                  const m = cell(r, c);
+                  return <td key={c} className="p-0.5">{m && (
+                    <input aria-label={`${ariaPrefix}, wiersz ${r}, ${columns?.[c - 1] ?? `kolumna ${c}`}`} value={typeof values[m.name] === "string" ? (values[m.name] as string) : ""}
+                      onChange={(e) => set(m.name, e.target.value)} className="w-24 rounded border border-zinc-500 px-1.5 py-1 text-xs focus-visible:ring-2 focus-visible:ring-zus-green-dark focus-visible:outline-none" />
+                  )}</td>;
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   // Pozostałe pola: wg stron; tabele (np. składniki wynagrodzenia) jako siatka komórek.
   const restPages = [...new Set(rest.map((m) => m.page))].sort((x, y) => x - y);
   const renderRest = (page: number) => {
@@ -294,33 +352,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
     return (
       <div className="space-y-5">
         {plain.length > 0 && <div className="grid gap-4 sm:grid-cols-2">{plain.map((m) => renderField({ id: shortId(m.name), meta: m }))}</div>}
-        {[...tables.entries()].map(([t, cells]) => {
-          const rows = [...new Set(cells.map((c) => Number(TABLE_RE.exec(c.name)![2])))].sort((a, b) => a - b);
-          const cols = [...new Set(cells.map((c) => Number(TABLE_RE.exec(c.name)![3])))].sort((a, b) => a - b);
-          const cell = (r: number, c: number) => cells.find((x) => { const m = TABLE_RE.exec(x.name)!; return Number(m[2]) === r && Number(m[3]) === c; });
-          return (
-            <div key={t} className="overflow-x-auto">
-              <table className="min-w-full border-collapse text-xs">
-                <caption className="mb-1 text-left text-sm font-medium">Tabela {t} (strona {page}) - kolumny jak na formularzu</caption>
-                <thead><tr><th scope="col" className="p-1 text-left">Wiersz</th>{cols.map((c) => <th key={c} scope="col" className="p-1">kol. {c}</th>)}</tr></thead>
-                <tbody>
-                  {rows.map((r) => (
-                    <tr key={r}>
-                      <th scope="row" className="p-1 text-left font-normal">{r}</th>
-                      {cols.map((c) => {
-                        const m = cell(r, c);
-                        return <td key={c} className="p-0.5">{m && (
-                          <input aria-label={`Tabela ${t}, wiersz ${r}, kolumna ${c}`} value={typeof values[m.name] === "string" ? (values[m.name] as string) : ""}
-                            onChange={(e) => set(m.name, e.target.value)} className="w-20 rounded border border-zinc-500 px-1.5 py-1 text-xs focus-visible:ring-2 focus-visible:ring-zus-green-dark focus-visible:outline-none" />
-                        )}</td>;
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          );
-        })}
+        {[...tables.entries()].map(([t, cells]) => renderTable(cells, `Tabela ${t} (strona ${page}) - kolumny jak na formularzu`, `Tabela ${t}`))}
       </div>
     );
   };
@@ -331,8 +363,13 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
       <fieldset key={s.id} className="rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6">
         <legend className="px-1 text-base font-semibold text-zus-navy">{s.title}</legend>
         {s.text && <p className="mb-3 text-sm text-zinc-600">{s.text}</p>}
-        {s.oneOf && <p className="mb-3 text-xs text-zinc-600">Zaznacz co najmniej jedną pozycję.<span aria-hidden="true" className="text-zus-red"> *</span></p>}
-        <div className="grid gap-4 sm:grid-cols-2">{s.resolved.map(renderField)}</div>
+        {s.oneOf && (!s.oneOf.when || isOn(s.oneOf.when)) && <p className="mb-3 text-xs text-zinc-600">Zaznacz co najmniej jedną pozycję.<span aria-hidden="true" className="text-zus-red"> *</span></p>}
+        {s.table && renderTable(tableCells(meta, s.table), s.title, s.title, s.table.columns)}
+        <div className="grid gap-4 sm:grid-cols-2">
+          {s.resolved.map((f) => f.parent
+            ? <div key={f.meta.name} className="space-y-4 border-l-2 border-zus-green-dark/40 pl-4 sm:col-span-2 sm:pl-6">{renderField(f)}</div>
+            : renderField(f))}
+        </div>
         {groupErr && <p role="alert" className="mt-2 text-sm text-zus-red">{groupErr}</p>}
       </fieldset>
     );

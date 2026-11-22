@@ -20,6 +20,9 @@ export type SpecField = {
   /** pole wyboru jednej z dwóch opcji (TAK/NIE albo inne): id = pierwsze pole, no = drugie */
   no?: string;
   options?: [string, string];
+  /** pole zagnieżdżone pod polem nadrzędnym (krótkie ID checkboxa albo pary TAK/NIE): zawsze widoczne, ale wymagane/walidowane
+   *  tylko gdy nadrzędne jest zaznaczone / ma odpowiedź TAK; zaznaczenie zagnieżdżonego zaznacza nadrzędne */
+  parent?: string;
 };
 
 export type SpecSection = {
@@ -28,7 +31,9 @@ export type SpecSection = {
   text?: string;
   fields: SpecField[];
   /** co najmniej jedno z pól (checkboxów) musi być zaznaczone */
-  oneOf?: { ids: string[]; message: string };
+  oneOf?: { ids: string[]; message: string; /** sprawdzaj tylko, gdy to pole (krótkie ID) jest zaznaczone (checkbox) albo ma odpowiedź TAK */ when?: string };
+  /** tabela z PDF (komórki `p<strona>_<nr>_tab<tab>_r<w>_c<k>`) zamiast pojedynczych pól; `columns` = nagłówki kolumn */
+  table?: { page: number; tab: number; columns: string[] };
 };
 
 const on = (id: string) => (get: Get) => get(id) === true;
@@ -141,8 +146,8 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
       ] },
     { id: "insurance", title: "Informacje o ubezpieczeniu",
       fields: [{ id: "p2_31", no: "p2_32", label: "Jeśli prowadzisz działalność gospodarczą (albo współpracujesz, jesteś duchownym lub marynarzem): czy masz ubezpieczenie chorobowe?" }] },
-    { id: "reason", title: "Wnioskuję o zasiłek w związku z",
-      oneOf: { ids: ["p2_33", "p2_34", "p2_36", "p3_40", "p3_42", "p3_50", "p4_57", "p5_69"], message: "Zaznacz, z jakiego powodu wnioskujesz o zasiłek (lub wybierz inny powód w „Pozostałych polach”)." },
+    { id: "reason", title: "Wnioskuję o zasiłek w związku z", text: "Powód wniosku: wybierz tu albo w kolejnych sekcjach (po ustaniu zatrudnienia, pobyt w szpitalu, sytuacja matki, wypisanie ze szpitala).",
+      oneOf: { ids: ["p2_33", "p2_34", "p2_36", "p3_40", "p3_42", "p3_50", "p4_57", "p5_69"], message: "Zaznacz, z jakiego powodu wnioskujesz o zasiłek (w tej lub w jednej z kolejnych sekcji)." },
       fields: [
         { id: "p2_33", label: "urodzeniem dziecka/dzieci" },
         { id: "p2_34", label: "przyjęciem dziecka na wychowanie i wystąpieniem do sądu o przysposobienie" },
@@ -153,6 +158,53 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
         { id: "p3_39", label: "Imię/imiona dziecka z zaświadczeniem „Za życiem”", required: on("p3_38") },
         { id: "p3_40", label: "przewidywaną datą porodu (zasiłek przed porodem)" },
         { id: "p3_41", label: "Przewidywana data porodu", required: on("p3_40") },
+      ] },
+    { id: "afterEmployment", title: "Urodzenie dziecka po ustaniu zatrudnienia", text: "Wypełnij, jeśli dziecko urodziło się po ustaniu Twojego zatrudnienia.",
+      oneOf: { ids: ["p3_43", "p3_44", "p3_45", "p3_46"], when: "p3_42", message: "Zaznacz, co się stało z Twoim pracodawcą." },
+      fields: [
+        { id: "p3_42", label: "urodzeniem dziecka/dzieci po ustaniu zatrudnienia; mój pracodawca:" },
+        { id: "p3_43", label: "ogłosił upadłość", parent: "p3_42" },
+        { id: "p3_44", label: "ogłosił likwidację", parent: "p3_42" },
+        { id: "p3_45", label: "rozwiązał ze mną umowę o pracę z naruszeniem przepisów prawa, stwierdzonym prawomocnym orzeczeniem sądu", parent: "p3_42" },
+        { id: "p3_46", label: "zmarł", parent: "p3_42" },
+        { id: "p3_47", label: "Dane dziecka/dzieci", hint: "Imię i nazwisko, data i miejsce urodzenia.", parent: "p3_42", required: true },
+        { id: "p3_48", label: "Dziecko ma zaświadczenie „Za życiem” (art. 4 ust. 3 ustawy o wspieraniu kobiet w ciąży i rodzin)", parent: "p3_42" },
+        { id: "p3_49", label: "Imię/imiona dziecka z zaświadczeniem „Za życiem”", parent: "p3_48", required: true },
+      ] },
+    { id: "hospital", title: "Urodzenie dziecka i jego pobyt w szpitalu", text: "Dotyczy uzupełniającego urlopu macierzyńskiego.",
+      oneOf: { ids: ["p3_51", "p3_52", "p3_53", "p3_54"], when: "p3_50", message: "Zaznacz co najmniej jedną z sytuacji dotyczących urodzenia dziecka." },
+      fields: [
+        { id: "p3_50", label: "urodzeniem dziecka i jego pobytem w szpitalu (uzupełniający urlop macierzyński)" },
+        { id: "p3_51", label: "urodzenie dziecka przed ukończeniem 28 tygodnia ciąży", parent: "p3_50" },
+        { id: "p3_52", label: "masa urodzeniowa dziecka nie większa niż 1000 g", parent: "p3_50" },
+        { id: "p3_53", label: "urodzenie dziecka po ukończeniu 28. tygodnia ciąży i przed ukończeniem 37 tygodnia ciąży i z masą urodzeniową większą niż 1000 g", parent: "p3_50" },
+        { id: "p3_54", label: "urodzenie dziecka po ukończeniu 37 tygodnia ciąży i pobyt dziecka w szpitalu co najmniej 2 kolejne dni, przy czym pierwszy z tych dni przypadał w okresie od 5 do 28 dnia po porodzie", parent: "p3_50" },
+        { id: "p3_55", label: "Okres pobytu dziecka w szpitalu", hint: PERIOD_HINT, parent: "p3_50", required: true },
+        { id: "p4_56", label: "Dane dziecka/dzieci", hint: "Imię i nazwisko, data i miejsce urodzenia.", parent: "p3_50", required: true },
+      ] },
+    { id: "mother", title: "Sytuacja matki dziecka/dzieci", text: "Wypełnij, jeśli wnioskujesz jako ojciec lub inny uprawniony opiekun w związku z sytuacją matki.",
+      oneOf: { ids: ["p4_58", "p4_59", "p4_60", "p4_61", "p4_62", "p4_63"], when: "p4_57", message: "Zaznacz, jaka jest sytuacja matki dziecka/dzieci." },
+      fields: [
+        { id: "p4_57", label: "sytuacją matki dziecka/dzieci:" },
+        { id: "p4_58", label: "skróceniem przez matkę okresu wypłaty zasiłku macierzyńskiego po wykorzystaniu co najmniej 14 tygodni po porodzie", parent: "p4_57" },
+        { id: "p4_59", label: "przerwaniem na wniosek matki okresu wypłaty zasiłku macierzyńskiego z powodu jej pobytu w szpitalu po wykorzystaniu zasiłku w wymiarze co najmniej 8 tygodni po porodzie", hint: "O wypisaniu matki ze szpitala zobowiązujesz się poinformować płatnika zasiłku.", parent: "p4_57" },
+        { id: "p4_60", label: "przerwaniem przez matkę okresu wypłaty zasiłku macierzyńskiego z powodu posiadania orzeczenia o niezdolności do samodzielnej egzystencji lub o niepełnosprawności w stopniu znacznym po wykorzystaniu co najmniej 8 tygodni zasiłku po porodzie", parent: "p4_57" },
+        { id: "p4_61", label: "podjęciem pracy przez matkę w wymiarze nie niższym niż połowa pełnego etatu", hint: "O ustaniu zatrudnienia matki zobowiązujesz się poinformować płatnika zasiłku.", parent: "p4_57" },
+        { id: "p4_62", label: "porzuceniem dziecka/dzieci przez matkę", parent: "p4_57" },
+        { id: "p4_63", label: "śmiercią matki", parent: "p4_57" },
+        { id: "p4_64", label: "Data śmierci matki", parent: "p4_63", required: true },
+        { id: "p4_65", label: "Dane dziecka/dzieci", hint: "Imię i nazwisko, data i miejsce urodzenia.", parent: "p4_57", required: true },
+        { id: "p4_66", label: "Dziecko ma zaświadczenie „Za życiem” (art. 4 ust. 3 ustawy o wspieraniu kobiet w ciąży i rodzin)", parent: "p4_57" },
+        { id: "p4_67", label: "Imię/imiona dziecka z zaświadczeniem „Za życiem”", parent: "p4_66", required: true },
+        { id: "p4_68", label: "Dane matki dziecka/dzieci", hint: "Imię i nazwisko oraz PESEL; bez PESEL - seria i numer dokumentu tożsamości i data urodzenia.", parent: "p4_57", required: true },
+      ] },
+    { id: "discharge", title: "Wypisanie ze szpitala",
+      oneOf: { ids: ["p5_70", "p5_71"], when: "p5_69", message: "Zaznacz, kogo dotyczy wypisanie ze szpitala: Ciebie czy dziecka." },
+      fields: [
+        { id: "p5_69", label: "wypisaniem ze szpitala:" },
+        { id: "p5_70", label: "mnie", parent: "p5_69" },
+        { id: "p5_71", label: "dziecka", parent: "p5_69" },
+        { id: "p5_72", label: "Data wypisania", hint: "Format dd.mm.rrrr.", parent: "p5_69", required: true },
       ] },
     { id: "other", title: "Drugi rodzic", text: "Wypełnij, jeśli wnioskujesz o zasiłek za urlop rodzicielski lub uzupełniający.",
       fields: [
@@ -186,12 +238,13 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
         { id: "p2_021", label: "Data ustania tytułu ubezpieczenia", required: on("p2_020") },
       ] },
     { id: "cause", title: "Przyczyna niezdolności",
+      oneOf: { ids: ["p2_022", "p2_023", "p2_024"], when: "p2_025", message: "Zaznacz przyczynę niezdolności do pracy (choroba zawodowa, wypadek przy pracy albo w drodze)." },
       fields: [
         { id: "p2_025", no: "p2_026", label: "Czy niezdolność wynika z choroby zawodowej, wypadku przy pracy lub w drodze do/z pracy?", required: true },
-        { id: "p2_022", label: "choroby zawodowej" },
-        { id: "p2_023", label: "wypadku przy pracy" },
-        { id: "p2_024", label: "wypadku w drodze do pracy lub z pracy" },
-        { id: "p2_027", label: "Jeśli TAK - rodzaj dokumentu (decyzja / protokół / karta wypadku), numer i data", required: is("p2_025", "TAK") },
+        { id: "p2_022", label: "choroby zawodowej", parent: "p2_025" },
+        { id: "p2_023", label: "wypadku przy pracy", parent: "p2_025" },
+        { id: "p2_024", label: "wypadku w drodze do pracy lub z pracy", parent: "p2_025" },
+        { id: "p2_027", label: "Rodzaj dokumentu (decyzja / protokół / karta wypadku), numer i data", parent: "p2_025", required: true },
         { id: "p2_028", no: "p2_029", label: "Jeśli jesteś marynarzem: czy za ten okres przysługuje Ci wynagrodzenie (art. 75 pkt 2 ustawy o pracy na morzu)?" },
       ] },
     { id: "sign", title: "Oświadczenie", fields: [{ id: "p2_030", label: "Data", hint: SIGN_HINT, required: true }] },
@@ -302,6 +355,17 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
     { id: "insurance", title: "Informacje o ubezpieczeniu", fields: [
       { id: "p3_038", no: "p3_039", label: "Objęty ubezpieczeniem chorobowym", required: true },
       { id: "p3_040", no: "p3_041", label: "Objęty ubezpieczeniem wypadkowym" },
+      { id: "p3_042", label: "jako członek rolniczej spółdzielni produkcyjnej lub spółdzielni kółek rolniczych" },
+      { id: "p3_043", label: "jako osoba wykonująca pracę na podstawie umowy agencyjnej lub umowy zlecenia albo innej umowy o świadczeniu usług, do której zgodnie z Kodeksem cywilnym stosuje się przepisy dotyczące zlecenia, lub jako osoba współpracująca" },
+      { id: "p3_044", label: "jako osoba wykonująca umowę o pracę nakładczą" },
+      { id: "p3_045", label: "jako osoba wykonująca odpłatnie pracę na podstawie skierowania do pracy w czasie odbywania kary pozbawienia wolności albo tymczasowego aresztowania" },
+      { id: "p3_046", label: "jako poseł lub senator pobierający uposażenie" },
+      { id: "p3_047", label: "jako osoba pobierająca stypendium sportowe" },
+      { id: "p3_048", label: "jako słuchacz Krajowej Szkoły Administracji Publicznej pobierający stypendium" },
+      { id: "p3_049", label: "jako osoba pobierająca stypendium w okresie odbywania szkolenia, stażu lub przygotowania zawodowego dorosłych (skierowanie przez urząd pracy lub inny podmiot) albo stypendium w okresie studiów podyplomowych" },
+      { id: "p3_050", label: "jako osoba odbywająca służbę zastępczą" },
+      { id: "p3_051", label: "jako osoba sprawująca opiekę nad dzieckiem na podstawie umowy uaktywniającej (ustawa z 4 lutego 2011 r. o opiece nad dzieckiem do lat 3)" },
+      { id: "p3_052", label: "jako doktorant, który otrzymuje stypendium doktoranckie" },
       { id: "p3_053", label: "Ubezpieczeniu chorobowemu podlega (data lub okres)", required: is("p3_038", "TAK") },
       { id: "p3_054", label: "Ubezpieczeniu wypadkowemu podlega (data lub okres)" },
       { id: "p3_055", no: "p3_056", label: "3. Czy tytuł ubezpieczenia ustał?", required: true },
