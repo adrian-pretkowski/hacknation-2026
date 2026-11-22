@@ -676,8 +676,14 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       if (!motherUninsured && fatherWeeks < reserved) warn("RESERVED_9W_LOST", "INFO", "PAR-SHARE-001",
         `${reserved} tygodni rodzicielskiego przysługuje wyłącznie tacie - jeśli ich nie weźmie, przepadają.`);
 
-      // ojcowski
-      if (eventType === "BIRTH" || eventType === "ADOPTION") {
+      // ojcowski; FE1-61: po porodzie odpowiedź „Czy tata wykorzystał już urlop ojcowski?” obowiązuje też poza trybem „co zostało”
+      const paternityUsed = eventType === "BIRTH" && wp.father_paternity_used === true;
+      if (paternityUsed) warn("PATERNITY_ALREADY_USED", "INFO", "PAT-DUR-001",
+        "Urlop ojcowski został już wykorzystany - nie planujemy go ponownie.");
+      if (!paternityUsed && eventType === "BIRTH" && ev < today && wp.father_paternity_used === null)
+        warn("PATERNITY_USAGE_UNKNOWN", "INFO", "PAT-DUR-001",
+          "Nie wiemy, czy tata wykorzystał już urlop ojcowski - pokazujemy go w planie; jeśli był wykorzystany, zaznacz to w kroku „Co już wykorzystano”.");
+      if (!paternityUsed && (eventType === "BIRTH" || eventType === "ADOPTION")) {
         const pStart = req.plan?.paternity_start_date ?? maxDate(ev, addDays(today, P.LEAVE_APP_PATERNITY_DAYS_BEFORE));
         const p = mkSeg("FATHER", "PATERNITY_LEAVE", pStart, P.PATERNITY_WEEKS * W, P.MAT_RATE_FULL, fOwn);
         segments.push(p);
