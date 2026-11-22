@@ -208,4 +208,81 @@ export const PRESETS: { id: string; label: string; answers: Partial<Answers> }[]
     answers: { role: "MOTHER", stage: "PREGNANT", title: "SELF_EMPLOYED", voluntarySickness: "YES", insuredFrom: "2025-01-01",
       debt: "120.00", eventDate: inDays(81), children: 1, salaryGross: "5000" },
   },
+  {
+    // FE1-52: ulga na start - bez ubezpieczeń społecznych, więc i bez zasiłku (wynik z powodem, nie sama odmowa).
+    // Data rozpoczęcia działalności: 60 dni temu, poród w trakcie 6 mies. ulgi (kontrakt wymaga `insurance.titles[].from`).
+    id: "s11",
+    label: "JDG na uldze na start, poród za 80 dni",
+    answers: { role: "MOTHER", stage: "PREGNANT", title: "SELF_EMPLOYED", startRelief: "YES", insuredFrom: inDays(-60), eventDate: inDays(80), children: 1,
+      salaryGross: "5000" },
+  },
+  {
+    // FE1-52: likwidacja pracodawcy w ciąży - zasiłek po ustaniu zatrudnienia wypłaca ZUS (art. 30 ustawy zasiłkowej).
+    id: "s12",
+    label: "Pracodawca w likwidacji, poród za 40 dni",
+    answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", fullTime: "YES", payerSize: "GT20",
+      insuredFrom: "2020-09-01", employerEnded: "LIQUIDATION", eventDate: inDays(40), children: 1, salaryGross: "7000" },
+  },
+  {
+    // FE1-52: praca w niepełnym wymiarze w trakcie rodzicielskiego - zasiłek proporcjonalnie, okres się wydłuża.
+    id: "s13",
+    label: "Mama wraca na pół etatu w rodzicielskim",
+    answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", fullTime: "YES", payerSize: "GT20",
+      insuredFrom: "2021-03-01", eventDate: inDays(10), children: 1, workFraction: "0.5", workWeeks: "16", salaryGross: "8000" },
+  },
+  {
+    // FE1-52: adopcja 3-latka - macierzyński 20 tyg. od przyjęcia dziecka, ojcowski 12 mies. od uprawomocnienia.
+    id: "s14",
+    label: "Adopcja 3-latka, przyjęcie za 14 dni",
+    answers: { role: "GUARDIAN", guardianKind: "ADOPTION", title: "EMPLOYMENT", contractType: "INDEFINITE", fullTime: "YES",
+      payerSize: "GT20", insuredFrom: "2020-01-01", eventDate: inDays(14), childAgeYears: "3", childBirthDate: inDays(-3 * 365 - 30),
+      courtApplicationDate: inDays(-120), children: 1, salaryGross: "8000" },
+  },
+  {
+    // FE1-52: firma założona w ciąży z wysoką podstawą - ryzyko kontroli ZUS i weryfikacji podstawy.
+    id: "s15",
+    label: "Firma założona w ciąży, wysoka podstawa składek",
+    answers: { role: "MOTHER", stage: "PREGNANT", title: "SELF_EMPLOYED", voluntarySickness: "YES", insuredFrom: inDays(-150),
+      startedDuringPregnancy: "YES", raisedBaseDuringPregnancy: "YES", debt: "0", eventDate: inDays(60), children: 1,
+      salaryGross: "12000" },
+  },
+];
+
+/** FE1-52: najczęstsze pytania rodziców (poradniki i fora o zasiłkach) jako gotowe przykłady - osobna grupa na ekranie startowym. */
+export const POPULAR_PRESETS: { id: string; label: string; question: string; answers: Partial<Answers> }[] = [
+  {
+    // zasiłek uzupełniający (od 19.03.2025): 30. tydzień, > 1000 g, 35 dni w szpitalu = 5 tyg.
+    id: "p1",
+    label: "Wcześniak, 5 tygodni w szpitalu",
+    question: "Czy pobyt dziecka w szpitalu wydłuża macierzyński?",
+    answers: { role: "MOTHER", stage: "BORN", title: "EMPLOYMENT", contractType: "INDEFINITE", fullTime: "YES", payerSize: "GT20",
+      insuredFrom: "2021-03-01", eventDate: inDays(-40), children: 1, preterm: true, gestationWeeks: "30", lowBirthWeight: "NO",
+      hospitalDays: "35", hospitalWeeks: "5", salaryGross: "8000" },
+  },
+  {
+    // zlecenie: zasiłek tylko z dobrowolnym chorobowym w dniu porodu, bez okresu wyczekiwania
+    id: "p2",
+    label: "Umowa zlecenie z dobrowolnym chorobowym",
+    question: "Czy na zleceniu dostanę zasiłek macierzyński?",
+    answers: { role: "MOTHER", stage: "PREGNANT", title: "MANDATE", voluntarySickness: "YES", studentUnder26: "NO", payerSize: "GT20",
+      insuredFrom: "2024-06-01", eventDate: inDays(30), children: 1, salaryGross: "6000" },
+  },
+  {
+    // umowa terminowa kończąca się po 3. miesiącu ciąży przedłuża się do dnia porodu (KP art. 177 § 3, MAT-CLS-002)
+    id: "p3",
+    label: "Umowa na czas określony kończy się w ciąży",
+    question: "Co, gdy umowa wygasa przed porodem?",
+    answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "FIXED_TERM", contractEnd: inDays(20),
+      contractEndsAfter3rdMonth: "YES", fullTime: "YES", payerSize: "GT20", insuredFrom: "2023-02-01", eventDate: inDays(60),
+      children: 1, salaryGross: "7000" },
+  },
+  {
+    // 9 tygodni rodzicielskiego tylko dla taty - nie przechodzą na mamę, przepadają (KP art. 182¹a)
+    id: "p4",
+    label: "Tata nie bierze swoich 9 tygodni",
+    question: "Czy mama może wziąć tygodnie taty?",
+    answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", fullTime: "YES", payerSize: "GT20",
+      insuredFrom: "2021-03-01", eventDate: inDays(10), children: 1, partnerInsured: "YES", fatherParentalWeeks: 0,
+      salaryGross: "8000" },
+  },
 ];

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FormDetail, FormPicker } from "@/features/documents/FormPicker";
 import { FORMS, type FormCode } from "@/features/documents/forms";
 import { useApiParams } from "../preview/apiParams";
-import { type Answers, EMPTY_ANSWERS, PRESETS } from "./answers";
+import { type Answers, EMPTY_ANSWERS, POPULAR_PRESETS, PRESETS } from "./answers";
 import { Intro } from "./Intro";
 import { Results } from "./Results";
 import { STEPS } from "./steps";
@@ -71,7 +71,7 @@ export function Wizard() {
   }, [pageTitle]);
 
   if (view.kind === "intro") {
-    return <Intro headingRef={headingRef} onStart={start} onForms={() => show({ kind: "forms" })} onPreset={loadPreset} onSensitive={startSensitive} presets={PRESETS} />;
+    return <Intro headingRef={headingRef} onStart={start} onForms={() => show({ kind: "forms" })} onPreset={loadPreset} onSensitive={startSensitive} presets={PRESETS} popular={POPULAR_PRESETS} />;
   }
 
   if (view.kind === "forms" || view.kind === "form") {

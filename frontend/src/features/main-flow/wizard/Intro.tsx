@@ -10,13 +10,17 @@ const HOW: { n: string; icon: "ask" | "plan" | "docs"; title: string; text: stri
   { n: "3", icon: "docs", title: "Wiecie, co i kiedy złożyć", text: "Lista dokumentów, adresat każdego wniosku, terminy i ryzyka, na które trzeba uważać." },
 ];
 
-type PresetKind = "mother" | "twins" | "father" | "business" | "progress" | "sick";
+type PresetKind = "mother" | "twins" | "father" | "business" | "progress" | "sick" | "preterm" | "contract" | "adoption" | "work";
 /** FE1-47: ikona kafelka gotowego przykładu dobrana po treści etykiety; nowe przykłady dostają ikonę domyślną (mama). */
 function presetKind(label: string): PresetKind {
   const l = label.toLowerCase();
   if (/bliźn|trojacz|wieloraczk/.test(l)) return "twins";
+  if (/wcześniak|szpital/.test(l)) return "preterm";
+  if (/adopc|przysposob|rodzin\w* zastępcz/.test(l)) return "adoption";
   if (/\btata\b|ojciec|ojcowski/.test(l)) return "father";
-  if (/jdg|działalno|firm|zaległo|składk/.test(l)) return "business";
+  if (/jdg|działalno|firm|zaległo|składk|likwid|upadło/.test(l)) return "business";
+  if (/umow|zleceni/.test(l)) return "contract";
+  if (/pół etatu|wymiar|wraca/.test(l)) return "work";
   if (/wykorzystan|z 20\d\d|część urlopu/.test(l)) return "progress";
   if (/\bl4\b|zwolnieni|chorob/.test(l)) return "sick";
   return "mother";
@@ -30,6 +34,10 @@ function PresetIcon({ kind }: { kind: PresetKind }) {
       {kind === "father" && <><circle cx="10" cy="5.5" r="2.5" /><path d="M5 20v-5c0-2.5 2-4.5 5-4.5s5 2 5 4.5" /><circle cx="17.5" cy="13" r="1.8" /><path d="M15 20c0-1.8 1.1-3 2.5-3s2.5 1.2 2.5 3" /></>}
       {kind === "business" && <><rect x="3" y="7" width="18" height="12" rx="2" /><path d="M9 7V5h6v2M3 12h18" /></>}
       {kind === "sick" && <><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M12 8v6M9 11h6M9 17h6" /></>}
+      {kind === "preterm" && <><path d="M12 20s-6.5-4-8.3-8C2.4 9 4.2 5.5 7.4 5.5c1.9 0 3.3 1 4.1 2.4.8-1.4 2.2-2.4 4.1-2.4 3.2 0 5 3.5 3.7 6.5" /><path d="M18 14v6M15 17h6" /></>}
+      {kind === "contract" && <><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z" /><path d="M14 3v5h5M8 13h8M8 17h4" /></>}
+      {kind === "adoption" && <><path d="M3 11 12 4l9 7" /><path d="M5 10v10h14V10" /><path d="M12 17.5s-3-1.8-3-3.6c0-1 .8-1.9 1.8-1.9.6 0 1 .3 1.2.7.2-.4.6-.7 1.2-.7 1 0 1.8.9 1.8 1.9 0 1.8-3 3.6-3 3.6z" /></>}
+      {kind === "work" && <><circle cx="12" cy="12" r="8.5" /><path d="M12 3.5v8.5h8.5" /><path d="M12 12 7 17" /></>}
       {kind === "progress" && <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M8 3v4M16 3v4M3 10h18" /><path d="M7 14h5" strokeWidth="3" /><path d="M13 14h4" strokeDasharray="1.5 1.5" /></>}
     </svg>
   );
@@ -154,13 +162,33 @@ function PathCard({ tag, title, text, points, cta, onClick, icon, primary }: {
   );
 }
 
-export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, presets }: {
+/** Kafelek gotowego przykładu; `question` - pytanie rodziców, na które odpowiada przykład (FE1-52). */
+function PresetTile({ label, question, onClick }: { label: string; question?: string; onClick: () => void }) {
+  return (
+    <li>
+      <button type="button" onClick={onClick}
+        className="group flex h-full w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 pr-4 text-left text-sm font-medium text-zus-ink transition hover:-translate-y-0.5 hover:border-zus-green-100 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+        <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zus-green-50 text-zus-green-dark transition group-hover:bg-zus-green-100">
+          <PresetIcon kind={presetKind(label)} />
+        </span>
+        <span className="min-w-0 flex-1">
+          {label}
+          {question && <span className="mt-0.5 block text-xs font-normal text-zinc-600">„{question}”</span>}
+        </span>
+        <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zus-green-dark transition group-hover:translate-x-0.5 group-hover:border-zus-green-dark group-hover:bg-zus-green-dark group-hover:text-white motion-reduce:transition-none">→</span>
+      </button>
+    </li>
+  );
+}
+
+export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, presets, popular }: {
   headingRef: RefObject<HTMLHeadingElement | null>;
   onStart: () => void;
   onForms: () => void;
   onPreset: (a: Partial<Answers>) => void;
   onSensitive: () => void;
   presets: { id: string; label: string; answers: Partial<Answers> }[];
+  popular: { id: string; label: string; question: string; answers: Partial<Answers> }[];
 }) {
   return (
     <div className="space-y-12">
@@ -240,20 +268,18 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
       <section aria-labelledby="ex-h">
         <h2 id="ex-h" className="text-xl font-semibold text-zus-navy">Albo zobaczcie gotowy przykład</h2>
         <p className="mt-1 text-sm text-zinc-600">Przykładowe dane, niezwiązane z żadną prawdziwą sprawą. Każdą odpowiedź możecie potem zmienić.</p>
+        {/* FE1-52: najpierw sytuacje, o które rodzice pytają najczęściej (poradniki i fora), potem pozostałe przykłady */}
+        <section aria-labelledby="ex-pop-h" className="mt-4 rounded-2xl border border-zus-green-100 bg-zus-green-50/60 p-4 sm:p-5">
+          <h3 id="ex-pop-h" className="font-semibold text-zus-navy">Najczęstsze pytania rodziców</h3>
+          <p className="mt-0.5 text-sm text-zinc-600">Sytuacje, o które rodzice pytają najczęściej w poradnikach i na forach o zasiłkach.</p>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {popular.map((p) => <PresetTile key={p.id} label={p.label} question={p.question} onClick={() => onPreset(p.answers)} />)}
+          </ul>
+        </section>
         {/* FE1-47: kafelki z ikoną dobraną do przykładu - stonowane, bez konkurowania z wyborem drogi */}
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {presets.map((p) => (
-            <li key={p.id}>
-              <button type="button" onClick={() => onPreset(p.answers)}
-                className="group flex h-full w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 pr-4 text-left text-sm font-medium text-zus-ink transition hover:-translate-y-0.5 hover:border-zus-green-100 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-                <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zus-green-50 text-zus-green-dark transition group-hover:bg-zus-green-100">
-                  <PresetIcon kind={presetKind(p.label)} />
-                </span>
-                <span className="min-w-0 flex-1">{p.label}</span>
-                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zus-green-dark transition group-hover:translate-x-0.5 group-hover:border-zus-green-dark group-hover:bg-zus-green-dark group-hover:text-white motion-reduce:transition-none">→</span>
-              </button>
-            </li>
-          ))}
+        <h3 id="ex-more-h" className="mt-6 font-semibold text-zus-navy">Więcej przykładów</h3>
+        <ul aria-labelledby="ex-more-h" className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {presets.map((p) => <PresetTile key={p.id} label={p.label} onClick={() => onPreset(p.answers)} />)}
         </ul>
       </section>
     </div>
