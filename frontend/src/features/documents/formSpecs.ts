@@ -386,3 +386,26 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
     ] },
   ],
 };
+
+/** Nazwy zwijanych grup w „Pozostałe pola formularza” (pola bez sekcji powyżej, wg stron PDF) i opis tabel z PDF.
+ *  Zamiast „Strona N” użytkownik widzi, co jest w środku; strona bez wpisu zostaje „Strona N”. */
+export type RestTable = { title: string; columns: string[] };
+export type RestPage = { title: string; text?: string; tables?: Record<number, RestTable> };
+
+const DAYS = ["Dni przepracowane", "Dni do przepracowania"];
+export const REST_PAGES: Partial<Record<FormCode, Record<number, RestPage>>> = {
+  "Z-3": {
+    4: { title: "Wynagrodzenie za ostatnie miesiące", text: "Składniki wynagrodzenia za kolejne miesiące przed niezdolnością do pracy - jeden wiersz na miesiąc.",
+      tables: { 1: { title: "Wynagrodzenie w okresach miesięcznych", columns: ["Rok","Miesiąc","Dni przepracowane","Dni do przepracowania","Przyczyna nieprzepracowania całego miesiąca","Stałe wynagrodzenie (kwota)","Wynagrodzenie zasadnicze i inne składniki","Premie i inne składniki","Procent potrąconej składki"] } } },
+    5: { title: "Wynagrodzenie kwartalne, roczne i za inne okresy", text: "Składniki wypłacane za okresy dłuższe niż miesiąc (np. premia kwartalna, nagroda roczna).",
+      tables: {
+        1: { title: "Składniki kwartalne", columns: ["Rok", "Kwartał", "Kwota", ...DAYS, "Przyczyna nieprzepracowania całego kwartału", "Procent potrąconej składki"] },
+        2: { title: "Składniki roczne", columns: ["Rok", "Kwota", ...DAYS, "Przyczyna nieprzepracowania całego roku", "Procent potrąconej składki"] },
+        3: { title: "Składniki za inne okresy", columns: ["Okres", "Kwota", ...DAYS, "Przyczyna nieprzepracowania danego okresu", "Procent potrąconej składki"] },
+      } },
+  },
+  "Z-3a": {
+    5: { title: "Przychód za ostatnie miesiące", text: "Podstawa wymiaru składek za kolejne miesiące przed niezdolnością do pracy - jeden wiersz na miesiąc.",
+      tables: { 1: { title: "Przychód (podstawa wymiaru składek)", columns: ["Rok", "Miesiąc", ...DAYS, "Podstawa wymiaru składek"] } } },
+  },
+};
