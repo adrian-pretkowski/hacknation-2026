@@ -4,11 +4,22 @@
 import type { RefObject } from "react";
 import type { Answers } from "./answers";
 
-const HOW = [
-  { n: "1", title: "Odpowiadacie na kilka pytań", text: "Tylko te, które mają znaczenie w Waszej sytuacji. Każde pytanie można pominąć i wrócić do niego później." },
-  { n: "2", title: "Widzicie plan na osi czasu", text: "Urlopy obojga rodziców, kwoty zasiłków i porównanie wariantów wypłaty w jednym miejscu." },
-  { n: "3", title: "Wiecie, co i kiedy złożyć", text: "Lista dokumentów, adresat każdego wniosku, terminy i ryzyka, na które trzeba uważać." },
+const HOW: { n: string; icon: "ask" | "plan" | "docs"; title: string; text: string }[] = [
+  { n: "1", icon: "ask", title: "Odpowiadacie na kilka pytań", text: "Tylko te, które mają znaczenie w Waszej sytuacji. Każde pytanie można pominąć i wrócić do niego później." },
+  { n: "2", icon: "plan", title: "Widzicie plan na osi czasu", text: "Urlopy obojga rodziców, kwoty zasiłków i porównanie wariantów wypłaty w jednym miejscu." },
+  { n: "3", icon: "docs", title: "Wiecie, co i kiedy złożyć", text: "Lista dokumentów, adresat każdego wniosku, terminy i ryzyka, na które trzeba uważać." },
 ];
+
+/** FE1-46: ikony liniowe kroków „Jak to działa” (ozdobne). */
+function HowIcon({ kind }: { kind: "ask" | "plan" | "docs" }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {kind === "ask" && <><path d="M4 5h16v10H9l-5 4z" /><path d="M9 9h6M9 12h4" /></>}
+      {kind === "plan" && <><path d="M3 19h18" /><rect x="4" y="6" width="7" height="4" rx="1.5" /><rect x="9" y="12" width="11" height="4" rx="1.5" /></>}
+      {kind === "docs" && <><path d="M7 3h7l4 4v14H7z" /><path d="M14 3v4h4" /><path d="m10 14 2 2 3-4" /></>}
+    </svg>
+  );
+}
 
 /** FE1-30: tło sekcji powitalnej - rodzina tuląca maluszka, pozytywka nad łóżeczkiem, delikatne serduszka. Ozdobne (aria-hidden). */
 function HeroBackdrop() {
@@ -178,14 +189,24 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
         </section>
       </section>
 
-      <section id="jak-to-dziala" aria-labelledby="how-h" className="scroll-mt-4">
-        <h2 id="how-h" className="text-xl font-semibold text-zus-navy">Jak to działa</h2>
-        <ol className="mt-4 grid gap-4 md:grid-cols-3">
-          {HOW.map((h) => (
-            <li key={h.n} className="rounded-2xl border border-zinc-200 bg-white p-5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zus-green-50 text-base font-semibold text-zus-green-dark">{h.n}</span>
-              <h3 className="mt-3 font-semibold text-zus-navy">{h.title}</h3>
-              <p className="mt-1 text-sm text-zinc-700">{h.text}</p>
+      {/* FE1-46: stonowany panel - kroki połączone linią, ikony liniowe; nie konkuruje z wyborem drogi */}
+      <section id="jak-to-dziala" aria-labelledby="how-h" className="scroll-mt-4 rounded-3xl border border-zinc-200/80 bg-linear-to-b from-white to-zus-green-50/60 px-5 py-6 sm:px-8 sm:py-8">
+        <p className="text-xs font-semibold uppercase tracking-wider text-zus-green-dark md:text-center">W trzech krokach</p>
+        <h2 id="how-h" className="mt-1 text-xl font-semibold text-zus-navy md:text-center">Jak to działa</h2>
+        <ol className="mt-6 grid gap-6 md:grid-cols-3 md:gap-8">
+          {HOW.map((h, i) => (
+            <li key={h.n} className="relative flex gap-4 md:flex-col md:items-center md:text-center">
+              {i < HOW.length - 1 && (
+                <span aria-hidden="true" className="absolute top-14 bottom-[-1.25rem] left-6 border-l-2 border-dashed border-zus-green-100 md:top-6 md:right-[-50%] md:bottom-auto md:left-[calc(50%+2.25rem)] md:border-t-2 md:border-l-0" />
+              )}
+              <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-zus-green-dark shadow-sm ring-1 ring-zus-green-100">
+                <HowIcon kind={h.icon} />
+                <span aria-hidden="true" className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-zus-green-dark text-[11px] font-semibold text-white">{h.n}</span>
+              </span>
+              <div className="min-w-0 md:mt-0 md:max-w-xs">
+                <h3 className="font-semibold text-zus-navy"><span className="sr-only">Krok {h.n}: </span>{h.title}</h3>
+                <p className="mt-1 text-sm text-zinc-700">{h.text}</p>
+              </div>
             </li>
           ))}
         </ol>
