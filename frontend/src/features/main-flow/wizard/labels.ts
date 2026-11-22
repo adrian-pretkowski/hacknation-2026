@@ -8,6 +8,8 @@ export const LEAVE_LABEL: Record<string, string> = {
   SUPPLEMENTARY_MATERNITY_LEAVE: "Urlop uzupełniający",
   PARENTAL_LEAVE: "Urlop rodzicielski",
   PATERNITY_LEAVE: "Urlop ojcowski",
+  // FE1-50: L4 w ciąży na osi czasu (okres i kwoty z silnika, event PREGNANCY_INCAPACITY)
+  PREGNANCY_SICK_LEAVE: "Zwolnienie lekarskie w ciąży (L4)",
 };
 
 export const LEAVE_COLOR: Record<string, string> = {
@@ -17,6 +19,7 @@ export const LEAVE_COLOR: Record<string, string> = {
   SUPPLEMENTARY_MATERNITY_LEAVE: "bg-zus-yellow",
   PARENTAL_LEAVE: "bg-zus-green",
   PATERNITY_LEAVE: "bg-zus-blue",
+  PREGNANCY_SICK_LEAVE: "bg-rose-500",
 };
 
 export const PARENT_LABEL: Record<string, string> = { MOTHER: "Mama", FATHER: "Tata", "MOTHER/FATHER": "Mama lub tata" };
@@ -54,6 +57,10 @@ export const DOC_LABEL: Record<string, string> = {
   APPLICATION_COMBINED_815: "Wniosek o zasiłek w wysokości 81,5% za macierzyński i rodzicielski",
   PAYER_CERTIFICATE_Z3: "Zaświadczenie płatnika składek (Z-3)",
   HOSPITAL_STAY_CERTIFICATE: "Zaświadczenie ze szpitala o pobycie dziecka",
+  E_ZLA: "Zwolnienie lekarskie (e-ZLA)",
+  PAYER_CERTIFICATE_Z3A: "Zaświadczenie płatnika składek (Z-3a)",
+  SICKNESS_APPLICATION_ANNEX1: "Wniosek o zasiłek chorobowy (zaświadczenie płatnika dla przedsiębiorcy)",
+  AFTER_TITLE_STATEMENT_ANNEX4: "Oświadczenie o niezdolności do pracy po ustaniu ubezpieczenia",
 };
 
 export const PAYER_LABEL: Record<string, string> = {

@@ -10,7 +10,7 @@ const HOW: { n: string; icon: "ask" | "plan" | "docs"; title: string; text: stri
   { n: "3", icon: "docs", title: "Wiecie, co i kiedy złożyć", text: "Lista dokumentów, adresat każdego wniosku, terminy i ryzyka, na które trzeba uważać." },
 ];
 
-type PresetKind = "mother" | "twins" | "father" | "business" | "progress";
+type PresetKind = "mother" | "twins" | "father" | "business" | "progress" | "sick";
 /** FE1-47: ikona kafelka gotowego przykładu dobrana po treści etykiety; nowe przykłady dostają ikonę domyślną (mama). */
 function presetKind(label: string): PresetKind {
   const l = label.toLowerCase();
@@ -18,6 +18,7 @@ function presetKind(label: string): PresetKind {
   if (/\btata\b|ojciec|ojcowski/.test(l)) return "father";
   if (/jdg|działalno|firm|zaległo|składk/.test(l)) return "business";
   if (/wykorzystan|z 20\d\d|część urlopu/.test(l)) return "progress";
+  if (/\bl4\b|zwolnieni|chorob/.test(l)) return "sick";
   return "mother";
 }
 
@@ -28,6 +29,7 @@ function PresetIcon({ kind }: { kind: PresetKind }) {
       {kind === "twins" && <><circle cx="8" cy="8" r="2.5" /><circle cx="16" cy="8" r="2.5" /><path d="M3.5 19c0-3 2-5 4.5-5s4 1.5 4 3.5M12 17.5c0-2 1.5-3.5 4-3.5s4.5 2 4.5 5" /></>}
       {kind === "father" && <><circle cx="10" cy="5.5" r="2.5" /><path d="M5 20v-5c0-2.5 2-4.5 5-4.5s5 2 5 4.5" /><circle cx="17.5" cy="13" r="1.8" /><path d="M15 20c0-1.8 1.1-3 2.5-3s2.5 1.2 2.5 3" /></>}
       {kind === "business" && <><rect x="3" y="7" width="18" height="12" rx="2" /><path d="M9 7V5h6v2M3 12h18" /></>}
+      {kind === "sick" && <><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M12 8v6M9 11h6M9 17h6" /></>}
       {kind === "progress" && <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M8 3v4M16 3v4M3 10h18" /><path d="M7 14h5" strokeWidth="3" /><path d="M13 14h4" strokeDasharray="1.5 1.5" /></>}
     </svg>
   );

@@ -203,7 +203,10 @@ export const STEPS: Step[] = [
     summary: (a) => join([
       a.eventDate && `${a.role === "GUARDIAN" ? "Przyjęcie dziecka" : a.stage === "BORN" ? "Poród" : "Poród planowany"} ${formatDate(a.eventDate)}`,
       a.children > 1 && `${a.children} dzieci`,
-      a.role === "GUARDIAN" && a.childAgeYears !== "" && `wiek ${plYears(Number(a.childAgeYears))}`]),
+      a.role === "GUARDIAN" && a.childAgeYears !== "" && `wiek ${plYears(Number(a.childAgeYears))}`,
+      // FE1-50: L4 w ciąży widoczne w podsumowaniu kroku (te same warunki co pytanie o zwolnienie)
+      a.role === "MOTHER" && a.stage === "PREGNANT" && a.sickLeave === "YES"
+        && (a.sickLeaveFrom ? `L4 od ${formatDate(a.sickLeaveFrom)}${a.sickLeaveTo ? ` do ${formatDate(a.sickLeaveTo)}` : ""}` : "L4")]),
     render: ({ a, set }) => (
       <div className="space-y-4">
         <DateField label={a.role === "GUARDIAN" ? "Data przyjęcia dziecka" : a.stage === "BORN" ? "Data porodu" : "Planowana data porodu"}

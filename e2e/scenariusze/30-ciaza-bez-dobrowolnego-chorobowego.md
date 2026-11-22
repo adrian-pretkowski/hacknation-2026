@@ -23,6 +23,7 @@
 18. Przejdź dalej.
 19. Sprawdź, że nagłówek to „Twój plan”.
 20. Sprawdź, że widać „Zasiłek chorobowy w ciąży”.
-21. Sprawdź, że widać „nie masz ubezpieczenia chorobowego”.
-22. Sprawdź, że widać „Jak to działa”.
-23. Sprawdź, że strona nie przewija się w poziomie.
+21. Kliknij „Pokaż szczegóły zasiłku chorobowego”.
+22. Sprawdź, że widać „nie masz ubezpieczenia chorobowego”.
+23. Sprawdź, że widać „Jak to działa”.
+24. Sprawdź, że strona nie przewija się w poziomie.

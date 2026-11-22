@@ -28,5 +28,6 @@
 23. Przejdź dalej.
 24. Sprawdź, że nagłówek to „Twój plan”.
 25. Sprawdź, że widać „Zasiłek chorobowy w ciąży”.
-26. Sprawdź, że widać „Wynagrodzenie chorobowe”.
-27. Sprawdź, że strona nie przewija się w poziomie.
+26. Kliknij „Pokaż szczegóły zasiłku chorobowego”.
+27. Sprawdź, że widać „Wynagrodzenie chorobowe”.
+28. Sprawdź, że strona nie przewija się w poziomie.
