@@ -43,6 +43,13 @@ export const PARAMS = {
   PAYER_INSURED_THRESHOLD: 20,
   DEBT_THRESHOLD_MIN_WAGE_RATIO: "0.01",
   WAITING_DAYS_VOLUNTARY: 90,
+  // FE1-43: zasiłek chorobowy w ciąży (wymaganie a) - nazwy i wartości jak w 03 (meta.parameters)
+  WAITING_DAYS_MANDATORY: 30, // USTAWA art. 4 ust. 1 pkt 1
+  SICK_RATE_FULL: "1.00", // USTAWA art. 11 ust. 2 (ciąża - kod B)
+  BENEFIT_PERIOD_PREGNANCY_TB_DAYS: 270, // USTAWA art. 8 ust. 1
+  SICK_PAY_DAYS_STD: 33, // KP art. 92 § 1 pkt 1
+  SICK_PAY_DAYS_50PLUS: 14, // KP art. 92 § 1 pkt 1, § 5
+  SICK_PAY_AGE_THRESHOLD: 50, // KP art. 92 § 1, § 5
   PARENTAL_BENEFIT_FLOOR_MONTHLY: "1000.00", // RATE-MAT-007, M10 (FE1-21)
   // FE1-25: terminy wniosków urlopowych (APP-DL-002) - nazwy i wartości jak w 03 (meta.parameters)
   LEAVE_APP_PARENTAL_DAYS_BEFORE: 21, // KP art. 182(1d) § 1; art. 182(1e) § 2 (łączenie z pracą)

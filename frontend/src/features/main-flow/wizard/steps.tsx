@@ -204,6 +204,9 @@ export const STEPS: Step[] = [
         {/* FE1-41: świadczenia w ciąży (wymaganie a) - L4 w ciąży ocenia silnik reguł (PREGNANCY_INCAPACITY) */}
         {a.role === "MOTHER" && a.stage === "PREGNANT" && (
           <>
+            <DateField label="Twoja data urodzenia (jeśli chcesz dokładny wynik zwolnienia lekarskiego)"
+              hint={`Od roku, w którym kończysz ${PARAMS.SICK_PAY_AGE_THRESHOLD} lat, pracodawca płaci za ${PARAMS.SICK_PAY_DAYS_50PLUS} zamiast ${PARAMS.SICK_PAY_DAYS_STD} dni zwolnienia w roku.`}
+              value={a.birthDate} onChange={(birthDate) => set({ birthDate })} />
             <Choice legend="Czy jesteś teraz (albo byłaś) na zwolnieniu lekarskim w ciąży (L4)?" value={a.sickLeave} columns={3}
               onChange={(sickLeave) => set({ sickLeave })} options={TRI_OPTIONS} />
             {a.sickLeave === "YES" && (

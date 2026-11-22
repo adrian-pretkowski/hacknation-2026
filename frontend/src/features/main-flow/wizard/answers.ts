@@ -39,6 +39,8 @@ export type Answers = {
   sickLeaveTo: string;
   /** FE1-41: wcześniejsze zwolnienia w tym roku (NO → historia pusta, 0 dni wynagrodzenia chorobowego). */
   sickLeaveEarlier: Tri;
+  /** FE1-43: data urodzenia mamy (opcjonalnie) - podział dni zwolnienia: wynagrodzenie chorobowe 33 / 14 dni (KP art. 92). */
+  birthDate: string;
   schoolDeferred: Tri;
   title: Title | null;
   voluntarySickness: Tri;
@@ -107,6 +109,7 @@ export const EMPTY_ANSWERS: Answers = {
   sickLeaveFrom: "",
   sickLeaveTo: "",
   sickLeaveEarlier: "UNKNOWN",
+  birthDate: "",
   schoolDeferred: "UNKNOWN",
   title: null,
   voluntarySickness: "UNKNOWN",

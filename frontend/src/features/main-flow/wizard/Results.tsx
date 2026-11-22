@@ -385,10 +385,13 @@ const BENEFIT_TYPE_LABEL: Record<string, string> = {
   REHABILITATION_BENEFIT: "Świadczenie rehabilitacyjne",
 };
 
-/** FE1-41: wynik silnika reguł dla zwolnienia lekarskiego w ciąży (wymaganie a): wynagrodzenie lub zasiłek chorobowy
- * 100% podstawy, płatnik, okres; blok „Pokaż, jak to policzyliśmy” (D19). Kwoty wyłącznie z API. */
+/** FE1-41, FE1-43: zasiłek chorobowy w ciąży (wymaganie a) - zawsze dla mamy w ciąży: zasady z parametrów (stawka,
+ * 270 dni, kto płaci, okres wyczekiwania, świadczenie rehabilitacyjne) i wynik silnika reguł: przy podanym L4 okres
+ * i kwoty, bez L4 - ocena prawa „gdyby zwolnienie zaczęło się dziś” (także brak prawa z uzasadnieniem). Kwoty tylko z API. */
 function SickLeaveCard({ answers }: { answers: Answers }) {
-  const request = useMemo(() => toSickLeaveRequest(answers), [answers]);
+  const built = useMemo(() => toSickLeaveRequest(answers), [answers]);
+  const request = built?.request ?? null;
+  const hypothetical = built?.hypothetical ?? true;
   const key = request ? JSON.stringify(request) : null;
   const [state, setState] = useState<{ key: string; r?: EvaluateResponse; error?: string } | null>(null);
   useEffect(() => {
@@ -398,28 +401,46 @@ function SickLeaveCard({ answers }: { answers: Answers }) {
     return () => { alive = false; };
   }, [key, request]);
   if (!request) return null;
-  if (!state || state.key !== key) return <p className={`${card} text-sm text-zinc-600`} role="status">Sprawdzam zwolnienie lekarskie w silniku reguł…</p>;
-  if (state.error) return <p className={`${card} text-sm text-zinc-600`}>Zwolnienie lekarskie ocenia silnik reguł - teraz jest niedostępny ({state.error}).</p>;
-  const r = state.r!;
-  const paid = r.benefits.filter((b) => b.total_amount_exact);
+  const loading = !state || state.key !== key;
+  const r = !loading && !state.error ? state.r! : null;
+  const paid = (r?.benefits ?? []).filter((b) => b.total_amount_exact);
+  const refused = r?.overall_status === "NOT_ELIGIBLE";
+  // informacja z odpowiedzi (nie ocena prawa): brak tytułu, ulga na start / student, brak dobrowolnego chorobowego
+  const noSicknessInsurance = answers.title === "NONE" || answers.voluntarySickness === "NO"
+    || (answers.title === "SELF_EMPLOYED" && answers.startRelief === "YES") || (answers.title === "MANDATE" && answers.studentUnder26 === "YES");
   return (
-    <section className={card} aria-labelledby="sick-h">
-      <h3 id="sick-h" className="text-lg font-semibold">Zwolnienie lekarskie w ciąży: {STATUS_HEADLINE[r.overall_status] ?? r.overall_status}</h3>
-      <ul className="mt-3 space-y-2 text-sm">
+    <section className={`${card} ${refused ? "border-l-8 border-l-zus-red" : ""}`} aria-labelledby="sick-h" aria-live="polite">
+      <h3 id="sick-h" className="text-lg font-semibold">Zasiłek chorobowy w ciąży{r ? `: ${STATUS_HEADLINE[r.overall_status] ?? r.overall_status}` : ""}</h3>
+      <p className="mt-1 text-sm text-zinc-700">{hypothetical
+        ? `Gdyby zwolnienie lekarskie (L4) zaczęło się dziś i trwało ${PARAMS.MONTH_AS_DAYS} dni - wynik silnika reguł dla Twoich danych:`
+        : `Twoje zwolnienie od ${formatDate(answers.sickLeaveFrom)}${answers.sickLeaveTo ? ` do ${formatDate(answers.sickLeaveTo)}` : ""} - wynik silnika reguł:`}</p>
+      {loading && <p className="mt-2 text-sm text-zinc-600" role="status">Sprawdzam w silniku reguł…</p>}
+      {state?.error && state.key === key && <p className="mt-2 text-sm text-zinc-600">Silnik reguł jest teraz niedostępny ({state.error}) - poniżej zasady ogólne.</p>}
+      {refused && <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-sm text-zus-red">Zasiłek chorobowy teraz Ci nie przysługuje - przyczyna poniżej.</p>}
+      {noSicknessInsurance && !refused && (
+        <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-sm text-zus-red">Z Twoich odpowiedzi wynika, że nie masz ubezpieczenia chorobowego - wtedy zasiłek chorobowy nie przysługuje.
+          {" "}Silnik reguł rozstrzyga to na podstawie tytułów ubezpieczenia.</p>
+      )}
+      {r && r.overall_status === "NEEDS_DATA" && r.missing_data.length === 0 && (
+        <p className="mt-2 text-sm text-zinc-700">Silnik nie rozstrzygnął prawa dla tych danych - wymaga to weryfikacji w ZUS.</p>
+      )}
+      {r && <ul className="mt-3 space-y-2 text-sm">
         {r.benefits.map((b, i) => (
           <li key={i} className="border-t border-zinc-100 pt-2">
             <p className="font-medium">{BENEFIT_TYPE_LABEL[b.benefit_type] ?? b.benefit_type}: {STATUS_HEADLINE[b.status] ?? b.status}</p>
-            {b.period && <p>{formatDate(b.period.from)} – {formatDate(b.period.to)}{b.days ? ` (${b.days} dni)` : ""}{b.rate ? `, ${formatRate(b.rate)} podstawy` : ""}</p>}
-            {b.total_amount_exact && <p>Łącznie <strong>{formatMoney(b.total_amount_exact)}</strong> brutto ({formatMoney(b.daily_amount_exact)} dziennie)</p>}
+            {b.period?.from && <p>{formatDate(b.period.from)} – {formatDate(b.period.to)}{b.days ? ` (${b.days} dni)` : ""}{b.rate ? `, ${formatRate(b.rate)} podstawy` : ""}</p>}
+            {b.total_amount_exact && <p>Łącznie <strong>{formatMoney(b.total_amount_exact)}</strong> brutto ({formatMoney(b.daily_amount_exact)} dziennie)
+              {b.status !== "ELIGIBLE" ? " - wstępnie, do uzupełnienia danych niżej" : ""}</p>}
             {b.reasons.map((x) => <p key={x.code} className="text-zinc-700">{x.message}</p>)}
           </li>
         ))}
-      </ul>
-      {r.missing_data.length > 0 && (
-        <p className="mt-2 text-sm">Do pełnego wyliczenia potrzeba: {r.missing_data.map((m) => FIELD_QUESTION[m.field] ?? m.field).join("; ")}.</p>
+      </ul>}
+      {r && r.missing_data.length > 0 && (
+        <p className="mt-2 text-sm">Do pełnego wyliczenia potrzeba: {r.missing_data.map((m) => (FIELD_QUESTION[m.field] ?? m.field).replace(/\.$/, "")).join("; ")}.</p>
       )}
+      <SicknessRules />
       <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-medium text-zus-navy">Pokaż, jak to policzyliśmy</summary>
+        <summary className="cursor-pointer font-medium text-zus-navy">Pokaż, jak to policzyliśmy - zasiłek chorobowy</summary>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           {paid.map((b, i) => (
             <li key={i}>{BENEFIT_TYPE_LABEL[b.benefit_type] ?? b.benefit_type}: podstawa {formatMoney(b.base?.amount_exact ?? null)} × {formatRate(b.rate ?? "0")}
@@ -428,11 +449,34 @@ function SickLeaveCard({ answers }: { answers: Answers }) {
               <span className="block text-xs text-zinc-600">Przepisy:</span><RuleList ids={b.applied_rules} className="text-xs text-zinc-600" /></li>
           ))}
           {paid.length === 0 && <li>Brak kwoty - status i uzasadnienie wyżej.</li>}
-          <li className="text-xs text-zinc-600">Założenie z Twojej odpowiedzi „jestem na zwolnieniu”: niezdolność do pracy z powodu choroby, potwierdzona zaświadczeniem lekarskim (e-ZLA).</li>
-          {r.assumptions.map((x) => <li key={x.code} className="text-xs text-zinc-600">{x.text}</li>)}
-          {r.not_evaluated_rules.length > 0 && <li className="text-xs text-zinc-600">Jeszcze nieoceniane:<RuleList ids={r.not_evaluated_rules} /></li>}
+          <li className="text-xs text-zinc-600">{hypothetical
+            ? `Założenie: zwolnienie lekarskie w ciąży (kod B) od dziś przez ${PARAMS.MONTH_AS_DAYS} dni z powodu choroby, potwierdzone e-ZLA, bez wcześniejszych zwolnień w tym roku.`
+            : "Założenie z Twojej odpowiedzi „jestem na zwolnieniu”: niezdolność do pracy z powodu choroby, potwierdzona zaświadczeniem lekarskim (e-ZLA)."}</li>
+          {r?.assumptions.map((x) => <li key={x.code} className="text-xs text-zinc-600">{x.text}</li>)}
+          {r && r.not_evaluated_rules.length > 0 && <li className="text-xs text-zinc-600">Jeszcze nieoceniane:<RuleList ids={r.not_evaluated_rules} /></li>}
         </ul>
       </details>
     </section>
+  );
+}
+
+/** FE1-43: zasady zasiłku chorobowego w ciąży - liczby z parametrów (panel admina), nie wpisane w tekst. */
+function SicknessRules() {
+  const p = PARAMS;
+  return (
+    <div className="mt-3 rounded-md bg-zus-gray-50 p-3 text-sm">
+      <p className="font-medium">Jak to działa</p>
+      <ul className="mt-1 list-disc space-y-1 pl-5">
+        <li>Zwolnienie w ciąży (kod B na e-ZLA): {formatRate(p.SICK_RATE_FULL)} podstawy wymiaru - zamiast zwykłych 80%.</li>
+        <li>Najdłużej {p.BENEFIT_PERIOD_PREGNANCY_TB_DAYS} dni w okresie zasiłkowym (w ciąży dłużej niż zwykle).</li>
+        <li>Na umowie o pracę pierwsze {p.SICK_PAY_DAYS_STD} dni zwolnienia w roku ({p.SICK_PAY_DAYS_50PLUS} dni od roku, w którym kończysz {p.SICK_PAY_AGE_THRESHOLD} lat)
+          {" "}płaci pracodawca jako wynagrodzenie chorobowe. Potem zasiłek: wypłaca pracodawca, gdy zgłasza do ubezpieczenia więcej niż {p.PAYER_INSURED_THRESHOLD} osób, a w pozostałych przypadkach ZUS.</li>
+        <li>Prawo do zasiłku po okresie wyczekiwania: {p.WAITING_DAYS_MANDATORY} dni nieprzerwanego ubezpieczenia obowiązkowego (np. umowa o pracę)
+          {" "}albo {p.WAITING_DAYS_VOLUNTARY} dni dobrowolnego (działalność, zlecenie). Krótsze ubezpieczenie dobrowolne = brak zasiłku (z wyjątkami, które ocenia silnik).</li>
+        <li>Bez ubezpieczenia chorobowego (np. ulga na start, student na zleceniu) zasiłek chorobowy nie przysługuje.</li>
+        <li>Po wyczerpaniu {p.BENEFIT_PERIOD_PREGNANCY_TB_DAYS} dni, gdy dalsze leczenie rokuje powrót do pracy, można wnioskować o świadczenie rehabilitacyjne (w tej wersji tylko informacja).</li>
+        <li>Zwolnienie (e-ZLA) lekarz wysyła elektronicznie do ZUS i płatnika składek. Pisma, które mogą być potrzebne (np. Z-3, ZAS-53), są w sekcji „Pisma do wypełnienia”.</li>
+      </ul>
+    </div>
   );
 }
