@@ -223,3 +223,20 @@ def test_api_rejects_unknown_field(client):
     response = client.post("/api/planner/suggest", json={"profile": PROFILE, "bogus": 1})
     assert response.status_code == 422
     _validator("Problem").validate(response.json())
+
+
+# ------------------------------------------------------------- BE2-14: RATE-MAT-007 w planerze (kwota minimalna)
+def test_BE2_14_RATE_MAT_007_floor_in_planner_benefit():
+    from decimal import Decimal
+
+    from app.core.params import param
+    from app.engine.planner.model import benefit
+
+    floor = Decimal(param("PARENTAL_BENEFIT_FLOOR_MONTHLY"))
+    month = Decimal(param("MONTH_AS_DAYS"))
+    low = Decimal("500")  # 500 × 70% = 350 zł miesięcznie < kwota świadczenia rodzicielskiego
+    q = Decimal("0.0000000001")  # dzielenie nieskończone - porównanie do 10 miejsc (jak runner 08)
+    assert benefit(low, Decimal("0.70"), 30).quantize(q) == (floor / month * 30).quantize(q)
+    assert benefit(low, Decimal("0.70"), 30, floor=False).quantize(q) == Decimal("350").quantize(q)
+    high = Decimal("6000")  # powyżej progu - bez zmian
+    assert benefit(high, Decimal("0.70"), 30).quantize(q) == Decimal("4200").quantize(q)

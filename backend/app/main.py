@@ -13,7 +13,26 @@ from app.modules.simulations.router import router as simulations_router
 
 settings = get_settings()
 app = FastAPI(title="Przewodnik Przyszłego Rodzica - API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["GET", "POST", "PUT"],
+
+
+def _internal_problem() -> JSONResponse:
+    """500 jako application/problem+json - bez szczegółów wyjątku i danych osobowych w treści."""
+    return JSONResponse(status_code=500, media_type="application/problem+json",
+                        content={"type": "about:blank", "title": "Błąd wewnętrzny", "status": 500,
+                                 "detail": "Nie udało się przetworzyć żądania. Spróbuj ponownie lub zmień dane."})
+
+
+@app.middleware("http")
+async def internal_problem_middleware(request: Request, call_next):  # type: ignore[no-untyped-def]
+    """Nieobsłużony wyjątek → 500 problem+json wewnątrz CORS (przeglądarka dostaje nagłówki CORS i treść błędu)."""
+    try:
+        return await call_next(request)
+    except Exception:  # noqa: BLE001 - celowo: każdy nieobsłużony wyjątek
+        return _internal_problem()
+
+
+# CORS dodany po middleware błędów = warstwa zewnętrzna, więc obejmuje też odpowiedzi 500
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["GET", "POST", "PUT", "DELETE"],
                    allow_headers=["*"])
 
 

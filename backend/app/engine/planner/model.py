@@ -14,7 +14,7 @@ from dataclasses import dataclass, field, replace
 from decimal import Decimal
 from typing import Any
 
-from app.core.money import div, mul
+from app.core.money import div, mul, to_decimal
 from app.core.params import param
 
 MOTHER, FATHER = "MOTHER", "FATHER"
@@ -150,11 +150,20 @@ def parental_rate(s: State, who: str) -> tuple[Decimal, str]:
     return param("MAT_RATE_PARENTAL"), "RATE-MAT-004" if s.combined else "RATE-MAT-002"
 
 
-def benefit(base: Decimal | None, rate: Decimal, days: int) -> Decimal:
-    """Zasiłek za ``days`` dni: podstawa × stawka / 30 × dni (07 §8, MONTH_AS_DAYS); brak podstawy → 0."""
+def benefit(base: Decimal | None, rate: Decimal, days: int, floor: bool = True) -> Decimal:
+    """Zasiłek za ``days`` dni: podstawa × stawka / 30 × dni (07 §8, MONTH_AS_DAYS); brak podstawy → 0.
+
+    BE2-14, RATE-MAT-007 (M10): miesięczna kwota niższa niż PARENTAL_BENEFIT_FLOOR_MONTHLY → podwyższona do niej.
+    Planer nie zna dat kalendarzowych okresów, więc liczy kwotę minimalną jako floor / MONTH_AS_DAYS za dzień
+    (silnik: proporcjonalnie do dni miesiąca - założenie PLANNER_FLOOR_DAILY). ``floor=False`` - bez podwyższenia
+    (łączenie z pracą: sposób podwyższenia nieustalony, M10c; tak samo w silniku).
+    """
     if base is None or days == 0:
         return ZERO
-    return mul(div(mul(base, rate), param("MONTH_AS_DAYS")), Decimal(days))
+    monthly = mul(base, rate)
+    if floor:
+        monthly = max(monthly, to_decimal(param("PARENTAL_BENEFIT_FLOOR_MONTHLY")))
+    return mul(div(monthly, param("MONTH_AS_DAYS")), Decimal(days))
 
 
 def gross_monthly(parent: ParentProfile) -> tuple[Decimal | None, bool]:
@@ -164,6 +173,15 @@ def gross_monthly(parent: ParentProfile) -> tuple[Decimal | None, bool]:
     if parent.base_monthly is None:
         return None, True
     return div(parent.base_monthly, Decimal(1) - param("CONTRIBUTION_DEDUCTION_RATE")), True
+
+
+def _fraction(value: Any) -> str:
+    """Wymiar etatu do tekstu: 0.5 → ½, inaczej liczba z przecinkiem."""
+    return "½" if Decimal(str(value)) == Decimal("0.5") else str(value).replace(".", ",")
+
+
+def _max_work() -> str:
+    return _fraction(param("PARENTAL_WORK_MAX_FRACTION"))
 
 
 def pct(rate: Decimal) -> str:
@@ -187,7 +205,7 @@ def _father_blocked(p: Profile, value_is_zero: bool, rule: str) -> tuple[bool, s
 
 # --------------------------------------------------------------------------------------------------------- kroki
 def _combined_options(p: Profile, s: State) -> list[Option]:
-    return [Option(True, "Tak - wniosek o 81,5% za cały okres w 21 dni od porodu"),
+    return [Option(True, f"Tak - wniosek o 81,5% za cały okres w {param('APP_COMBINED_DEADLINE_DAYS')} dni od porodu"),
             Option(False, "Nie - 100% za macierzyński, 70% za rodzicielski")]
 
 
@@ -316,7 +334,8 @@ def _work_options(who: str) -> Callable[[Profile, State], list[Option]]:
             label = "Bez pracy" if fraction == 0 else f"Praca {pct(fraction)} etatu na rodzicielskim"
             ok, rule, reason = True, None, None
             if fraction > param("PARENTAL_WORK_MAX_FRACTION"):
-                ok, rule, reason = False, "PAR-WORK-001", "Na rodzicielskim można pracować najwyżej na ½ etatu."
+                ok, rule, reason = False, "PAR-WORK-001", \
+                    f"Na rodzicielskim można pracować najwyżej na {_max_work()} etatu."
             elif fraction and (weeks == 0 or not p.parent(who).can_work_part_time):
                 ok, rule, reason = False, "PAR-WORK-001", "Brak tygodni rodzicielskiego albo możliwości pracy."
             elif fraction and s.ext_days + _extension_days(weeks, fraction) > max_extension_days(p):
@@ -340,7 +359,9 @@ def _work_apply(who: str) -> Callable[[Profile, State, Any], Outcome]:
         weeks = s.mother_parental_weeks if who == MOTHER else s.father_parental_weeks
         days, ext = weeks * week(), _extension_days(weeks, fraction)
         rate, rate_rule = parental_rate(s, who)
-        reduction = mul(benefit(parent.base_monthly, rate, days), fraction)
+        # zasiłek przy pracy = podstawa × stawka × (1 − wymiar), bez podwyższenia RATE-MAT-007 (jak w silniku)
+        paid = mul(benefit(parent.base_monthly, rate, days, floor=False), Decimal(1) - fraction)
+        reduction = benefit(parent.base_monthly, rate, days) - paid
         gross, estimated = gross_monthly(parent)
         wage = ZERO if gross is None else mul(div(gross, param("MONTH_AS_DAYS")), Decimal(days), fraction)
         name = "matka" if who == MOTHER else "ojciec"
@@ -358,8 +379,8 @@ def _work_apply(who: str) -> Callable[[Profile, State, Any], Outcome]:
 
 
 def _work_hint(p: Profile, s: State) -> str | None:
-    return ("Praca do ½ etatu nie zmniejsza łącznej kwoty zasiłku - zasiłek maleje proporcjonalnie, ale urlop "
-            "wydłuża się o tyle samo; dochodzi wynagrodzenie.")
+    return (f"Praca do {_max_work()} etatu nie zmniejsza łącznej kwoty zasiłku - zasiłek maleje proporcjonalnie, "
+            "ale urlop wydłuża się o tyle samo; dochodzi wynagrodzenie.")
 
 
 STEPS: tuple[Step, ...] = (

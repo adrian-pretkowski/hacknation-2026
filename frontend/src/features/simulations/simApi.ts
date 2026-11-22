@@ -1,6 +1,8 @@
-// SYMULACJA usług zewnętrznych - lokalny mock endpointów /api/sim/* z contracts/openapi.yaml (x-status: planned, INT-03).
-// Kształty odpowiedzi zgodne z kontraktem (SimLoginResponse, SimEzlaList, SimDebtCertificate, SimPueTicket, każda ma simulated: true).
-// Po wdrożeniu INT-03 funkcje zastąpi klient z lib/api.ts. Żadnego połączenia z ZUS ani z aplikacją rządową.
+// SYMULACJA usług zewnętrznych w przeglądarce - kształty jak endpointy /api/sim/* z contracts/openapi.yaml (SimLoginResponse,
+// SimEzlaList, SimDebtCertificate, SimPueTicket, każda ma simulated: true). Backend ma już te endpointy (INT-03, x-status:
+// implemented), ale ich profile demo mają inne dane niż konta testowe z users.ts - przełączenie na lib/api.ts wymaga
+// ujednolicenia profili (FE2-07). Próg zadłużenia z PARAMS - po wczytaniu parametrów z API (apiParams.ts) jak w panelu admina.
+// Żadnego połączenia z ZUS ani z aplikacją rządową.
 import type { components } from "@/lib/api-types";
 import { PARAMS } from "../main-flow/preview/params";
 import { type TestUser, findUser, fullName } from "./users";

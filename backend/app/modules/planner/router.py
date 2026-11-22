@@ -21,9 +21,13 @@ ASSUMPTIONS = [
     {"code": "PLANNER_NO_PRE_BIRTH_PART",
      "text": "Macierzyński liczony od dnia porodu (bez części przedporodowej, MAT-DUR-002); rodzicielski zaraz po "
              "macierzyńskim, w 1. roku życia dziecka (RATE-MAT-005 nie zachodzi)."},
-    {"code": "PLANNER_FLOOR_NOT_APPLIED",
-     "text": "Podwyższenie do kwoty świadczenia rodzicielskiego (RATE-MAT-007) pominięte - brak kwoty w "
-             "materiałach."},
+    {"code": "PLANNER_FLOOR_DAILY",
+     "text": "Miesięczny zasiłek niższy niż kwota świadczenia rodzicielskiego podwyższony do niej (RATE-MAT-007, "
+             "M10) jako kwota dzienna = kwota miesięczna / 30; silnik liczy niepełne miesiące proporcjonalnie do dni "
+             "miesiąca. Przy pracy na rodzicielskim bez podwyższenia (M10c)."},
+    {"code": "PLANNER_BASE_AS_GIVEN",
+     "text": "Podstawa wymiaru przyjęta tak, jak ją podano - minimalna podstawa przy pełnym etacie (BASE-EMP-008) "
+             "i limit przy dobrowolnym chorobowym (BASE-NEMP-005) są stosowane w wyniku /api/evaluate."},
     {"code": "PLANNER_WORK_INCOME",
      "text": "Przy pracy na rodzicielskim do kwoty planu doliczane jest wynagrodzenie (brutto, proporcjonalnie do "
              "wymiaru); bez podanego wynagrodzenia - szacunek: podstawa / (1 − 13,71%)."},
