@@ -16,7 +16,9 @@ import { PARAMS } from "../preview/params";
 
 type ReturnToWork = NonNullable<EvaluateResponse["return_to_work"]>;
 type PlanErrors = NonNullable<EvaluateResponse["plan_errors"]>;
-type Props = { segments: Seg[]; returnToWork?: ReturnToWork };
+/** FE1-50: okres osi czasu - urlop z podglądu albo L4 w ciąży z silnika (kwoty jako gotowy opis z API). */
+export type TimelineSeg = Omit<Seg, "leave_type"> & { leave_type: Seg["leave_type"] | "PREGNANCY_SICK_LEAVE"; amountNote?: string };
+type Props = { segments: TimelineSeg[]; returnToWork?: ReturnToWork };
 
 /** FE1-02: błąd planu → rodzaj urlopu, przy którym go pokazujemy (PAR-* → rodzicielski, PAT-* → ojcowski,
  * MAT-DUR-* → macierzyński); inne (np. MAT-SHARE-007) - lista pod osią czasu. */
@@ -35,12 +37,13 @@ const planErrorText = (): Record<string, string> => ({
 const errorLine = (e: PlanErrors[number]) => <>Plan do poprawy: {planErrorText()[e.code] ?? e.code}<RuleText entry={e.rule_id} className="block text-xs" /></>;
 const fractionText = (f: string) => f === "0.5" ? "½" : f === "0.25" ? "¼" : f.replace(".", ",");
 /** stawka jako % podstawy wymiaru (prezentacja stringu z silnika, bez liczenia kwot) */
-const rateText = (s: Seg) => (Number(s.rate) * 100).toLocaleString("pl-PL") + "% podstawy"
+const rateText = (s: TimelineSeg) => (Number(s.rate) * 100).toLocaleString("pl-PL") + "% podstawy"
   + (s.work_fraction !== "0" ? " × " + (1 - Number(s.work_fraction)).toLocaleString("pl-PL") + " (praca " + fractionText(s.work_fraction) + " etatu)" : "");
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 /** jasne tło + mocny akcent: ciemny tekst na jasnym tle ma kontrast AA, kolor akcentu rozróżnia rodzaj urlopu */
 const TINT: Record<string, string> = {
+  PREGNANCY_SICK_LEAVE: "bg-rose-50",
   MATERNITY_LEAVE: "bg-[#dce8f2]",
   MATERNITY_LEAVE_TRANSFERRED: "bg-zus-blue-50",
   MATERNITY_LIKE_LEAVE: "bg-[#dce8f2]",
@@ -49,6 +52,7 @@ const TINT: Record<string, string> = {
   PATERNITY_LEAVE: "bg-zus-blue-50",
 };
 const ACCENT: Record<string, string> = {
+  PREGNANCY_SICK_LEAVE: "border-rose-500",
   MATERNITY_LEAVE: "border-zus-navy",
   MATERNITY_LEAVE_TRANSFERRED: "border-zus-blue",
   MATERNITY_LIKE_LEAVE: "border-zus-navy",
@@ -57,6 +61,7 @@ const ACCENT: Record<string, string> = {
   PATERNITY_LEAVE: "border-zus-blue",
 };
 const SHORT: Record<string, string> = {
+  PREGNANCY_SICK_LEAVE: "L4 w ciąży",
   MATERNITY_LEAVE: "Macierzyński",
   MATERNITY_LEAVE_TRANSFERRED: "Macierzyński (przejęty)",
   MATERNITY_LIKE_LEAVE: "Na warunkach macierzyńskiego",
@@ -70,11 +75,11 @@ const firstOfMonth = (iso: string) => iso.slice(0, 8) + "01";
 const weeks = (days: number) => (days % 7 === 0 ? " = " + days / 7 + " tyg." : "");
 const pc = (n: number) => n + "%";
 const dni = (n: number) => (n === 1 ? "1 dzień" : n + " dni");
-const amountOf = (s: Seg) => (s.history ? "wykorzystany" : s.own ? formatMoney(s.amount) : "kwota zależy od zarobków drugiego rodzica");
-const lanesOf = (segments: Seg[]) => (["MOTHER", "FATHER"] as const).filter((p) => segments.some((s) => s.parent === p));
+const amountOf = (s: TimelineSeg) => s.amountNote ?? (s.history ? "wykorzystany" : s.own ? formatMoney(s.amount) : "kwota zależy od zarobków drugiego rodzica");
+const lanesOf = (segments: TimelineSeg[]) => (["MOTHER", "FATHER"] as const).filter((p) => segments.some((s) => s.parent === p));
 const cx = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
 
-function bounds(segments: Seg[]) {
+function bounds(segments: TimelineSeg[]) {
   const start = segments.map((s) => s.from).sort()[0];
   const end = segments.map((s) => s.to).sort().at(-1)!;
   return { start, end, span: Math.max(periodDays(start, end), 1) };
@@ -93,7 +98,7 @@ export function TimelineView({ segments, planErrors, returnToWork = [] }: Props 
   const { start, end } = bounds(segments);
   // każdy błąd przy jednym okresie: pierwszym (nie historycznym) okresie danego rodzaju urlopu
   const owner = (e: PlanErrors[number]) => segments.findIndex((s) => !s.history && errorLeave(e.rule_id) === s.leave_type);
-  const errorsOf = (s: Seg) => planErrors.filter((e) => owner(e) === segments.indexOf(s));
+  const errorsOf = (s: TimelineSeg) => planErrors.filter((e) => owner(e) === segments.indexOf(s));
   const unplaced = planErrors.filter((e) => owner(e) < 0);
   const withErrors = segments.filter((s) => errorsOf(s).length > 0).length;
   return (
@@ -203,9 +208,9 @@ function RibbonTimeline({ segments, returnToWork = [] }: Props) {
 
 /* ---------- szczegóły: pionowa ścieżka - kamienie milowe i karty w kolejności dat ---------- */
 
-type Item = { date: string; kind: "seg"; seg: Seg; parallel: boolean } | { date: string; kind: "rtw" | "today"; text: string };
+type Item = { date: string; kind: "seg"; seg: TimelineSeg; parallel: boolean } | { date: string; kind: "rtw" | "today"; text: string };
 
-function VerticalPath({ segments, returnToWork = [], errorsOf }: Props & { errorsOf: (s: Seg) => PlanErrors }) {
+function VerticalPath({ segments, returnToWork = [], errorsOf }: Props & { errorsOf: (s: TimelineSeg) => PlanErrors }) {
   const today = todayIso();
   const { start, end } = bounds(segments);
   const maxDays = Math.max(...segments.map((s) => s.days), 1);

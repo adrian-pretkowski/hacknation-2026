@@ -9,6 +9,12 @@ type Doc = NonNullable<EvaluateResponse["missing_documents"]>[number];
 type To = NonNullable<Doc["submit_to"]> | "OTHER";
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 const label = (d: Doc) => DOC_LABEL[d.doc_type] ?? d.doc_type;
+/** FE1-50: wystawca z silnika jako kod (np. przy L4) - po polsku; tekst z podglądu zostaje bez zmian. */
+const PROVIDER: Record<string, string> = {
+  DOCTOR_TO_ZUS: "lekarz - wysyła elektronicznie do ZUS i pracodawcy, nic nie musisz składać",
+  CONTRIBUTION_PAYER: "pracodawca (płatnik składek)",
+  INSURED: "Ty",
+};
 const TO: Record<To, { title: string; hint: string }> = {
   EMPLOYER: { title: "Pracodawca", hint: "lub zleceniodawca" },
   CONTRIBUTION_PAYER: { title: "Płatnik składek", hint: "dział kadr / płac" },
@@ -59,7 +65,7 @@ export function Documents({ response, payer }: { response: EvaluateResponse; pay
                   <span className="mt-0.5 text-zinc-500"><Icon name={kind(d)} /></span>
                   <span className="min-w-0">
                     <span className="font-medium">{label(d)}</span>
-                    {d.provider && <span className="block text-xs text-zinc-600">wystawia: {d.provider}</span>}
+                    {d.provider && <span className="block text-xs text-zinc-600">wystawia: {PROVIDER[d.provider] ?? d.provider}</span>}
                     {d.obtainable_by_zus && <span className="mt-1 block"><AutoBadge /></span>}
                   </span>
                 </li>
