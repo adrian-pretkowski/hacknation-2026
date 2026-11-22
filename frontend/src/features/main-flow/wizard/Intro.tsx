@@ -191,19 +191,19 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
 
       {/* FE1-46: stonowany panel - kroki połączone linią, ikony liniowe; nie konkuruje z wyborem drogi */}
       <section id="jak-to-dziala" aria-labelledby="how-h" className="scroll-mt-4 rounded-3xl border border-zinc-200/80 bg-linear-to-b from-white to-zus-green-50/60 px-5 py-6 sm:px-8 sm:py-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-zus-green-dark">W trzech krokach</p>
-        <h2 id="how-h" className="mt-1 text-xl font-semibold text-zus-navy">Jak to działa</h2>
+        <p className="text-xs font-semibold uppercase tracking-wider text-zus-green-dark md:text-center">W trzech krokach</p>
+        <h2 id="how-h" className="mt-1 text-xl font-semibold text-zus-navy md:text-center">Jak to działa</h2>
         <ol className="mt-6 grid gap-6 md:grid-cols-3 md:gap-8">
           {HOW.map((h, i) => (
-            <li key={h.n} className="relative flex gap-4 md:block">
+            <li key={h.n} className="relative flex gap-4 md:flex-col md:items-center md:text-center">
               {i < HOW.length - 1 && (
-                <span aria-hidden="true" className="absolute top-14 bottom-[-1.25rem] left-6 border-l-2 border-dashed border-zus-green-100 md:top-6 md:right-[-1.5rem] md:bottom-auto md:left-15 md:border-t-2 md:border-l-0" />
+                <span aria-hidden="true" className="absolute top-14 bottom-[-1.25rem] left-6 border-l-2 border-dashed border-zus-green-100 md:top-6 md:right-[-50%] md:bottom-auto md:left-[calc(50%+2.25rem)] md:border-t-2 md:border-l-0" />
               )}
               <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-zus-green-dark shadow-sm ring-1 ring-zus-green-100">
                 <HowIcon kind={h.icon} />
                 <span aria-hidden="true" className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-zus-green-dark text-[11px] font-semibold text-white">{h.n}</span>
               </span>
-              <div className="min-w-0 md:mt-4">
+              <div className="min-w-0 md:mt-0 md:max-w-xs">
                 <h3 className="font-semibold text-zus-navy"><span className="sr-only">Krok {h.n}: </span>{h.title}</h3>
                 <p className="mt-1 text-sm text-zinc-700">{h.text}</p>
               </div>
