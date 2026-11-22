@@ -19,6 +19,8 @@ export type WizardPlan = {
   used_parental_father_weeks: number;
   used_parts: number;
   used_variant: Variant | null;
+  father_remaining_weeks: number | null; // FE1-44: plan dalszej części rodzicielskiego taty po porodzie
+  father_paternity_used: boolean | null; // FE1-44: ojcowski już wykorzystany
   started_during_pregnancy: boolean | null;
   raised_base_during_pregnancy: boolean | null;
   voluntary_sickness: boolean | null;
@@ -158,6 +160,8 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       used_parental_father_weeks: num(a.usedParentalFatherWeeks) ?? 0,
       used_parts: num(a.usedParts) ?? 0,
       used_variant: a.usedVariant === "UNKNOWN" ? null : a.usedVariant,
+      father_remaining_weeks: a.stage === "BORN" ? num(a.fatherRemainingWeeks) : null,
+      father_paternity_used: a.stage === "BORN" ? tri(a.fatherPaternityUsed) : null,
       started_during_pregnancy: tri(a.startedDuringPregnancy),
       raised_base_during_pregnancy: tri(a.raisedBaseDuringPregnancy),
       voluntary_sickness: tri(a.voluntarySickness),
