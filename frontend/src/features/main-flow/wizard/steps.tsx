@@ -11,7 +11,7 @@ import { type Answers, extendableUntilBirth, hasContractEnd } from "./answers";
 import { Check, Choice, DateField, Field, MoneyField, NumberSelect, Slider, TRI_OPTIONS, inputCls, moneyError } from "./fields";
 import { dateErrors, dateWarnings, hasErrors } from "./validation";
 import { Optimizer, optimizerVisible } from "./Optimizer";
-import { normalizeMoney } from "./money";
+import { normalizeMoney, parseMoney } from "./money";
 import { noInsuranceReason, todayIso } from "./request";
 import { ZusFetch } from "./ZusFetch";
 
@@ -108,23 +108,41 @@ const HOSPITAL_EXAMPLE = (() => {
   return `Przykład: ${plDays(days)} = ${plWeeks(5)} + ${plDays(3)} → ${plWeeks(Number(daysToHospitalWeeks(String(days))))} (niepełny tydzień liczy się jako pełny).`;
 })();
 /** FE1-08: pole „dni w szpitalu” z podglądem przeliczenia na tygodnie i limitu urlopu. */
+/** FE1-57: po porodzie pobyt w szpitalu nie może trwać dłużej niż czas od porodu (z dniem porodu). W ciąży - plan, bez blokady. */
+const hospitalDaysError = (a: Answers): string | undefined => {
+  if (a.stage !== "BORN" || !a.eventDate || !/^\d+$/.test(a.hospitalDays.trim())) return undefined;
+  const max = daysBetween(a.eventDate, todayIso()) + 1;
+  return Number(a.hospitalDays) > max ? `Od porodu minęło ${plDays(max)} (z dniem porodu) - pobyt w szpitalu nie może być dłuższy.` : undefined;
+};
+/** FE1-57: wiek dziecka zgodny z datą urodzenia w dniu przyjęcia. */
+const childAgeError = (a: Answers): string | undefined => {
+  if (a.role !== "GUARDIAN" || !a.childBirthDate || !a.eventDate || a.childBirthDate > a.eventDate || a.childAgeYears === "") return undefined;
+  const age = fullYears(a.childBirthDate, a.eventDate);
+  return String(age) !== a.childAgeYears ? `Wiek nie zgadza się z datą urodzenia - w dniu przyjęcia dziecko będzie mieć ${plYears(age)}.` : undefined;
+};
+/** FE1-57: zaległość w składkach - kwota ≥ 0 (pusta = nie podano). */
+const debtError = (a: Answers): string | undefined =>
+  a.debt.trim() !== "" && parseMoney(a.debt) === null ? "Wpisz kwotę w złotych, np. 0 albo 120,50 (najwyżej 2 miejsca po przecinku)." : undefined;
+
 function HospitalDays({ a, set, cap, label, hint }: StepProps & { cap: number; label: string; hint: string }) {
   const weeks = a.hospitalWeeks === "" ? null : Number(a.hospitalWeeks);
   const days = weeks === null ? 0 : Number(a.hospitalDays);
   const full = Math.floor(days / PARAMS.WEEK_AS_DAYS);
   const rest = days % PARAMS.WEEK_AS_DAYS;
   const invalid = a.hospitalDays.trim() !== "" && weeks === null;
+  const tooLong = hospitalDaysError(a);
   const resultId = useId();
   return (
     <div className="space-y-2">
       <Field label={label} hint={hint}>
         {/* type="text" (nie "number"): przeglądarka nie zamienia wtedy nieparsowalnego wpisu na "", więc walidacja widzi surową wartość */}
         <input type="text" inputMode="numeric" pattern="[0-9]*" autoComplete="off" className={inputCls} value={a.hospitalDays}
-          aria-invalid={invalid || undefined} aria-describedby={resultId} placeholder="np. 38"
+          aria-invalid={invalid || !!tooLong || undefined} aria-describedby={resultId} placeholder="np. 38"
           onChange={(e) => set({ hospitalDays: e.target.value, hospitalWeeks: daysToHospitalWeeks(e.target.value) })} />
       </Field>
-      <p id={resultId} aria-live="polite" className={`text-sm ${invalid ? "text-red-700" : "text-zinc-700"}`}>
+      <p id={resultId} aria-live="polite" className={`text-sm ${invalid || tooLong ? "text-red-700" : "text-zinc-700"}`}>
         {invalid ? "Podaj liczbę całkowitą dni (0 lub więcej)."
+          : tooLong ? tooLong
           : weeks === null ? null
           : <>
               {plDays(days)} = <strong>{plWeeks(weeks)}</strong>
@@ -139,19 +157,32 @@ function HospitalDays({ a, set, cap, label, hint }: StepProps & { cap: number; l
 export const weeksSinceBirth = (a: Answers): number | null =>
   a.eventDate ? Math.floor(daysBetween(a.eventDate, todayIso()) / PARAMS.WEEK_AS_DAYS) : null;
 /** FE1-09: spójność kroku „Co już wykorzystano” - komunikaty przy polach (pusta lista = można przejść dalej). */
-export const usedErrors = (a: Answers): { maternity?: string; parental?: string; parts?: string } => {
+type UsedErrors = { maternity?: string; parental?: string; parts?: string; paternity?: string };
+export const usedErrors = (a: Answers): UsedErrors => {
   const m = Number(a.usedParentalMotherWeeks || 0);
   const f = Number(a.usedParentalFatherWeeks || 0);
   const pool = parentalPool(a);
   const since = weeksSinceBirth(a);
-  const out: { maternity?: string; parental?: string; parts?: string } = {};
-  // macierzyński biegnie bez przerw od porodu - nie da się wykorzystać więcej tygodni, niż minęło
-  if (a.usedMaternityFully === "NO" && a.usedMaternityWeeks !== "" && since !== null && Number(a.usedMaternityWeeks) > since + 1) {
-    out.maternity = `Od porodu minęło ${since} tyg., więc nie można było wykorzystać ${a.usedMaternityWeeks} tyg. urlopu macierzyńskiego.`;
+  const out: UsedErrors = {};
+  // macierzyński biegnie bez przerw; FE1-57: do dziś mogło upłynąć najwyżej (tygodnie od porodu + bieżący + tygodnie przed porodem)
+  const allowed = since === null ? null : since + 1 + PARAMS.PRE_BIRTH_MAX_WEEKS;
+  const full = maternityWeeks(a.children);
+  if (a.usedMaternityFully === "NO" && a.usedMaternityWeeks !== "" && allowed !== null && Number(a.usedMaternityWeeks) > allowed) {
+    out.maternity = `Od porodu minęło ${since} tyg. (razem z ${PARAMS.PRE_BIRTH_MAX_WEEKS} tyg. przed porodem najwyżej ${allowed} tyg. urlopu), więc nie można było wykorzystać ${a.usedMaternityWeeks} tyg. urlopu macierzyńskiego.`;
   } else if (a.usedMaternityFully === "NO" && m + f > 0) {
     out.maternity = "Urlop rodzicielski zaczyna się dopiero po całym urlopie macierzyńskim (lub po jego przejęciu przez tatę). Zaznacz „Tak” albo ustaw wykorzystany rodzicielski na 0.";
+  } else if (a.usedMaternityFully === "YES" && allowed !== null && full > allowed) {
+    out.maternity = `Od porodu minęło ${since} tyg., a urlop macierzyński trwa ${full} tyg. (najwyżej ${PARAMS.PRE_BIRTH_MAX_WEEKS} przed porodem) - nie mógł się jeszcze skończyć. Wybierz „Nie” i podaj, ile tygodni wykorzystano.`;
   }
   if (m + f > pool) out.parental = `Razem wykorzystano ${m + f} tyg. rodzicielskiego, a cała pula to ${pool} tyg. Popraw liczby tygodni mamy i taty.`;
+  // FE1-57: rodzicielski po macierzyńskim mieści się w czasie od porodu (rodzice mogą korzystać jednocześnie - liczy się dłuższa część)
+  else if (!out.maternity && a.usedMaternityFully === "YES" && allowed !== null && full + Math.max(m, f) > allowed) {
+    out.parental = `Od porodu minęło ${since} tyg. - po ${full} tyg. macierzyńskiego do dziś mieści się najwyżej ${Math.max(allowed - full, 0)} tyg. rodzicielskiego (u każdego z rodziców). Popraw liczby tygodni.`;
+  }
+  // FE1-57: ojcowski (PATERNITY_WEEKS) nie mógł się skończyć, jeśli od porodu minęło mniej dni
+  if (a.fatherPaternityUsed === "YES" && a.eventDate && daysBetween(a.eventDate, todayIso()) + 1 < PARAMS.PATERNITY_WEEKS * PARAMS.WEEK_AS_DAYS) {
+    out.paternity = `Urlop ojcowski trwa ${PARAMS.PATERNITY_WEEKS} tygodnie, a od porodu minęło mniej czasu - nie mógł zostać wykorzystany. Jeśli trwa, wybierz „Nie”.`;
+  }
   if (m + f > 0 && Number(a.usedParts || 0) === 0) out.parts = "Wykorzystano już tygodnie rodzicielskiego - podaj, na ile części (wniosków) go podzielono (co najmniej 1).";
   else if (Number(a.usedParts || 0) > m + f && m + f > 0) out.parts = `Części nie może być więcej niż tygodni (${m + f}) - każda część to co najmniej tydzień.`;
   return out;
@@ -205,7 +236,8 @@ export const STEPS: Step[] = [
     id: "event",
     title: "Data i dzieci",
     visible: (a) => a.role !== null,
-    complete: (a) => !!a.eventDate && !hasErrors(a, "eventDate") && a.children >= 1 && (a.role !== "GUARDIAN" || a.childAgeYears !== ""),
+    complete: (a) => !!a.eventDate && !hasErrors(a, "eventDate") && a.children >= 1 && (a.role !== "GUARDIAN" || a.childAgeYears !== "")
+      && !hasErrors(a, "birthDate", "sickLeaveFrom", "sickLeaveTo", "childBirthDate", "courtApplicationDate", "adoptionFinalDate") && !childAgeError(a),
     missing: (a) => [
       !a.eventDate && (a.role === "GUARDIAN" ? "data przyjęcia dziecka" : a.stage === "BORN" ? "data porodu" : "planowana data porodu"),
       a.role === "GUARDIAN" && a.childAgeYears === "" && "wiek dziecka",
@@ -221,19 +253,21 @@ export const STEPS: Step[] = [
       <div className="space-y-4">
         <DateField label={a.role === "GUARDIAN" ? "Data przyjęcia dziecka" : a.stage === "BORN" ? "Data porodu" : "Planowana data porodu"}
           hint={a.stage === "PREGNANT" ? "Z karty ciąży; wynik będzie prognozą." : undefined} required
-          value={a.eventDate} error={dateErrors(a).eventDate} onChange={(eventDate) => set({ eventDate })} />
+          value={a.eventDate} error={dateErrors(a).eventDate}
+          onChange={(eventDate) => set(a.role === "GUARDIAN" && a.childBirthDate && eventDate && a.childBirthDate <= eventDate
+            ? { eventDate, childAgeYears: String(fullYears(a.childBirthDate, eventDate)) } : { eventDate })} />
         {/* FE1-41: świadczenia w ciąży (wymaganie a) - L4 w ciąży ocenia silnik reguł (PREGNANCY_INCAPACITY) */}
         {a.role === "MOTHER" && a.stage === "PREGNANT" && (
           <>
             <DateField label="Twoja data urodzenia (jeśli chcesz dokładny wynik zwolnienia lekarskiego)"
               hint={`Od roku następującego po roku, w którym kończysz ${PARAMS.SICK_PAY_AGE_THRESHOLD} lat, pracodawca płaci za ${PARAMS.SICK_PAY_DAYS_50PLUS} zamiast ${PARAMS.SICK_PAY_DAYS_STD} dni zwolnienia w roku.`}
-              value={a.birthDate} onChange={(birthDate) => set({ birthDate })} />
+              value={a.birthDate} error={dateErrors(a).birthDate} onChange={(birthDate) => set({ birthDate })} />
             <Choice legend="Czy jesteś teraz (albo byłaś) na zwolnieniu lekarskim w ciąży (L4)?" value={a.sickLeave} columns={3}
               onChange={(sickLeave) => set({ sickLeave })} options={TRI_OPTIONS} />
             {a.sickLeave === "YES" && (
               <>
-                <DateField label="Zwolnienie od" value={a.sickLeaveFrom} onChange={(sickLeaveFrom) => set({ sickLeaveFrom })} />
-                <DateField label="Zwolnienie do (jeśli znasz)" value={a.sickLeaveTo} onChange={(sickLeaveTo) => set({ sickLeaveTo })} />
+                <DateField label="Zwolnienie od" value={a.sickLeaveFrom} error={dateErrors(a).sickLeaveFrom} onChange={(sickLeaveFrom) => set({ sickLeaveFrom })} />
+                <DateField label="Zwolnienie do (jeśli znasz)" value={a.sickLeaveTo} error={dateErrors(a).sickLeaveTo} onChange={(sickLeaveTo) => set({ sickLeaveTo })} />
                 <Choice legend="Czy w tym roku byłaś już wcześniej na zwolnieniu lekarskim?" value={a.sickLeaveEarlier} columns={3}
                   onChange={(sickLeaveEarlier) => set({ sickLeaveEarlier })} options={TRI_OPTIONS} />
               </>
@@ -248,21 +282,22 @@ export const STEPS: Step[] = [
         {a.role === "GUARDIAN" && (
           <>
             <NumberSelect label="Wiek dziecka" required value={a.childAgeYears} from={0} to={17} unit={plYears} unknownLabel="Wybierz wiek"
-              onChange={(childAgeYears) => set({ childAgeYears })} />
+              describedBy={childAgeError(a) ? "child-age-err" : undefined} onChange={(childAgeYears) => set({ childAgeYears })} />
+            <FieldError id="child-age-err" text={childAgeError(a)} />
             <DateField label="Data urodzenia dziecka (jeśli znasz)"
               hint={`Policzymy dokładny koniec urlopu - najpóźniej dzień przed ${a.guardianKind === "ADOPTION" ? PARAMS.ADOPTION_CHILD_AGE_MAX
                 : a.schoolDeferred === "YES" ? PARAMS.FOSTER_CHILD_AGE_MAX_SCHOOL_DEFERRED : PARAMS.FOSTER_CHILD_AGE_MAX}. urodzinami dziecka.`}
-              value={a.childBirthDate} onChange={(childBirthDate) => set(childBirthDate && a.eventDate
+              value={a.childBirthDate} error={dateErrors(a).childBirthDate} onChange={(childBirthDate) => set(childBirthDate && a.eventDate && childBirthDate <= a.eventDate
                 ? { childBirthDate, childAgeYears: String(fullYears(childBirthDate, a.eventDate)) } : { childBirthDate })} />
             {a.guardianKind === "ADOPTION" && (
               <DateField label="Kiedy złożono wniosek do sądu o przysposobienie?"
                 hint="Zasiłek przysługuje po przyjęciu dziecka i złożeniu wniosku do sądu - bez tej daty wynik będzie wymagał uzupełnienia."
-                value={a.courtApplicationDate} onChange={(courtApplicationDate) => set({ courtApplicationDate })} />
+                value={a.courtApplicationDate} error={dateErrors(a).courtApplicationDate} onChange={(courtApplicationDate) => set({ courtApplicationDate })} />
             )}
             {a.guardianKind === "ADOPTION" && (
               <DateField label="Data uprawomocnienia postanowienia o przysposobieniu (jeśli znasz)"
                 hint={`Od tej daty liczy się ${PARAMS.PATERNITY_ADOPTION_WINDOW_MONTHS} miesięcy na urlop ojcowski.`}
-                value={a.adoptionFinalDate} onChange={(adoptionFinalDate) => set({ adoptionFinalDate })} />
+                value={a.adoptionFinalDate} error={dateErrors(a).adoptionFinalDate} onChange={(adoptionFinalDate) => set({ adoptionFinalDate })} />
             )}
             {a.guardianKind !== "ADOPTION" && (
               <Choice legend="Czy dziecku odroczono obowiązek szkolny?" value={a.schoolDeferred} columns={3}
@@ -302,7 +337,7 @@ export const STEPS: Step[] = [
     id: "special",
     title: "Okoliczności szczególne",
     visible: (a) => isBirth(a) && !a.sensitive && a.role !== null,
-    complete: (a) => !a.preterm || (a.gestationWeeks !== "" || a.lowBirthWeight !== "UNKNOWN"),
+    complete: (a) => !a.preterm || ((a.gestationWeeks !== "" || a.lowBirthWeight !== "UNKNOWN") && !hospitalDaysError(a)),
     missing: (a) => (a.preterm && a.gestationWeeks === "" && a.lowBirthWeight === "UNKNOWN"
       ? [weightMatters(a) ? "tydzień ciąży przy porodzie albo masa urodzeniowa" : "tydzień ciąży przy porodzie"] : []),
     hasRequired: (a) => a.preterm,
@@ -362,7 +397,10 @@ export const STEPS: Step[] = [
     title: "Praca i ubezpieczenie",
     visible: (a) => a.role !== null,
     complete: (a) => a.title !== null && (a.title === "NONE" || !!noInsuranceReason(a) || !!a.insuredFrom) && !hasErrors(a, "contractEnd")
-      && (a.title !== "EMPLOYMENT" || a.contractType !== null),
+      && (a.title !== "EMPLOYMENT" || a.contractType !== null)
+      // FE1-57: błąd daty i kwoty tylko dla widocznych pól
+      && (a.title === "NONE" || !!noInsuranceReason(a) || !hasErrors(a, "insuredFrom"))
+      && (a.title !== "SELF_EMPLOYED" || !!noInsuranceReason(a) || !debtError(a)),
     missing: (a) => [
       a.title === null && "tytuł ubezpieczenia",
       a.title !== null && a.title !== "NONE" && !noInsuranceReason(a) && !a.insuredFrom && "od kiedy podlegasz ubezpieczeniu",
@@ -397,7 +435,7 @@ export const STEPS: Step[] = [
           <>
             <ZusFetch source="insurance" a={a} set={set} what="Nie pamiętasz dat? Pobierzemy okres ubezpieczenia i dane płatnika." />
             <DateField label="Od kiedy podlegasz ubezpieczeniu chorobowemu?" hint="Wpisz ręcznie albo pobierz powyżej." required
-              value={a.insuredFrom} warning={dateWarnings(a).insuredFrom} onChange={(insuredFrom) => set({ insuredFrom })} />
+              value={a.insuredFrom} error={dateErrors(a).insuredFrom} warning={dateWarnings(a).insuredFrom} onChange={(insuredFrom) => set({ insuredFrom })} />
           </>
         )}
         {a.title === "EMPLOYMENT" && (
@@ -443,8 +481,10 @@ export const STEPS: Step[] = [
         {a.title === "SELF_EMPLOYED" && !noInsuranceReason(a) && (
           <div className="space-y-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
             <ZusFetch source="debt" a={a} set={set} what="Pobierz zaświadczenie o stanie rozliczeń składek." />
-            <Field label="Zaległość w składkach na dzień porodu (zł)" hint="0, jeśli brak.">
-              <input inputMode="decimal" className={inputCls} value={a.debt} onChange={(e) => set({ debt: e.target.value })} />
+            <Field label="Zaległość w składkach na dzień porodu (zł)" hint="0, jeśli brak." error={debtError(a)} errorId="debt-err">
+              <input inputMode="decimal" autoComplete="off" className={`${inputCls} ${debtError(a) ? "border-zus-red" : ""}`} value={a.debt}
+                aria-invalid={debtError(a) ? true : undefined} aria-describedby={debtError(a) ? "debt-err" : undefined}
+                onChange={(e) => set({ debt: e.target.value.replace(/[^\d.,\s]/g, "") })} />
             </Field>
             <Choice legend="Czy działalność lub dobrowolne chorobowe zaczęło się w trakcie ciąży?" value={a.startedDuringPregnancy} columns={3}
               onChange={(startedDuringPregnancy) => set({ startedDuringPregnancy })} options={TRI_OPTIONS} />
@@ -519,6 +559,7 @@ export const STEPS: Step[] = [
         <Choice legend="Czy tata wykorzystał już urlop ojcowski?" value={a.fatherPaternityUsed} columns={3}
           hint={`${PARAMS.PATERNITY_WEEKS} tygodnie, do ukończenia przez dziecko ${PARAMS.PATERNITY_CHILD_AGE_MONTHS} miesięcy.`}
           onChange={(fatherPaternityUsed) => set({ fatherPaternityUsed })} options={TRI_OPTIONS} />
+        <FieldError id="used-paternity-err" text={usedErrors(a).paternity} />
       </div>
     ),
   },
@@ -590,7 +631,8 @@ export const STEPS: Step[] = [
             ]} />
             {a.workFraction !== "0" && (
               <Slider label="Przez ile tygodni urlopu chcesz pracować?" unit="tyg." min={1} max={parentalPool(a)} value={a.workWeeks}
-                hint="Urlop wydłuży się proporcjonalnie, zasiłek będzie niższy o ułamek etatu." onChange={(workWeeks) => set({ workWeeks })} />
+                hint="Urlop wydłuży się proporcjonalnie, zasiłek będzie niższy o ułamek etatu."
+                onChange={(v) => set({ workWeeks: v === "" ? v : String(Math.max(1, Math.min(Number(v), parentalPool(a)))) })} />
             )}
           </div>
         )}
