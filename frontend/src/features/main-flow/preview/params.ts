@@ -31,6 +31,7 @@ export const PARAMS = {
   PARENTAL_EXT_CAP: { single: 82, multiple: 86, za_zyciem_single: 130, za_zyciem_multiple: 134 },
   PATERNITY_WEEKS: 2,
   PATERNITY_MAX_PARTS: 2,
+  PATERNITY_MIN_PART_WEEKS: 1, // KP art. 182(3) § 1(1) - część ojcowskiego co najmniej tydzień (FE1-44)
   PATERNITY_CHILD_AGE_MONTHS: 12,
   PATERNITY_ADOPTION_WINDOW_MONTHS: 12, // KP art. 182(3) § 1 pkt 2 (FE1-26)
   MAT_RATE_FULL: "1.00",
