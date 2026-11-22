@@ -61,6 +61,10 @@ export function Wizard() {
   const startSensitive = () => { setA({ ...EMPTY_ANSWERS, sensitive: true, role: "MOTHER", stage: "BORN", stillborn: true }); show({ kind: "step", index: 0 }); };
   const openForm = (code: FormCode, from: "forms" | "result") => show({ kind: "form", code, from });
   const answered = steps.filter((s, i) => (done || i < index) && s.summary(a)).length;
+  // FE1-54: dlaczego „Dalej →” jest nieaktywny - brakujące pola obowiązkowe albo błędy w polach
+  const canNext = done || step.complete(a);
+  const missing = done || canNext ? [] : step.missing?.(a) ?? [];
+  const hasRequired = !done && step.missing !== undefined && (step.hasRequired?.(a) ?? true);
   const progress = done ? 100 : Math.round(((index + 1) / (steps.length + 1)) * 100);
 
   // FE1-30 (WCAG 2.4.2): tytuł karty przeglądarki opisuje bieżący krok kreatora.
@@ -191,14 +195,25 @@ export function Wizard() {
         ) : (
           <form className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-7"
             onSubmit={(e) => { e.preventDefault(); next(); }}>
+            {hasRequired && (
+              <p className="text-xs text-zinc-600">Pola oznaczone <span aria-hidden="true" className="font-semibold text-zus-red">*</span><span className="sr-only">gwiazdką</span> są wymagane, aby przejść dalej.</p>
+            )}
             {step.render({ a, set })}
+            {!canNext && (
+              <p id="next-blocked" role="status" className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                {missing.length > 0
+                  ? <>Aby przejść dalej, uzupełnij: <strong>{missing.join(", ")}</strong> <span aria-hidden="true" className="font-semibold text-zus-red">*</span></>
+                  : "Aby przejść dalej, popraw pola oznaczone na czerwono."}
+              </p>
+            )}
             <div className="flex flex-col-reverse gap-3 border-t border-zinc-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
               <button type="button" onClick={back} className={`${btn} border border-zinc-300 bg-white text-zus-navy hover:border-zus-navy`}>
                 ← Wstecz
               </button>
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
                 <button type="button" onClick={() => show({ kind: "result" })} className={`${btn} text-zus-navy hover:underline`}>Pokaż wynik teraz</button>
-                <button type="submit" disabled={!step.complete(a)} className={`${btn} bg-zus-green-dark text-white hover:bg-zus-navy disabled:opacity-50`}>
+                <button type="submit" disabled={!canNext} aria-describedby={canNext ? undefined : "next-blocked"}
+                  className={`${btn} bg-zus-green-dark text-white hover:bg-zus-navy disabled:cursor-not-allowed disabled:opacity-50`}>
                   {index >= steps.length - 1 ? "Pokaż plan →" : "Dalej →"}
                 </button>
               </div>
