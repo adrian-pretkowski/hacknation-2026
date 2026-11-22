@@ -193,8 +193,9 @@ export const PRESETS: { id: string; label: string; answers: Partial<Answers> }[]
       salaryGross: "8000" },
   },
   {
-    // FE1-50: L4 w ciąży (kod B) od 40 dni, płatnik > 20 osób - karta zasiłku chorobowego z kwotami:
-    // 33 dni wynagrodzenia chorobowego od pracodawcy, dalej zasiłek z ZUS (bez wcześniejszych zwolnień w roku).
+    // FE1-50: L4 w ciąży (kod B) od 40 dni, płatnik > 20 osób - karta zasiłku chorobowego z kwotami (100%):
+    // wynagrodzenie chorobowe (limit dni w każdym roku kalendarzowym - przy przełomie roku dni jest więcej), dalej zasiłek
+    // wypłacany przez pracodawcę; bez wcześniejszych zwolnień w roku. Data urodzenia mamy: SICKPAY-ELIG-001 (33 / 14 dni).
     id: "s10",
     label: "Mama na L4 w ciąży, poród za 50 dni",
     answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", fullTime: "YES", payerSize: "GT20",
