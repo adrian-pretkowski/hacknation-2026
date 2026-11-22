@@ -58,7 +58,7 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
       {sensitive && <SupportBlock kind="loss" />}
       {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
       <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} sick={sick.hypothetical ? null : sick.r}
-        planOwn={appliedPlanOwn(answers, current.summary.applicant)} />
+        planOwn={chosen === null || chosen === answers.plannerVariant ? appliedPlanOwn(answers, current.summary.applicant) : null} />
       <AppliedPlan answers={answers} onEdit={onEdit} canEdit={canEdit} />
       <SickLeaveCard answers={answers} sick={sick} />
       {current.summary.remaining && <Remaining p={current} />}
@@ -87,7 +87,7 @@ type PlanOwn = { total: string; days: number; leaves: string[] };
 function appliedPlanOwn(answers: Answers, applicant: string): PlanOwn | null {
   const plan = answers.plannerPlan;
   if (!answers.plannerApplied || !plan || answers.sensitive || answers.plannerKey !== plannerInputsKey(answers)) return null;
-  const total = applicant === "FATHER" ? plan.totals.father_preview : plan.totals.mother_preview;
+  const total = applicant === "FATHER" ? plan.totals.father_preview : applicant === "MOTHER" ? plan.totals.mother_preview : null;
   if (!total) return null;
   const items = plan.items.filter((i) => i.parent === applicant && i.kind !== "WORK_INCOME");
   return {
