@@ -7,7 +7,7 @@ import { API_MODE, type EvaluateResponse, evaluate } from "@/lib/api";
 import { formatDate, formatMoney, formatRate } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
 import { useApiParams } from "../preview/apiParams";
-import { type PreviewResult, compareTotals, negligible, previewEvaluate } from "../preview/engine";
+import { type PreviewResult, compareTotals, previewEvaluate } from "../preview/engine";
 import { PARAMS } from "../preview/params";
 import type { Answers, Variant } from "./answers";
 import {
@@ -17,6 +17,7 @@ import {
 import { toEvaluateRequest, toSickLeaveRequest } from "./request";
 import { TimelineView } from "./TimelineView";
 import { Deadlines } from "./DeadlinesCards";
+import { VariantComparison } from "./VariantComparison";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 /** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania - test tekstu kwoty). */
@@ -170,44 +171,6 @@ function Remaining({ p }: { p: PreviewResult }) {
           </div>
         ))}
       </dl>
-    </section>
-  );
-}
-
-function VariantComparison({ pA, pB, variant, recommended, onChoose }: {
-  pA: PreviewResult; pB: PreviewResult; variant: Variant; recommended: Variant; onChoose: (v: Variant) => void;
-}) {
-  const c = compareTotals(pA.summary.ownTotal, pB.summary.ownTotal)!;
-  const small = negligible(c.diff, pB.summary.ownTotal!);
-  const dl = pA.response.deadlines?.find((d) => d.code === "APP_COMBINED_815")?.date;
-  const monthly = (p: PreviewResult) => p.summary.calcSteps.filter((s) => s.label.startsWith("Zasiłek za dzień"));
-  const options: { v: Variant; title: string; p: PreviewResult; note: string }[] = [
-    { v: "COMBINED_815", title: `A: ${formatRate(PARAMS.MAT_RATE_COMBINED)} przez cały okres`, p: pA, note: `Równe raty. Wymaga wniosku do ${formatDate(dl)} (${PARAMS.APP_COMBINED_DEADLINE_DAYS} dni od porodu).` },
-    { v: "FULL_100_70", title: "B: 100% → 70%", p: pB, note: "Więcej na początku, mniej w rodzicielskim. Bez dodatkowego wniosku." },
-  ];
-  return (
-    <section className={card} aria-labelledby="var-h">
-      <h3 id="var-h" className="text-lg font-semibold">Porównanie wariantów wypłaty</h3>
-      <p className="mt-1 text-sm text-zinc-700">
-        {small ? <>Suma jest praktycznie taka sama (różnica {formatMoney(c.diff)}). Różni się rozkład w czasie.</>
-          : <>Korzystniejszy jest wariant <strong>{c.better}</strong> - o <strong>{formatMoney(c.diff)}</strong> więcej.</>}
-        {" "}Rekomendacja zależy od sytuacji (np. przy bliźniętach więcej tygodni płatnych 100%).
-      </p>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Wybierz wariant do planu">
-        {options.map((o) => (
-          <button key={o.v} type="button" role="radio" aria-checked={variant === o.v} onClick={() => onChoose(o.v)}
-            className={`rounded-lg border p-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-zus-green-dark ${variant === o.v ? "border-zus-green-dark bg-zus-green-50" : "border-zinc-200 hover:border-zinc-400"}`}>
-            <span className="flex items-center justify-between gap-2">
-              <span className="font-medium">{o.title}</span>
-              {recommended === o.v && !small && <span className="rounded bg-zus-green-100 px-2 py-0.5 text-xs font-medium text-zus-navy">rekomendowany</span>}
-            </span>
-            <span className="mt-1 block text-xl font-semibold">{formatMoney(o.p.summary.ownTotal)}</span>
-            <span className="block text-zinc-600">{monthly(o.p).map((s) => `${s.label.replace("Zasiłek za dzień przy ", "")}: ${formatMoney(s.value)}/dzień`).join(" · ")}</span>
-            <span className="mt-1 block text-zinc-700">{o.note}</span>
-          </button>
-        ))}
-      </div>
-      <p className="mt-3 text-xs text-zinc-600">Ryzyko wariantu A: jeśli w 1. roku życia dziecka nie wykorzystasz ani dnia rodzicielskiego, za rodzicielski dostaniesz 70%, a macierzyński wyrówna się do 100% dopiero na wniosek.</p>
     </section>
   );
 }
