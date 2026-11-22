@@ -193,6 +193,15 @@ export const PRESETS: { id: string; label: string; answers: Partial<Answers> }[]
       salaryGross: "8000" },
   },
   {
+    // FE1-50: L4 w ciąży (kod B) od 40 dni, płatnik > 20 osób - karta zasiłku chorobowego z kwotami:
+    // 33 dni wynagrodzenia chorobowego od pracodawcy, dalej zasiłek z ZUS (bez wcześniejszych zwolnień w roku).
+    id: "s10",
+    label: "Mama na L4 w ciąży, poród za 50 dni",
+    answers: { role: "MOTHER", stage: "PREGNANT", title: "EMPLOYMENT", contractType: "INDEFINITE", fullTime: "YES", payerSize: "GT20",
+      insuredFrom: "2021-03-01", eventDate: inDays(50), children: 1, salaryGross: "8000",
+      sickLeave: "YES", sickLeaveFrom: inDays(-40), sickLeaveTo: inDays(49), sickLeaveEarlier: "NO", birthDate: "1994-05-20" },
+  },
+  {
     id: "s9",
     label: "JDG w ciąży, zaległość w składkach",
     answers: { role: "MOTHER", stage: "PREGNANT", title: "SELF_EMPLOYED", voluntarySickness: "YES", insuredFrom: "2025-01-01",
