@@ -39,6 +39,12 @@ export type Answers = {
   sickLeaveTo: string;
   /** FE1-41: wcześniejsze zwolnienia w tym roku (NO → historia pusta, 0 dni wynagrodzenia chorobowego). */
   sickLeaveEarlier: Tri;
+  /** FE1-43: data urodzenia mamy (opcjonalnie) - podział dni zwolnienia: wynagrodzenie chorobowe 33 / 14 dni (KP art. 92). */
+  birthDate: string;
+  /** FE1-44: po porodzie - ile tygodni rodzicielskiego weźmie jeszcze tata (limit: pozostałe tygodnie taty). */
+  fatherRemainingWeeks: string;
+  /** FE1-44: po porodzie - czy tata wykorzystał już urlop ojcowski. */
+  fatherPaternityUsed: Tri;
   schoolDeferred: Tri;
   title: Title | null;
   voluntarySickness: Tri;
@@ -107,6 +113,9 @@ export const EMPTY_ANSWERS: Answers = {
   sickLeaveFrom: "",
   sickLeaveTo: "",
   sickLeaveEarlier: "UNKNOWN",
+  birthDate: "",
+  fatherRemainingWeeks: "",
+  fatherPaternityUsed: "UNKNOWN",
   schoolDeferred: "UNKNOWN",
   title: null,
   voluntarySickness: "UNKNOWN",
