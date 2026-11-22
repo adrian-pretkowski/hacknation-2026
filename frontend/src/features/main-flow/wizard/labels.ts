@@ -56,12 +56,6 @@ export const DOC_LABEL: Record<string, string> = {
   HOSPITAL_STAY_CERTIFICATE: "Zaświadczenie ze szpitala o pobycie dziecka",
 };
 
-export const SUBMIT_LABEL: Record<string, string> = {
-  EMPLOYER: "do pracodawcy / zleceniodawcy",
-  CONTRIBUTION_PAYER: "do płatnika składek",
-  ZUS: "do ZUS (eZUS lub placówka)",
-};
-
 export const PAYER_LABEL: Record<string, string> = {
   CONTRIBUTION_PAYER: "Zasiłek wypłaca pracodawca (płatnik > 20 ubezpieczonych).",
   ZUS: "Zasiłek wypłaca ZUS.",

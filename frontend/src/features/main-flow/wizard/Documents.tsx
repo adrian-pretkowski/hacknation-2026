@@ -33,7 +33,6 @@ function Icon({ name }: { name: "app" | "cert" | "act" | To }) {
     </svg>
   );
 }
-const Sim = () => <p className="mt-3 text-xs text-zinc-600">Wysyłka wniosków i pobranie odpisu z USC w tym demo to SYMULACJA.</p>;
 const AutoBadge = () => <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-900 ring-1 ring-green-200">✓ ZUS pobierze sam</span>;
 
 export function Documents({ response, payer }: { response: EvaluateResponse; payer: string | null }) {
@@ -69,7 +68,6 @@ export function Documents({ response, payer }: { response: EvaluateResponse; pay
           </div>
         ))}
       </div>
-      <Sim />
     </section>
   );
 }
