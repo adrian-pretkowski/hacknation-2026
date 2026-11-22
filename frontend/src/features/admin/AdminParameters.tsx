@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   API_MODE, ApiError, type EvaluateResponse, type Parameter, type ParameterList, evaluate, listParameters,
-  updateParameters,
+  resetParameters, updateParameters,
 } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 import { RuleList } from "../main-flow/RuleList";
@@ -32,6 +32,7 @@ export function AdminParameters() {
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   const load = async () => {
     setBusy(true);
@@ -55,6 +56,22 @@ export function AdminParameters() {
       .finally(() => { if (!cancelled) setBusy(false); });
     return () => { cancelled = true; };
   }, []);
+
+  const reset = async () => {
+    setConfirmReset(false);
+    setBusy(true);
+    setError(null);
+    try {
+      const next = await resetParameters();
+      setData(next);
+      setEditing(null);
+      setSaved(`Przywrócono wartości z zestawu reguł - wersja parametrów ${next.parameters_version}.`);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Nie udało się przywrócić wartości.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -87,6 +104,20 @@ export function AdminParameters() {
               <div><dt className="text-zinc-600">Wersja parametrów</dt><dd className="font-medium">{data.parameters_version}</dd></div>
               <div><dt className="text-zinc-600">Nadpisane</dt><dd className="font-medium">{data.parameters.filter((p) => p.overridden).length} z {data.parameters.length}</dd></div>
             </dl>
+            {data.parameters.some((p) => p.overridden) && !confirmReset && (
+              <button type="button" className={`${btnGhost} mt-3`} disabled={busy} onClick={() => { setConfirmReset(true); setSaved(null); }}>
+                Przywróć wartości z zestawu reguł
+              </button>
+            )}
+            {confirmReset && (
+              <div role="group" aria-label="Potwierdzenie przywrócenia wartości" className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm">
+                <p>Wszystkie nadpisania zostaną usunięte, a parametry wrócą do wartości z zestawu reguł.</p>
+                <div className="mt-2 flex gap-2">
+                  <button type="button" className={btn} disabled={busy} onClick={() => void reset()}>Tak, przywróć</button>
+                  <button type="button" className={btnGhost} onClick={() => setConfirmReset(false)}>Anuluj</button>
+                </div>
+              </div>
+            )}
             {saved && (
               <p role="status" className="mt-3 text-sm text-zus-green-dark">{saved}{" "}
                 {/* FE1-37: kreator pobiera parametry przy starcie i po powrocie do karty - zmiana widoczna od razu */}

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FormDetail, FormPicker } from "@/features/documents/FormPicker";
 import { FORMS, type FormCode } from "@/features/documents/forms";
-import { useLiveParamsRefresh, useParamsVersion } from "../preview/liveParams";
+import { useApiParams } from "../preview/apiParams";
 import { type Answers, EMPTY_ANSWERS, PRESETS } from "./answers";
 import { Intro } from "./Intro";
 import { Results } from "./Results";
@@ -24,8 +24,7 @@ export function Wizard() {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [storyOpen, setStoryOpen] = useState(false);
   // FE1-37: parametry z panelu admina - przy starcie i po powrocie do karty; zmiana przelicza kroki i wynik
-  useLiveParamsRefresh();
-  const paramsVersion = useParamsVersion();
+  const { version: paramsVersion } = useApiParams();
   // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsVersion: widoczność kroków zależy od PARAMS
   const steps = useMemo(() => STEPS.filter((s) => s.visible(a)), [a, paramsVersion]);
   const index = view.kind === "step" ? Math.min(view.index, steps.length - 1) : steps.length - 1;

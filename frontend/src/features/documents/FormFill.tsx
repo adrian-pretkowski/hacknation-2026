@@ -4,7 +4,7 @@
 // Prefill: konto testowe (SYMULACJA) + odpowiedzi kreatora; puste pola wymagane są oznaczone „Uzupełnij”.
 // „Prześlij” = walidacja → wypełniony PDF (pobierany jako dowód) → potwierdzenie wysyłki (SYMULACJA, nic nie trafia do ZUS).
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { useParamsVersion } from "@/features/main-flow/preview/liveParams";
+import { useApiParams } from "@/features/main-flow/preview/apiParams";
 import type { Answers } from "@/features/main-flow/wizard/answers";
 import { inputCls } from "@/features/main-flow/wizard/fields";
 import { useSimSession } from "@/features/simulations/session";
@@ -86,7 +86,7 @@ export function FormFill({ code, answers, onCancel, cancelLabel }: {
   const set = (name: string, v: string | boolean) => setEdits((e) => ({ ...e, [name]: v }));
 
   // FE1-37: spread `...f` czyta gettery (próg ubezpieczonych, stawka) - paramsVersion przelicza je po zmianie w panelu
-  const paramsVersion = useParamsVersion();
+  const { version: paramsVersion } = useApiParams();
   const sections = useMemo(() => FORM_SPECS[code].map((s) => ({
     ...s,
     resolved: s.fields.flatMap((f): Resolved[] => {

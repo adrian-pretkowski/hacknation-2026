@@ -138,3 +138,68 @@ def test_overrides_persist_in_json_file(client, tmp_path):
     STORE.use_file(tmp_path / "overrides.json")  # ponowny odczyt z pliku (jak po restarcie)
     assert param("MATERNITY_WEEKS_BY_CHILDREN")["1"] == 21
     assert STORE.version == 2
+
+
+# ------------------------------------------------------------------ BE2-13: zakresy wartości, reset, 500 jako problem
+@pytest.mark.parametrize("change", [
+    {"name": "MONTH_AS_DAYS", "value": 0},
+    {"name": "MONTH_AS_DAYS", "value": -5},
+    {"name": "WEEK_AS_DAYS", "value": "0"},
+    {"name": "MAT_RATE_FULL", "value": "-5"},
+    {"name": "MAT_RATE_COMBINED", "value": "1.5"},
+    {"name": "CONTRIBUTION_DEDUCTION_RATE", "value": "2"},
+    {"name": "PARENTAL_BENEFIT_FLOOR_MONTHLY", "value": "0"},
+    {"name": "MIN_BASE_ROUNDING_STEP", "value": "-0.01"},
+    {"name": "MATERNITY_WEEKS_BY_CHILDREN", "value": {"1": -3, "2": 31, "3": 33, "4": 35, "5+": 37}},
+    {"name": "MATERNITY_WEEKS_BY_CHILDREN", "value": {"1": 10 ** 9, "2": 31, "3": 33, "4": 35, "5+": 37}},
+    {"name": "PARENTAL_WEEKS_SINGLE", "value": 10 ** 9},
+])
+def test_BE2_13_out_of_range_422_and_nothing_saved(client, change):
+    response = _put(client, {**change, "reason": "Test zakresu"})
+    assert response.status_code == 422
+    assert response.headers["content-type"].startswith("application/problem+json")
+    assert response.json()["errors"][0]["code"] == "out_of_range"
+    assert client.get("/api/admin/parameters").json()["parameters_version"] == 1
+
+
+@pytest.mark.parametrize("change", [
+    {"name": "MAT_RATE_COMBINED", "value": "1"},  # granica stawki
+    {"name": "MAT_RATE_PARENTAL", "value": "0"},
+    {"name": "RISK_INCREASE_FACTOR", "value": "2"},  # współczynnik > 1 w bazie - górna granica 10 × baza
+    {"name": "PATERNITY_WEEKS", "value": 1},
+    {"name": "AVERAGE_WAGE_CAP_AFTER_TITLE", "value": "9000.00"},  # parametr bez wartości bazowej
+])
+def test_BE2_13_values_in_range_accepted(client, change):
+    assert _put(client, {**change, "reason": "Test zakresu"}).status_code == 200
+
+
+def test_BE2_13_reset_restores_ruleset_values(client, demo_payload):
+    before = client.post("/api/evaluate", json=demo_payload).json()["benefits"][0]["daily_amount_exact"]
+    _put(client, {"name": "MAT_RATE_COMBINED", "value": "0.9", "reason": "Przed resetem"})
+    response = client.delete("/api/admin/parameters")
+    assert response.status_code == 200
+    body = response.json()
+    assert not list(_validator("ParameterList").iter_errors(body))
+    assert body["parameters_version"] == 3  # reset to nowa wersja - stare formularze dostaną 409
+    assert not any(p["overridden"] for p in body["parameters"])
+    assert param("MAT_RATE_COMBINED") == Decimal("0.815")
+    assert client.post("/api/evaluate", json=demo_payload).json()["benefits"][0]["daily_amount_exact"] == before
+
+
+def test_BE2_13_unhandled_error_is_problem_json(monkeypatch):
+    from fastapi.testclient import TestClient
+
+    import app.modules.admin.router as admin_router
+    from app.core.config import get_settings
+    from app.main import app
+
+    def boom(*_args, **_kwargs):
+        raise RuntimeError("awaria testowa")
+
+    monkeypatch.setattr(admin_router, "parameter_list", boom)
+    origin = get_settings().cors_origins[0]
+    response = TestClient(app, raise_server_exceptions=False).get("/api/admin/parameters", headers={"Origin": origin})
+    assert response.status_code == 500
+    assert response.headers["content-type"].startswith("application/problem+json")
+    assert response.headers.get("access-control-allow-origin") == origin  # przeglądarka zobaczy treść błędu
+    assert "awaria" not in response.text

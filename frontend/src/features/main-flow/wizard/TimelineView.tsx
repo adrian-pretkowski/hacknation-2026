@@ -12,6 +12,7 @@ import { RuleText } from "../RuleList";
 import { addMonths, daysBetween, periodDays } from "../preview/exact";
 import { LEAVE_COLOR, LEAVE_LABEL, PARENT_LABEL } from "./labels";
 import { todayIso } from "./request";
+import { PARAMS } from "../preview/params";
 
 type ReturnToWork = NonNullable<EvaluateResponse["return_to_work"]>;
 type PlanErrors = NonNullable<EvaluateResponse["plan_errors"]>;
@@ -21,16 +22,17 @@ type Props = { segments: Seg[]; returnToWork?: ReturnToWork };
  * MAT-DUR-* → macierzyński); inne (np. MAT-SHARE-007) - lista pod osią czasu. */
 const errorLeave = (ruleId: string): string | null => ruleId.startsWith("PAR-") ? "PARENTAL_LEAVE"
   : ruleId.startsWith("PAT-") ? "PATERNITY_LEAVE" : ruleId.startsWith("MAT-DUR-") ? "MATERNITY_LEAVE" : null;
-const PLAN_ERROR: Record<string, string> = {
-  PRE_BIRTH_TOO_EARLY: "urlop przed porodem może zacząć się najwcześniej 6 tygodni przed porodem - przyjęto dzień porodu.",
+// liczby z parametrów (panel admina, FE1-39), nie wpisane w tekst - funkcja, bo PARAMS wczytują się z API po starcie
+const planErrorText = (): Record<string, string> => ({
+  PRE_BIRTH_TOO_EARLY: `urlop przed porodem może zacząć się najwcześniej ${PARAMS.PRE_BIRTH_MAX_WEEKS} tygodni przed porodem - przyjęto dzień porodu.`,
   MATERNITY_START_AFTER_BIRTH: "urlop macierzyński nie może zacząć się po porodzie - przyjęto dzień porodu.",
   WORK_WEEKS_EXCEED_POOL: "za dużo tygodni pracy w stosunku do puli urlopu.",
-  WORK_FRACTION_TOO_HIGH: "praca w czasie rodzicielskiego najwyżej na ½ etatu.",
+  WORK_FRACTION_TOO_HIGH: `praca w czasie rodzicielskiego najwyżej na ${fractionText(String(PARAMS.PARENTAL_WORK_MAX_FRACTION))} etatu.`,
   PARENTAL_EXT_CAP_EXCEEDED: "łączny wymiar rodzicielskiego z pracą przekracza limit.",
   PARENTAL_PARTS_EXHAUSTED: "wykorzystano wszystkie części urlopu rodzicielskiego.",
-  PATERNITY_AFTER_12_MONTHS: "ojcowski musi skończyć się przed ukończeniem przez dziecko 12 miesięcy.",
-};
-const errorLine = (e: PlanErrors[number]) => <>Plan do poprawy: {PLAN_ERROR[e.code] ?? e.code}<RuleText entry={e.rule_id} className="block text-xs" /></>;
+  PATERNITY_AFTER_12_MONTHS: `ojcowski musi skończyć się przed ukończeniem przez dziecko ${PARAMS.PATERNITY_CHILD_AGE_MONTHS} miesięcy.`,
+});
+const errorLine = (e: PlanErrors[number]) => <>Plan do poprawy: {planErrorText()[e.code] ?? e.code}<RuleText entry={e.rule_id} className="block text-xs" /></>;
 const fractionText = (f: string) => f === "0.5" ? "½" : f === "0.25" ? "¼" : f.replace(".", ",");
 /** stawka jako % podstawy wymiaru (prezentacja stringu z silnika, bez liczenia kwot) */
 const rateText = (s: Seg) => (Number(s.rate) * 100).toLocaleString("pl-PL") + "% podstawy"

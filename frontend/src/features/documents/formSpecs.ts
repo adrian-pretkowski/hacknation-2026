@@ -6,7 +6,7 @@ import { formatRate } from "@/lib/format";
 import { PARAMS } from "@/features/main-flow/preview/params";
 import type { FormCode } from "./forms";
 
-// FE1-37: funkcja/getter - próg z panelu admina (liveParams) czytany przy wyświetleniu, nie przy ładowaniu modułu
+// FE1-37: funkcja/getter - próg z panelu admina (apiParams) czytany przy wyświetleniu, nie przy ładowaniu modułu
 const payerSize = (): [string, string] => [`do ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych`, `powyżej ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych`];
 
 /** Odczyt wartości po krótkim ID - dla warunków „wymagane, jeśli…”. */

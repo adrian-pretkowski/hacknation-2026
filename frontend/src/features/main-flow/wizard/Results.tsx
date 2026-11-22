@@ -4,18 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { MatchedFormPicker } from "@/features/documents/FormPicker";
 import { type FormCode, formsForDocTypes } from "@/features/documents/forms";
 import { API_MODE, type EvaluateResponse, evaluate } from "@/lib/api";
-import { formatDate, formatMoney } from "@/lib/format";
+import { formatDate, formatMoney, formatRate } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
-import { type PreviewResult, compareTotals, negligible, previewEvaluate } from "../preview/engine";
-import { daysBetween } from "../preview/exact";
-import { useParamsVersion } from "../preview/liveParams";
+import { useApiParams } from "../preview/apiParams";
+import { type PreviewResult, compareTotals, previewEvaluate } from "../preview/engine";
+import { PARAMS } from "../preview/params";
 import type { Answers, Variant } from "./answers";
 import {
-  DEADLINE_LABEL, DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, PARENT_LABEL, PAYER_LABEL,
+  DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, PAYER_LABEL,
   STATUS_HEADLINE, SUBMIT_LABEL,
 } from "./labels";
-import { todayIso, toEvaluateRequest } from "./request";
+import { toEvaluateRequest, toSickLeaveRequest } from "./request";
 import { TimelineView } from "./TimelineView";
+import { Deadlines } from "./DeadlinesCards";
+import { VariantComparison } from "./VariantComparison";
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
 /** Zasiłek przysługuje i ma niezerową kwotę (bez przeliczania - test tekstu kwoty). */
@@ -27,14 +29,13 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
   /** FE1-11: klik w kafelek pisma na podsumowaniu (etap 2) */
   onOpenForm?: (code: FormCode) => void;
 }) {
-  const reqA = useMemo(() => toEvaluateRequest(answers, "COMBINED_815"), [answers]);
-  const reqB = useMemo(() => toEvaluateRequest(answers, "FULL_100_70"), [answers]);
-  // FE1-37: nowe parametry z panelu admina (paramsVersion) przeliczają podgląd bez utraty odpowiedzi
-  const paramsVersion = useParamsVersion();
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- previewEvaluate czyta PARAMS
-  const pA = useMemo(() => previewEvaluate(reqA), [reqA, paramsVersion]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- previewEvaluate czyta PARAMS
-  const pB = useMemo(() => previewEvaluate(reqB), [reqB, paramsVersion]);
+  // FE1-39: parametry z API (panel admina) - po ich wczytaniu plan liczy się od nowa
+  const { version: paramsVersion } = useApiParams();
+  // paramsVersion jest kluczem odświeżenia: PARAMS (moduł) zmieniają się po wczytaniu z API, odpowiedzi - nie
+  const reqA = useMemo(() => ({ ...toEvaluateRequest(answers, "COMBINED_815"), params_version: paramsVersion }), [answers, paramsVersion]);
+  const reqB = useMemo(() => ({ ...toEvaluateRequest(answers, "FULL_100_70"), params_version: paramsVersion }), [answers, paramsVersion]);
+  const pA = useMemo(() => previewEvaluate(reqA), [reqA]);
+  const pB = useMemo(() => previewEvaluate(reqB), [reqB]);
   const cmp = compareTotals(pA.summary.ownTotal, pB.summary.ownTotal);
   const recommended: Variant = cmp?.better === "A" ? "COMBINED_815" : "FULL_100_70";
   // wariant z planera (krok „Optymalizacja”), jeśli użytkownik przeniósł plan do kreatora
@@ -50,6 +51,7 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
       {sensitive && <SupportBlock kind="loss" />}
       {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
       <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} />
+      <SickLeaveCard answers={answers} />
       {current.summary.remaining && <Remaining p={current} />}
       {/* bez okresów i błędów planu (np. brak prawa) nie pokazujemy pustego panelu */}
       {(current.summary.segments.length > 0 || (r.plan_errors ?? []).length > 0) && (sensitive ? (
@@ -82,7 +84,7 @@ function StatusHeader({ result, onEdit, canEdit }: {
   const reasons = (ownBenefits.length ? ownBenefits : r.benefits).flatMap((b) => b.reasons).filter((x) => x.code !== "OTHER_PARENT_DATA").filter((x, i, arr) => arr.findIndex((y) => y.code === x.code) === i);
   return (
     <section className={`rounded-lg border border-zinc-200 border-l-8 bg-white p-4 sm:p-5 ${tone}`} aria-labelledby="status-h">
-      <p className="text-xs font-medium uppercase tracking-wide text-zinc-600">{r.mode === "FORECAST" ? "Prognoza" : "Wynik"} · podgląd</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-zinc-600">{r.mode === "FORECAST" ? "Prognoza" : "Wynik"}</p>
       <h2 id="status-h" className="mt-1 text-xl font-semibold">{STATUS_HEADLINE[r.overall_status]}</h2>
       {result.summary.ownTotal && r.overall_status !== "NOT_ELIGIBLE" && (
         <OwnTotal applicant={result.summary.applicant} total={result.summary.ownTotal}
@@ -169,68 +171,6 @@ function Remaining({ p }: { p: PreviewResult }) {
           </div>
         ))}
       </dl>
-    </section>
-  );
-}
-
-function VariantComparison({ pA, pB, variant, recommended, onChoose }: {
-  pA: PreviewResult; pB: PreviewResult; variant: Variant; recommended: Variant; onChoose: (v: Variant) => void;
-}) {
-  const c = compareTotals(pA.summary.ownTotal, pB.summary.ownTotal)!;
-  const small = negligible(c.diff, pB.summary.ownTotal!);
-  const dl = pA.response.deadlines?.find((d) => d.code === "APP_COMBINED_815")?.date;
-  const monthly = (p: PreviewResult) => p.summary.calcSteps.filter((s) => s.label.startsWith("Zasiłek za dzień"));
-  const options: { v: Variant; title: string; p: PreviewResult; note: string }[] = [
-    { v: "COMBINED_815", title: "A: 81,5% przez cały okres", p: pA, note: `Równe raty. Wymaga wniosku do ${formatDate(dl)} (21 dni od porodu).` },
-    { v: "FULL_100_70", title: "B: 100% → 70%", p: pB, note: "Więcej na początku, mniej w rodzicielskim. Bez dodatkowego wniosku." },
-  ];
-  return (
-    <section className={card} aria-labelledby="var-h">
-      <h3 id="var-h" className="text-lg font-semibold">Porównanie wariantów wypłaty</h3>
-      <p className="mt-1 text-sm text-zinc-700">
-        {small ? <>Suma jest praktycznie taka sama (różnica {formatMoney(c.diff)}). Różni się rozkład w czasie.</>
-          : <>Korzystniejszy jest wariant <strong>{c.better}</strong> - o <strong>{formatMoney(c.diff)}</strong> więcej.</>}
-        {" "}Rekomendacja zależy od sytuacji (np. przy bliźniętach więcej tygodni płatnych 100%).
-      </p>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Wybierz wariant do planu">
-        {options.map((o) => (
-          <button key={o.v} type="button" role="radio" aria-checked={variant === o.v} onClick={() => onChoose(o.v)}
-            className={`rounded-lg border p-3 text-left text-sm focus-visible:outline-2 focus-visible:outline-zus-green-dark ${variant === o.v ? "border-zus-green-dark bg-zus-green-50" : "border-zinc-200 hover:border-zinc-400"}`}>
-            <span className="flex items-center justify-between gap-2">
-              <span className="font-medium">{o.title}</span>
-              {recommended === o.v && !small && <span className="rounded bg-zus-green-100 px-2 py-0.5 text-xs font-medium text-zus-navy">rekomendowany</span>}
-            </span>
-            <span className="mt-1 block text-xl font-semibold">{formatMoney(o.p.summary.ownTotal)}</span>
-            <span className="block text-zinc-600">{monthly(o.p).map((s) => `${s.label.replace("Zasiłek za dzień przy ", "")}: ${formatMoney(s.value)}/dzień`).join(" · ")}</span>
-            <span className="mt-1 block text-zinc-700">{o.note}</span>
-          </button>
-        ))}
-      </div>
-      <p className="mt-3 text-xs text-zinc-600">Ryzyko wariantu A: jeśli w 1. roku życia dziecka nie wykorzystasz ani dnia rodzicielskiego, za rodzicielski dostaniesz 70%, a macierzyński wyrówna się do 100% dopiero na wniosek.</p>
-    </section>
-  );
-}
-
-function Deadlines({ response }: { response: EvaluateResponse }) {
-  const list = response.deadlines ?? [];
-  if (list.length === 0) return null;
-  const today = todayIso();
-  return (
-    <section className={card} aria-labelledby="dl-h">
-      <h3 id="dl-h" className="text-lg font-semibold">Kalendarz terminów</h3>
-      <ol className="mt-3 space-y-2">
-        {list.map((d, i) => {
-          const left = daysBetween(today, d.date);
-          const tone = left < 0 ? "text-zinc-500 line-through" : left <= 14 ? "text-zus-red" : "text-zus-ink";
-          return (
-            <li key={i} className="flex flex-col gap-0.5 border-l-4 border-zus-green-dark pl-3 text-sm sm:flex-row sm:items-baseline sm:gap-3">
-              <span className={`shrink-0 font-semibold tabular-nums ${tone}`}>{formatDate(d.date)}</span>
-              <span className="flex-1">{DEADLINE_LABEL[d.code] ?? d.code} <span className="text-zinc-500">· {PARENT_LABEL[d.who ?? ""] ?? d.who}</span></span>
-              <span className={`shrink-0 text-xs ${tone}`}>{left < 0 ? "minął" : left === 0 ? "dziś" : `za ${left} dni`}</span>
-            </li>
-          );
-        })}
-      </ol>
     </section>
   );
 }
@@ -345,6 +285,9 @@ function CalcDetails({ p }: { p: PreviewResult }) {
   );
 }
 
+/** FE1-39: wynik silnika reguł (POST /api/evaluate) dla tych samych odpowiedzi. Plan obojga rodziców liczy się
+ * w przeglądarce na parametrach z API; urlop macierzyński, status i braki danych sprawdza silnik. Przy rozbieżności
+ * rozstrzyga silnik - karta jest wtedy wyróżniona i pokazuje jego uzasadnienie. */
 function EngineCrossCheck({ answers, variant, preview }: { answers: Answers; variant: Variant; preview: PreviewResult }) {
   const [state, setState] = useState<{ key: string; r?: EvaluateResponse; error?: string } | null>(null);
   const request = useMemo(() => toEvaluateRequest(answers, variant), [answers, variant]);
@@ -354,21 +297,81 @@ function EngineCrossCheck({ answers, variant, preview }: { answers: Answers; var
     evaluate(request).then((r) => alive && setState({ key, r }), (e: Error) => alive && setState({ key, error: e.message }));
     return () => { alive = false; };
   }, [key, request]);
-  if (!state || state.key !== key) return <p className="text-xs text-zinc-500">Sprawdzam wynik w silniku API…</p>;
-  if (state.error) return <p className="text-xs text-zinc-500">Silnik API niedostępny ({state.error}) - pokazujemy sam podgląd.</p>;
+  if (!state || state.key !== key) return <p className="text-xs text-zinc-500" role="status">Sprawdzam wynik w silniku reguł…</p>;
+  if (state.error) return <p className="text-xs text-zinc-500">Silnik reguł niedostępny ({state.error}) - wynik policzony w przeglądarce na kopii parametrów.</p>;
   const engine = state.r!;
   const mat = engine.benefits.find((b) => b.leave_type === "MATERNITY_LEAVE");
   const mine = preview.response.benefits.find((b) => b.leave_type === "MATERNITY_LEAVE" && b.total_amount_exact);
-  const same = mat?.total_amount_exact && mine?.total_amount_exact
-    && mat.total_amount_exact.slice(0, mat.total_amount_exact.indexOf(".") + 3) === mine.total_amount_exact.slice(0, mine.total_amount_exact.indexOf(".") + 3);
+  const cents = (v: string) => v.slice(0, v.indexOf(".") < 0 ? v.length : v.indexOf(".") + 3);
+  const same = !mat || !mine || (mat.status === mine.status
+    && (!mat.total_amount_exact || !mine.total_amount_exact || cents(mat.total_amount_exact) === cents(mine.total_amount_exact)));
   return (
-    <section className="rounded-lg border border-dashed border-zinc-300 p-4 text-xs text-zinc-700">
-      <p className="font-medium">Kontrola krzyżowa z silnikiem API ({engine.engine}{API_MODE === "mock" ? ", tryb demo" : ""})</p>
+    <section aria-labelledby="engine-h" className={same ? "rounded-lg border border-dashed border-zinc-300 p-4 text-xs text-zinc-700"
+      : "rounded-lg border-2 border-zus-yellow bg-amber-50 p-4 text-sm text-zinc-800"}>
+      <p id="engine-h" className="font-medium">Sprawdzenie w silniku reguł ({engine.engine}{API_MODE === "mock" ? ", tryb demo" : ""})</p>
       {mat ? (
-        <p className="mt-1">Urlop macierzyński: status {mat.status}, {mat.days ?? "-"} dni, {formatMoney(mat.total_amount_exact)}
-          {mine ? (same ? " - zgodne z podglądem ✓" : ` - podgląd: ${formatMoney(mine.total_amount_exact)} (różnica do wyjaśnienia)`) : ""}.</p>
-      ) : <p className="mt-1">Silnik nie zwrócił urlopu macierzyńskiego dla tych danych (status {engine.overall_status}).</p>}
-      <p className="mt-1 text-zinc-500">Rodzicielski, ojcowski, uzupełniający, terminy, ryzyka i dokumenty liczy tymczasowo podgląd w przeglądarce - docelowo silnik reguł (BE2).</p>
+        <p className="mt-1">Urlop macierzyński: {STATUS_HEADLINE[mat.status] ?? mat.status}, {mat.days ?? "-"} dni, {formatMoney(mat.total_amount_exact)}
+          {mine ? (same ? " - zgodne z planem ✓" : ` - plan w przeglądarce: ${formatMoney(mine.total_amount_exact)}. Rozstrzyga wynik silnika.`) : ""}</p>
+      ) : <p className="mt-1">Wynik silnika dla tych danych: {STATUS_HEADLINE[engine.overall_status] ?? engine.overall_status}.</p>}
+      {!same && mat?.reasons.map((x) => <p key={x.code} className="mt-1">{x.message}</p>)}
+      <p className="mt-1 text-zinc-500">Plan obojga rodziców (rodzicielski, ojcowski, terminy) liczymy w przeglądarce na parametrach z panelu administratora.</p>
+    </section>
+  );
+}
+
+const BENEFIT_TYPE_LABEL: Record<string, string> = {
+  EMPLOYER_SICK_PAY: "Wynagrodzenie chorobowe (płaci pracodawca)", SICKNESS_BENEFIT: "Zasiłek chorobowy",
+  REHABILITATION_BENEFIT: "Świadczenie rehabilitacyjne",
+};
+
+/** FE1-41: wynik silnika reguł dla zwolnienia lekarskiego w ciąży (wymaganie a): wynagrodzenie lub zasiłek chorobowy
+ * 100% podstawy, płatnik, okres; blok „Pokaż, jak to policzyliśmy” (D19). Kwoty wyłącznie z API. */
+function SickLeaveCard({ answers }: { answers: Answers }) {
+  const request = useMemo(() => toSickLeaveRequest(answers), [answers]);
+  const key = request ? JSON.stringify(request) : null;
+  const [state, setState] = useState<{ key: string; r?: EvaluateResponse; error?: string } | null>(null);
+  useEffect(() => {
+    if (!request || !key) return;
+    let alive = true;
+    evaluate(request).then((r) => alive && setState({ key, r }), (e: Error) => alive && setState({ key, error: e.message }));
+    return () => { alive = false; };
+  }, [key, request]);
+  if (!request) return null;
+  if (!state || state.key !== key) return <p className={`${card} text-sm text-zinc-600`} role="status">Sprawdzam zwolnienie lekarskie w silniku reguł…</p>;
+  if (state.error) return <p className={`${card} text-sm text-zinc-600`}>Zwolnienie lekarskie ocenia silnik reguł - teraz jest niedostępny ({state.error}).</p>;
+  const r = state.r!;
+  const paid = r.benefits.filter((b) => b.total_amount_exact);
+  return (
+    <section className={card} aria-labelledby="sick-h">
+      <h3 id="sick-h" className="text-lg font-semibold">Zwolnienie lekarskie w ciąży: {STATUS_HEADLINE[r.overall_status] ?? r.overall_status}</h3>
+      <ul className="mt-3 space-y-2 text-sm">
+        {r.benefits.map((b, i) => (
+          <li key={i} className="border-t border-zinc-100 pt-2">
+            <p className="font-medium">{BENEFIT_TYPE_LABEL[b.benefit_type] ?? b.benefit_type}: {STATUS_HEADLINE[b.status] ?? b.status}</p>
+            {b.period && <p>{formatDate(b.period.from)} – {formatDate(b.period.to)}{b.days ? ` (${b.days} dni)` : ""}{b.rate ? `, ${formatRate(b.rate)} podstawy` : ""}</p>}
+            {b.total_amount_exact && <p>Łącznie <strong>{formatMoney(b.total_amount_exact)}</strong> brutto ({formatMoney(b.daily_amount_exact)} dziennie)</p>}
+            {b.reasons.map((x) => <p key={x.code} className="text-zinc-700">{x.message}</p>)}
+          </li>
+        ))}
+      </ul>
+      {r.missing_data.length > 0 && (
+        <p className="mt-2 text-sm">Do pełnego wyliczenia potrzeba: {r.missing_data.map((m) => FIELD_QUESTION[m.field] ?? m.field).join("; ")}.</p>
+      )}
+      <details className="mt-3 text-sm">
+        <summary className="cursor-pointer font-medium text-zus-navy">Pokaż, jak to policzyliśmy</summary>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          {paid.map((b, i) => (
+            <li key={i}>{BENEFIT_TYPE_LABEL[b.benefit_type] ?? b.benefit_type}: podstawa {formatMoney(b.base?.amount_exact ?? null)} × {formatRate(b.rate ?? "0")}
+              {" "}÷ {PARAMS.MONTH_AS_DAYS} = {formatMoney(b.daily_amount_exact)} dziennie; × {b.days ?? 0} dni = {formatMoney(b.total_amount_exact)}.
+              {b.explanation && <span className="block whitespace-pre-line text-xs text-zinc-600">{b.explanation}</span>}
+              <span className="block text-xs text-zinc-600">Przepisy:</span><RuleList ids={b.applied_rules} className="text-xs text-zinc-600" /></li>
+          ))}
+          {paid.length === 0 && <li>Brak kwoty - status i uzasadnienie wyżej.</li>}
+          <li className="text-xs text-zinc-600">Założenie z Twojej odpowiedzi „jestem na zwolnieniu”: niezdolność do pracy z powodu choroby, potwierdzona zaświadczeniem lekarskim (e-ZLA).</li>
+          {r.assumptions.map((x) => <li key={x.code} className="text-xs text-zinc-600">{x.text}</li>)}
+          {r.not_evaluated_rules.length > 0 && <li className="text-xs text-zinc-600">Jeszcze nieoceniane:<RuleList ids={r.not_evaluated_rules} /></li>}
+        </ul>
+      </details>
     </section>
   );
 }

@@ -42,7 +42,7 @@ Konfiguracja: skopiuj `.env.example` → `.env` (wartości domyślne działają 
 > Po przeniesieniu katalogu usuń `backend\.venv` i `frontend\node_modules` (zawierają ścieżki bezwzględne) i uruchom ponownie `scripts\dev.ps1`.
 
 ## Demo
-Otwórz http://localhost:3000 → „Przykłady” → np. „Bliźnięta, poród 1 grudnia” (dane syntetyczne): oś czasu obojga rodziców, porównanie wariantów 81,5% vs 100/70, terminy, radar ryzyk, „co i gdzie złożyć”. Części wyniku spoza silnika API liczy tymczasowo podgląd w przeglądarce (oznaczony `fe-preview-mock`). Scenariusz i fallback: [docs/DEMO.md](docs/DEMO.md).
+Otwórz http://localhost:3000 → „Przykłady” → np. „Bliźnięta, poród 1 grudnia” (dane syntetyczne): oś czasu obojga rodziców, porównanie wariantów 81,5% vs 100/70, terminy, radar ryzyk, „co i gdzie złożyć”. Plan obojga rodziców liczy się w przeglądarce na parametrach z panelu admina (`GET /api/admin/parameters`), a urlop macierzyński, status i braki danych sprawdza silnik reguł (karta „Sprawdzenie w silniku reguł”). Przykładowe wnioski z weryfikacją ubezpieczenia i uploadem PDF: „Przykładowe wnioski” (`/sprawy`). Scenariusz i fallback: [docs/DEMO.md](docs/DEMO.md).
 
 ## Dla zespołu i nowych developerów
 | Potrzebujesz | Plik |
@@ -56,6 +56,7 @@ Otwórz http://localhost:3000 → „Przykłady” → np. „Bliźnięta, poró
 | Pytania i ustalenia z mentorami | [docs/mentors.md](docs/mentors.md) |
 | Kontrakt API | [contracts/openapi.yaml](contracts/openapi.yaml) |
 | Pokrycie wymagań, materiały zgłoszenia | [docs/coverage.md](docs/coverage.md) · [docs/SUBMISSION.md](docs/SUBMISSION.md) |
+| Wskazanie funkcji z AI, rozwiązania zewnętrzne | [docs/AI_USAGE.md](docs/AI_USAGE.md) · [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) |
 | Materiały źródłowe (PDF zadania, wyciągi prawa) | [docs/MATERIALS.md](docs/MATERIALS.md) — lokalnie w `materials/`, poza gitem |
 
 ## Stack

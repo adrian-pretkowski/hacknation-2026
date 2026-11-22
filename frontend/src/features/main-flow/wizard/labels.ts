@@ -76,6 +76,11 @@ export const STATUS_HEADLINE: Record<string, string> = {
 };
 
 export const FIELD_QUESTION: Record<string, string> = {
+  "event.court_adoption_application_date": "Podaj datę złożenia wniosku do sądu o przysposobienie.",
+  "person.role": "Wybierz, kim jesteś (mama, tata, opiekun).",
+  "person.birth_date": "Podaj datę urodzenia (od 50. roku życia pracodawca płaci krócej).",
+  "benefit_history.sickness_periods": "Czy w ostatnich miesiącach byłaś na innych zwolnieniach lekarskich?",
+  "benefit_history.employer_sick_pay_days_in_year": "Ile dni wynagrodzenia chorobowego wypłacił Ci pracodawca w tym roku?",
   "event.date": "Podaj datę porodu lub przyjęcia dziecka.",
   "insurance.titles": "Podaj tytuł ubezpieczenia i datę jego rozpoczęcia.",
   "insurance.titles[0].sickness_insurance_mode": "Czy opłacasz dobrowolne ubezpieczenie chorobowe?",

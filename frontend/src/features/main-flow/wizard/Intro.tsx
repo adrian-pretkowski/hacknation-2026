@@ -4,11 +4,45 @@
 import type { RefObject } from "react";
 import type { Answers } from "./answers";
 
-const HOW = [
-  { n: "1", title: "Odpowiadacie na kilka pytań", text: "Tylko te, które mają znaczenie w Waszej sytuacji. Każde pytanie można pominąć i wrócić do niego później." },
-  { n: "2", title: "Widzicie plan na osi czasu", text: "Urlopy obojga rodziców, kwoty zasiłków i porównanie wariantów wypłaty w jednym miejscu." },
-  { n: "3", title: "Wiecie, co i kiedy złożyć", text: "Lista dokumentów, adresat każdego wniosku, terminy i ryzyka, na które trzeba uważać." },
+const HOW: { n: string; icon: "ask" | "plan" | "docs"; title: string; text: string }[] = [
+  { n: "1", icon: "ask", title: "Odpowiadacie na kilka pytań", text: "Tylko te, które mają znaczenie w Waszej sytuacji. Każde pytanie można pominąć i wrócić do niego później." },
+  { n: "2", icon: "plan", title: "Widzicie plan na osi czasu", text: "Urlopy obojga rodziców, kwoty zasiłków i porównanie wariantów wypłaty w jednym miejscu." },
+  { n: "3", icon: "docs", title: "Wiecie, co i kiedy złożyć", text: "Lista dokumentów, adresat każdego wniosku, terminy i ryzyka, na które trzeba uważać." },
 ];
+
+type PresetKind = "mother" | "twins" | "father" | "business" | "progress";
+/** FE1-47: ikona kafelka gotowego przykładu dobrana po treści etykiety; nowe przykłady dostają ikonę domyślną (mama). */
+function presetKind(label: string): PresetKind {
+  const l = label.toLowerCase();
+  if (/bliźn|trojacz|wieloraczk/.test(l)) return "twins";
+  if (/\btata\b|ojciec|ojcowski/.test(l)) return "father";
+  if (/jdg|działalno|firm|zaległo|składk/.test(l)) return "business";
+  if (/wykorzystan|z 20\d\d|część urlopu/.test(l)) return "progress";
+  return "mother";
+}
+
+function PresetIcon({ kind }: { kind: PresetKind }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {kind === "mother" && <><circle cx="12" cy="6" r="2.5" /><path d="M7 20c0-4 2-7 5-7s5 3 5 7" /><circle cx="12" cy="16.5" r="1.8" /></>}
+      {kind === "twins" && <><circle cx="8" cy="8" r="2.5" /><circle cx="16" cy="8" r="2.5" /><path d="M3.5 19c0-3 2-5 4.5-5s4 1.5 4 3.5M12 17.5c0-2 1.5-3.5 4-3.5s4.5 2 4.5 5" /></>}
+      {kind === "father" && <><circle cx="10" cy="5.5" r="2.5" /><path d="M5 20v-5c0-2.5 2-4.5 5-4.5s5 2 5 4.5" /><circle cx="17.5" cy="13" r="1.8" /><path d="M15 20c0-1.8 1.1-3 2.5-3s2.5 1.2 2.5 3" /></>}
+      {kind === "business" && <><rect x="3" y="7" width="18" height="12" rx="2" /><path d="M9 7V5h6v2M3 12h18" /></>}
+      {kind === "progress" && <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M8 3v4M16 3v4M3 10h18" /><path d="M7 14h5" strokeWidth="3" /><path d="M13 14h4" strokeDasharray="1.5 1.5" /></>}
+    </svg>
+  );
+}
+
+/** FE1-46: ikony liniowe kroków „Jak to działa” (ozdobne). */
+function HowIcon({ kind }: { kind: "ask" | "plan" | "docs" }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      {kind === "ask" && <><path d="M4 5h16v10H9l-5 4z" /><path d="M9 9h6M9 12h4" /></>}
+      {kind === "plan" && <><path d="M3 19h18" /><rect x="4" y="6" width="7" height="4" rx="1.5" /><rect x="9" y="12" width="11" height="4" rx="1.5" /></>}
+      {kind === "docs" && <><path d="M7 3h7l4 4v14H7z" /><path d="M14 3v4h4" /><path d="m10 14 2 2 3-4" /></>}
+    </svg>
+  );
+}
 
 /** FE1-30: tło sekcji powitalnej - rodzina tuląca maluszka, pozytywka nad łóżeczkiem, delikatne serduszka. Ozdobne (aria-hidden). */
 function HeroBackdrop() {
@@ -178,14 +212,24 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
         </section>
       </section>
 
-      <section id="jak-to-dziala" aria-labelledby="how-h" className="scroll-mt-4">
-        <h2 id="how-h" className="text-xl font-semibold text-zus-navy">Jak to działa</h2>
-        <ol className="mt-4 grid gap-4 md:grid-cols-3">
-          {HOW.map((h) => (
-            <li key={h.n} className="rounded-2xl border border-zinc-200 bg-white p-5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zus-green-50 text-base font-semibold text-zus-green-dark">{h.n}</span>
-              <h3 className="mt-3 font-semibold text-zus-navy">{h.title}</h3>
-              <p className="mt-1 text-sm text-zinc-700">{h.text}</p>
+      {/* FE1-46: stonowany panel - kroki połączone linią, ikony liniowe; nie konkuruje z wyborem drogi */}
+      <section id="jak-to-dziala" aria-labelledby="how-h" className="scroll-mt-4 rounded-3xl border border-zinc-200/80 bg-linear-to-b from-white to-zus-green-50/60 px-5 py-6 sm:px-8 sm:py-8">
+        <p className="text-xs font-semibold uppercase tracking-wider text-zus-green-dark md:text-center">W trzech krokach</p>
+        <h2 id="how-h" className="mt-1 text-xl font-semibold text-zus-navy md:text-center">Jak to działa</h2>
+        <ol className="mt-6 grid gap-6 md:grid-cols-3 md:gap-8">
+          {HOW.map((h, i) => (
+            <li key={h.n} className="relative flex gap-4 md:flex-col md:items-center md:text-center">
+              {i < HOW.length - 1 && (
+                <span aria-hidden="true" className="absolute top-14 bottom-[-1.25rem] left-6 border-l-2 border-dashed border-zus-green-100 md:top-6 md:right-[-50%] md:bottom-auto md:left-[calc(50%+2.25rem)] md:border-t-2 md:border-l-0" />
+              )}
+              <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-zus-green-dark shadow-sm ring-1 ring-zus-green-100">
+                <HowIcon kind={h.icon} />
+                <span aria-hidden="true" className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-zus-green-dark text-[11px] font-semibold text-white">{h.n}</span>
+              </span>
+              <div className="min-w-0 md:mt-0 md:max-w-xs">
+                <h3 className="font-semibold text-zus-navy"><span className="sr-only">Krok {h.n}: </span>{h.title}</h3>
+                <p className="mt-1 text-sm text-zinc-700">{h.text}</p>
+              </div>
             </li>
           ))}
         </ol>
@@ -194,12 +238,17 @@ export function Intro({ headingRef, onStart, onForms, onPreset, onSensitive, pre
       <section aria-labelledby="ex-h">
         <h2 id="ex-h" className="text-xl font-semibold text-zus-navy">Albo zobaczcie gotowy przykład</h2>
         <p className="mt-1 text-sm text-zinc-600">Przykładowe dane, niezwiązane z żadną prawdziwą sprawą. Każdą odpowiedź możecie potem zmienić.</p>
+        {/* FE1-47: kafelki z ikoną dobraną do przykładu - stonowane, bez konkurowania z wyborem drogi */}
         <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {presets.map((p) => (
             <li key={p.id}>
               <button type="button" onClick={() => onPreset(p.answers)}
-                className="flex h-full w-full items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-4 text-left text-sm font-medium text-zinc-900 hover:border-zus-green-dark focus-visible:outline-2 focus-visible:outline-zus-green-dark">
-                <span>{p.label}</span><span aria-hidden="true" className="text-zus-green-dark">→</span>
+                className="group flex h-full w-full items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 pr-4 text-left text-sm font-medium text-zus-ink transition hover:-translate-y-0.5 hover:border-zus-green-100 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zus-green-dark motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+                <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zus-green-50 text-zus-green-dark transition group-hover:bg-zus-green-100">
+                  <PresetIcon kind={presetKind(p.label)} />
+                </span>
+                <span className="min-w-0 flex-1">{p.label}</span>
+                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zus-green-dark transition group-hover:translate-x-0.5 group-hover:border-zus-green-dark group-hover:bg-zus-green-dark group-hover:text-white motion-reduce:transition-none">→</span>
               </button>
             </li>
           ))}

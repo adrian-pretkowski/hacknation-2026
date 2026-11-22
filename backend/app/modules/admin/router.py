@@ -1,5 +1,6 @@
-"""Panel admina parametrów (BE2-05): GET/PUT /api/admin/parameters (kontrakt: ParameterList, ParameterUpdate).
+"""Panel admina parametrów (BE2-05, BE2-13): GET/PUT/DELETE /api/admin/parameters (ParameterList, ParameterUpdate).
 
+PUT sprawdza zakresy wartości (``out_of_range``), DELETE przywraca wartości z zus_rules (BE2-13).
 Dostęp bez uwierzytelnienia (D36: demo - wejście bezpośrednio z przycisku „Panel admina” na stronie głównej);
 produkcyjnie: SSO. Zmiana działa bez restartu - silnik czyta ``app.core.params.param()`` przy każdej ewaluacji.
 Logi bez wartości.
@@ -50,4 +51,10 @@ async def update_parameters(request: Request) -> Any:
     except ParameterError as exc:
         return _problem(422, "Nieznany parametr lub zła wartość", exc.message,
                         [{"field": exc.field, "code": exc.code, "message": exc.message}])
+    return parameter_list()
+
+
+@router.delete("/parameters")
+def reset_parameters() -> Any:
+    STORE.reset()
     return parameter_list()

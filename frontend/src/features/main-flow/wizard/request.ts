@@ -4,6 +4,7 @@
 import type { EvaluateRequest } from "@/lib/api";
 import { baseFromGross } from "../preview/engine";
 import { addDays } from "../preview/exact";
+import { PARAMS } from "../preview/params";
 import { type Answers, type Tri, type Variant, extendableUntilBirth, hasContractEnd } from "./answers";
 import { parseMoney } from "./money";
 
@@ -107,7 +108,9 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
           working_time_fraction: a.fullTime === "YES" ? "1.0" : null,
         }
       : undefined,
-    payer: { insured_count_on_nov30_prev_year: a.payerSize === "GT20" ? 21 : a.payerSize === "LE20" ? 1 : null },
+    // liczba ubezpieczonych względem progu z parametrów (panel admina), nie wpisana na sztywno
+    payer: { insured_count_on_nov30_prev_year: a.payerSize === "GT20" ? PARAMS.PAYER_INSURED_THRESHOLD + 1
+      : a.payerSize === "LE20" ? PARAMS.PAYER_INSURED_THRESHOLD : null },
     pregnancy: !isGuardian && forecast ? { expected_due_date: eventDate } : undefined,
     event: {
       type: eventType,
@@ -115,6 +118,7 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       foster_family_type: eventType === "FOSTER"
         ? (a.guardianKind === "FOSTER_PROFESSIONAL" ? "PROFESSIONAL" : "NON_PROFESSIONAL") : null,
       adoption_final_date: eventType === "ADOPTION" ? a.adoptionFinalDate || null : null, // FE1-26
+      court_adoption_application_date: eventType === "ADOPTION" ? a.courtApplicationDate || null : null, // FE1-41
     },
     // FE1-05: masa jako odpowiedź względem progu (birth.weight_at_most_threshold), bez dokładnej wagi
     birth: a.preterm
@@ -156,4 +160,26 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
       no_insurance_reason: excluded,
     },
   };
+}
+
+/** FE1-41: zwolnienie lekarskie w ciąży → osobne żądanie do silnika (event PREGNANCY_INCAPACITY, wymaganie a).
+ * Ubezpieczenie, płatnik i podstawa jak w planie urlopów; brak daty końca → silnik liczy do daty oceny / pyta. */
+export function toSickLeaveRequest(a: Answers): EvaluateRequest | null {
+  if (a.role !== "MOTHER" || a.stage !== "PREGNANT" || a.sickLeave !== "YES" || !a.sickLeaveFrom) return null;
+  const base = toEvaluateRequest(a, "FULL_100_70");
+  return {
+    evaluation: { as_of_date: todayIso(), mode: "DECISION_SUPPORT" },
+    person: base.person,
+    insurance: base.insurance,
+    employment: base.employment,
+    payer: base.payer,
+    pregnancy: { expected_due_date: a.eventDate || null, is_pregnant_during_incapacity: true },
+    event: { type: "PREGNANCY_INCAPACITY" },
+    incapacity: { start_date: a.sickLeaveFrom, end_date: a.sickLeaveTo || null, cause: "ILLNESS", certificate_present: true },
+    // „Nie” = brak wcześniejszych zwolnień: pusta historia i 0 dni wynagrodzenia chorobowego; inaczej silnik dopyta
+    benefit_history: a.sickLeaveEarlier === "NO"
+      ? { sickness_periods: [], sickness_periods_confirmed_complete: true, employer_sick_pay_days_in_year: 0 } : undefined,
+    income_history: base.income_history,
+    debt: base.debt,
+  } as EvaluateRequest;
 }

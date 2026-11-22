@@ -30,7 +30,7 @@ export const FORMS: Record<FormCode, FormInfo> = {
     name: "Wniosek o zasiłek macierzyński",
     purpose: "Wniosek o zasiłek za urlop macierzyński, rodzicielski i ojcowski. Od 24.10.2026 zastępuje też dawne druki ZUR i ZAO.",
     who: "Wypełniasz Ty - mama lub tata, gdy zasiłek wypłaca ZUS (np. działalność gospodarcza, umowa zlecenia).",
-    // FE1-37: getter - wartość z panelu admina (liveParams) czytana przy wyświetleniu, nie przy ładowaniu modułu
+    // FE1-37: getter - wartość z panelu admina (apiParams) czytana przy wyświetleniu, nie przy ładowaniu modułu
     get when() { return `Po urodzeniu lub przyjęciu dziecka, razem z odpisem aktu urodzenia. Wariant ${formatRate(PARAMS.MAT_RATE_COMBINED)} za cały okres - w ciągu ${PARAMS.APP_COMBINED_DEADLINE_DAYS} dni od porodu.`; },
     submitTo: "Do ZUS (eZUS lub placówka) albo do płatnika, jeśli to on wypłaca zasiłek.",
     filledBy: "YOU",
