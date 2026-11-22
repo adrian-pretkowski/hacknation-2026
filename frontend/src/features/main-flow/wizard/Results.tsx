@@ -323,10 +323,14 @@ function useSickLeave(answers: Answers): SickLeave {
 /** FE1-50: pasek „L4 w ciąży” na osi czasu mamy - daty z odpowiedzi „jestem na zwolnieniu”, kwoty i dni z silnika (bez sumowania). */
 function sickLeaveSegment(answers: Answers, sick: SickLeave): TimelineSeg | null {
   const paid = (sick.r?.benefits ?? []).filter((b) => b.total_amount_exact);
-  if (sick.hypothetical || !sick.r || paid.length === 0 || !answers.sickLeaveFrom || !answers.sickLeaveTo) return null;
+  if (sick.hypothetical || !sick.r || paid.length === 0) return null;
+  // okres z silnika (najwcześniejszy początek i najpóźniejszy koniec świadczeń), a gdy go brak - z odpowiedzi o L4
+  const from = paid.map((b) => b.period?.from).filter((d): d is string => !!d).sort()[0] ?? answers.sickLeaveFrom;
+  const to = paid.map((b) => b.period?.to).filter((d): d is string => !!d).sort().at(-1) ?? answers.sickLeaveTo;
+  if (!from || !to) return null;
   return {
-    parent: "MOTHER", leave_type: "PREGNANCY_SICK_LEAVE", from: answers.sickLeaveFrom, to: answers.sickLeaveTo,
-    days: periodDays(answers.sickLeaveFrom, answers.sickLeaveTo), rate: paid[0].rate ?? "1", work_fraction: "0",
+    parent: "MOTHER", leave_type: "PREGNANCY_SICK_LEAVE", from, to,
+    days: periodDays(from, to), rate: paid[0].rate ?? "", work_fraction: "0",
     rule_ids: [...new Set(paid.flatMap((b) => b.applied_rules))], own: true, needs_review: sick.r.overall_status !== "ELIGIBLE",
     amountNote: paid.map((b) => `${SICK_SHORT[b.benefit_type] ?? b.benefit_type} ${b.days ?? 0} dni: ${formatMoney(b.total_amount_exact)}`).join(" · "),
   };
@@ -338,7 +342,9 @@ function withSickGuidance(r: EvaluateResponse, sick: EvaluateResponse | null): E
   if (!sick) return r;
   const docs = [...(r.missing_documents ?? [])];
   for (const d of sick.missing_documents ?? []) if (!docs.some((x) => x.doc_type === d.doc_type && x.submit_to === d.submit_to)) docs.push(d);
-  return { ...r, missing_documents: docs, deadlines: [...(r.deadlines ?? []), ...(sick.deadlines ?? [])] };
+  const deadlines = [...(r.deadlines ?? [])];
+  for (const d of sick.deadlines ?? []) if (!deadlines.some((x) => x.code === d.code && x.who === d.who && x.date === d.date)) deadlines.push(d);
+  return { ...r, missing_documents: docs, deadlines };
 }
 
 /** FE1-41, FE1-43: zasiłek chorobowy w ciąży (wymaganie a) - zawsze dla mamy w ciąży: zasady z parametrów (stawka,

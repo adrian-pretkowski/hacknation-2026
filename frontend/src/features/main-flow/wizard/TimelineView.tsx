@@ -37,7 +37,7 @@ const planErrorText = (): Record<string, string> => ({
 const errorLine = (e: PlanErrors[number]) => <>Plan do poprawy: {planErrorText()[e.code] ?? e.code}<RuleText entry={e.rule_id} className="block text-xs" /></>;
 const fractionText = (f: string) => f === "0.5" ? "½" : f === "0.25" ? "¼" : f.replace(".", ",");
 /** stawka jako % podstawy wymiaru (prezentacja stringu z silnika, bez liczenia kwot) */
-const rateText = (s: TimelineSeg) => (Number(s.rate) * 100).toLocaleString("pl-PL") + "% podstawy"
+const rateText = (s: TimelineSeg) => !s.rate ? "brak w odpowiedzi silnika" : (Number(s.rate) * 100).toLocaleString("pl-PL") + "% podstawy"
   + (s.work_fraction !== "0" ? " × " + (1 - Number(s.work_fraction)).toLocaleString("pl-PL") + " (praca " + fractionText(s.work_fraction) + " etatu)" : "");
 
 const card = "rounded-lg border border-zinc-200 bg-white p-4 sm:p-5";
