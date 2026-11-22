@@ -9,7 +9,8 @@ import { RuleList } from "../RuleList";
 import { useApiParams } from "../preview/apiParams";
 import { type PreviewResult, compareTotals, previewEvaluate } from "../preview/engine";
 import { PARAMS } from "../preview/params";
-import type { Answers, Variant } from "./answers";
+import { type Answers, type Variant, plannerInputsKey } from "./answers";
+import { PlannerPlanCard } from "./PlannerPlanCard";
 import { FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, STATUS_HEADLINE } from "./labels";
 import { sicknessMode, toEvaluateRequest, toSickLeaveRequest } from "./request";
 import { type TimelineSeg, TimelineView } from "./TimelineView";
@@ -39,8 +40,9 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
   const cmp = compareTotals(pA.summary.ownTotal, pB.summary.ownTotal);
   const recommended: Variant = cmp?.better === "A" ? "COMBINED_815" : "FULL_100_70";
   // wariant z planera (krok „Optymalizacja”), jeśli użytkownik przeniósł plan do kreatora
-  const [chosen, setChosen] = useState<Variant | null>(answers.plannerApplied ? answers.plannerVariant : null);
-  const variant = chosen ?? recommended;
+  // FE1-62: wariant planera liczony przy każdym renderze (nie tylko przy montowaniu); ręczny wybór w porównaniu ma pierwszeństwo
+  const [chosen, setChosen] = useState<Variant | null>(null);
+  const variant = chosen ?? (answers.plannerApplied ? answers.plannerVariant : null) ?? recommended;
   const current = variant === "COMBINED_815" ? pA : pB;
   const r = current.response;
   const sensitive = answers.sensitive;
@@ -56,6 +58,7 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
       {sensitive && <SupportBlock kind="loss" />}
       {(answers.preterm || answers.zaZyciem) && !sensitive && <SupportBlock kind={answers.preterm ? "preterm" : "zazyciem"} />}
       <StatusHeader result={current} onEdit={onEdit} canEdit={canEdit} sick={sick.hypothetical ? null : sick.r} />
+      <AppliedPlan answers={answers} onEdit={onEdit} canEdit={canEdit} />
       <SickLeaveCard answers={answers} sick={sick} />
       {current.summary.remaining && <Remaining p={current} />}
       {/* bez okresów i błędów planu (np. brak prawa) nie pokazujemy pustego panelu */}
@@ -75,6 +78,37 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
       {onOpenForm && <FormsToFill response={rAll} onOpen={onOpenForm} />}
       <CalcDetails p={current} />
     </div>
+  );
+}
+
+/** FE1-62: plan rodziny zastosowany z kroku „Optymalizacja” - kwoty planera z API (mama + tata), nie tylko część wypełniającego. */
+function AppliedPlan({ answers, onEdit, canEdit }: { answers: Answers; onEdit: (s: string) => void; canEdit: (s: string) => boolean }) {
+  const plan = answers.plannerPlan;
+  if (!answers.plannerApplied || !plan || answers.sensitive) return null;
+  if (answers.plannerKey !== plannerInputsKey(answers)) {
+    return (
+      <section className="rounded-lg border border-l-8 border-zinc-200 border-l-zus-yellow bg-white p-4 text-sm sm:p-5" role="status">
+        <p className="font-semibold">Plan z kroku „Optymalizacja” jest nieaktualny</p>
+        <p className="mt-1 text-zinc-700">Od jego zastosowania zmieniły się dane (wynagrodzenie, ubezpieczenie taty lub liczba dzieci). Policz plan ponownie.</p>
+        {canEdit("optimize") && (
+          <button type="button" onClick={() => onEdit("optimize")} className="mt-2 font-semibold text-zus-navy underline underline-offset-2">Wróć do Optymalizacji</button>
+        )}
+      </section>
+    );
+  }
+  return (
+    <section aria-labelledby="family-plan-h" className={card}>
+      <h2 id="family-plan-h" className="text-base font-semibold">Plan rodziny z kroku „Optymalizacja”</h2>
+      <p className="mt-1 text-sm text-zinc-700">Łączna kwota dla mamy i taty przy wybranym podziale urlopów. Kwota „dla Ciebie” powyżej to tylko Twoja część.</p>
+      <div className="mt-3">
+        <PlannerPlanCard plan={plan} title="Wasz plan - łącznie dla rodziny"
+          note={<p className="mt-1 text-xs text-zinc-600">Planer liczy urlopy od dnia porodu, ze stałym wynagrodzeniem obojga rodziców; Twoja część powyżej uwzględnia też m.in. urlop przed porodem i podwyższenie do kwoty świadczenia rodzicielskiego, więc może się nieco różnić.</p>}>
+          {canEdit("optimize") && (
+            <button type="button" onClick={() => onEdit("optimize")} className="mt-3 text-sm font-semibold text-zus-navy underline underline-offset-2">Zmień plan</button>
+          )}
+        </PlannerPlanCard>
+      </div>
+    </section>
   );
 }
 

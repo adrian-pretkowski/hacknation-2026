@@ -4,13 +4,13 @@
 // Graf decyzji i kwoty liczy backend (zus_rules/03_rules.yaml) - tu tylko wyświetlanie i zapis wyborów w odpowiedziach.
 import { useEffect, useRef, useState } from "react";
 import { ApiError, type PlannerChoice, type PlannerPlan, type PlannerSuggestResponse, plannerSuggest } from "@/lib/api";
-import { formatMoney, formatRate } from "@/lib/format";
+import { formatMoney } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
 import { baseFromGross } from "../preview/engine";
-import type { Answers } from "./answers";
+import { type Answers, plannerInputsKey } from "./answers";
+import { PlannerPlanCard } from "./PlannerPlanCard";
 import { Choice, MoneyField, TRI_OPTIONS } from "./fields";
 import { normalizeMoney } from "./money";
-import { PARAMS } from "../preview/params";
 
 const STEP_TITLE: Record<string, string> = {
   COMBINED_815: "Wniosek 81,5%",
@@ -22,7 +22,6 @@ const STEP_TITLE: Record<string, string> = {
   WORK_FATHER: "Praca taty na rodzicielskim",
 };
 const STEP_COUNT = Object.keys(STEP_TITLE).length;
-const PARENT = { MOTHER: "Mama", FATHER: "Tata" } as const;
 
 const clean = normalizeMoney; // FE1-15: wspólna normalizacja kwot (money.ts)
 
@@ -32,7 +31,11 @@ export function optimizerVisible(a: Answers): boolean {
   return a.role === "MOTHER" || a.partnerInsured === "YES";
 }
 
-export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers>) => void }) {
+export function Optimizer({ a, set, onApplied }: {
+  a: Answers; set: (patch: Partial<Answers>) => void;
+  /** FE1-62: po „Użyj tego planu” kreator przechodzi do wyniku „Twój plan” */
+  onApplied?: () => void;
+}) {
   const [data, setData] = useState<PlannerSuggestResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -81,7 +84,11 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
 
   const done = data?.current_best_plan?.choices.slice(0, choices.length) ?? [];
   const plan = data?.current_best_plan;
-  const apply = (p: PlannerPlan) => set(answersFromPlan(p));
+  // FE1-62: zapisujemy też kopię planu (kwoty z API) i podpis danych - wynik pokazuje plan rodziny, a nie tylko część wypełniającego
+  const apply = (p: PlannerPlan) => {
+    set({ ...answersFromPlan(p), plannerPlan: p, plannerKey: plannerInputsKey(a) });
+    onApplied?.();
+  };
   const complete = data?.status === "COMPLETE";
   const stepIndex = data?.step ? data.step.index : complete ? STEP_COUNT : choices.length;
 
@@ -228,32 +235,8 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
   );
 
   const planCard = !missing && plan && (
-    <div className="rounded-xl bg-zus-gray-50 p-4" aria-live="polite">
-      <p className="text-sm font-semibold">{complete ? "Wasz plan" : "Najlepszy plan przy Waszych dotychczasowych wyborach"}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums text-zus-navy">{formatMoney(plan.totals.best_total_preview)}</p>
-      <p className="text-xs text-zinc-600">
-        Mama {formatMoney(plan.totals.mother_preview)} · Tata {formatMoney(plan.totals.father_preview)} · {plan.totals.covered_weeks} tyg. opieki nad dzieckiem
-      </p>
-      {plan.needs_review && <div className="mt-2 text-xs">Część planu wymaga weryfikacji:<RuleList ids={plan.review_rules} /></div>}
-      {/* D19: każda kwota z blokiem wyjaśnienia - kroki, dni × stawka, przepisy, założenia (FE1-42 w raporcie INT-15) */}
-      <details className="mt-2 text-sm">
-        <summary className="cursor-pointer font-medium">Pokaż, jak to policzyliśmy</summary>
-        <p className="mt-2 text-xs text-zinc-600">Każda pozycja: podstawa wymiaru × stawka ÷ {PARAMS.MONTH_AS_DAYS} × liczba dni
-          (kwoty liczy silnik planera w API, bez zaokrągleń).</p>
-        <ul className="mt-2 divide-y divide-zinc-200">
-          {plan.items.map((i, n) => (
-            <li key={n} className="py-2">
-              <p className="flex gap-2"><span className="min-w-0 flex-1">{i.label}</span><span className="tabular-nums">{formatMoney(i.amount_exact)}</span></p>
-              <p className="text-xs text-zinc-500">{PARENT[i.parent]} · {i.days} dni{i.rate ? ` × stawka ${formatRate(i.rate)}` : ""}
-                {i.rate ? ` (podstawa ${PARENT[i.parent]?.toLowerCase() ?? ""} × ${formatRate(i.rate)} ÷ ${PARAMS.MONTH_AS_DAYS} × ${i.days} dni)` : ""}</p>
-              <RuleList ids={i.rule_ids} className="text-xs text-zinc-600" />
-            </li>
-          ))}
-        </ul>
-        {data && data.assumptions.length > 0 && (
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-zinc-600">{data.assumptions.map((x) => <li key={x.code}>{x.text}</li>)}</ul>
-        )}
-      </details>
+    <PlannerPlanCard plan={plan} title={complete ? "Wasz plan" : "Najlepszy plan przy Waszych dotychczasowych wyborach"}
+      assumptions={data?.assumptions ?? []}>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button type="button" onClick={() => apply(plan)}
           className="rounded-full bg-zus-green-dark px-4 py-2 text-sm font-semibold text-white hover:bg-zus-navy">
@@ -265,8 +248,10 @@ export function Optimizer({ a, set }: { a: Answers; set: (patch: Partial<Answers
           </button>
         )}
       </div>
-      {a.plannerApplied && <p className="mt-2 text-xs text-zus-green-dark">Plan przeniesiony do kroku „Plany” i wyniku.</p>}
-    </div>
+      {a.plannerApplied && a.plannerPlan && a.plannerKey === plannerInputsKey(a) && (
+        <p className="mt-2 text-xs text-zus-green-dark" role="status">Plan przeniesiony do kroku „Plany” i do wyniku „Twój plan”.</p>
+      )}
+    </PlannerPlanCard>
   );
   const assumptionsBox = data && !missing && (
     <details className="text-xs text-zinc-600">
@@ -304,11 +289,16 @@ export function answersFromPlan(plan: PlannerPlan): Partial<Answers> {
   const reserved = Number(pick("FATHER_RESERVED_9W") ?? 0);
   const shared = Number(pick("SHARED_PARENTAL_SPLIT") ?? 0);
   const work = String(pick("WORK_MOTHER") ?? "0");
+  const transfer = Number(pick("MATERNITY_TRANSFER") ?? 0);
+  const paternity = pick("PATERNITY");
   const motherParentalDays = plan.items
     .filter((i) => i.parent === "MOTHER" && i.kind === "PARENTAL_LEAVE").reduce((n, i) => n + i.days, 0);
   return {
     fatherParentalWeeks: reserved + shared,
-    fatherTakesOverMaternity: Number(pick("MATERNITY_TRANSFER") ?? 0) > 0,
+    // FE1-62: pełna liczba tygodni przejęcia i ojcowskiego (wcześniej tylko tak/nie, ojcowski pomijany)
+    fatherTakesOverMaternity: transfer > 0,
+    fatherMaternityWeeks: transfer > 0 ? transfer : null,
+    paternityWeeks: paternity === undefined ? null : Number(paternity),
     workFraction: work === "0.25" || work === "0.5" ? work : "0",
     workWeeks: work === "0" ? "" : String(Math.round(motherParentalDays / 7)),
     plannerVariant: pick("COMBINED_815") === true ? "COMBINED_815" : "FULL_100_70",

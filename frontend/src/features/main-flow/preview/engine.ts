@@ -568,9 +568,10 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
         warn("FATHER_PARENTAL_START_REVIEW", "WARNING", "PAR-ELIG-001",
           "Gdy mama nie ma urlopu macierzyńskiego, początek rodzicielskiego taty i pula tygodni wymagają potwierdzenia.");
       } else if (wp.father_takes_over_maternity && eventType === "BIRTH") {
-        const motherDays = P.MOTHER_MIN_WEEKS_BEFORE_TRANSFER * W;
-        segments.push(mkSeg("MOTHER", matLeave, matStart, periodDays(matStart, addDays(ev, motherDays - 1)), rateMat, mOwn));
-        const fromF = addDays(ev, motherDays);
+        // FE1-62: liczba tygodni z planera (father_maternity_weeks); bez niej - cała reszta po minimum mamy
+        const minF = addDays(ev, P.MOTHER_MIN_WEEKS_BEFORE_TRANSFER * W);
+        const fromF = wp.father_maternity_weeks != null ? maxDate(minF, addDays(matEnd, 1 - wp.father_maternity_weeks * W)) : minF;
+        segments.push(mkSeg("MOTHER", matLeave, matStart, periodDays(matStart, addDays(fromF, -1)), rateMat, mOwn));
         segments.push(mkSeg("FATHER", "MATERNITY_LEAVE_TRANSFERRED", fromF, periodDays(fromF, matEnd), rateMat, fOwn,
           { rule_ids: ["MAT-SHARE-001"] }));
         // FE1-25, APP-DL-002: wniosek taty o przejęcie (KP 180 § 9) i rezygnacja mamy przed powrotem do pracy (KP 180 § 8)
@@ -683,9 +684,13 @@ export function previewEvaluate(req: WizardRequest): PreviewResult {
       if (!paternityUsed && eventType === "BIRTH" && ev < today && wp.father_paternity_used === null)
         warn("PATERNITY_USAGE_UNKNOWN", "INFO", "PAT-DUR-001",
           "Nie wiemy, czy tata wykorzystał już urlop ojcowski - pokazujemy go w planie; jeśli był wykorzystany, zaznacz to w kroku „Co już wykorzystano”.");
-      if (!paternityUsed && (eventType === "BIRTH" || eventType === "ADOPTION")) {
+      // FE1-62: wymiar ojcowskiego z planera (paternity_weeks); 0 = tata nie bierze ojcowskiego
+      const paternityWeeks = Math.min(Math.max(wp.paternity_weeks ?? P.PATERNITY_WEEKS, 0), P.PATERNITY_WEEKS);
+      if (!paternityUsed && paternityWeeks === 0 && (eventType === "BIRTH" || eventType === "ADOPTION"))
+        warn("PATERNITY_NOT_PLANNED", "INFO", "PAT-DUR-001", "W zastosowanym planie tata nie bierze urlopu ojcowskiego.");
+      if (!paternityUsed && paternityWeeks > 0 && (eventType === "BIRTH" || eventType === "ADOPTION")) {
         const pStart = req.plan?.paternity_start_date ?? maxDate(ev, addDays(today, P.LEAVE_APP_PATERNITY_DAYS_BEFORE));
-        const p = mkSeg("FATHER", "PATERNITY_LEAVE", pStart, P.PATERNITY_WEEKS * W, P.MAT_RATE_FULL, fOwn);
+        const p = mkSeg("FATHER", "PATERNITY_LEAVE", pStart, paternityWeeks * W, P.MAT_RATE_FULL, fOwn);
         segments.push(p);
         // FE1-26, PAT-DUR-001: przy adopcji 12 mies. od uprawomocnienia, najpóźniej dzień przed 14. urodzinami
         const adoption = eventType === "ADOPTION";

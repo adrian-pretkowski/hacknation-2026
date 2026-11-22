@@ -11,6 +11,8 @@ import { parseMoney } from "./money";
 export type WizardPlan = {
   father_parental_weeks: number;
   father_takes_over_maternity: boolean;
+  father_maternity_weeks: number | null; // FE1-62: tygodnie macierzyńskiego przejęte przez tatę (planer)
+  paternity_weeks: number | null; // FE1-62: tygodnie ojcowskiego (planer); null = pełny wymiar
   work_fraction: string;
   work_weeks: number | null;
   used_maternity_fully: boolean | null;
@@ -152,6 +154,8 @@ export function toEvaluateRequest(a: Answers, variant: Variant): WizardRequest {
     wizard_plan: {
       father_parental_weeks: a.fatherParentalWeeks,
       father_takes_over_maternity: a.fatherTakesOverMaternity,
+      father_maternity_weeks: a.fatherTakesOverMaternity ? a.fatherMaternityWeeks : null,
+      paternity_weeks: a.paternityWeeks,
       work_fraction: a.workFraction,
       work_weeks: num(a.workWeeks),
       used_maternity_fully: a.stage === "BORN" ? tri(a.usedMaternityFully) : null,
