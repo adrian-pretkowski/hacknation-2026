@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FormDetail, FormPicker } from "@/features/documents/FormPicker";
 import { FORMS, type FormCode } from "@/features/documents/forms";
 import { useApiParams } from "../preview/apiParams";
-import { type Answers, EMPTY_ANSWERS, POPULAR_PRESETS, PRESETS } from "./answers";
+import { type Answers, EMPTY_ANSWERS, POPULAR_PRESETS, PRESETS, patchAnswers } from "./answers";
 import { Intro } from "./Intro";
 import { Results } from "./Results";
 import { STEPS } from "./steps";
@@ -30,7 +30,8 @@ export function Wizard() {
   const index = view.kind === "step" ? Math.min(view.index, steps.length - 1) : steps.length - 1;
   const step = steps[index];
   const done = view.kind === "result";
-  const set = (patch: Partial<Answers>) => setA((prev) => ({ ...prev, ...patch }));
+  // FE1-62: ręczna zmiana pól planu odłącza plan zastosowany z planera (patchAnswers)
+  const set = (patch: Partial<Answers>) => setA((prev) => patchAnswers(prev, patch));
 
   useEffect(() => {
     const onPop = (e: PopStateEvent) => {
@@ -198,7 +199,9 @@ export function Wizard() {
             {hasRequired && (
               <p className="text-xs text-zinc-600">Pola oznaczone <span aria-hidden="true" className="font-semibold text-zus-red">*</span><span className="sr-only">gwiazdką</span> są wymagane, aby przejść dalej.</p>
             )}
-            {step.render({ a, set })}
+            {/* showResult wywołuje się tylko w obsłudze kliknięcia (Optimizer), nie w trakcie renderu */}
+            {/* eslint-disable-next-line react-hooks/refs */}
+            {step.render({ a, set, showResult: () => show({ kind: "result" }) })}
             {!canNext && (
               <p id="next-blocked" role="status" className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
                 {missing.length > 0

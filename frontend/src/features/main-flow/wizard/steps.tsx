@@ -60,7 +60,7 @@ const fatherLeftWeeks = (a: Answers) => {
   return Math.max(Math.min(parentalPool(a) - PARAMS.PARENTAL_NONTRANSFERABLE_WEEKS - usedF, total), 0);
 };
 
-export type StepProps = { a: Answers; set: (patch: Partial<Answers>) => void };
+export type StepProps = { a: Answers; set: (patch: Partial<Answers>) => void; /** FE1-62: przejście do wyniku „Twój plan” */ showResult?: () => void };
 export type Step = {
   id: string;
   title: string;
@@ -666,6 +666,6 @@ export const STEPS: Step[] = [
     complete: () => true,
     summary: (a) => (a.plannerApplied ? "Plan zastosowany"
       : a.plannerChoices.length ? `Wybrane decyzje: ${a.plannerChoices.length}` : null),
-    render: ({ a, set }) => <Optimizer a={a} set={set} />,
+    render: ({ a, set, showResult }) => <Optimizer a={a} set={set} onApplied={showResult} />,
   },
 ];

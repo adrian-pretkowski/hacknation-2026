@@ -1,4 +1,5 @@
-import type { PlannerChoice } from "@/lib/api";
+import type { PlannerChoice, PlannerPlan } from "@/lib/api";
+import { normalizeMoney } from "./money";
 import { addDays } from "../preview/exact";
 
 /** FE1-10: przykłady z porodem w przyszłości liczone od dziś - walidacja dat nie zablokuje ich po terminie. */
@@ -89,6 +90,10 @@ export type Answers = {
   usedVariant: Variant | "UNKNOWN";
   fatherParentalWeeks: number;
   fatherTakesOverMaternity: boolean;
+  /** FE1-62: ile tygodni macierzyńskiego przejmuje tata (z planera); null = cała reszta po minimum mamy. */
+  fatherMaternityWeeks: number | null;
+  /** FE1-62: tygodnie urlopu ojcowskiego (z planera); null = pełny wymiar z parametrów. */
+  paternityWeeks: number | null;
   workFraction: "0" | "0.25" | "0.5";
   workWeeks: string;
   salaryGross: string;
@@ -98,6 +103,9 @@ export type Answers = {
   plannerChoices: PlannerChoice[];
   plannerVariant: Variant | null;
   plannerApplied: boolean;
+  /** FE1-62: kopia planu z API zastosowanego w kreatorze (kwoty planera dla rodziny) i podpis jego danych wejściowych. */
+  plannerPlan: PlannerPlan | null;
+  plannerKey: string;
 };
 
 export const EMPTY_ANSWERS: Answers = {
@@ -154,6 +162,8 @@ export const EMPTY_ANSWERS: Answers = {
   usedVariant: "UNKNOWN",
   fatherParentalWeeks: 9,
   fatherTakesOverMaternity: false,
+  fatherMaternityWeeks: null,
+  paternityWeeks: null,
   workFraction: "0",
   workWeeks: "",
   salaryGross: "",
@@ -162,7 +172,25 @@ export const EMPTY_ANSWERS: Answers = {
   plannerChoices: [],
   plannerVariant: null,
   plannerApplied: false,
+  plannerPlan: null,
+  plannerKey: "",
 };
+
+/** FE1-62: podpis danych, od których zależy plan z planera - inny podpis = zastosowany plan jest nieaktualny. */
+export function plannerInputsKey(a: Answers): string {
+  return JSON.stringify([a.role, normalizeMoney(a.salaryGross), normalizeMoney(a.partnerSalaryGross), a.partnerInsured, a.children, a.zaZyciem]);
+}
+
+/** FE1-62: pola kroku „Plany”, które ustawia planer - ręczna zmiana któregoś z nich odłącza zastosowany plan. */
+const PLAN_FIELDS = ["fatherParentalWeeks", "fatherTakesOverMaternity", "fatherMaternityWeeks", "paternityWeeks", "workFraction", "workWeeks", "plannerVariant"] as const;
+
+/** FE1-62: zastosowanie zmiany odpowiedzi; zmiana planu poza planerem kasuje „plan zastosowany”. */
+export function patchAnswers(prev: Answers, patch: Partial<Answers>): Answers {
+  const next = { ...prev, ...patch };
+  if (prev.plannerApplied && !("plannerApplied" in patch) && PLAN_FIELDS.some((k) => k in patch && patch[k] !== prev[k]))
+    next.plannerApplied = false;
+  return next;
+}
 
 /** Przykłady startowe (dane syntetyczne, bez odniesień do spraw ZUS). */
 export const PRESETS: { id: string; label: string; answers: Partial<Answers> }[] = [
