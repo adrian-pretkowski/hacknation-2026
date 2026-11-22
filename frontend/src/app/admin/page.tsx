@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AppVersion } from "@/components/AppVersion";
+import { FooterBadges } from "@/components/FooterBadges";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { MAIN_ID, SkipLink } from "@/components/SkipLink";
 import { AdminParameters } from "@/features/admin/AdminParameters";
@@ -27,6 +28,7 @@ export default function AdminPage() {
       <footer className="border-t border-zinc-200 bg-white">
         <div className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-zinc-600">
           Prototyp HackNation 2026. Panel administratora - zmiany parametrów działają od razu w kolejnych wyliczeniach.
+          <FooterBadges />
           <AppVersion />
         </div>
       </footer>

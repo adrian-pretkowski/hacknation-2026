@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AppVersion } from "@/components/AppVersion";
+import { FooterBadges } from "@/components/FooterBadges";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { CasesPage } from "@/features/sample-applications/SampleApplications";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -25,6 +26,7 @@ export default function CasesRoute() {
       <footer className="border-t border-zinc-200 bg-white">
         <div className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-zinc-600">
           Prototyp HackNation 2026. Wnioski przykładowe są fikcyjne; wgrany plik nie jest zapisywany. Wynik ma charakter informacyjny.
+          <FooterBadges />
           <AppVersion />
         </div>
       </footer>
