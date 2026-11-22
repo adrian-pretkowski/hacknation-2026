@@ -56,6 +56,8 @@ Widok: telefon
 
 Nawigacja
 - `Otwórz stronę główną` · `Otwórz stronę „/admin”` · `Cofnij w przeglądarce` · `Odśwież stronę`
+- `W API ustaw parametr „MAT_RATE_COMBINED” na „0.9”` - parametr jak z panelu admina, tylko w tej przeglądarce (podmiana odpowiedzi `GET /api/admin/parameters`, bez zapisu w backendzie); przed „Otwórz stronę główną” albo przed `Przełącz się na inną kartę i wróć` (FE1-37)
+- `Przełącz się na inną kartę i wróć` - powrót do karty; kreator ponownie pobiera parametry z panelu admina (FE1-37)
 
 Logowanie (SYMULACJA)
 - `Zaloguj się przez mObywatel jako „Anna Przykładowa”` - cały przebieg: przycisk „Zaloguj się” w nagłówku (albo okno logowania już otwarte, np. po „Zaloguj się i pobierz”), zeskanowanie kodu QR na symulowanym telefonie, potwierdzenie, powrót do serwisu.

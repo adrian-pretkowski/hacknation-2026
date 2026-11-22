@@ -6,7 +6,8 @@ import { formatRate } from "@/lib/format";
 import { PARAMS } from "@/features/main-flow/preview/params";
 import type { FormCode } from "./forms";
 
-const PAYER_SIZE: [string, string] = [`do ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych`, `powyżej ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych`];
+// FE1-37: funkcja/getter - próg z panelu admina (liveParams) czytany przy wyświetleniu, nie przy ładowaniu modułu
+const payerSize = (): [string, string] => [`do ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych`, `powyżej ${PARAMS.PAYER_INSURED_THRESHOLD} ubezpieczonych`];
 
 /** Odczyt wartości po krótkim ID - dla warunków „wymagane, jeśli…”. */
 export type Get = (id: string) => string | boolean | undefined;
@@ -136,7 +137,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
         { id: "p2_27", label: "Okres urlopu ojcowskiego", hint: PERIOD_HINT, required: on("p2_26") },
         { id: "p2_28", label: "Która to część urlopu ojcowskiego" },
         { id: "p2_29", label: "Data zakończenia zasiłku za urlop macierzyński / na warunkach urlopu macierzyńskiego", hint: "Wypełnij, jeśli wnioskujesz tylko o urlop rodzicielski." },
-        { id: "p2_30", label: `Zamierzam skorzystać z pełnego wymiaru urlopu macierzyńskiego i rodzicielskiego (wariant ${formatRate(PARAMS.MAT_RATE_COMBINED)} za cały okres)` },
+        { id: "p2_30", get label() { return `Zamierzam skorzystać z pełnego wymiaru urlopu macierzyńskiego i rodzicielskiego (wariant ${formatRate(PARAMS.MAT_RATE_COMBINED)} za cały okres)`; } },
       ] },
     { id: "insurance", title: "Informacje o ubezpieczeniu",
       fields: [{ id: "p2_31", no: "p2_32", label: "Jeśli prowadzisz działalność gospodarczą (albo współpracujesz, jesteś duchownym lub marynarzem): czy masz ubezpieczenie chorobowe?" }] },
@@ -263,7 +264,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
       ...paid("p4_075", "p4_076", "p4_077", "2. Czy wypłaciłeś zasiłek chorobowy?"),
     ] },
     { id: "payerSize", title: "Liczba ubezpieczonych zgłoszonych do ubezpieczenia chorobowego",
-      fields: [{ id: "p4_078", no: "p4_079", options: PAYER_SIZE, label: "Zgłosiłeś do ubezpieczenia chorobowego", required: true }] },
+      fields: [{ id: "p4_078", no: "p4_079", get options() { return payerSize(); }, label: "Zgłosiłeś do ubezpieczenia chorobowego", required: true }] },
     { id: "contracts", title: "Inne umowy z pracownikiem", fields: [
       { id: "p5_271", no: "p5_272", label: "5. Czy z pracownikiem jest zawarta umowa zlecenia, agencyjna, o dzieło lub inna, albo przysługuje mu składnik wynagrodzenia przyznany do określonego terminu?" },
       { id: "p5_273", label: "Jeśli TAK - data, do której zawarto umowę (lub przysługuje składnik), i kwoty za poszczególne miesiące", required: is("p5_271", "TAK") },
@@ -314,7 +315,7 @@ export const FORM_SPECS: Record<FormCode, SpecSection[]> = {
       ...paid("p4_079", "p4_080", "p4_081", "3. Czy wypłaciłeś uposażenie / stypendium / inne świadczenie za okresy niezdolności do pracy?"),
     ] },
     { id: "payerSize", title: "Liczba ubezpieczonych zgłoszonych do ubezpieczenia chorobowego",
-      fields: [{ id: "p4_082", no: "p4_083", options: PAYER_SIZE, label: "Zgłosiłeś do ubezpieczenia chorobowego", required: true }] },
+      fields: [{ id: "p4_082", no: "p4_083", get options() { return payerSize(); }, label: "Zgłosiłeś do ubezpieczenia chorobowego", required: true }] },
     { id: "sign", title: "Oświadczenie płatnika", fields: [
       { id: "p5_144", label: "Uwagi" },
       { id: "p5_145", label: "Data", hint: SIGN_HINT, required: true },

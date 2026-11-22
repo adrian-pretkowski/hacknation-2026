@@ -8,6 +8,7 @@ import { formatDate, formatMoney } from "@/lib/format";
 import { RuleList, RuleText } from "../RuleList";
 import { type PreviewResult, compareTotals, negligible, previewEvaluate } from "../preview/engine";
 import { daysBetween } from "../preview/exact";
+import { useParamsVersion } from "../preview/liveParams";
 import type { Answers, Variant } from "./answers";
 import {
   DEADLINE_LABEL, DOC_LABEL, FIELD_QUESTION, FIELD_STEP, LEAVE_LABEL, PARENT_LABEL, PAYER_LABEL,
@@ -28,8 +29,12 @@ export function Results({ answers, onEdit, canEdit = () => true, onOpenForm }: {
 }) {
   const reqA = useMemo(() => toEvaluateRequest(answers, "COMBINED_815"), [answers]);
   const reqB = useMemo(() => toEvaluateRequest(answers, "FULL_100_70"), [answers]);
-  const pA = useMemo(() => previewEvaluate(reqA), [reqA]);
-  const pB = useMemo(() => previewEvaluate(reqB), [reqB]);
+  // FE1-37: nowe parametry z panelu admina (paramsVersion) przeliczają podgląd bez utraty odpowiedzi
+  const paramsVersion = useParamsVersion();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- previewEvaluate czyta PARAMS
+  const pA = useMemo(() => previewEvaluate(reqA), [reqA, paramsVersion]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- previewEvaluate czyta PARAMS
+  const pB = useMemo(() => previewEvaluate(reqB), [reqB, paramsVersion]);
   const cmp = compareTotals(pA.summary.ownTotal, pB.summary.ownTotal);
   const recommended: Variant = cmp?.better === "A" ? "COMBINED_815" : "FULL_100_70";
   // wariant z planera (krok „Optymalizacja”), jeśli użytkownik przeniósł plan do kreatora

@@ -87,7 +87,12 @@ export function AdminParameters() {
               <div><dt className="text-zinc-600">Wersja parametrów</dt><dd className="font-medium">{data.parameters_version}</dd></div>
               <div><dt className="text-zinc-600">Nadpisane</dt><dd className="font-medium">{data.parameters.filter((p) => p.overridden).length} z {data.parameters.length}</dd></div>
             </dl>
-            {saved && <p role="status" className="mt-3 text-sm text-zus-green-dark">{saved}</p>}
+            {saved && (
+              <p role="status" className="mt-3 text-sm text-zus-green-dark">{saved}{" "}
+                {/* FE1-37: kreator pobiera parametry przy starcie i po powrocie do karty - zmiana widoczna od razu */}
+                <a href="/" target="_blank" rel="noopener" className="font-medium text-zus-navy underline underline-offset-2">Sprawdź w kreatorze (nowa karta)</a>
+              </p>
+            )}
           </section>
 
           <DemoCheck version={data.parameters_version} />
@@ -231,7 +236,7 @@ function DemoCheck({ version }: { version: number }) {
       {b && (
         <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-4">
           <div><dt className="text-zinc-600">Status</dt><dd className="font-medium">{STATUS_HEADLINE[b.status] ?? b.status}</dd></div>
-          <div><dt className="text-zinc-600">Stawka</dt><dd className="font-medium">{b.rate ? `${(Number(b.rate) * 100).toLocaleString("pl-PL")}%` : "-"}</dd></div>
+          <div><dt className="text-zinc-600">Stawka</dt><dd className="font-medium">{b.rate ? formatParamValue(b.rate, "ratio") : "-"}</dd></div>
           <div><dt className="text-zinc-600">Dziennie</dt><dd className="font-medium">{formatMoney(b.daily_amount_exact)}</dd></div>
           <div><dt className="text-zinc-600">Łącznie ({b.days ?? 0} dni)</dt><dd className="font-medium">{formatMoney(b.total_amount_exact)}</dd></div>
         </dl>
@@ -240,7 +245,7 @@ function DemoCheck({ version }: { version: number }) {
         <details className="mt-3 text-sm">
           <summary className="cursor-pointer font-medium text-zus-navy">Pokaż, jak to policzyliśmy</summary>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Podstawa {formatMoney(b.base?.amount_exact ?? null)} × stawka {b.rate ? `${(Number(b.rate) * 100).toLocaleString("pl-PL")}%` : "-"} / {PARAMS.MONTH_AS_DAYS}
+            <li>Podstawa {formatMoney(b.base?.amount_exact ?? null)} × stawka {b.rate ? formatParamValue(b.rate, "ratio") : "-"} / {PARAMS.MONTH_AS_DAYS}
               = {formatMoney(b.daily_amount_exact)} dziennie; × {b.days ?? 0} dni = {formatMoney(b.total_amount_exact)}.</li>
             {b.explanation && <li className="whitespace-pre-line">{b.explanation}</li>}
             <li>Przepisy:{b.applied_rules.length > 0 ? <RuleList ids={b.applied_rules} /> : " -"}</li>
